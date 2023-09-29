@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" class="bg-base-darker">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://pages.nist.gov/nist-header-footer/css/nist-combined.css"/>
+</head>
+<body class="shadow-5 radius-lg margin-8">
+<script>
+    function createElementLoader(url, id, elementName) {
+        return () => {
+            fetch(url).then(result => result.text())
+                .then(result => new DOMParser().parseFromString(result, "text/html"))
+                .then(element => document.getElementById(id).append(element.querySelector(elementName)))
+        }
+    }
+</script>
+
+<!--NIST header-->
+<div id="nist-header" class="radius-top-md overflow-hidden bg-gray-90">
+    <style>
+        #nist-header > .nist-header {
+            background: #333333
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", createElementLoader(
+            "https://pages.nist.gov/nist-header-footer/boilerplate-header.html",
+            "nist-header",
+            "header"
+        ))
+    </script>
+</div>
+
+<!--Main Content-->
+Hello, World!
+<a href="/application">Application</a>
+
+<!--NIST footer-->
+<div id="nist-footer" class="radius-bottom-md overflow-hidden">
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html")
+                .then(result => result.text())
+                .then(result => new DOMParser().parseFromString(result, "text/html"))
+                .then(element => document.getElementById("nist-footer").append(element.querySelector("footer")))
+        })
+    </script>
+</div>
+
+<!--Prefetch script-->
+<script>
+    const list = document.getElementsByTagName("a");
+    for (let i = 0; i < list.length; i++) {
+        const anchor = list.item(i);
+        const href = anchor.href;
+
+        console.log(anchor);
+
+        anchor.addEventListener('mouseover', _ => {
+            if(anchor.onclick)
+                return;
+
+            fetch(href)
+                .then(response => response.text())
+                .then(html => {
+                    console.log(`Prefetched ${href}`);
+                    anchor.addEventListener("click", e => {
+                        e.preventDefault();
+                        history.pushState({"html": html}, "", href);
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    })
+                });
+        });
+    }
+
+    window.addEventListener("popstate", (e) => {
+        console.log("popstate");
+
+        if (e.state) {
+            document.open();
+            document.write(e.state["html"]);
+            document.close();
+        }
+    });
+</script>
+</body>
+</html>
