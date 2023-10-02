@@ -17,7 +17,7 @@ export default function ResultsAppBar() {
 
     useSubscribe(backClick$, () => navigate(-1), [navigate]);
 
-    return <AppBar>
+    return <AppBar className={"bg-primary"}>
         <ButtonBar className={"p-2"}>
             <BackButton type={ButtonType.PRIMARY} icon={mdiArrowLeft} iconSide={"left"}>
                 Back to Editor

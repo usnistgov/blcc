@@ -23,7 +23,7 @@ export default function EditorAppBar() {
 
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
 
-    return <AppBar>
+    return <AppBar className={"bg-primary"}>
         <ButtonBar className={"p-2"}>
             <NewButton type={ButtonType.PRIMARY} icon={mdiFileDocumentPlus}>
                 New
