@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<Project>
+  <Name>Project #342 Renovate or Replace AC System</Name>
+  <Comment>Provide efficient air conditioning for family housing office at Dahlgren, VA, Naval Station. Keep existing system, install DX Split System or provide connection to
+central chilled water plant at site.</Comment>
+  <Location>Virginia</Location>
+  <Analyst>JGG</Analyst>
+  <AnalysisType>2</AnalysisType>
+  <AnalysisPurpose>2</AnalysisPurpose>
+  <BaseDate>April 1, 2022</BaseDate>
+  <PCPeriod>1 year 0 months</PCPeriod>
+  <Duration>21 years 0 months</Duration>
+  <DiscountingMethod>2</DiscountingMethod>
+  <DiscountRate>0.03</DiscountRate>
+  <Alternatives>
+    <Alternative>
+      <Name>Keep Existing System</Name>
+      <Comment>Functional for 20 years with current 
+maintenance and repair schedule</Comment>
+      <CapitalComponents>
+        <CapitalComponent>
+          <Name>Window Air Conditioners</Name>
+          <Duration>20 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleEscalation>
+            <SimpleEscalation>
+            </SimpleEscalation>
+          </ResaleEscalation>
+          <RecurringCosts>
+            <RecurringCost>
+              <Name>Routine OM&amp;R</Name>
+              <Duration>Remaining</Duration>
+              <Amount>2800.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                  <Rate>0.02</Rate>
+                </SimpleEscalation>
+              </Escalation>
+              <Index>
+                <UsageIndex>
+                  <Intervals>Remaining
+                  </Intervals>
+                  <Values>1.0
+                  </Values>
+                </UsageIndex>
+              </Index>
+            </RecurringCost>
+          </RecurringCosts>
+          <NonRecurringCosts>
+            <NonRecurringCost>
+              <Name>Repair1</Name>
+              <Start>6 years 0 months</Start>
+              <Amount>9000.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Repair2</Name>
+              <Start>12 years 0 months</Start>
+              <Amount>11000.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Repair3</Name>
+              <Start>18 years 0 months</Start>
+              <Amount>12000.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+          </NonRecurringCosts>
+        </CapitalComponent>
+      </CapitalComponents>
+      <EnergyUsages>
+        <EnergyUsage>
+          <FuelType>Electricity</FuelType>
+          <Name>Electricity</Name>
+          <Duration>Remaining</Duration>
+          <YearlyUsage>330500.0</YearlyUsage>
+          <Units>kWh</Units>
+          <UnitCost>0.08711</UnitCost>
+          <UsageIndex>
+            <UsageIndex>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>1.0
+              </Values>
+            </UsageIndex>
+          </UsageIndex>
+          <State>Virginia</State>
+          <RateSchedule>Industrial</RateSchedule>
+          <Emissions>Virginia</Emissions>
+        </EnergyUsage>
+      </EnergyUsages>
+    </Alternative>
+    <Alternative>
+      <Name>Install DX Split System</Name>
+      <Comment>Install split-system central AC unit, with 
+new air distribution system</Comment>
+      <CapitalComponents>
+        <CapitalComponent>
+          <Name>Central Air Conditioning Unit</Name>
+          <InitialCost>170000.0</InitialCost>
+          <Duration>20 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleEscalation>
+            <SimpleEscalation>
+            </SimpleEscalation>
+          </ResaleEscalation>
+          <RecurringCosts>
+            <RecurringCost>
+              <Name>Routine OM&amp;R</Name>
+              <Duration>Remaining</Duration>
+              <Amount>530.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                  <Rate>0.02</Rate>
+                </SimpleEscalation>
+              </Escalation>
+              <Index>
+                <UsageIndex>
+                  <Intervals>Remaining
+                  </Intervals>
+                  <Values>1.0
+                  </Values>
+                </UsageIndex>
+              </Index>
+            </RecurringCost>
+          </RecurringCosts>
+          <NonRecurringCosts>
+            <NonRecurringCost>
+              <Name>Scheduled Repair1</Name>
+              <Start>5 years 0 months</Start>
+              <Amount>1500.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Scheduled Repair2</Name>
+              <Start>10 years 0 months</Start>
+              <Amount>1500.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Scheduled Repair3</Name>
+              <Start>15 years 0 months</Start>
+              <Amount>1500.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Compressor Replacement</Name>
+              <Start>12 years 0 months</Start>
+              <Amount>20000.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+          </NonRecurringCosts>
+        </CapitalComponent>
+      </CapitalComponents>
+      <EnergyUsages>
+        <EnergyUsage>
+          <FuelType>Electricity</FuelType>
+          <Name>Electricity</Name>
+          <Duration>Remaining</Duration>
+          <YearlyUsage>115200.0</YearlyUsage>
+          <Units>kWh</Units>
+          <UnitCost>0.08711</UnitCost>
+          <UsageIndex>
+            <UsageIndex>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>1.0
+              </Values>
+            </UsageIndex>
+          </UsageIndex>
+          <State>Virginia</State>
+          <RateSchedule>Industrial</RateSchedule>
+          <Emissions>Virginia</Emissions>
+        </EnergyUsage>
+      </EnergyUsages>
+    </Alternative>
+    <Alternative>
+      <Name>Central Plant Connection</Name>
+      <Comment>Install piping network and new air 
+distribution system.</Comment>
+      <CapitalComponents>
+        <CapitalComponent>
+          <InitialCost>265000.0</InitialCost>
+          <Duration>20 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleEscalation>
+            <SimpleEscalation>
+            </SimpleEscalation>
+          </ResaleEscalation>
+          <RecurringCosts>
+            <RecurringCost>
+              <Name>OM&amp;R</Name>
+              <Duration>Remaining</Duration>
+              <Amount>126.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+              <Index>
+                <UsageIndex>
+                  <Intervals>Remaining
+                  </Intervals>
+                  <Values>1.0
+                  </Values>
+                </UsageIndex>
+              </Index>
+            </RecurringCost>
+          </RecurringCosts>
+          <NonRecurringCosts>
+            <NonRecurringCost>
+              <Name>Scheduled Repair1</Name>
+              <Start>5 years 0 months</Start>
+              <Amount>950.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Scheduled Repair2</Name>
+              <Start>10 years 0 months</Start>
+              <Amount>950.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+            <NonRecurringCost>
+              <Name>Scheduled Repair3</Name>
+              <Start>15 years 0 months</Start>
+              <Amount>950.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+            </NonRecurringCost>
+          </NonRecurringCosts>
+        </CapitalComponent>
+      </CapitalComponents>
+      <EnergyUsages>
+        <EnergyUsage>
+          <FuelType>Electricity</FuelType>
+          <Name>Electricity</Name>
+          <Duration>Remaining</Duration>
+          <YearlyUsage>105000.0</YearlyUsage>
+          <Units>kWh</Units>
+          <UnitCost>0.08711</UnitCost>
+          <UsageIndex>
+            <UsageIndex>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>1.0
+              </Values>
+            </UsageIndex>
+          </UsageIndex>
+          <State>Virginia</State>
+          <RateSchedule>Industrial</RateSchedule>
+          <Emissions>Virginia</Emissions>
+        </EnergyUsage>
+      </EnergyUsages>
+    </Alternative>
+  </Alternatives>
+</Project>
