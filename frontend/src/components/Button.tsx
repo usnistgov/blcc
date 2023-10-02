@@ -1,10 +1,30 @@
 import {Observable} from "rxjs";
 import React, {PropsWithChildren} from "react";
 import {createSignal} from "@react-rxjs/utils";
+import Icon from "@mdi/react";
+
+export enum ButtonType {
+    PRIMARY = " bg-primary hover:bg-primary-light active:bg-primary-dark ",
+    CANCEL = " bg-cancel ",
+    ACCEPT = " bg-accept "
+}
+
+export type ButtonProps = {
+    className?: string;
+    type: ButtonType;
+    inverted?: boolean;
+    textOnly?: boolean;
+    icon?: string;
+    iconSide?: "left" | "right";
+}
 
 export type Button = {
     click$: Observable<void>;
-    component: (props: PropsWithChildren) => React.JSX.Element;
+    component: (props: PropsWithChildren & ButtonProps) => React.JSX.Element;
+}
+
+function getColor() {
+
 }
 
 /**
@@ -15,10 +35,18 @@ export default function button(): Button {
 
     return {
         click$: click$,
-        component: ({children}: PropsWithChildren) => {
+        component: ({children, className, inverted, type, textOnly, icon, iconSide = "right"}: PropsWithChildren & ButtonProps) => {
             //TODO: Add styling
-            return <button className={""} onClick={click}>
-                {children}
+            const background = inverted ? "bg-white" : type;
+            const textColor = inverted ? "text-primary" : "text-white";
+
+            return <button className={(className ? className : "") + ` ${background} ${textColor} py-1 px-2 rounded`}
+                           onClick={click}>
+                <span className={"flex flex-row place-items-center"}>
+                    {icon && iconSide === "left" && <Icon className={"mr-1"} path={icon} size={0.8}/>}
+                    {children}
+                    {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8}/>}
+                </span>
             </button>
         }
     }
