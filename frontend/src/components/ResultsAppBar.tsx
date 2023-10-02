@@ -26,7 +26,7 @@ export default function ResultsAppBar() {
         <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
             <p className={"text-white"}>{projectName}</p>
             <div className={"pl-4"}>
-                <RunButton type={ButtonType.PRIMARY} inverted icon={mdiPlay}>
+                <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
                     Run
                 </RunButton>
             </div>
