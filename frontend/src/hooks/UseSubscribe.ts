@@ -7,10 +7,11 @@ import {Observable} from "rxjs";
  *
  * @param stream$ The stream to subscribe the action to.
  * @param action The action that consumes the stream value.
+ * @param deps The dependencies for the internal useEffect. Defaults to [].
  */
-export function useSubscribe<T>(stream$: Observable<T>, action: (value: T) => void) {
+export function useSubscribe<T>(stream$: Observable<T>, action: (value: T) => void, deps: any[] = []) {
     useEffect(() => {
         const subscription = stream$.subscribe(action);
         return () => subscription.unsubscribe();
-    }, []);
+    }, deps);
 }
