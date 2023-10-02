@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<Project>
+  <Name>Lighting/Daylighting</Name>
+  <Comment>Replace existing lighting system with 
+new system financed through a utility 
+contract.</Comment>
+  <Location>Arizona</Location>
+  <Analyst>Derek Filben</Analyst>
+  <AnalysisType>1</AnalysisType>
+  <AnalysisPurpose>2</AnalysisPurpose>
+  <DollarMethod>1</DollarMethod>
+  <BaseDate>April 1, 2022</BaseDate>
+  <PCPeriod>0 years 0 months</PCPeriod>
+  <Duration>15 years 0 months</Duration>
+  <DiscountingMethod>1</DiscountingMethod>
+  <DiscountRate>0.03</DiscountRate>
+  <Alternatives>
+    <Alternative>
+      <Name>Existing</Name>
+      <Comment>Base Case: Keep existing system for
+remaining 15 years of its useful life. </Comment>
+      <CapitalComponents>
+        <CapitalComponent>
+          <Name>Existing System</Name>
+          <Comment>Keep existing system for the remaining
+15 years of its useful life.</Comment>
+          <Duration>15 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleEscalation>
+            <SimpleEscalation>
+            </SimpleEscalation>
+          </ResaleEscalation>
+          <RecurringCosts>
+            <RecurringCost>
+              <Name>cost</Name>
+              <Duration>Remaining</Duration>
+              <Amount>5600.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+              <Index>
+                <UsageIndex>
+                  <Intervals>Remaining
+                  </Intervals>
+                  <Values>1.0
+                  </Values>
+                </UsageIndex>
+              </Index>
+            </RecurringCost>
+          </RecurringCosts>
+        </CapitalComponent>
+      </CapitalComponents>
+      <EnergyUsages>
+        <EnergyUsage>
+          <FuelType>Electricity</FuelType>
+          <Name>Electricity</Name>
+          <Duration>Remaining</Duration>
+          <YearlyUsage>1082633.0</YearlyUsage>
+          <Units>kWh</Units>
+          <UnitCost>0.046</UnitCost>
+          <DemandCharge>30105.0</DemandCharge>
+          <UsageIndex>
+            <UsageIndex>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>1.0
+              </Values>
+            </UsageIndex>
+          </UsageIndex>
+          <State>Arizona</State>
+          <RateSchedule>Commercial</RateSchedule>
+          <Emissions>Arizona</Emissions>
+        </EnergyUsage>
+      </EnergyUsages>
+    </Alternative>
+    <Alternative>
+      <Name>Lighting Retrofit</Name>
+      <CapitalComponents>
+        <CapitalComponent>
+          <Name>New System</Name>
+          <Comment>Install new lighting/daylighting system
+financed through UC contract</Comment>
+          <AmountFinanced>390480.0</AmountFinanced>
+          <Duration>20 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleValueFactor>0.25</ResaleValueFactor>
+          <ResaleEscalation>
+            <SimpleEscalation>
+            </SimpleEscalation>
+          </ResaleEscalation>
+          <RecurringCosts>
+            <RecurringCost>
+              <Name>Post-Contract OM Costs</Name>
+              <Duration>Remaining</Duration>
+              <Amount>3000.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                </SimpleEscalation>
+              </Escalation>
+              <Index>
+                <UsageIndex>
+                  <Intervals>10 years 0 months,Remaining
+                  </Intervals>
+                  <Values>0.0,1.0
+                  </Values>
+                </UsageIndex>
+              </Index>
+            </RecurringCost>
+          </RecurringCosts>
+        </CapitalComponent>
+      </CapitalComponents>
+      <EnergyUsages>
+        <EnergyUsage>
+          <FuelType>Electricity</FuelType>
+          <Name>Electricity</Name>
+          <Duration>Remaining</Duration>
+          <YearlyUsage>206911.0</YearlyUsage>
+          <Units>kWh</Units>
+          <UnitCost>0.046</UnitCost>
+          <DemandCharge>3311.0</DemandCharge>
+          <UsageIndex>
+            <UsageIndex>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>1.0
+              </Values>
+            </UsageIndex>
+          </UsageIndex>
+          <State>Arizona</State>
+          <RateSchedule>Commercial</RateSchedule>
+          <Emissions>Arizona</Emissions>
+        </EnergyUsage>
+      </EnergyUsages>
+      <RecurringContractCosts>
+        <RecurringContractCost>
+          <Name>Annual Contract Payment</Name>
+          <Duration>Remaining</Duration>
+          <Amount>67000.0</Amount>
+          <Escalation>
+            <VaryingEscalation>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>-9.990009990008542E-4
+              </Values>
+            </VaryingEscalation>
+          </Escalation>
+          <Index>
+            <UsageIndex>
+              <Intervals>10 years 0 months,Remaining
+              </Intervals>
+              <Values>1.0,0.0
+              </Values>
+            </UsageIndex>
+          </Index>
+        </RecurringContractCost>
+      </RecurringContractCosts>
+    </Alternative>
+  </Alternatives>
+</Project>
