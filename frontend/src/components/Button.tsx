@@ -1,6 +1,6 @@
-import {Observable} from "rxjs";
-import React, {PropsWithChildren} from "react";
-import {createSignal} from "@react-rxjs/utils";
+import { Observable } from "rxjs";
+import React, { PropsWithChildren } from "react";
+import { createSignal } from "@react-rxjs/utils";
 import Icon from "@mdi/react";
 
 export enum ButtonType {
@@ -17,12 +17,12 @@ export type ButtonProps = {
     icon?: string;
     disabled?: boolean;
     iconSide?: "left" | "right";
-}
+};
 
 export type Button = {
     click$: Observable<void>;
     component: (props: PropsWithChildren & ButtonProps) => React.JSX.Element;
-}
+};
 
 /**
  * Creates a button component and its associated click stream.
@@ -33,22 +33,28 @@ export default function button(): Button {
     return {
         click$: click$,
         component: ({
-                        children,
-                        className,
-                        type,
-                        icon,
-                        disabled = false,
-                        iconSide = "right",
-                    }: PropsWithChildren & ButtonProps) => {
-            return <button className={(className ? className : "") + ` ${disabled ? ButtonType.DISABLED : type} py-1 px-2 rounded`}
-                           onClick={click}
-                           disabled={disabled}>
-                <span className={"flex flex-row place-items-center"}>
-                    {icon && iconSide === "left" && <Icon className={"mr-1"} path={icon} size={0.8}/>}
-                    {children}
-                    {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8}/>}
-                </span>
-            </button>
+            children,
+            className,
+            type,
+            icon,
+            disabled = false,
+            iconSide = "right"
+        }: PropsWithChildren & ButtonProps) => {
+            return (
+                <button
+                    className={
+                        (className ? className : "") + ` ${disabled ? ButtonType.DISABLED : type} py-1 px-2 rounded`
+                    }
+                    onClick={click}
+                    disabled={disabled}
+                >
+                    <span className={"flex flex-row place-items-center"}>
+                        {icon && iconSide === "left" && <Icon className={"mr-1"} path={icon} size={0.8} />}
+                        {children}
+                        {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8} />}
+                    </span>
+                </button>
+            );
         }
-    }
+    };
 }
