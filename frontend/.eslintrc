@@ -1,0 +1,12 @@
+{
+    "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+    "plugins": ["@typescript-eslint", "prettier"],
+    "parser": "@typescript-eslint/parser",
+    "rules": {
+        "no-console": 1,
+        "no-var": 2,
+        "no-duplicate-imports": 2,
+        "prefer-const": 1,
+        "prettier/prettier": 2
+    }
+}
