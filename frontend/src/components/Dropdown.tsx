@@ -6,7 +6,6 @@ import { Select } from "antd";
 export type DropdownProps = {
     className?: string;
     options: (number | string)[];
-    // type?: ButtonType;
     disabled?: boolean;
     placeholder?: string;
     showSearch?: boolean;
@@ -28,7 +27,7 @@ const onSearch = (value: string) => {
 };
 
 /**
- * Creates a button component and its associated click stream.
+ * Creates a dropdown component and its associated change stream.
  */
 export default function dropdown(): Dropdown {
     const [change$, change] = createSignal<string>();
