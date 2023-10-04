@@ -20,7 +20,7 @@ export type TextInputProps = {
 
 export type TextInput = {
     onChange$: Observable<string>;
-    component: (props: PropsWithChildren & TextInputProps) => React.JSX.Element;
+    component: React.FC<PropsWithChildren & TextInputProps>;
 };
 
 export default function textInput(): TextInput {
@@ -39,7 +39,7 @@ export default function textInput(): TextInput {
             return (
                 <Input
                     className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type} w-44`}
-                    onChange={(event) => event.target.value}
+                    onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
                     bordered={bordered}
                     disabled={disabled}
