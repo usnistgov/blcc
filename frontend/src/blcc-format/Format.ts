@@ -1,4 +1,4 @@
-import {Version} from "./Verison";
+import { Version } from "./Verison";
 
 export type Project = {
     version: Version;
@@ -15,13 +15,14 @@ export type Project = {
     inflationRate?: number;
     location: Location;
     alternatives: Alternative[];
-    ghg: GHG
-}
+    costs: Cost[];
+    ghg: GHG;
+};
 
 export type GHG = {
     emissionsRateScenario?: EmissionsRateScenario;
     socialCostOfGhgScenario?: SocialCostOfGhgScenario;
-}
+};
 
 export enum EmissionsRateScenario {
     BASELINE = "2023 – EIA - Baseline Scenario",
@@ -42,16 +43,17 @@ export type USLocation = {
     state?: string;
     city?: string;
     zipcode?: string;
-}
+};
 
 export type NonUSLocation = {
     country?: string;
     stateProvince?: string;
     city?: string;
-}
+};
 
 export enum DiscountingMethod {
-    END_OF_YEAR, MID_YEAR
+    END_OF_YEAR,
+    MID_YEAR
 }
 
 export enum DollarMethod {
@@ -80,7 +82,7 @@ export type Alternative = {
     name: string;
     baseline?: boolean;
     costs: ID[];
-}
+};
 
 export enum CostTypes {
     CAPITAL,
@@ -95,21 +97,21 @@ export enum CostTypes {
 }
 
 export type Cost = (
-    CapitalCost |
-    EnergyCost |
-    WaterCost |
-    ReplacementCapitalCost |
-    OMRCost |
-    ImplementationContractCost |
-    RecurringContractCost |
-    OtherCost |
-    OtherNonMonetary
-    ) & {
+    | CapitalCost
+    | EnergyCost
+    | WaterCost
+    | ReplacementCapitalCost
+    | OMRCost
+    | ImplementationContractCost
+    | RecurringContractCost
+    | OtherCost
+    | OtherNonMonetary
+) & {
     id: ID;
     name: string;
-    description: string;
+    description?: string;
     location?: Location;
-}
+};
 
 export type CapitalCost = Type<CostTypes.CAPITAL> & {
     initialCost: number;
@@ -118,12 +120,12 @@ export type CapitalCost = Type<CostTypes.CAPITAL> & {
     costAdjustment: number;
     phaseIn: number;
     residualValue: ResidualValue;
-}
+};
 
 export type ResidualValue = {
     approach: DollarOrPercent;
     value: number;
-}
+};
 
 export enum DollarOrPercent {
     PERCENT = "Percent",
@@ -131,24 +133,26 @@ export enum DollarOrPercent {
 }
 
 export enum FuelType {
-    ELECTRICITY,
-    FUEL_OIL,
-    NATURAL_GAS,
-    PROPANE
+    ELECTRICITY = "Electricity",
+    DISTILLATE_OIL = "Distillate Fuel Oil (#1, #2)",
+    RESIDUAL_OIL = "Residual Fuel Oil (#4, #5, #6)",
+    NATURAL_GAS = "Natural Gas",
+    PROPANE = "Liquified Petroleum Gas / Propane",
+    OTHER = "Other (Coal, Steam, etc.)"
 }
 
 export type EnergyCost = Type<CostTypes.ENERGY> & {
     fuelType: FuelType;
-    customerSector: CustomerSector;
+    customerSector?: CustomerSector;
     location?: Location;
     costPerUnit: number;
     annualConsumption: number;
     unit: Unit;
-    demandCharge: number;
-    rebate: number;
+    demandCharge?: number;
+    rebate?: number;
     escalation: number | number[];
     useIndex: number | number[];
-}
+};
 
 export enum CustomerSector {
     COMMERCIAL = "Commercial",
@@ -158,7 +162,7 @@ export enum CustomerSector {
 export type Unit = ElectricityUnit | NaturalGasUnit | FuelOilUnit | LiquifiedPetroleumGasUnit | CoalUnit;
 
 export enum EnergyUnit {
-    KWH = "KWh",
+    KWH = "kWh",
     THERM = "Therm",
     MBTU = "MBtu",
     MJ = "Mj",
@@ -176,13 +180,13 @@ export enum LiquidUnit {
 }
 
 export enum WeightUnit {
-    KG = "Kg",
+    KG = "kg",
     POUND = "Pound",
     TON = "Ton"
 }
 
 export type ElectricityUnit = EnergyUnit;
-export type NaturalGasUnit = EnergyUnit | CubicUnit
+export type NaturalGasUnit = EnergyUnit | CubicUnit;
 export type FuelOilUnit = EnergyUnit | LiquidUnit;
 export type LiquifiedPetroleumGasUnit = EnergyUnit | CubicUnit | LiquidUnit;
 export type CoalUnit = EnergyUnit | WeightUnit;
@@ -193,18 +197,19 @@ export type WaterCost = Type<CostTypes.WATER> & {
     disposal: SeasonUsage[];
     escalation: number | number[];
     useIndex: number | number[];
-}
+};
 
 export type SeasonUsage = {
     season: Season;
+    amount: number;
     costPerUnit: number;
-}
+};
 
 export enum Season {
     SPRING = "Spring",
     SUMMER = "Summer",
     AUTUMN = "Autumn",
-    WINTER = "Winter",
+    WINTER = "Winter"
 }
 
 export enum WaterUnit {
@@ -221,26 +226,26 @@ export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> & {
     annualRateOfChange: number;
     expectedLife: number;
     residualValue: ResidualValue;
-}
+};
 
 export type OMRCost = Type<CostTypes.OMR> & {
     initialCost: number;
     initialOccurrence: number;
     annualRateOfChange: number;
     rateOfRecurrence?: number;
-}
+};
 
 export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT> & {
     occurrence: number;
     cost: number;
-}
+};
 
 export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> & {
     initialCost: number;
     initialOccurrence: number;
     annualRateOfChange: number;
     rateOfRecurrence?: number;
-}
+};
 
 export type OtherCost = Type<CostTypes.OTHER> & {
     costOrBenefit: CostBenefit;
@@ -252,7 +257,7 @@ export type OtherCost = Type<CostTypes.OTHER> & {
     recurring: boolean;
     rateOfChangeValue: number | number[];
     rateOfChangeUnits: number | number[];
-}
+};
 
 export enum CostBenefit {
     COST = "Cost",
@@ -268,8 +273,8 @@ export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> & {
     rateOfRecurrence: number;
     rateOfChangeValue: number | number[];
     rateOfChangeUnit: number | number[];
-}
+};
 
 export type Type<T> = {
     type: T;
-}
+};
