@@ -13,7 +13,7 @@ export type DropdownProps = {
 
 export type Dropdown = {
     change$: Observable<string>;
-    component: (props: PropsWithChildren) => React.JSX.Element;
+    component: React.FC<PropsWithChildren & DropdownProps>;
 };
 
 const onSelect = (value: string) => {
@@ -33,7 +33,7 @@ export default function dropdown(): Dropdown {
     const [change$, change] = createSignal<string>();
 
     return {
-        change$: change$,
+        change$,
         component: ({
             children,
             className,
