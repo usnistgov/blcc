@@ -4,10 +4,10 @@ import { createSignal } from "@react-rxjs/utils";
 import { Input } from "antd";
 
 export enum TextInputType {
-    PRIMARY = "border-solid border-2 border-black hover:border-black active:border-black",
-    ERROR = "border-solid border-2 border-red-600 active:border-red-600 hover:border-red-600",
-    SUCCESS = "border-solid border-2 border-green-600 active:border-green-600 hover:border-green-600",
-    DISABLED = "bg-base-lighter text-base-light"
+    PRIMARY = " border-solid border-2 border-black hover:border-black active:border-black ",
+    ERROR = " border-solid border-2 border-red-600 active:border-red-600 hover:border-red-600 ",
+    SUCCESS = " border-solid border-2 border-green-600 active:border-green-600 hover:border-green-600 ",
+    DISABLED = " bg-base-lighter text-base-light "
 }
 
 export type TextInputProps = {
@@ -19,12 +19,12 @@ export type TextInputProps = {
 };
 
 export type TextInput = {
-    onChange$: Observable<void>;
+    onChange$: Observable<string>;
     component: (props: PropsWithChildren & TextInputProps) => React.JSX.Element;
 };
 
 export default function textInput(): TextInput {
-    const [onChange$, onChange] = createSignal();
+    const [onChange$, onChange] = createSignal<string>();
 
     return {
         onChange$,
@@ -39,7 +39,7 @@ export default function textInput(): TextInput {
             return (
                 <Input
                     className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type} w-44`}
-                    onChange={onChange}
+                    onChange={(event) => event.target.value}
                     placeholder={placeholder}
                     bordered={bordered}
                     disabled={disabled}
