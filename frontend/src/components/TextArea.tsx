@@ -15,7 +15,7 @@ const { TextArea } = Input;
 
 export type TextArea = {
     onChange$: Observable<string>;
-    component: (props: PropsWithChildren & TextAreaProps) => React.JSX.Element;
+    component: React.FC<PropsWithChildren & TextAreaProps>;
 };
 
 export default function textArea(): TextArea {
@@ -34,7 +34,7 @@ export default function textArea(): TextArea {
             return (
                 <TextArea
                     className={(className ?? "") + "w-44"}
-                    onChange={(event) => event.target.value}
+                    onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
                     bordered={bordered}
                     disabled={disabled}
