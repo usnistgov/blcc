@@ -12,28 +12,21 @@ export type DropdownProps = {
 };
 
 export type Dropdown = {
-    change$: Observable<string>;
+    change$: Observable<string | number>;
+    selectSearch$: Observable<string | number>;
     component: React.FC<PropsWithChildren & DropdownProps>;
-};
-
-const onSelect = (value: string) => {
-    console.log("select", value); // only for testing
-    return value;
-};
-
-const onSearch = (value: string) => {
-    console.log("searching", value); // only for testing
-    return value;
 };
 
 /**
  * Creates a dropdown component and its associated change stream.
  */
 export default function dropdown(): Dropdown {
-    const [change$, change] = createSignal<string>();
+    const [change$, change] = createSignal<string | number>();
+    const [selectSearch$, selectSearch] = createSignal<string | number>();
 
     return {
         change$,
+        selectSearch$,
         component: ({
             children,
             className,
@@ -49,8 +42,7 @@ export default function dropdown(): Dropdown {
                     disabled={disabled}
                     placeholder={placeholder}
                     showSearch={showSearch}
-                    onSelect={onSelect}
-                    onSearch={onSearch}
+                    onSearch={selectSearch}
                 >
                     {children}
                     {options?.map((option) => (
