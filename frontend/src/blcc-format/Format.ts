@@ -80,6 +80,7 @@ export type ID = number;
 export type Alternative = {
     id: ID;
     name: string;
+    description?: string;
     baseline?: boolean;
     costs: ID[];
 };
@@ -137,7 +138,7 @@ export enum FuelType {
     DISTILLATE_OIL = "Distillate Fuel Oil (#1, #2)",
     RESIDUAL_OIL = "Residual Fuel Oil (#4, #5, #6)",
     NATURAL_GAS = "Natural Gas",
-    PROPANE = "Liquified Petroleum Gas / Propane",
+    PROPANE = "Liquefied Petroleum Gas / Propane",
     OTHER = "Other (Coal, Steam, etc.)"
 }
 
@@ -159,7 +160,7 @@ export enum CustomerSector {
     INDUSTRIAL = "Industrial"
 }
 
-export type Unit = ElectricityUnit | NaturalGasUnit | FuelOilUnit | LiquifiedPetroleumGasUnit | CoalUnit;
+export type Unit = ElectricityUnit | NaturalGasUnit | FuelOilUnit | LiquefiedPetroleumGasUnit | CoalUnit;
 
 export enum EnergyUnit {
     KWH = "kWh",
@@ -176,7 +177,9 @@ export enum CubicUnit {
 
 export enum LiquidUnit {
     LITER = "Liter",
-    GALLON = "Gallon"
+    K_LITER = "1000 liters",
+    GALLON = "Gallon",
+    K_GALLON = "1000 gallons"
 }
 
 export enum WeightUnit {
@@ -188,7 +191,7 @@ export enum WeightUnit {
 export type ElectricityUnit = EnergyUnit;
 export type NaturalGasUnit = EnergyUnit | CubicUnit;
 export type FuelOilUnit = EnergyUnit | LiquidUnit;
-export type LiquifiedPetroleumGasUnit = EnergyUnit | CubicUnit | LiquidUnit;
+export type LiquefiedPetroleumGasUnit = EnergyUnit | CubicUnit | LiquidUnit;
 export type CoalUnit = EnergyUnit | WeightUnit;
 
 export type WaterCost = Type<CostTypes.WATER> & {
@@ -212,14 +215,7 @@ export enum Season {
     WINTER = "Winter"
 }
 
-export enum WaterUnit {
-    LITER = "Liter",
-    K_LITER = "1000 liters",
-    GALLON = "Gallon",
-    K_GALLON = "1000 gallons",
-    CUBIC_METERS = "Cubic meters",
-    CUBIC_FEET = "Cubic feet"
-}
+export type WaterUnit = LiquidUnit | CubicUnit;
 
 export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> & {
     initialCost: number;

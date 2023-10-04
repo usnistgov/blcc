@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { map, pipe } from "rxjs";
 import {
+    Alternative,
     AnalysisType,
     Cost,
     CubicUnit,
@@ -20,7 +21,7 @@ import {
 import { Version } from "./Verison";
 import objectHash from "object-hash";
 
-const yearRegex = /(?<years>\d+) years (?<months>\d+) months/;
+const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
 
 export function convert() {
@@ -31,7 +32,12 @@ export function convert() {
 
             const project = obj["Project"];
 
-            const costCache = hashCosts(project["Alternatives"]["Alternative"]);
+            const alternativeObjectOrArray = project["Alternatives"]["Alternative"];
+            const alternatives = Array.isArray(alternativeObjectOrArray)
+                ? alternativeObjectOrArray
+                : [alternativeObjectOrArray];
+
+            const [newAlternatives, costCache] = parseAlternativesAndHashCosts(alternatives);
 
             return {
                 version: Version.V1,
@@ -47,7 +53,8 @@ export function convert() {
                 nominalDiscountRate: undefined,
                 inflationRate: project["InflationRate"],
                 location: parseLocation(project["Location"]),
-                alternatives: [],
+                alternatives: newAlternatives,
+                costs: Array.from(costCache.values()).map(convertCost),
                 ghg: {
                     emissionsRateScenario: undefined,
                     socialCostOfGhgScenario: undefined
@@ -141,10 +148,10 @@ type CostComponent =
     | "RecurringContractCost"
     | "NonRecurringContractCost";
 
-function hashCosts(alternatives: any[]): Map<string, any> {
-    const cache = new Map<string, any>();
+function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map<string, any>] {
+    const costCache = new Map<string, any>();
 
-    for (const alternative of alternatives) {
+    const newAlternatives = alternatives.map((alternative, i) => {
         const costs = [
             ...extractCosts(alternative, "CapitalComponent"),
             ...extractCosts(alternative, "EnergyUsage"),
@@ -156,13 +163,22 @@ function hashCosts(alternatives: any[]): Map<string, any> {
         for (const cost of costs) {
             const hash = objectHash(cost);
 
-            if (!cache.has(hash)) cache.set(hash, cost);
+            if (!costCache.has(hash)) costCache.set(hash, cost);
         }
-    }
 
-    console.log(cache);
+        const costArray = Array.from(costs.values());
 
-    return cache;
+        return {
+            id: i,
+            name: alternative["Name"],
+            description: alternative["Comment"],
+            costs: costs.map(costArray.indexOf)
+        };
+    });
+
+    console.log(costCache);
+
+    return [newAlternatives, costCache];
 }
 
 function convertCosts(costCache: Map<string, any>): Cost[] {
@@ -180,11 +196,12 @@ function convertCosts(costCache: Map<string, any>): Cost[] {
     return result;
 }
 
-function convertCost(type: CostComponent, cost: any) {
-    switch (type) {
+function convertCost(cost: any) {
+    switch (cost.type) {
         case "CapitalComponent":
             return {
-                initialCost: cost["InitialCost"]
+                initialCost: cost["InitialCost"],
+                expectedLife: parseYears(cost["Duration"])
             };
         case "EnergyUsage":
             return {
@@ -246,8 +263,12 @@ function parseUnit(unit: string): Unit | undefined {
         // Volume
         case "Liter":
             return LiquidUnit.LITER;
+        case "1,000 Liter":
+            return LiquidUnit.K_LITER;
         case "Gallon":
             return LiquidUnit.GALLON;
+        case "1,000 Gallon":
+            return LiquidUnit.K_GALLON;
         case "Cubic Meters":
             return CubicUnit.CUBIC_METERS;
         case "Cubic Feet":
