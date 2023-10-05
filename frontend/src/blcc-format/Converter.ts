@@ -1,21 +1,34 @@
+/* eslint @typescript-eslint/no-explicit-any: 0 */
+
 import { XMLParser } from "fast-xml-parser";
-import { map, pipe } from "rxjs";
+import { map, Observable, pipe, UnaryFunction } from "rxjs";
 import {
     Alternative,
     AnalysisType,
+    CapitalCost,
     Cost,
+    CostTypes,
     CubicUnit,
+    CustomerSector,
     DiscountingMethod,
     DollarMethod,
+    DollarOrPercent,
+    EnergyCost,
     EnergyUnit,
     FuelType,
+    ImplementationContractCost,
     LiquidUnit,
+    OMRCost,
     Project,
     Purpose,
+    RecurringContractCost,
+    ReplacementCapitalCost,
+    ResidualValue,
     Season,
     SeasonUsage,
     Unit,
     USLocation,
+    WaterCost,
     WeightUnit
 } from "./Format";
 import { Version } from "./Verison";
@@ -24,7 +37,7 @@ import objectHash from "object-hash";
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
 
-export function convert() {
+export function convert(): UnaryFunction<Observable<string>, Observable<Project>> {
     return pipe(
         map((xml) => parser.parse(xml)),
         map((obj) => {
@@ -39,7 +52,12 @@ export function convert() {
 
             const [newAlternatives, costCache] = parseAlternativesAndHashCosts(alternatives);
 
-            return {
+            const studyPeriod = parseStudyPeriod(parseYears(project["Duration"]));
+
+            console.log("alternatives");
+            console.log(newAlternatives);
+
+            const result = {
                 version: Version.V1,
                 name: project["Name"],
                 description: project["Comment"],
@@ -47,29 +65,45 @@ export function convert() {
                 analysisType: convertAnalysisType(project["AnalysisType"]),
                 purpose: convertAnalysisPurpose(project["AnalysisPurpose"]),
                 dollarMethod: convertDollarMethod(project["DollarMethod"]),
-                studyPeriod: parseYears(project["Duration"]),
+                studyPeriod,
                 discountingMethod: convertDiscountMethod(project["DiscountingMethod"]),
                 realDiscountRate: project["DiscountRate"],
                 nominalDiscountRate: undefined,
                 inflationRate: project["InflationRate"],
                 location: parseLocation(project["Location"]),
                 alternatives: newAlternatives,
-                costs: Array.from(costCache.values()).map(convertCost),
+                costs: convertCosts(costCache, studyPeriod),
                 ghg: {
                     emissionsRateScenario: undefined,
                     socialCostOfGhgScenario: undefined
                 }
             } as Project;
+
+            console.log(result);
+
+            return result;
         })
     );
 }
 
-function parseYears(value: string) {
+function parseStudyPeriod(studyPeriod: DateDiff) {
+    switch (studyPeriod.type) {
+        case "Remaining":
+            return 0;
+        case "Year":
+            return studyPeriod.value;
+    }
+}
+
+type DateDiff = { type: "Remaining" } | { type: "Year"; value: number };
+
+function parseYears(value: string): DateDiff {
+    if (value === "Remaining") return { type: "Remaining" };
+
     const exec = yearRegex.exec(value);
+    if (exec !== null) return { type: "Year", value: parseInt(exec.groups?.["years"] ?? "0") };
 
-    if (exec !== null) return parseInt(exec.groups?.["years"] ?? "0");
-
-    return 0;
+    return { type: "Year", value: 0 };
 }
 
 function convertAnalysisType(old: number) {
@@ -146,19 +180,34 @@ type CostComponent =
     | "EnergyUsage"
     | "WaterUsage"
     | "RecurringContractCost"
-    | "NonRecurringContractCost";
+    | "NonRecurringContractCost"
+    | "CapitalReplacement"
+    | "RecurringCost"
+    | "NonRecurringCost";
 
 function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map<string, any>] {
     const costCache = new Map<string, any>();
 
     const newAlternatives = alternatives.map((alternative, i) => {
+        const capitalComponents = extractCosts(alternative, "CapitalComponent");
+
         const costs = [
-            ...extractCosts(alternative, "CapitalComponent"),
+            ...capitalComponents,
+            ...capitalComponents.flatMap((capitalComponent) => {
+                return [
+                    ...extractCosts(capitalComponent, "CapitalReplacement"),
+                    ...extractCosts(capitalComponent, "RecurringCost"),
+                    ...extractCosts(capitalComponent, "NonRecurringCost")
+                ];
+            }),
             ...extractCosts(alternative, "EnergyUsage"),
             ...extractCosts(alternative, "WaterUsage"),
             ...extractCosts(alternative, "RecurringContractCost"),
             ...extractCosts(alternative, "NonRecurringContractCost")
         ];
+
+        console.log("components");
+        console.log(costs);
 
         for (const cost of costs) {
             const hash = objectHash(cost);
@@ -166,13 +215,13 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
             if (!costCache.has(hash)) costCache.set(hash, cost);
         }
 
-        const costArray = Array.from(costs.values());
+        const costArray = Array.from(costCache.keys());
 
         return {
             id: i,
             name: alternative["Name"],
             description: alternative["Comment"],
-            costs: costs.map(costArray.indexOf)
+            costs: costs.map((cost) => objectHash(cost)).map((hash) => costArray.indexOf(hash))
         };
     });
 
@@ -181,51 +230,83 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
     return [newAlternatives, costCache];
 }
 
-function convertCosts(costCache: Map<string, any>): Cost[] {
-    const result: Cost[] = [];
-
-    Array.from(costCache.values()).map((oldCost, i) => {
+function convertCosts(costCache: Map<string, any>, studyPeriod: number): Cost[] {
+    return Array.from(costCache.values()).map((oldCost, i) => {
         return {
             id: i,
             name: oldCost["Name"],
             description: oldCost["Comment"] ?? undefined,
-            ...convertCost(oldCost["type"], oldCost)
+            ...convertCost(oldCost, studyPeriod)
         } as Cost;
     });
-
-    return result;
 }
 
-function convertCost(cost: any) {
-    switch (cost.type) {
-        case "CapitalComponent":
+function convertCost(cost: any, studyPeriod: number) {
+    const type: CostComponent = cost.type;
+    switch (type) {
+        case "NonRecurringCost":
             return {
-                initialCost: cost["InitialCost"],
-                expectedLife: parseYears(cost["Duration"])
-            };
-        case "EnergyUsage":
-            return {
-                fuelType: parseFuelType(cost["FuelType"]),
-                costPerUnit: cost["UnitCost"],
-                annualConsumption: cost["YearlyUsage"],
-                unit: parseUnit(cost["Unit"]),
-                demandCharge: cost["DemandCharge"]
-                //TODO escalation, useIndex
-            };
-        case "WaterUsage":
-            return {
-                unit: parseUnit(cost["Unit"]),
-                usage: parseSeasonalUsage(cost),
-                disposal: parseSeasonalDisposal(cost)
-                //TODO escalation, useIndex
-            };
-        case "RecurringContractCost":
+                type: CostTypes.REPLACEMENT_CAPITAL,
+                initialCost: cost["Amount"],
+                annualRateOfChange: parseEscalation(cost, studyPeriod)
+            } as ReplacementCapitalCost;
+        case "RecurringCost":
             return {
                 initialCost: cost["Amount"],
-                initialOccurrence: cost[""]
-            };
+                initialOccurrence: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value
+            } as OMRCost;
+        case "CapitalComponent":
+            return {
+                type: CostTypes.CAPITAL,
+                initialCost: cost["InitialCost"] as number,
+                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
+                costAdjustment: undefined,
+                phaseIn: parsePhaseIn(cost, studyPeriod),
+                residualValue: cost["ResaleValueFactor"]
+                    ? ({
+                          approach: DollarOrPercent.PERCENT,
+                          value: cost["ResaleValueFactor"] as number
+                      } as ResidualValue)
+                    : undefined
+            } as CapitalCost;
+        case "EnergyUsage":
+            return {
+                type: CostTypes.ENERGY,
+                fuelType: parseFuelType(cost["FuelType"]),
+                customerSector: cost["RateSchedule"] as CustomerSector,
+                location: parseLocation(cost["State"]),
+                costPerUnit: cost["UnitCost"] as number,
+                annualConsumption: cost["YearlyUsage"] as number,
+                unit: parseUnit(cost["Unit"]),
+                demandCharge: cost["DemandCharge"] as number,
+                rebate: cost["UtilityRebate"] as number,
+                escalation: parseEscalation(cost, studyPeriod),
+                useIndex: parseUseIndex(cost, studyPeriod)
+            } as EnergyCost;
+        case "WaterUsage":
+            return {
+                type: CostTypes.WATER,
+                unit: parseUnit(cost["Unit"]),
+                usage: parseSeasonalUsage(cost, "Usage"),
+                disposal: parseSeasonalUsage(cost, "Disposal"),
+                escalation: parseEscalation(cost, studyPeriod),
+                useIndex: parseEscalation(cost, studyPeriod)
+            } as WaterCost;
+        case "RecurringContractCost":
+            return {
+                type: CostTypes.RECURRING_CONTRACT,
+                initialCost: cost["Amount"],
+                initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
+                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                rateOfRecurrence: (parseYears(cost["Interval"]) as { type: "Year"; value: number }).value
+            } as RecurringContractCost;
         case "NonRecurringContractCost":
-            return {};
+            return {
+                type: CostTypes.IMPLEMENTATION_CONTRACT,
+                cost: cost["Amount"],
+                occurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value
+            } as ImplementationContractCost;
     }
 }
 
@@ -284,32 +365,116 @@ function parseUnit(unit: string): Unit | undefined {
     return undefined;
 }
 
-function parseSeasonalUsage(cost: any): SeasonUsage[] {
-    return [
-        {
-            season: Season.WINTER,
-            amount: cost["WinterYearlyUsage"],
-            costPerUnit: cost["WinterUsageUnitCost"]
-        },
-        {
-            season: Season.SUMMER,
-            amount: cost["SummerYearlyUsage"],
-            costPerUnit: cost["SummerUsageUnitCost"]
-        }
-    ];
+function parseSeason(cost: any, season: Season, category: string): SeasonUsage {
+    return {
+        season: season,
+        amount: cost[`${season}Yearly${category}`],
+        costPerUnit: cost[`${season}${category}UnitCost`]
+    };
 }
 
-function parseSeasonalDisposal(cost: any): SeasonUsage[] {
-    return [
-        {
-            season: Season.WINTER,
-            amount: cost["WinterYearlyDisposal"],
-            costPerUnit: cost["WinterDisposalUnitCost"]
-        },
-        {
-            season: Season.SUMMER,
-            amount: cost["SummerYearlyDisposal"],
-            costPerUnit: cost["SummerDisposalUnitCost"]
+function parseSeasonalUsage(cost: any, category: string): SeasonUsage[] {
+    return [parseSeason(cost, Season.WINTER, "Usage"), parseSeason(cost, Season.SUMMER, category)];
+}
+
+/**
+ * Converts a single number into an array or splits the portions by a comma.
+ *
+ * @param portion The portion value to parse that can be either a number of a comma separated list.
+ */
+function parsePortions(portion: any) {
+    if (typeof portion === "number") return [portion];
+
+    return portion.split(",").map((value: string) => parseFloat(value));
+}
+
+/**
+ * Parses the PhaseIn section of a cost.
+ *
+ * @param cost The cost to get the PhaseIn from.
+ * @param studyPeriod The length of the study period for the current project.
+ */
+function parsePhaseIn(cost: any, studyPeriod: number): number[] | undefined {
+    const result = Array<number>(studyPeriod).fill(0);
+    const phaseIn = cost["PhaseIn"]["PhaseIn"];
+
+    const portions = parsePortions(phaseIn["Portions"]);
+    const intervals = phaseIn["Intervals"].split(",").map((value: string) => parseYears(value));
+
+    // Convert portion intervals into year by year percentages
+    let stride = 0;
+    for (let i = 0; i < portions.length; i++) {
+        const portion = portions[i];
+        const interval = intervals[i];
+
+        for (let j = stride; j < stride + interval; j++) {
+            result[j] = portion / interval;
         }
-    ];
+
+        stride += interval;
+    }
+
+    // Return undefined if all the values are zero, otherwise return array.
+    if (result.find((value) => value !== 0) === undefined) return undefined;
+
+    return result;
+}
+
+function parseVarying(intervals: any, values: any, studyPeriod: number): number | number[] | undefined {
+    // If the only interval is remaining, use a constant index.
+    if (intervals === "Remaining") return values;
+
+    const result = Array<number>(studyPeriod).fill(0);
+    const portions = parsePortions(values);
+    const dateDiffs: DateDiff[] = intervals.split(",").map((value: string) => parseYears(value));
+
+    // Convert value intervals into year by year percentages
+    let stride = 0;
+    for (let i = 0; i < portions.length; i++) {
+        const portion = portions[i];
+        const interval = dateDiffs[i];
+
+        switch (interval.type) {
+            case "Year": {
+                for (let j = stride; j < stride + interval.value; j++) {
+                    result[j] = portion;
+                }
+                stride += interval.value;
+                break;
+            }
+            case "Remaining": {
+                for (let j = stride; j < result.length; j++) {
+                    result[j] = portion;
+                }
+                break;
+            }
+        }
+    }
+
+    // Return undefined if all the values are zero, otherwise return array.
+    if (result.find((value) => value !== 0) === undefined) return undefined;
+
+    return result;
+}
+
+function parseUseIndex(cost: any, studyPeriod: number): number | number[] | undefined {
+    const useIndex = cost["UsageIndex"]["UsageIndex"];
+    return parseVarying(useIndex["Intervals"], useIndex["Values"], studyPeriod);
+}
+
+function parseEscalation(cost: any, studyPeriod: number): number | number[] | undefined {
+    const escalation = cost["Escalation"];
+
+    if (!escalation) return undefined;
+
+    const type = Object.keys(escalation)[0];
+
+    switch (type) {
+        case "SimpleEscalation":
+            const value = parseFloat(escalation[type]["Rate"]);
+            return Number.isNaN(value) ? undefined : value;
+        case "VaryingEscalation":
+            const varying = escalation[type];
+            return parseVarying(varying["Intervals"], varying["Values"], studyPeriod);
+    }
 }

@@ -3,8 +3,8 @@ import { Version } from "./Verison";
 export type Project = {
     version: Version;
     name: string;
-    description: string;
-    analyst: string;
+    description?: string;
+    analyst?: string;
     analysisType: AnalysisType;
     purpose?: Purpose; // For use with OMB_NON_ENERGY
     dollarMethod: DollarMethod;
@@ -13,7 +13,7 @@ export type Project = {
     realDiscountRate?: number;
     nominalDiscountRate?: number;
     inflationRate?: number;
-    location: Location;
+    location?: Location;
     alternatives: Alternative[];
     costs: Cost[];
     ghg: GHG;
@@ -116,11 +116,11 @@ export type Cost = (
 
 export type CapitalCost = Type<CostTypes.CAPITAL> & {
     initialCost: number;
-    annualRateOfChange: number;
+    annualRateOfChange?: number | number[];
     expectedLife: number;
-    costAdjustment: number;
-    phaseIn: number;
-    residualValue: ResidualValue;
+    costAdjustment?: number;
+    phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
+    residualValue?: ResidualValue;
 };
 
 export type ResidualValue = {
@@ -129,8 +129,8 @@ export type ResidualValue = {
 };
 
 export enum DollarOrPercent {
-    PERCENT = "Percent",
-    DOLLAR = "Dollar"
+    PERCENT = "%",
+    DOLLAR = "$"
 }
 
 export enum FuelType {
@@ -151,11 +151,12 @@ export type EnergyCost = Type<CostTypes.ENERGY> & {
     unit: Unit;
     demandCharge?: number;
     rebate?: number;
-    escalation: number | number[];
-    useIndex: number | number[];
+    escalation?: number | number[];
+    useIndex?: number | number[];
 };
 
 export enum CustomerSector {
+    RESIDENTIAL = "Residential",
     COMMERCIAL = "Commercial",
     INDUSTRIAL = "Industrial"
 }
@@ -198,8 +199,8 @@ export type WaterCost = Type<CostTypes.WATER> & {
     unit: WaterUnit;
     usage: SeasonUsage[]; //Default to summer and winter, can only have one of each season
     disposal: SeasonUsage[];
-    escalation: number | number[];
-    useIndex: number | number[];
+    escalation?: number | number[];
+    useIndex?: number | number[];
 };
 
 export type SeasonUsage = {
@@ -219,9 +220,9 @@ export type WaterUnit = LiquidUnit | CubicUnit;
 
 export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> & {
     initialCost: number;
-    annualRateOfChange: number;
-    expectedLife: number;
-    residualValue: ResidualValue;
+    annualRateOfChange?: number | number[];
+    expectedLife?: number;
+    residualValue?: ResidualValue;
 };
 
 export type OMRCost = Type<CostTypes.OMR> & {
