@@ -1,17 +1,11 @@
 import React, { PropsWithChildren, ReactElement } from "react";
-import { Alert, Button } from "antd";
+import { Alert } from "antd";
 import Icon from "@mdi/react";
+import button, { ButtonType } from "./Button";
+import { mdiRefresh, mdiAlert } from "@mdi/js";
 
 export type AlertProps = {
-    banner?: boolean;
-    btnText?: string;
-    closable?: boolean;
-    description?: string;
-    icon?: string;
-    message?: string;
-    showIcon?: boolean;
     onClick?: Function;
-    type: "warning" | "success" | "info" | "error";
     action?: ReactElement;
 };
 
@@ -19,36 +13,29 @@ export type Alert = {
     component: React.FC<PropsWithChildren & AlertProps>;
 };
 
+const { component: Button } = button();
+
 export default function notification(): Alert {
     return {
         component: ({
-            closable = true,
-            banner = true,
-            description,
-            icon,
-            type,
-            message = `This is a ${type} notification`,
-            showIcon = true,
-            btnText = "ReRun",
             onClick = () => {
                 console.log("Clicked"); // keep this until we use this in pages
             },
             action = (
-                <Button size="small" type="text" onClick={onClick}>
-                    {btnText}
+                <Button type={ButtonType.PRIMARY_INVERTED} onClick={onClick} icon={mdiRefresh}>
+                    Re Run
                 </Button>
             )
         }: PropsWithChildren & AlertProps) => {
             return (
                 <Alert
-                    closable={closable}
-                    banner={banner}
-                    description={description}
-                    message={message}
-                    type={type}
-                    showIcon={showIcon}
+                    closable={true}
+                    banner={true}
+                    message={"Results are outdated! Run again to update result."}
+                    type={"error"}
+                    showIcon={true}
                     action={action}
-                    icon={icon ? <Icon className={"mr-1"} path={icon} size={0.8} /> : ""}
+                    icon={<Icon className={"mr-1"} path={mdiAlert} size={0.8} />}
                 />
             );
         }
