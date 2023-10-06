@@ -29,3 +29,28 @@ function createNewProject(): UnaryFunction<Observable<[string, AnalysisType]>, O
         })
     );
 }
+
+function newAlternative(): UnaryFunction<Observable<[Project, string]>, Observable<Project>> {
+    return pipe(
+        map(([project, name]) => {
+            project.alternatives.push({
+                id: 0,
+                name,
+                description: undefined,
+                baseline: undefined,
+                costs: []
+            });
+
+            return project;
+        })
+    );
+}
+
+export function setProjectNameOp(): UnaryFunction<Observable<[string, Project]>, Observable<Project>> {
+    return pipe(
+        map(([name, project]) => {
+            project.name = name;
+            return project;
+        })
+    );
+}
