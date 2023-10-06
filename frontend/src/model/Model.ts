@@ -1,14 +1,14 @@
-import {createSignal, mergeWithKey} from "@react-rxjs/utils";
-import {bind} from "@react-rxjs/core";
-import {imported$} from "../blcc-format/Import";
-import {map, scan, startWith, switchMap} from "rxjs";
+import { createSignal, mergeWithKey } from "@react-rxjs/utils";
+import { bind } from "@react-rxjs/core";
+import { imported$ } from "../blcc-format/Import";
+import { map, scan, startWith, switchMap } from "rxjs";
 
-const [projectName$, setProjectName] = createSignal<string>()
+const [projectName$, setProjectName] = createSignal<string>();
 
-const current$ = imported$.pipe(
-    switchMap(importedProject => {
+const project$ = imported$.pipe(
+    switchMap((importedProject) => {
         return mergeWithKey({
-            "name": projectName$
+            name: projectName$
         }).pipe(
             scan((project, event) => {
                 switch (event.type) {
@@ -18,17 +18,17 @@ const current$ = imported$.pipe(
                 }
             }, importedProject),
             startWith(importedProject)
-        )
+        );
     })
 );
 
-const [useProjectName] = bind(current$.pipe(map(x => x.name)), "Unnamed Project");
-
+const [useProjectName] = bind(project$.pipe(map((x) => x.name)), "Unnamed Project");
 
 const Model = {
-    projectName$: projectName$,
-    setProjectName: setProjectName,
-    useProjectName: useProjectName,
-}
+    project$,
+    projectName$,
+    setProjectName,
+    useProjectName
+};
 
 export default Model;

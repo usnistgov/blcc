@@ -7,10 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { upload } from "../blcc-format/Import";
+import { sample } from "rxjs";
+import { download } from "../util/DownloadFile";
 
 const { component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
-const { component: SaveButton } = button();
+const { click$: saveClick$, component: SaveButton } = button();
 const { component: SaveAsButton } = button();
 
 const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
@@ -22,6 +24,7 @@ export default function EditorAppBar() {
     const navigate = useNavigate();
     const projectName = Model.useProjectName();
 
+    useSubscribe(Model.project$.pipe(sample(saveClick$)), (project) => download(project, project.name));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 

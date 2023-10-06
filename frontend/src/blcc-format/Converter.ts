@@ -41,8 +41,6 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
     return pipe(
         map((xml) => parser.parse(xml)),
         map((obj) => {
-            console.log(obj);
-
             const project = obj["Project"];
 
             const alternativeObjectOrArray = project["Alternatives"]["Alternative"];
@@ -53,9 +51,6 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
             const [newAlternatives, costCache] = parseAlternativesAndHashCosts(alternatives);
 
             const studyPeriod = parseStudyPeriod(parseYears(project["Duration"]));
-
-            console.log("alternatives");
-            console.log(newAlternatives);
 
             const result = {
                 version: Version.V1,
@@ -78,8 +73,6 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
                     socialCostOfGhgScenario: undefined
                 }
             } as Project;
-
-            console.log(result);
 
             return result;
         })
@@ -206,9 +199,6 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
             ...extractCosts(alternative, "NonRecurringContractCost")
         ];
 
-        console.log("components");
-        console.log(costs);
-
         for (const cost of costs) {
             const hash = objectHash(cost);
 
@@ -224,8 +214,6 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
             costs: costs.map((cost) => objectHash(cost)).map((hash) => costArray.indexOf(hash))
         };
     });
-
-    console.log(costCache);
 
     return [newAlternatives, costCache];
 }
