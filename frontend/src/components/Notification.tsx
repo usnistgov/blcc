@@ -1,28 +1,29 @@
 import React, { PropsWithChildren, ReactElement } from "react";
+import { createSignal } from "@react-rxjs/utils";
+import { Observable } from "rxjs";
 import { Alert } from "antd";
 import Icon from "@mdi/react";
 import button, { ButtonType } from "./Button";
 import { mdiRefresh, mdiAlert } from "@mdi/js";
 
 export type AlertProps = {
-    onClick?: Function;
     action?: ReactElement;
 };
 
 export type Alert = {
+    $click: Observable<void>;
     component: React.FC<PropsWithChildren & AlertProps>;
 };
 
 const { component: Button } = button();
 
 export default function notification(): Alert {
+    const [$click, click] = createSignal();
     return {
+        $click,
         component: ({
-            onClick = () => {
-                console.log("Clicked"); // keep this until we use this in pages
-            },
             action = (
-                <Button type={ButtonType.PRIMARY_INVERTED} onClick={onClick} icon={mdiRefresh}>
+                <Button type={ButtonType.PRIMARY_INVERTED} onClick={click} icon={mdiRefresh}>
                     Re Run
                 </Button>
             )
