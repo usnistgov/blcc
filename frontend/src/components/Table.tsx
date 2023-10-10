@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 import React, { PropsWithChildren, useState } from "react";
 import { createSignal } from "@react-rxjs/utils";
+import { bind } from "@react-rxjs/core";
 import { Form, Input, Popconfirm, Table, Typography } from "antd";
 
 type Column = {
@@ -34,83 +35,19 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     children: React.ReactNode;
 }
 
-const EditableCell: React.FC<EditableCellProps> = ({
-    editing,
-    dataIndex,
-    title,
-    // record,
-    // index,
-    children,
-    ...restProps
-}) => {
-    return (
-        <td {...restProps}>
-            {editing ? (
-                <Form.Item
-                    name={dataIndex}
-                    style={{ margin: 0 }}
-                    rules={[
-                        {
-                            required: true,
-                            message: `Please Input ${title}!`
-                        }
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-            ) : (
-                children
-            )}
-        </td>
-    );
-};
-
 /**
  * Creates a table component.
  */
-const table = (): Table => {
-    const [form] = Form.useForm();
-    const [tableData$, tableData] = createSignal<any[]>([]);
-    const [editingKey, setEditingKey] = useState("");
-
-    const isEditing = (record: userData) => record.key === editingKey;
-
-    const edit = (record: Partial<userData> & { key: React.Key }) => {
-        form.setFieldsValue({ ...record });
-        console.log(record);
-        // setEditingKey(record.key);
-    };
-
-    const cancel = () => {
-        setEditingKey("");
-    };
+const table = (tableData$: userData): Table => {
+    // use bind
+    const [useTableData] = bind(tableData$, []);
+    const [changedData$, changedData] = createSignal<any>();
 
     // for this function to work:
     // 1. Get the most recent data from stream
     // 2. Based on the edit action clicked by the user, fetch the data for that specific row & make the row editable
     // 3. Once user is done editing, replace this specific row's data with the new changed data, keeping the remaining data unchanged
     // 4. Send the new data to the stream
-    const save = async (key: React.Key) => {
-        try {
-            const row = (await form.validateFields()) as userData;
-            const index = tableData$.findIndex((item) => key === item.key);
-            if (index > -1) {
-                const item = tableData$[index];
-                const newData = [...tableData$];
-                newData.splice(index, 1, {
-                    ...item,
-                    ...row
-                });
-                tableData(newData);
-                setEditingKey("");
-            } else {
-                tableData([...tableData$], row);
-                setEditingKey("");
-            }
-        } catch (errInfo) {
-            console.log("Validate Failed:", errInfo);
-        }
-    };
 
     return {
         tableData$,
@@ -128,7 +65,47 @@ const table = (): Table => {
                     dataIndex: "column2",
                     key: "column2",
                     editable: true
-                },
+                }
+            ]
+        }: PropsWithChildren & TableProps) => {
+            const [form] = Form.useForm();
+            const [editingKey, setEditingKey] = useState("");
+            const isEditing = (record: userData) => record.key === editingKey;
+
+            const edit = (record: Partial<userData> & { key: React.Key }) => {
+                form.setFieldsValue({ ...record });
+                console.log(record);
+                setEditingKey(record.key);
+            };
+
+            const cancel = () => {
+                setEditingKey("");
+            };
+
+            const save = async (key: React.Key) => {
+                try {
+                    const row = (await form.validateFields()) as userData;
+                    console.log(row);
+                    // const index = useTableData().findIndex((item) => key === item.key);
+                    // if (index > -1) {
+                    //     const item = tableData$[index];
+                    //     const newData = [...tableData$];
+                    //     newData.splice(index, 1, {
+                    //         ...item,
+                    //         ...row
+                    //     });
+                    //     setEditingKey("");
+                    // } else {
+                    setEditingKey("");
+                    // }
+                    // doubt this
+                    changedData({ key: row });
+                } catch (errInfo) {
+                    console.log("Validate Failed:", errInfo);
+                }
+            };
+
+            const operation = [
                 {
                     title: "operation",
                     dataIndex: "operation",
@@ -150,9 +127,38 @@ const table = (): Table => {
                         );
                     }
                 }
-            ],
-            userData = []
-        }: PropsWithChildren & TableProps) => {
+            ];
+
+            const EditableCell: React.FC<EditableCellProps> = ({
+                editing,
+                dataIndex,
+                title,
+                // record,
+                // index,
+                children,
+                ...restProps
+            }) => {
+                return (
+                    <td {...restProps}>
+                        {editing ? (
+                            <Form.Item
+                                name={dataIndex}
+                                style={{ margin: 0 }}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `Please Input ${title}!`
+                                    }
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        ) : (
+                            children
+                        )}
+                    </td>
+                );
+            };
             return (
                 <Form form={form} component={false}>
                     <Table
@@ -162,8 +168,8 @@ const table = (): Table => {
                             }
                         }}
                         className={(className ? className : "") + " px-2 w-44"}
-                        columns={columns}
-                        dataSource={userData}
+                        columns={[...columns, ...operation]}
+                        dataSource={useTableData()}
                     />
                 </Form>
             );
