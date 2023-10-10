@@ -8,20 +8,20 @@ type Column = {
     dataIndex: string;
     key?: string;
     editable?: boolean;
-    render?: JSX.Element;
+    render?: (_: any, record: userData) => JSX.Element;
 };
 
 // the data passed on to the table can be anything depending on the use case
-type data = any;
+type userData = any;
 
 export type TableProps = {
     className?: string;
     columns: Column[];
-    data;
+    userData;
 };
 
 export type Table = {
-    tableData$: Observable<any>;
+    tableData$: Observable<any[]>;
     component: React.FC<PropsWithChildren & TableProps>;
 };
 
@@ -29,7 +29,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: string;
-    record: data;
+    record: userData;
     index: number;
     children: React.ReactNode;
 }
@@ -68,14 +68,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
 /**
  * Creates a table component.
  */
-export default function table(): Table {
+const table = (): Table => {
     const [form] = Form.useForm();
     const [tableData$, tableData] = createSignal<any[]>([]);
     const [editingKey, setEditingKey] = useState("");
 
-    const isEditing = (record: data) => record.key === editingKey;
+    const isEditing = (record: userData) => record.key === editingKey;
 
-    const edit = (record: Partial<data> & { key: React.Key }) => {
+    const edit = (record: Partial<userData> & { key: React.Key }) => {
         form.setFieldsValue({ ...record });
         console.log(record);
         // setEditingKey(record.key);
@@ -85,24 +85,28 @@ export default function table(): Table {
         setEditingKey("");
     };
 
+    // for this function to work:
+    // 1. Get the most recent data from stream
+    // 2. Based on the edit action clicked by the user, fetch the data for that specific row & make the row editable
+    // 3. Once user is done editing, replace this specific row's data with the new changed data, keeping the remaining data unchanged
+    // 4. Send the new data to the stream
     const save = async (key: React.Key) => {
         try {
-            const row = (await form.validateFields()) as data;
-
-            const newData = [...data];
-            const index = newData.findIndex((item) => key === item.key);
+            const row = (await form.validateFields()) as userData;
+            const index = tableData$.findIndex((item) => key === item.key);
             if (index > -1) {
-                const item = newData[index];
+                const item = tableData$[index];
+                const newData = [...tableData$];
                 newData.splice(index, 1, {
                     ...item,
                     ...row
                 });
+                tableData(newData);
                 setEditingKey("");
             } else {
-                newData.push(row);
+                tableData([...tableData$], row);
                 setEditingKey("");
             }
-            tableData(newData);
         } catch (errInfo) {
             console.log("Validate Failed:", errInfo);
         }
@@ -128,7 +132,7 @@ export default function table(): Table {
                 {
                     title: "operation",
                     dataIndex: "operation",
-                    render: (_: any, record: data) => {
+                    render: (_: any, record: userData) => {
                         const editable = isEditing(record);
                         return editable ? (
                             <span>
@@ -147,7 +151,7 @@ export default function table(): Table {
                     }
                 }
             ],
-            data = []
+            userData = []
         }: PropsWithChildren & TableProps) => {
             return (
                 <Form form={form} component={false}>
@@ -159,10 +163,12 @@ export default function table(): Table {
                         }}
                         className={(className ? className : "") + " px-2 w-44"}
                         columns={columns}
-                        dataSource={data}
+                        dataSource={userData}
                     />
                 </Form>
             );
         }
     };
-}
+};
+
+export default table;
