@@ -1,5 +1,4 @@
 import React, { PropsWithChildren, ReactElement } from "react";
-import { createSignal } from "@react-rxjs/utils";
 import { Observable } from "rxjs";
 import { Alert } from "antd";
 import Icon from "@mdi/react";
@@ -11,19 +10,17 @@ export type AlertProps = {
 };
 
 export type Alert = {
-    $click: Observable<void>;
+    click$: Observable<void>;
     component: React.FC<PropsWithChildren & AlertProps>;
 };
 
-const { component: Button } = button();
-
 export default function notification(): Alert {
-    const [$click, click] = createSignal();
+    const { component: Button, click$ } = button();
     return {
-        $click,
+        click$,
         component: ({
             action = (
-                <Button type={ButtonType.PRIMARY_INVERTED} onClick={click} icon={mdiRefresh}>
+                <Button type={ButtonType.PRIMARY_INVERTED} icon={mdiRefresh}>
                     Re Run
                 </Button>
             )
