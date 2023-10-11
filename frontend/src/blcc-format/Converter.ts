@@ -56,7 +56,7 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
                 version: Version.V1,
                 name: project["Name"],
                 description: project["Comment"],
-                analyst: project["analyst"],
+                analyst: project["Analyst"],
                 analysisType: convertAnalysisType(project["AnalysisType"]),
                 purpose: convertAnalysisPurpose(project["AnalysisPurpose"]),
                 dollarMethod: convertDollarMethod(project["DollarMethod"]),
@@ -185,10 +185,12 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
         const costs = [
             ...capitalComponents,
             ...capitalComponents.flatMap((capitalComponent) => {
+                const rename = renameSubComponent((capitalComponent as any)["Name"]);
+
                 return [
-                    ...extractCosts(capitalComponent, "CapitalReplacement"),
-                    ...extractCosts(capitalComponent, "RecurringCost"),
-                    ...extractCosts(capitalComponent, "NonRecurringCost")
+                    ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
+                    ...extractCosts(capitalComponent, "RecurringCost").map(rename),
+                    ...extractCosts(capitalComponent, "NonRecurringCost").map(rename)
                 ];
             }),
             ...extractCosts(alternative, "EnergyUsage"),
@@ -214,6 +216,13 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
     });
 
     return [newAlternatives, costCache];
+}
+
+function renameSubComponent(name: string) {
+    return (subCost: any) => {
+        subCost["Name"] = `${name} ${subCost["Name"]}`;
+        return subCost;
+    };
 }
 
 function convertCosts(costCache: Map<string, any>, studyPeriod: number): Cost[] {
@@ -259,7 +268,7 @@ function convertCost(cost: any, studyPeriod: number) {
         case "CapitalComponent":
             return {
                 type: CostTypes.CAPITAL,
-                initialCost: cost["InitialCost"] as number,
+                initialCost: cost["InitialCost"] ? cost["InitialCost"] : cost["AmountFinanced"],
                 annualRateOfChange: parseEscalation(cost, studyPeriod),
                 expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
                 costAdjustment: undefined,
@@ -279,7 +288,7 @@ function convertCost(cost: any, studyPeriod: number) {
                 location: parseLocation(cost["State"]),
                 costPerUnit: cost["UnitCost"] as number,
                 annualConsumption: cost["YearlyUsage"] as number,
-                unit: parseUnit(cost["Unit"]),
+                unit: parseUnit(cost["Units"]),
                 demandCharge: cost["DemandCharge"] as number,
                 rebate: cost["UtilityRebate"] as number,
                 escalation: parseEscalation(cost, studyPeriod),
@@ -288,7 +297,7 @@ function convertCost(cost: any, studyPeriod: number) {
         case "WaterUsage":
             return {
                 type: CostTypes.WATER,
-                unit: parseUnit(cost["Unit"]),
+                unit: parseUnit(cost["Units"]),
                 usage: parseSeasonalUsage(cost, "Usage"),
                 disposal: parseSeasonalUsage(cost, "Disposal"),
                 escalation: parseEscalation(cost, studyPeriod),
