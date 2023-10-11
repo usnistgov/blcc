@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 import React, { PropsWithChildren, useState } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
-import { Form, Input, Popconfirm, Table, Typography } from "antd";
+import { Form, Input, Table, Typography } from "antd";
 
 type Column = {
     title: string;
@@ -72,8 +72,6 @@ const table = (tableData$: userData): Table => {
                 editing,
                 dataIndex,
                 title,
-                // record,
-                // index,
                 children,
                 ...restProps
             }) => {
@@ -86,7 +84,7 @@ const table = (tableData$: userData): Table => {
                                 rules={[
                                     {
                                         required: true,
-                                        message: `Please Input ${title}!`
+                                        message: `Please input ${title}!`
                                     }
                                 ]}
                             >
@@ -112,14 +110,9 @@ const table = (tableData$: userData): Table => {
             const save = async (key: string) => {
                 try {
                     const row = (await form.validateFields()) as userData;
-                    console.log("row", row);
-                    const updatedData = tableData$.map((item: userData) =>
-                        item.key === key ? { ...item, ...row } : item
-                    );
-                    tableData$.next(updatedData);
+                    // TODO: check if the row key is also being updated or implement a non-changing row key
+                    changedData({ key, row });
                     setEditingKey("");
-                    // doubt this
-                    // changedData({ key: row });
                 } catch (errInfo) {
                     console.log("Validate Failed:", errInfo);
                 }
@@ -136,9 +129,9 @@ const table = (tableData$: userData): Table => {
                                 <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
                                     Save
                                 </Typography.Link>
-                                <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                                    <a>Cancel</a>
-                                </Popconfirm>
+                                <Typography.Link onClick={cancel} style={{ marginRight: 8 }}>
+                                    Cancel
+                                </Typography.Link>
                             </span>
                         ) : (
                             <Typography.Link disabled={editingKey !== ""} onClick={() => edit(record)}>
