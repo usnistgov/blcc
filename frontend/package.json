@@ -7,15 +7,14 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint --fix \"**/*.tsx\""
+    "lint": "eslint --fix \"**/*.tsx\"",
+    "test": "vitest"
   },
   "dependencies": {
     "@mdi/js": "^7.2.96",
     "@mdi/react": "^1.6.1",
     "@react-rxjs/core": "^0.10.7",
     "@react-rxjs/utils": "^0.9.7",
-    "@typescript-eslint/eslint-plugin": "^6.7.4",
-    "@typescript-eslint/parser": "^6.7.4",
     "fast-xml-parser": "^4.3.2",
     "object-hash": "^3.0.0",
     "antd": "^5.9.4",
@@ -29,6 +28,8 @@
     "@types/react": "^18.2.19",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
