@@ -228,7 +228,7 @@ export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> & {
 export type OMRCost = Type<CostTypes.OMR> & {
     initialCost: number;
     initialOccurrence: number;
-    annualRateOfChange: number;
+    annualRateOfChange?: number | number[];
     rateOfRecurrence?: number;
 };
 

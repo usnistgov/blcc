@@ -52,7 +52,7 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
 
             const studyPeriod = parseStudyPeriod(parseYears(project["Duration"]));
 
-            const result = {
+            return {
                 version: Version.V1,
                 name: project["Name"],
                 description: project["Comment"],
@@ -73,8 +73,6 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
                     socialCostOfGhgScenario: undefined
                 }
             } as Project;
-
-            return result;
         })
     );
 }
@@ -232,16 +230,31 @@ function convertCosts(costCache: Map<string, any>, studyPeriod: number): Cost[] 
 function convertCost(cost: any, studyPeriod: number) {
     const type: CostComponent = cost.type;
     switch (type) {
+        case "CapitalReplacement":
+            return {
+                type: CostTypes.REPLACEMENT_CAPITAL,
+                initialCost: cost["InitialCost"],
+                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
+                residualValue: {
+                    approach: DollarOrPercent.PERCENT,
+                    value: cost["ResaleValueFactor"]
+                }
+            } as ReplacementCapitalCost;
         case "NonRecurringCost":
             return {
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost["Amount"],
-                annualRateOfChange: parseEscalation(cost, studyPeriod)
+                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                residualValue: undefined
             } as ReplacementCapitalCost;
         case "RecurringCost":
             return {
+                type: CostTypes.OMR,
                 initialCost: cost["Amount"],
-                initialOccurrence: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value
+                initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
+                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                rateOfRecurrence: cost["Interval"]
             } as OMRCost;
         case "CapitalComponent":
             return {
