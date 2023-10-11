@@ -18,7 +18,6 @@ type userData = any;
 export type TableProps = {
     className?: string;
     columns: Column[];
-    userData;
 };
 
 export type Table = {
@@ -43,12 +42,6 @@ const table = (tableData$: userData): Table => {
     const [useTableData] = bind(tableData$, []);
     const [changedData$, changedData] = createSignal<any>();
 
-    // for this function to work:
-    // 1. Get the most recent data from stream
-    // 2. Based on the edit action clicked by the user, fetch the data for that specific row & make the row editable
-    // 3. Once user is done editing, replace this specific row's data with the new changed data, keeping the remaining data unchanged
-    // 4. Send the new data to the stream
-
     return {
         tableData$,
         component: ({
@@ -70,64 +63,10 @@ const table = (tableData$: userData): Table => {
         }: PropsWithChildren & TableProps) => {
             const [form] = Form.useForm();
             const [editingKey, setEditingKey] = useState("");
-            const isEditing = (record: userData) => record.key === editingKey;
+            // const isEditing = (record: userData) => record.key === editingKey;
+            const isEditing = (recordKey: userData) => recordKey === editingKey;
 
-            const edit = (record: Partial<userData> & { key: React.Key }) => {
-                form.setFieldsValue({ ...record });
-                console.log(record);
-                setEditingKey(record.key);
-            };
-
-            const cancel = () => {
-                setEditingKey("");
-            };
-
-            const save = async (key: React.Key) => {
-                try {
-                    const row = (await form.validateFields()) as userData;
-                    console.log(row);
-                    // const index = useTableData().findIndex((item) => key === item.key);
-                    // if (index > -1) {
-                    //     const item = tableData$[index];
-                    //     const newData = [...tableData$];
-                    //     newData.splice(index, 1, {
-                    //         ...item,
-                    //         ...row
-                    //     });
-                    //     setEditingKey("");
-                    // } else {
-                    setEditingKey("");
-                    // }
-                    // doubt this
-                    changedData({ key: row });
-                } catch (errInfo) {
-                    console.log("Validate Failed:", errInfo);
-                }
-            };
-
-            const operation = [
-                {
-                    title: "operation",
-                    dataIndex: "operation",
-                    render: (_: any, record: userData) => {
-                        const editable = isEditing(record);
-                        return editable ? (
-                            <span>
-                                <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
-                                    Save
-                                </Typography.Link>
-                                <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                                    <a>Cancel</a>
-                                </Popconfirm>
-                            </span>
-                        ) : (
-                            <Typography.Link disabled={editingKey !== ""} onClick={() => edit(record)}>
-                                Edit
-                            </Typography.Link>
-                        );
-                    }
-                }
-            ];
+            const tableData = useTableData();
 
             const EditableCell: React.FC<EditableCellProps> = ({
                 editing,
@@ -159,6 +98,80 @@ const table = (tableData$: userData): Table => {
                     </td>
                 );
             };
+
+            const edit = (record: userData) => {
+                const row: userData = tableData.find((item: userData) => item.key === record.key);
+                form.setFieldsValue(row);
+                setEditingKey(record.key);
+            };
+
+            const cancel = () => {
+                setEditingKey("");
+            };
+
+            const save = async (key: string) => {
+                try {
+                    const row = (await form.validateFields()) as userData;
+                    console.log("row", row);
+                    const updatedData = tableData$.map((item: userData) =>
+                        item.key === key ? { ...item, ...row } : item
+                    );
+                    tableData$.next(updatedData);
+                    setEditingKey("");
+                    // doubt this
+                    // changedData({ key: row });
+                } catch (errInfo) {
+                    console.log("Validate Failed:", errInfo);
+                }
+            };
+
+            const operation = [
+                {
+                    title: "operation",
+                    dataIndex: "operation",
+                    render: (_: any, record: userData) => {
+                        const editable = isEditing(record.key);
+                        return editable ? (
+                            <span>
+                                <Typography.Link onClick={() => save(record.key)} style={{ marginRight: 8 }}>
+                                    Save
+                                </Typography.Link>
+                                <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+                                    <a>Cancel</a>
+                                </Popconfirm>
+                            </span>
+                        ) : (
+                            <Typography.Link disabled={editingKey !== ""} onClick={() => edit(record)}>
+                                Edit
+                            </Typography.Link>
+                        );
+                    }
+                }
+            ];
+
+            // logic to make all columns editable by default
+            columns.forEach((col) => {
+                col.editable = true;
+            });
+
+            columns = [...columns, ...operation];
+
+            const mergedColumns = columns.map((col) => {
+                if (!col.editable) {
+                    return col;
+                }
+                return {
+                    ...col,
+                    onCell: (record: userData) => ({
+                        record,
+                        // inputtype: col.dataIndex === "text",
+                        dataIndex: col.dataIndex,
+                        title: col.title,
+                        editing: isEditing(record.key)
+                    })
+                };
+            });
+
             return (
                 <Form form={form} component={false}>
                     <Table
@@ -167,8 +180,9 @@ const table = (tableData$: userData): Table => {
                                 cell: EditableCell
                             }
                         }}
-                        className={(className ? className : "") + " px-2 w-44"}
-                        columns={[...columns, ...operation]}
+                        className={(className ? className : "") + " px-2"}
+                        // columns={[...columns, ...operation]}
+                        columns={mergedColumns}
                         dataSource={useTableData()}
                     />
                 </Form>
