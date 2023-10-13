@@ -263,7 +263,7 @@ function convertCost(cost: any, studyPeriod: number) {
                 initialCost: cost["Amount"],
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 annualRateOfChange: parseEscalation(cost, studyPeriod),
-                rateOfRecurrence: cost["Interval"]
+                rateOfRecurrence: parseUseIndex(cost["Index"], studyPeriod)
             } as OMRCost;
         case "CapitalComponent":
             return {
@@ -293,7 +293,7 @@ function convertCost(cost: any, studyPeriod: number) {
                 demandCharge: cost["DemandCharge"] as number,
                 rebate: cost["UtilityRebate"] as number,
                 escalation: parseEscalation(cost, studyPeriod),
-                useIndex: parseUseIndex(cost, studyPeriod)
+                useIndex: parseUseIndex(cost["UsageIndex"], studyPeriod)
             } as EnergyCost;
         case "WaterUsage":
             return {
@@ -469,7 +469,7 @@ function parseVarying(intervals: any, values: any, studyPeriod: number): number 
 }
 
 function parseUseIndex(cost: any, studyPeriod: number): number | number[] | undefined {
-    const useIndex = cost["UsageIndex"]["UsageIndex"];
+    const useIndex = cost["UsageIndex"];
     return parseVarying(useIndex["Intervals"], useIndex["Values"], studyPeriod);
 }
 
