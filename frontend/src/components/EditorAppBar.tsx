@@ -22,9 +22,11 @@ const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
  */
 export default function EditorAppBar() {
     const navigate = useNavigate();
-    const projectName = Model.useProjectName();
+    //const projectName = Model.useProjectName();
 
-    useSubscribe(Model.project$.pipe(sample(saveClick$)), (project) => download(project, project.name));
+    //console.log(JSON.stringify(Model));
+    //useSubscribe(saveClick$, () => download(Model, Model.name));
+    //useSubscribe(Model.project$.pipe(sample(saveClick$)), (project) => download(project, project.name));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 
@@ -53,7 +55,7 @@ export default function EditorAppBar() {
                 </SaveAsButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"}>{projectName}</p>
+                <p className={"text-base-lightest"}>{Model.name}</p>
                 <div className={"pl-4"}>
                     <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
                         Reports and Analysis

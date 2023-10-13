@@ -1,7 +1,8 @@
 import { createSignal, mergeWithKey } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
 import { imported$ } from "../blcc-format/Import";
-import { map, scan, startWith, switchMap } from "rxjs";
+import { map, merge, of, scan, startWith, switchMap } from "rxjs";
+import { createModel, Model as ModelType } from "../util/Util";
 
 const [projectName$, setProjectName] = createSignal<string>();
 
@@ -22,6 +23,28 @@ const project$ = imported$.pipe(
     })
 );
 
+type ProjectModel = {
+    name: string;
+};
+
+const Model: ModelType<ProjectModel> = createModel({
+    name: imported$.pipe(
+        map((project) => project.name),
+        startWith("Unnamed Project")
+    )
+});
+
+/*imported$.subscribe((imported) => {
+    Object.keys(imported).map((key) => {
+        if (Object.hasOwn(Model, key)) {
+            Model[key] = imported[key];
+        }
+    });
+
+    //Model.name = imported.name;
+});*/
+
+/*
 const [useProjectName] = bind(project$.pipe(map((x) => x.name)), "Unnamed Project");
 
 const Model = {
@@ -30,5 +53,6 @@ const Model = {
     setProjectName,
     useProjectName
 };
+*/
 
 export default Model;

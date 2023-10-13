@@ -268,7 +268,8 @@ function convertCost(cost: any, studyPeriod: number) {
         case "CapitalComponent":
             return {
                 type: CostTypes.CAPITAL,
-                initialCost: cost["InitialCost"] ? cost["InitialCost"] : cost["AmountFinanced"],
+                initialCost: cost["InitialCost"],
+                amountFinanced: cost["AmountFinanced"],
                 annualRateOfChange: parseEscalation(cost, studyPeriod),
                 expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
                 costAdjustment: undefined,

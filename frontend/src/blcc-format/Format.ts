@@ -115,7 +115,8 @@ export type Cost = (
 };
 
 export type CapitalCost = Type<CostTypes.CAPITAL> & {
-    initialCost: number;
+    initialCost?: number;
+    amountFinanced?: number;
     annualRateOfChange?: number | number[];
     expectedLife: number;
     costAdjustment?: number;

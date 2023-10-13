@@ -374,7 +374,8 @@ test("FederalFinanced.xml new system cost", async () => {
     expect(cost.location).toBeUndefined();
 
     const capitalCost = cost as CapitalCost;
-    expect(capitalCost.initialCost).toBe(390480.0);
+    expect(capitalCost.initialCost).toBeUndefined();
+    expect(capitalCost.amountFinanced).toBe(390480.0);
     expect(capitalCost.annualRateOfChange).toBeUndefined();
     expect(capitalCost.expectedLife).toBe(20);
     expect(capitalCost.costAdjustment).toBeUndefined();

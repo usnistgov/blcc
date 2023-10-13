@@ -13,7 +13,7 @@ const { click$: runClick$, component: RunButton } = button();
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
-    const projectName = Model.useProjectName();
+    //const projectName = Model.useProjectName();
 
     useSubscribe(backClick$, () => navigate(-1), [navigate]);
 
@@ -25,7 +25,7 @@ export default function ResultsAppBar() {
                 </BackButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-white"}>{projectName}</p>
+                <p className={"text-white"}>{Model.name}</p>
                 <div className={"pl-4"}>
                     <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
                         Run
