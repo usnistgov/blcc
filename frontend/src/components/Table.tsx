@@ -4,32 +4,29 @@ import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
 import { Form, Input, Table, Typography } from "antd";
 
-type Column = {
+type Column<T> = {
     title: string;
     dataIndex: string;
     key?: string;
     editable?: boolean;
-    render?: (_: any, record: userData) => JSX.Element;
+    render?: (_: any, record: T) => JSX.Element;
 };
 
-// the data passed on to the table can be anything depending on the use case
-type userData = any;
-
-export type TableProps = {
+export type TableProps<T> = {
     className?: string;
-    columns: Column[];
+    columns: Column<T>[];
 };
 
-export type Table = {
-    tableData$: Observable<any[]>;
-    component: React.FC<PropsWithChildren & TableProps>;
+export type Table<T> = {
+    changedData$: Observable<T[]>;
+    component: React.FC<PropsWithChildren & TableProps<T>>;
 };
 
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
+interface EditableCellProps<T> extends React.HTMLAttributes<HTMLElement> {
     editing: boolean;
     dataIndex: string;
     title: string;
-    record: userData;
+    record: T;
     index: number;
     children: React.ReactNode;
 }
@@ -37,13 +34,13 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 /**
  * Creates a table component.
  */
-const table = (tableData$: userData): Table => {
+const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T> => {
     // use bind
     const [useTableData] = bind(tableData$, []);
-    const [changedData$, changedData] = createSignal<any>();
+    const [changedData$, changedData] = createSignal<T[]>();
 
     return {
-        tableData$,
+        changedData$,
         component: ({
             className,
             columns = [
@@ -60,15 +57,14 @@ const table = (tableData$: userData): Table => {
                     editable: true
                 }
             ]
-        }: PropsWithChildren & TableProps) => {
+        }: PropsWithChildren & TableProps<T>) => {
             const [form] = Form.useForm();
             const [editingKey, setEditingKey] = useState("");
-            // const isEditing = (record: userData) => record.key === editingKey;
-            const isEditing = (recordKey: userData) => recordKey === editingKey;
+            const isEditing = (recordKey: string) => recordKey === editingKey;
 
             const tableData = useTableData();
 
-            const EditableCell: React.FC<EditableCellProps> = ({
+            const EditableCell: React.FC<EditableCellProps<T>> = ({
                 editing,
                 dataIndex,
                 title,
@@ -97,8 +93,8 @@ const table = (tableData$: userData): Table => {
                 );
             };
 
-            const edit = (record: userData) => {
-                const row: userData = tableData.find((item: userData) => item.key === record.key);
+            const edit = (record: T) => {
+                const row: T | undefined = tableData.find((item: T) => item.key === record.key);
                 form.setFieldsValue(row);
                 setEditingKey(record.key);
             };
@@ -109,9 +105,10 @@ const table = (tableData$: userData): Table => {
 
             const save = async (key: string) => {
                 try {
-                    const row = (await form.validateFields()) as userData;
+                    const row = (await form.validateFields()) as T;
                     // TODO: check if the row key is also being updated or implement a non-changing row key
-                    changedData({ key, row });
+                    const updatedData = tableData.map((item) => (item.key === key ? { ...item, ...row } : item));
+                    changedData(updatedData);
                     setEditingKey("");
                 } catch (errInfo) {
                     console.log("Validate Failed:", errInfo);
@@ -122,7 +119,7 @@ const table = (tableData$: userData): Table => {
                 {
                     title: "operation",
                     dataIndex: "operation",
-                    render: (_: any, record: userData) => {
+                    render: (_: any, record: T) => {
                         const editable = isEditing(record.key);
                         return editable ? (
                             <span>
@@ -155,9 +152,8 @@ const table = (tableData$: userData): Table => {
                 }
                 return {
                     ...col,
-                    onCell: (record: userData) => ({
+                    onCell: (record: T) => ({
                         record,
-                        // inputtype: col.dataIndex === "text",
                         dataIndex: col.dataIndex,
                         title: col.title,
                         editing: isEditing(record.key)
@@ -174,7 +170,6 @@ const table = (tableData$: userData): Table => {
                             }
                         }}
                         className={(className ? className : "") + " px-2"}
-                        // columns={[...columns, ...operation]}
                         columns={mergedColumns}
                         dataSource={useTableData()}
                     />
