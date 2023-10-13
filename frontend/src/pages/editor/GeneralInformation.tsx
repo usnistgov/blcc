@@ -11,7 +11,7 @@ const { component: DropDown } = dropdown();
 const { Title } = Typography;
 
 export default function GeneralInformation() {
-    const analysisType = [
+    const analysisType: string[] = [
         "Federal Analysis, Financed Project",
         "FEMP Analysis, Energy Project",
         "OMB Analysis, Non-Energy Project",
@@ -21,12 +21,12 @@ export default function GeneralInformation() {
         "FEMP Analysis, ESPC Project "
     ];
 
-    const analysisPurpose = [
+    const analysisPurpose: string[] = [
         "Cost-effectiveness- lease-purchase- internal government investment & asset sales",
         "Public Investment & Regulatory Analyses"
     ];
 
-    const studyPeriod = [];
+    const studyPeriod: string[] = [];
     for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
 
     return (
