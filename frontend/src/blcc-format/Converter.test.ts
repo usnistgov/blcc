@@ -338,7 +338,7 @@ test("FederalFinanced.xml existing system recurring cost", async () => {
     expect(omrCost.initialCost).toBe(5600.0);
     expect(omrCost.initialOccurrence).toBe(0);
     expect(omrCost.annualRateOfChange).toBeUndefined();
-    expect(omrCost.rateOfRecurrence).toBeUndefined();
+    expect(omrCost.rateOfRecurrence).toBe(1);
 });
 
 test("FederalFinanced.xml electricity cost", async () => {
@@ -395,7 +395,7 @@ test("FederalFinanced.xml new system post-contract om costs", async () => {
     expect(omrCost.initialCost).toBe(3000.0);
     expect(omrCost.initialOccurrence).toBe(11);
     expect(omrCost.annualRateOfChange).toBeUndefined();
-    expect(omrCost.rateOfRecurrence); //TODO
+    expect(omrCost.rateOfRecurrence).toBe(1);
 });
 
 test("FederalFinanced.xml ghg values are undefined", async () => {

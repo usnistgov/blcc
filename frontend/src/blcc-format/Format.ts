@@ -230,7 +230,7 @@ export type OMRCost = Type<CostTypes.OMR> & {
     initialCost: number;
     initialOccurrence: number;
     annualRateOfChange?: number | number[];
-    rateOfRecurrence?: number | number[];
+    rateOfRecurrence?: number;
 };
 
 export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT> & {

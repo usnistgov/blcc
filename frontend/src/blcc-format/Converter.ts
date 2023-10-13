@@ -261,9 +261,9 @@ function convertCost(cost: any, studyPeriod: number) {
             return {
                 type: CostTypes.OMR,
                 initialCost: cost["Amount"],
-                initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
+                initialOccurrence: initialFromUseIndex(cost["Index"], studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 annualRateOfChange: parseEscalation(cost, studyPeriod),
-                rateOfRecurrence: parseUseIndex(cost["Index"], studyPeriod)
+                rateOfRecurrence: 1 //parseUseIndex(cost["Index"], studyPeriod)
             } as OMRCost;
         case "CapitalComponent":
             return {
@@ -471,6 +471,16 @@ function parseVarying(intervals: any, values: any, studyPeriod: number): number 
 function parseUseIndex(cost: any, studyPeriod: number): number | number[] | undefined {
     const useIndex = cost["UsageIndex"];
     return parseVarying(useIndex["Intervals"], useIndex["Values"], studyPeriod);
+}
+
+function initialFromUseIndex(cost: any, studyPeriod: number): number {
+    return initialFromVarying(parseUseIndex(cost, studyPeriod));
+}
+
+function initialFromVarying(values: number | number[] | undefined): number {
+    if (!Array.isArray(values) || values === undefined) return 0;
+
+    return values.findIndex((value) => value !== 0) + 1;
 }
 
 function parseEscalation(cost: any, studyPeriod: number): number | number[] | undefined {
