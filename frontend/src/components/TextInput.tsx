@@ -4,7 +4,7 @@ import { createSignal } from "@react-rxjs/utils";
 import { Input } from "antd";
 
 export enum TextInputType {
-    PRIMARY = " border-solid border-2 border-black hover:border-black active:border-black ",
+    PRIMARY = " ",
     ERROR = " border-solid border-2 border-red-600 active:border-red-600 hover:border-red-600 ",
     SUCCESS = " border-solid border-2 border-green-600 active:border-green-600 hover:border-green-600 ",
     DISABLED = " bg-base-lighter text-base-light "
