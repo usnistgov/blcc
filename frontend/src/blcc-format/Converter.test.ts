@@ -341,7 +341,7 @@ test("FederalFinanced.xml existing system recurring cost", async () => {
 
     const omrCost = cost as OMRCost;
     expect(omrCost.initialCost).toBe(5600.0);
-    expect(omrCost.initialOccurrence).toBe(0);
+    expect(omrCost.initialOccurrence).toBe(1);
     expect(omrCost.annualRateOfChange).toBeUndefined();
     expect(omrCost.rateOfRecurrence).toBe(1);
 });

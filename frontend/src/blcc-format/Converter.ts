@@ -244,7 +244,7 @@ function convertCost(cost: any, studyPeriod: number) {
             return {
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost["InitialCost"],
-                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
                 expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
                 residualValue: {
                     approach: DollarOrPercent.PERCENT,
@@ -255,7 +255,7 @@ function convertCost(cost: any, studyPeriod: number) {
             return {
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost["Amount"],
-                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
                 residualValue: undefined
             } as ReplacementCapitalCost;
         case "RecurringCost":
@@ -263,7 +263,7 @@ function convertCost(cost: any, studyPeriod: number) {
                 type: CostTypes.OMR,
                 initialCost: cost["Amount"],
                 initialOccurrence: initialFromUseIndex(cost["Index"], studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
                 rateOfRecurrence: 1 //parseUseIndex(cost["Index"], studyPeriod)
             } as OMRCost;
         case "CapitalComponent":
@@ -271,7 +271,7 @@ function convertCost(cost: any, studyPeriod: number) {
                 type: CostTypes.CAPITAL,
                 initialCost: cost["InitialCost"],
                 amountFinanced: cost["AmountFinanced"],
-                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
                 expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
                 costAdjustment: undefined,
                 phaseIn: parsePhaseIn(cost, studyPeriod),
@@ -302,15 +302,16 @@ function convertCost(cost: any, studyPeriod: number) {
                 unit: parseUnit(cost["Units"]),
                 usage: parseSeasonalUsage(cost, "Usage"),
                 disposal: parseSeasonalUsage(cost, "Disposal"),
-                escalation: parseEscalation(cost, studyPeriod),
-                useIndex: parseEscalation(cost, studyPeriod)
+                escalation: parseEscalation(cost["UsageEscalation"], studyPeriod),
+                useIndex: parseUseIndex(cost["UsageIndex"], studyPeriod),
+                disposalIndex: parseUseIndex(cost["DisposalIndex"], studyPeriod)
             } as WaterCost;
         case "RecurringContractCost":
             return {
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost["Amount"],
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost, studyPeriod),
+                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
                 rateOfRecurrence: (parseYears(cost["Interval"]) as { type: "Year"; value: number }).value
             } as RecurringContractCost;
         case "NonRecurringContractCost":
@@ -486,9 +487,7 @@ function initialFromVarying(values: number | number[] | undefined): number {
     return values.findIndex((value) => value !== 0) + 1;
 }
 
-function parseEscalation(cost: any, studyPeriod: number): number | number[] | undefined {
-    const escalation = cost["Escalation"];
-
+function parseEscalation(escalation: any, studyPeriod: number): number | number[] | undefined {
     if (!escalation) return undefined;
 
     const type = Object.keys(escalation)[0];
