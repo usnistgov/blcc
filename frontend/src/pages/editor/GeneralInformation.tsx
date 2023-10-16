@@ -17,15 +17,15 @@ export default function GeneralInformation() {
     for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
 
     return (
-        <div className={"w-full h-full bg-base p-8 "}>
+        <div className={"w-full h-full p-8 "}>
             <div className="w-1/2 grid grid-cols-2">
                 <span className="pb-3">
                     <Title level={5}>Project Name</Title>
-                    <TextInput type={TextInputType.PRIMARY} />
+                    <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
                 <span>
                     <Title level={5}>Analyst</Title>
-                    <TextInput type={TextInputType.PRIMARY} />
+                    <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
 
                 <span className="pb-3">
@@ -52,7 +52,12 @@ export default function GeneralInformation() {
             </span>
             <div className="grid grid-cols-2">
                 <div className="grid grid-cols-2">
-                    <Divider className="col-span-2 pb-3" orientation="left" orientationMargin="0">
+                    <Divider
+                        className="col-span-2 pb-3"
+                        style={{ fontSize: "20px" }}
+                        orientation="left"
+                        orientationMargin="0"
+                    >
                         Discounting
                     </Divider>
                     <span className="pb-3">
@@ -73,7 +78,12 @@ export default function GeneralInformation() {
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
-                    <Divider className="col-span-2 pb-3" orientation="left" orientationMargin="0">
+                    <Divider
+                        className="col-span-2 pb-3"
+                        style={{ fontSize: "20px" }}
+                        orientation="left"
+                        orientationMargin="0"
+                    >
                         Location
                     </Divider>
                     <span className="pb-3">
@@ -96,7 +106,12 @@ export default function GeneralInformation() {
             </div>
 
             <div className="grid grid-cols-2">
-                <Divider className="col-span-2 pb-3" orientation="left" orientationMargin="0">
+                <Divider
+                    className="col-span-2 pb-3"
+                    style={{ fontSize: "20px" }}
+                    orientation="left"
+                    orientationMargin="0"
+                >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
                 <span className="pb-3">
