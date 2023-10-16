@@ -9,6 +9,7 @@ export type Project = {
     purpose?: Purpose; // For use with OMB_NON_ENERGY
     dollarMethod: DollarMethod;
     studyPeriod: number;
+    constructionPeriod: number;
     discountingMethod: DiscountingMethod;
     realDiscountRate?: number;
     nominalDiscountRate?: number;

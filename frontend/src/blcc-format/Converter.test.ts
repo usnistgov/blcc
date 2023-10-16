@@ -245,6 +245,11 @@ test("FederalFinanced.xml study period", async () => {
     expect(result.studyPeriod).toBe(15);
 });
 
+test("FederalFinanced.xml construction period", async () => {
+    expect(result).toHaveProperty("constructionPeriod");
+    expect(result.constructionPeriod).toBe(0);
+});
+
 test("FederalFinanced.xml discounting method", async () => {
     expect(result).toHaveProperty("discountingMethod");
     expect(result.discountingMethod).toBe(DiscountingMethod.END_OF_YEAR);

@@ -61,6 +61,7 @@ export function convert(): UnaryFunction<Observable<string>, Observable<Project>
                 purpose: convertAnalysisPurpose(project["AnalysisPurpose"]),
                 dollarMethod: convertDollarMethod(project["DollarMethod"]),
                 studyPeriod,
+                constructionPeriod: (parseYears(project["PCPeriod"]) as { type: "Year"; value: number }).value,
                 discountingMethod: convertDiscountMethod(project["DiscountingMethod"]),
                 realDiscountRate: project["DiscountRate"],
                 nominalDiscountRate: undefined,
@@ -435,9 +436,11 @@ function parseVarying(intervals: any, values: any, studyPeriod: number): number 
     // If the only interval is remaining, use a constant index.
     if (intervals === "Remaining") return values;
 
-    const result = Array<number>(studyPeriod).fill(0);
     const portions = parsePortions(values);
     const dateDiffs: DateDiff[] = intervals.split(",").map((value: string) => parseYears(value));
+
+    const length = portions.length > studyPeriod + 1 ? portions.length : studyPeriod + 1;
+    const result = Array<number>(length).fill(0);
 
     // Convert value intervals into year by year percentages
     let stride = 0;
@@ -478,7 +481,7 @@ function initialFromUseIndex(cost: any, studyPeriod: number): number {
 }
 
 function initialFromVarying(values: number | number[] | undefined): number {
-    if (!Array.isArray(values) || values === undefined) return 0;
+    if (!Array.isArray(values) || values === undefined) return 1;
 
     return values.findIndex((value) => value !== 0) + 1;
 }
