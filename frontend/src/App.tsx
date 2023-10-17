@@ -18,14 +18,14 @@ import AnnualResults from "./pages/results/AnnualResults";
 export default function App() {
     return (
         <BrowserRouter>
-            <div className={"flex flex-col h-full"}>
+            <div className={"flex flex-col max-h-screen"}>
                 {/* App bars */}
                 <Routes>
                     <Route path={"/editor/*"} element={<EditorAppBar />} />
                     <Route path={"/results/*"} element={<ResultsAppBar />} />
                 </Routes>
 
-                <div className={"flex h-full"}>
+                <div className={"flex flex-1 overflow-y-auto"}>
                     {/* Navigation */}
                     <Routes>
                         <Route path={"/editor"} element={<Navigation />}>
