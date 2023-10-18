@@ -41,7 +41,7 @@ export function model<A, B>(initial: Partial<A> = {}): UnaryFunction<Observable<
             const result: any = {};
             const streams: { [key: string]: Observable<any> } = {};
 
-            Object.keys(input).map((key) => {
+            Object.keys(input as any).map((key) => {
                 const aKey = key as keyof A;
                 const inputProperty = input[aKey];
 
@@ -97,35 +97,7 @@ export function model<A, B>(initial: Partial<A> = {}): UnaryFunction<Observable<
     );
 }
 
-export function createTopLevelModel<A, B>(stream$: Observable<A>, initial: Partial<A>): Model<B> {
-    const result: any = {};
-    const streams: { [key: string]: Observable<any> } = {};
-
-    Object.keys(initial).map((key) => {
-        const [signal$, setSignal] = createSignal<any>();
-        const middle$ = merge(signal$, stream$.pipe(map((a) => a[key as keyof A])));
-
-        const [useSignal] = bind(middle$, initial[key as keyof A]);
-
-        result[`${key}$`] = middle$;
-        streams[key] = middle$;
-        Object.defineProperty(result, key, {
-            get: function () {
-                return useSignal();
-            },
-            set: function (value) {
-                setSignal(value);
-            },
-            enumerable: true
-        });
-    });
-
-    result["json$"] = combineLatest(streams).pipe(map((obj) => JSON.stringify(obj)));
-
-    return result as Model<B>;
-}
-
-function handleImport<A>(streams, initial: Partial<A> = {}): UnaryFunction<Observable<A>, Observable<any>> {
+function handleImport<A>(initial: Partial<A> = {}): UnaryFunction<Observable<A>, Observable<any>> {
     return pipe(
         switchMap((value) => {
             switch (typeof value) {
