@@ -146,7 +146,9 @@ function convertDiscountMethod(old: number) {
     }
 }
 
-function parseLocation(old: string): USLocation {
+function parseLocation(old: string | undefined): USLocation {
+    if (old === undefined) return { country: "US" };
+
     return {
         country: "US",
         state: old,
