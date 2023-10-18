@@ -30,7 +30,7 @@ export default function Navigation() {
     const [collapsed, setCollapsed] = useState(false);
     return (
         <>
-            <Layout style={{ minHeight: "100vh", background: "rgb(0 94 162)" }}>
+            <Layout style={{ background: "rgb(0 94 162)" }}>
                 <Sider
                     collapsible
                     collapsed={collapsed}
