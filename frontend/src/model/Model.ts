@@ -1,6 +1,6 @@
 import { imported$ } from "../blcc-format/Import";
-import { combineLatest, forkJoin, map, of } from "rxjs";
-import { createModel, createTopLevelModel, Model as ModelType, modelProperty } from "../util/Util";
+import { EMPTY, map, of, switchMap, tap } from "rxjs";
+import { createModel, createTopLevelModel, Model as ModelType, model, modelProperty } from "../util/Util";
 import {
     Alternative,
     AnalysisType,
@@ -12,7 +12,9 @@ import {
     GHG,
     Location,
     NonUSLocation,
+    Project,
     Purpose,
+    SocialCostOfGhgScenario,
     USLocation
 } from "../blcc-format/Format";
 import { Version } from "../blcc-format/Verison";
@@ -39,7 +41,41 @@ type ProjectModel = {
 type TestType = {
     name: string;
     realDiscountRate: number | undefined;
+    alternatives: Alternative[];
+    ghg: GHG;
 };
+
+const model$ = imported$.pipe(
+    model<Project, TestType>({
+        version: Version.V1,
+        name: "Unnamed Project",
+        description: undefined,
+        analyst: undefined,
+        analysisType: AnalysisType.FEDERAL_FINANCED,
+        purpose: undefined,
+        dollarMethod: DollarMethod.CONSTANT,
+        studyPeriod: undefined,
+        constructionPeriod: 0,
+        discountingMethod: DiscountingMethod.END_OF_YEAR,
+        alternatives: [],
+        realDiscountRate: 0.06,
+        nominalDiscountRate: undefined,
+        inflationRate: undefined,
+        ghg: {
+            socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+            emissionsRateScenario: undefined
+        }
+    })
+);
+
+model$
+    .pipe(
+        switchMap((x) => x.alternatives$),
+        switchMap((x) => x[0].name$)
+    )
+    .subscribe(console.log);
+
+model$.pipe(switchMap((x) => x.json$)).subscribe(console.log);
 
 const testModel: ModelType<TestType> = createTopLevelModel(imported$, {
     version: Version.V1,
@@ -54,17 +90,26 @@ const testModel: ModelType<TestType> = createTopLevelModel(imported$, {
     discountingMethod: DiscountingMethod.END_OF_YEAR,
     realDiscountRate: 0.06,
     nominalDiscountRate: undefined,
-    inflationRate: undefined
+    inflationRate: undefined,
+    ghg: {
+        socialCostOfGhgScenario: undefined,
+        emissionsRateScenario: undefined
+    }
+});
+
+//testModel.json$.subscribe(console.log);
+
+/*const result: { [key: string]: Observable<any> } = {};
+
+Object.keys(testModel).forEach((key) => {
+    if (key.endsWith("$")) result[key.slice(0, key.length - 1)] = testModel[key];
 });
 
 testModel.name$.subscribe(console.log);
 
-combineLatest({
-    name: testModel.name$,
-    realDiscountRate: testModel.realDiscountRate$
-})
+combineLatest(result)
     .pipe(map((value) => JSON.stringify(value)))
-    .subscribe(console.log);
+    .subscribe(console.log);*/
 
 export { testModel };
 
