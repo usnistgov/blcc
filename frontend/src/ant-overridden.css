@@ -3,3 +3,15 @@
 .ant-layout-has-sider {
     background: rgb(0 94 162) !important;
 }
+
+.ant-menu-item-selected {
+    border-radius: 0.25rem !important;
+    background-color: #73b3e7 !important;
+    color: #fff !important;
+}
+
+.ant-menu-item-active {
+    color: white !important;
+    background-color: #73b3e7 !important;
+    border-radius: 0.25rem !important;
+}
