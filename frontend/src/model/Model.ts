@@ -1,5 +1,5 @@
 import { imported$ } from "../blcc-format/Import";
-import { startWith, switchMap } from "rxjs";
+import { startWith } from "rxjs";
 import { model } from "../util/Util";
 import { AnalysisType, DiscountingMethod, DollarMethod, Project, SocialCostOfGhgScenario } from "../blcc-format/Format";
 import { Version } from "../blcc-format/Verison";
@@ -33,38 +33,7 @@ const defaultModel: Project = {
     }
 };
 
-const model$ = imported$.pipe(
-    startWith(defaultModel),
-    model<Project, Project>({
-        version: Version.V1,
-        name: "Unnamed Project",
-        description: undefined,
-        analyst: undefined,
-        analysisType: AnalysisType.FEDERAL_FINANCED,
-        purpose: undefined,
-        dollarMethod: DollarMethod.CONSTANT,
-        studyPeriod: undefined,
-        constructionPeriod: 0,
-        discountingMethod: DiscountingMethod.END_OF_YEAR,
-        alternatives: [],
-        realDiscountRate: 0.06,
-        nominalDiscountRate: undefined,
-        inflationRate: undefined,
-        ghg: {
-            socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
-            emissionsRateScenario: undefined
-        }
-    })
-);
+const model$ = imported$.pipe(startWith(defaultModel), model<Project, Project>(defaultModel));
 
 const [useModel] = bind(model$, undefined);
-export { useModel };
-
-model$
-    .pipe(
-        switchMap((x) => x.alternatives$),
-        switchMap((x) => x[0].name$)
-    )
-    .subscribe(console.log);
-
-model$.pipe(switchMap((x) => x.json$)).subscribe(console.log);
+export { model$, useModel };
