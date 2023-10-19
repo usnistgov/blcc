@@ -38,7 +38,7 @@ export default function textInput(): TextInput {
         }: PropsWithChildren & TextInputProps) => {
             return (
                 <Input
-                    className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type} w-44`}
+                    className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
                     bordered={bordered}

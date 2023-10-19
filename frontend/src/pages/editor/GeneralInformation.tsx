@@ -5,12 +5,16 @@ import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
 
 import { analysisType, analysisPurpose, emissionsRateScenario, socialCostOfGHG } from "../../constants/DROPDOWN";
+import { countries, states, zipcodes } from "../../constants/LOCATION";
 
 const { component: TextInput } = textInput();
 const { component: TextArea } = textArea();
 const { component: DropDown } = dropdown();
 
 const { Title } = Typography;
+
+const zip: number[] = [];
+zipcodes.forEach((zips) => zip.push(zips.zip));
 
 export default function GeneralInformation() {
     const studyPeriod: string[] = [];
@@ -43,7 +47,7 @@ export default function GeneralInformation() {
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Length of Study Period</Title>
-                    <DropDown className="w-1/2" options={studyPeriod} />
+                    <DropDown className="w-3/4" options={studyPeriod} />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
@@ -62,19 +66,19 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Discounting Convention</Title>
-                        <DropDown className="w-1/2" options={["End of Year", "Mid Year"]} />
+                        <DropDown className="w-3/4" options={["End of Year", "Mid Year"]} />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span className="pb-3 w-full">
                         <Title level={5}>Nominal Discount Rate</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span>
                         <Title level={5}>Real Discount Rate</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
@@ -88,19 +92,19 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Country</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <DropDown className="w-3/4" options={countries} />
                     </span>
                     <span>
                         <Title level={5}>City</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>State</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <DropDown className="w-3/4" options={states} />
                     </span>
                     <span>
                         <Title level={5}>Zip</Title>
-                        <TextInput type={TextInputType.PRIMARY} />
+                        <DropDown className="w-3/4" options={zip} />
                     </span>
                 </div>
             </div>
