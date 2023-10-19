@@ -1,18 +1,6 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
-import {
-    combineLatest,
-    firstValueFrom,
-    forkJoin,
-    map,
-    merge,
-    Observable,
-    of,
-    pipe,
-    startWith,
-    switchMap,
-    UnaryFunction
-} from "rxjs";
+import { combineLatest, forkJoin, map, merge, Observable, of, pipe, switchMap, UnaryFunction } from "rxjs";
 import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
 
@@ -33,8 +21,17 @@ type WithExport<T> = WithoutExport<T> & {
     json$: Observable<string>;
 };
 
+/**
+ * The calculated type for a model. Turns an object into an object with getter and setter as well as streams
+ * for all properties.
+ */
 export type Model<T> = WithoutExport<T> extends Excluded ? never : WithExport<T>;
 
+/**
+ * An rxjs operator that turns an object into a model.
+ *
+ * @param initial the default values for the model.
+ */
 export function model<A, B>(initial: Partial<A> = {}): UnaryFunction<Observable<A>, Observable<Model<B>>> {
     return pipe(
         map((input) => {
@@ -97,6 +94,11 @@ export function model<A, B>(initial: Partial<A> = {}): UnaryFunction<Observable<
     );
 }
 
+/**
+ * Converts a value into either a stream of that value or a sub model.
+ *
+ * @param initial the initial values for a sub model.
+ */
 function handleImport<A>(initial: Partial<A> = {}): UnaryFunction<Observable<A>, Observable<any>> {
     return pipe(
         switchMap((value) => {
@@ -112,42 +114,4 @@ function handleImport<A>(initial: Partial<A> = {}): UnaryFunction<Observable<A>,
             }
         })
     );
-}
-
-export function createModel<A, B>(model: B): Model<A> {
-    const result: any = {};
-
-    const streams: any = {};
-    const signals: any = {};
-
-    Object.keys(model as object).map((key) => {
-        const [signal$, setSignal] = createSignal<any>();
-        const middle$ = merge(signal$, model[key as keyof B] as Observable<any>);
-
-        streams[key] = middle$;
-        signals[key] = setSignal;
-
-        result[`${key}$`] = middle$;
-    });
-
-    Object.keys(model as object).map(async (key) => {
-        const [useSignal] = bind(streams[key], await firstValueFrom(model[key as keyof B] as Observable<any>));
-        const setSignal = signals[key];
-
-        Object.defineProperty(result, key, {
-            get: function () {
-                return useSignal();
-            },
-            set: function (value) {
-                setSignal(value);
-            },
-            enumerable: true
-        });
-    });
-
-    return result as Model<A>;
-}
-
-export function modelProperty<A, B>(extractor: (a: A) => B, initial?: B) {
-    return pipe(map(extractor), startWith(initial));
 }
