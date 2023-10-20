@@ -26,50 +26,45 @@ const siderStyle: React.CSSProperties = {
 export default function App() {
     return (
         <BrowserRouter>
-            {/* App bars */}
-            <Layout className="flex flex-col h-full">
-                <Header className={"p-0 h-fit leading-none"}>
+            <div className={"flex flex-col h-full"}>
+                {/* App bars */}
+                <Routes>
+                    <Route path={"/editor/*"} element={<EditorAppBar />} />
+                    <Route path={"/results/*"} element={<ResultsAppBar />} />
+                </Routes>
+
+                <div className={"flex h-full"}>
+                    {/* Navigation */}
                     <Routes>
-                        <Route path={"/editor/*"} element={<EditorAppBar />} />
-                        <Route path={"/results/*"} element={<ResultsAppBar />} />
+                        <Route path={"/editor"} element={<Navigation />}>
+                            <Route path={"alternative/*"} element={<CostNavigation />} />
+                        </Route>
+                        <Route path={"/results"} element={<ResultNavigation />} />
                     </Routes>
-                </Header>
-                {/* Navigation */}
-                <Layout hasSider>
-                    <Sider className={"flex h-full bg-base-light "} style={siderStyle}>
-                        <Routes>
-                            <Route path={"/editor"} element={<Navigation />}>
-                                <Route path={"alternative/*"} element={<CostNavigation />} />
-                            </Route>
-                            <Route path={"/results"} element={<ResultNavigation />} />
-                        </Routes>
-                    </Sider>
-                    <Content className={"flex h-full"}>
-                        {/* Pages */}
-                        <Routes>
-                            <Route path={"/editor"}>
-                                <Route index element={<GeneralInformation />} />
-                                <Route path={"alternative"}>
-                                    <Route index element={<AlternativeSummary />} />
-                                    <Route path={":alternativeID"} element={<Alternatives />} />
-                                    <Route path={"cost/:costID"} element={<Cost />} />
-                                </Route>
-                            </Route>
-                            <Route path={"/results"}>
-                                <Route index element={<Inputs />} />
-                                <Route path={"alternative"} element={<AlternativeResults />} />
-                                <Route path={"annual"} element={<AnnualResults />} />
-                                <Route path={"summary"} element={<Summary />} />
-                            </Route>
-                        </Routes>
-                    </Content>
-                </Layout>
-                <Footer className={"p-0"}>
+
+                    {/* Pages */}
                     <Routes>
-                        <Route path={"/editor/*"} element={<Statistics />} />
+                        <Route path={"/editor"}>
+                            <Route index element={<GeneralInformation />} />
+                            <Route path={"alternative"}>
+                                <Route index element={<AlternativeSummary />} />
+                                <Route path={":alternativeID"} element={<Alternatives />} />
+                                <Route path={"cost/:costID"} element={<Cost />} />
+                            </Route>
+                        </Route>
+                        <Route path={"/results"}>
+                            <Route index element={<Inputs />} />
+                            <Route path={"alternative"} element={<AlternativeResults />} />
+                            <Route path={"annual"} element={<AnnualResults />} />
+                            <Route path={"summary"} element={<Summary />} />
+                        </Route>
                     </Routes>
-                </Footer>
-            </Layout>
+                </div>
+
+                <Routes>
+                    <Route path={"/editor/*"} element={<Statistics />} />
+                </Routes>
+            </div>
         </BrowserRouter>
     );
 }
