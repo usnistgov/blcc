@@ -18,14 +18,14 @@ import AnnualResults from "./pages/results/AnnualResults";
 export default function App() {
     return (
         <BrowserRouter>
-            <div className={"flex flex-col max-h-screen sticky top-0"}>
+            <div className={"flex flex-col h-full"}>
                 {/* App bars */}
                 <Routes>
                     <Route path={"/editor/*"} element={<EditorAppBar />} />
                     <Route path={"/results/*"} element={<ResultsAppBar />} />
                 </Routes>
 
-                <div className={"flex overflow-y-auto sticky top-0"}>
+                <div className={"flex h-full"}>
                     {/* Navigation */}
                     <Routes>
                         <Route path={"/editor"} element={<Navigation />}>
@@ -35,31 +35,27 @@ export default function App() {
                     </Routes>
 
                     {/* Pages */}
-                    <div className={"overflow-auto max-h-screen w-screen"}>
-                        <Routes>
-                            <Route path={"/editor"}>
-                                <Route index element={<GeneralInformation />} />
-                                <Route path={"alternative"}>
-                                    <Route index element={<AlternativeSummary />} />
-                                    <Route path={":alternativeID"} element={<Alternatives />} />
-                                    <Route path={"cost/:costID"} element={<Cost />} />
-                                </Route>
-                            </Route>
-                            <Route path={"/results"}>
-                                <Route index element={<Inputs />} />
-                                <Route path={"alternative"} element={<AlternativeResults />} />
-                                <Route path={"annual"} element={<AnnualResults />} />
-                                <Route path={"summary"} element={<Summary />} />
-                            </Route>
-                        </Routes>
-                    </div>
-                </div>
-
-                <div className={"stick bottom-0"}>
                     <Routes>
-                        <Route path={"/editor/*"} element={<Statistics />} />
+                        <Route path={"/editor"}>
+                            <Route index element={<GeneralInformation />} />
+                            <Route path={"alternative"}>
+                                <Route index element={<AlternativeSummary />} />
+                                <Route path={":alternativeID"} element={<Alternatives />} />
+                                <Route path={"cost/:costID"} element={<Cost />} />
+                            </Route>
+                        </Route>
+                        <Route path={"/results"}>
+                            <Route index element={<Inputs />} />
+                            <Route path={"alternative"} element={<AlternativeResults />} />
+                            <Route path={"annual"} element={<AnnualResults />} />
+                            <Route path={"summary"} element={<Summary />} />
+                        </Route>
                     </Routes>
                 </div>
+
+                <Routes>
+                    <Route path={"/editor/*"} element={<Statistics />} />
+                </Routes>
             </div>
         </BrowserRouter>
     );
