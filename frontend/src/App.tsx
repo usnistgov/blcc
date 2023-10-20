@@ -26,8 +26,19 @@ const headerStyle: React.CSSProperties = {
     backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))"
 };
 
+const contentStyle: React.CSSProperties = {
+    backgroundColor: "lightgray"
+};
+
 const siderStyle: React.CSSProperties = {
     backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))"
+};
+
+const footerStyle: React.CSSProperties = {
+    textAlign: "center",
+    color: "#fff",
+    backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))",
+    padding: "0"
 };
 
 export default function App() {
@@ -35,7 +46,7 @@ export default function App() {
         <BrowserRouter>
             <Layout>
                 {/* App bars */}
-                <Header style={headerStyle}>
+                <Header className="sticky top-0" style={headerStyle}>
                     <Routes>
                         <Route path={"/editor/*"} element={<EditorAppBar />} />
                         <Route path={"/results/*"} element={<ResultsAppBar />} />
@@ -54,7 +65,7 @@ export default function App() {
                     </Sider>
 
                     {/* Pages */}
-                    <Content>
+                    <Content style={contentStyle}>
                         <Routes>
                             <Route path={"/editor"}>
                                 <Route index element={<GeneralInformation />} />
@@ -73,7 +84,7 @@ export default function App() {
                         </Routes>
                     </Content>
                 </Layout>
-                <Footer>
+                <Footer className="sticky bottom-0" style={footerStyle}>
                     <Routes>
                         <Route path={"/editor/*"} element={<Statistics />} />
                     </Routes>
