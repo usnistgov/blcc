@@ -37,7 +37,7 @@ export default function dropdown(): Dropdown {
         }: PropsWithChildren & DropdownProps) => {
             return (
                 <Select
-                    className={(className ? className : "") + " px-2 w-44"}
+                    className={(className ? className : "") + ""}
                     onChange={change}
                     disabled={disabled}
                     placeholder={placeholder}
