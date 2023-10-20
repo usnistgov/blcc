@@ -19,6 +19,13 @@ import { Layout } from "antd";
 
 const { Header, Footer, Sider, Content } = Layout;
 
+const headerStyle: React.CSSProperties = {
+    lineHeight: "0",
+    height: "fit-content",
+    padding: "0",
+    backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))"
+};
+
 const siderStyle: React.CSSProperties = {
     backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))"
 };
@@ -26,45 +33,52 @@ const siderStyle: React.CSSProperties = {
 export default function App() {
     return (
         <BrowserRouter>
-            <div className={"flex flex-col h-full"}>
+            <Layout>
                 {/* App bars */}
-                <Routes>
-                    <Route path={"/editor/*"} element={<EditorAppBar />} />
-                    <Route path={"/results/*"} element={<ResultsAppBar />} />
-                </Routes>
-
-                <div className={"flex h-full"}>
-                    {/* Navigation */}
+                <Header style={headerStyle}>
                     <Routes>
-                        <Route path={"/editor"} element={<Navigation />}>
-                            <Route path={"alternative/*"} element={<CostNavigation />} />
-                        </Route>
-                        <Route path={"/results"} element={<ResultNavigation />} />
+                        <Route path={"/editor/*"} element={<EditorAppBar />} />
+                        <Route path={"/results/*"} element={<ResultsAppBar />} />
                     </Routes>
+                </Header>
+
+                <Layout hasSider>
+                    {/* Navigation */}
+                    <Sider style={siderStyle}>
+                        <Routes>
+                            <Route path={"/editor"} element={<Navigation />}>
+                                <Route path={"alternative/*"} element={<CostNavigation />} />
+                            </Route>
+                            <Route path={"/results"} element={<ResultNavigation />} />
+                        </Routes>
+                    </Sider>
 
                     {/* Pages */}
-                    <Routes>
-                        <Route path={"/editor"}>
-                            <Route index element={<GeneralInformation />} />
-                            <Route path={"alternative"}>
-                                <Route index element={<AlternativeSummary />} />
-                                <Route path={":alternativeID"} element={<Alternatives />} />
-                                <Route path={"cost/:costID"} element={<Cost />} />
+                    <Content>
+                        <Routes>
+                            <Route path={"/editor"}>
+                                <Route index element={<GeneralInformation />} />
+                                <Route path={"alternative"}>
+                                    <Route index element={<AlternativeSummary />} />
+                                    <Route path={":alternativeID"} element={<Alternatives />} />
+                                    <Route path={"cost/:costID"} element={<Cost />} />
+                                </Route>
                             </Route>
-                        </Route>
-                        <Route path={"/results"}>
-                            <Route index element={<Inputs />} />
-                            <Route path={"alternative"} element={<AlternativeResults />} />
-                            <Route path={"annual"} element={<AnnualResults />} />
-                            <Route path={"summary"} element={<Summary />} />
-                        </Route>
+                            <Route path={"/results"}>
+                                <Route index element={<Inputs />} />
+                                <Route path={"alternative"} element={<AlternativeResults />} />
+                                <Route path={"annual"} element={<AnnualResults />} />
+                                <Route path={"summary"} element={<Summary />} />
+                            </Route>
+                        </Routes>
+                    </Content>
+                </Layout>
+                <Footer>
+                    <Routes>
+                        <Route path={"/editor/*"} element={<Statistics />} />
                     </Routes>
-                </div>
-
-                <Routes>
-                    <Route path={"/editor/*"} element={<Statistics />} />
-                </Routes>
-            </div>
+                </Footer>
+            </Layout>
         </BrowserRouter>
     );
 }
