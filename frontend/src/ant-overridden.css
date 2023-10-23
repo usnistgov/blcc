@@ -15,3 +15,16 @@
     background-color: #73b3e7 !important;
     border-radius: 0.25rem !important;
 }
+
+.ant-layout-sider {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    position: sticky !important;
+}
+
+.ant-layout-sider-collapsed {
+    width: auto !important;
+    padding: 0 !important;
+}
