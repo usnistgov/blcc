@@ -1,0 +1,50 @@
+@import "./variables.css";
+
+.ant-layout-sider-trigger,
+.ant-layout,
+.ant-layout-has-sider {
+    background: var(--primary-color) !important;
+}
+
+.ant-menu-item-selected {
+    border-radius: 0.25rem !important;
+    background-color: var(--secondary-color) !important;
+    color: var(--white) !important;
+}
+
+.ant-menu-item-active {
+    color: var(--white) !important;
+    background-color: var(--secondary-color) !important;
+    border-radius: 0.25rem !important;
+}
+
+.ant-layout-sider {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    position: sticky !important;
+    background-color: var(--primary-color) !important;
+    height: fit-content !important;
+}
+
+.ant-layout-sider-dark {
+    background-color: var(--primary-color) !important;
+}
+
+.ant-layout-sider-trigger {
+    background-color: var(--primary-color) !important;
+    line-height: 0 !important;
+    width: 200px !important;
+}
+
+.ant-layout-sider-collapsed {
+    width: 150px !important;
+    transition: all 0.2s;
+}
+
+.ant-layout-sider-collapsed .ant-layout-sider-trigger {
+    width: 80px !important;
+    padding-inline: 4.8% !important;
+    transition: width 0s cubic-bezier(0.2, 0, 0, 1) 0s;
+}

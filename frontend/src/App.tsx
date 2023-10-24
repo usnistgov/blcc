@@ -23,28 +23,27 @@ const headerStyle: React.CSSProperties = {
     lineHeight: "0",
     height: "fit-content",
     padding: "0",
-    backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))"
+    zIndex: "1"
 };
 
 const contentStyle: React.CSSProperties = {
-    backgroundColor: "lightgray"
+    backgroundColor: "#d3d3d3",
+    minHeight: "280",
+    overflowY: "auto"
 };
 
 const siderStyle: React.CSSProperties = {
-    backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))"
+    top: "43px"
 };
 
 const footerStyle: React.CSSProperties = {
-    textAlign: "center",
-    color: "#fff",
-    backgroundColor: "rgb(169 174 177 / var(--tw-bg-opacity))",
     padding: "0"
 };
 
 export default function App() {
     return (
         <BrowserRouter>
-            <Layout>
+            <Layout style={{ minHeight: "100vh" }}>
                 {/* App bars */}
                 <Header className="sticky top-0" style={headerStyle}>
                     <Routes>
