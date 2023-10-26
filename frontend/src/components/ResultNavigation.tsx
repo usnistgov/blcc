@@ -1,3 +1,80 @@
+import React, { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { Layout, Menu } from "antd";
+import Icon from "@mdi/react";
+import { mdiTextBoxEditOutline, mdiListBoxOutline, mdiFormatListGroup, mdiFormatListText } from "@mdi/js";
+
+const { Sider } = Layout;
+
+const { Item, SubMenu } = Menu;
+
+type MenuItem = {
+    key: React.Key;
+    icon?: React.ReactNode;
+    label: React.ReactNode;
+    items?: MenuItem[];
+};
+
+const items: MenuItem[] = [
+    {
+        key: "input",
+        icon: <Icon path={mdiTextBoxEditOutline} size={1} />,
+        label: "Input"
+    },
+    {
+        key: "annual-results",
+        icon: <Icon path={mdiListBoxOutline} size={1} />,
+        label: "Annual Results"
+    },
+    {
+        key: "results-by-alternative",
+        icon: <Icon path={mdiFormatListGroup} size={1} />,
+        label: "Results by Alternative"
+    },
+    {
+        key: "summary",
+        icon: <Icon path={mdiFormatListText} size={1} />,
+        label: "Summary"
+    }
+];
+
+const background = "rgb(0 94 162)";
+
 export default function ResultNavigation() {
-    return <div className={"w-fit h-full bg-base-light"}>Result Navigation</div>;
+    const [collapsed, setCollapsed] = useState(false);
+    const navigate = useNavigate();
+    return (
+        <>
+            <Layout style={{ background }}>
+                <Sider
+                    collapsible
+                    collapsed={collapsed}
+                    onCollapse={(value) => setCollapsed(value)}
+                    style={{ background }}
+                >
+                    <Menu
+                        style={{ background, color: "#fff" }}
+                        mode="inline"
+                        defaultSelectedKeys={["gen-info"]}
+                        onClick={({ key }) => navigate(`/results/${key}`)}
+                    >
+                        {items.map((item) =>
+                            item.items ? (
+                                <SubMenu key={item.key} icon={item.icon} title={item.label}>
+                                    {item.items.map((child) => (
+                                        <Item key={child.key}>{child.label}</Item>
+                                    ))}
+                                </SubMenu>
+                            ) : (
+                                <Item key={item.key} icon={item.icon}>
+                                    {item.label}
+                                </Item>
+                            )
+                        )}
+                    </Menu>
+                </Sider>
+            </Layout>
+            <Outlet />
+        </>
+    );
 }
