@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { MailOutlined } from "@ant-design/icons";
 import { Layout, Menu, Typography } from "antd";
 import Icon from "@mdi/react";
 import {
@@ -29,13 +28,20 @@ const energy = [
     {
         key: "add-energy-cost",
         icon: <Icon path={mdiPlus} size={1} />,
-        label: "Add Energy Cost"
+        label: (
+            <React.Fragment>
+                <span className="flex items-center">
+                    <Icon path={mdiPlus} size={1} />
+                    Add Energy Cost
+                </span>
+            </React.Fragment>
+        )
     }
 ];
 for (let i = 1; i < 4; i++) {
     energy.push({
         key: `energy/${i}`,
-        label: `Energy Cost ${i}`,
+        label: <React.Fragment>Energy Cost {i}</React.Fragment>,
         icon: <Icon path={mdiPlus} size={1} />
     });
 }
@@ -44,13 +50,20 @@ const water = [
     {
         key: "add-water-cost",
         icon: <Icon path={mdiPlus} size={1} />,
-        label: "Add Water Cost"
+        label: (
+            <React.Fragment>
+                <span className="flex items-center">
+                    <Icon path={mdiPlus} size={1} />
+                    Add Water Cost
+                </span>
+            </React.Fragment>
+        )
     }
 ];
 for (let i = 1; i < 4; i++) {
     water.push({
         key: `water/${i}`,
-        label: `Water Cost ${i}`,
+        label: <React.Fragment>Water Cost {i}</React.Fragment>,
         icon: <Icon path={mdiPlus} size={1} />
     });
 }
@@ -59,13 +72,20 @@ const capital = [
     {
         key: "add-capital-cost",
         icon: <Icon path={mdiPlus} size={1} />,
-        label: "Add Capital Cost"
+        label: (
+            <React.Fragment>
+                <span className="flex items-center">
+                    <Icon path={mdiPlus} size={1} />
+                    Add Capital Cost
+                </span>
+            </React.Fragment>
+        )
     }
 ];
 for (let i = 1; i < 4; i++) {
     capital.push({
         key: `capital/${i}`,
-        label: `Capital Cost ${i}`,
+        label: <React.Fragment>Capital Cost {i}</React.Fragment>,
         icon: <Icon path={mdiPlus} size={1} />
     });
 }
@@ -74,13 +94,20 @@ const contract = [
     {
         key: "add-contract-cost",
         icon: <Icon path={mdiPlus} size={1} />,
-        label: "Add Contract Cost"
+        label: (
+            <React.Fragment>
+                <span className="flex items-center">
+                    <Icon path={mdiPlus} size={1} />
+                    Add Contract Cost
+                </span>
+            </React.Fragment>
+        )
     }
 ];
 for (let i = 1; i < 4; i++) {
     contract.push({
         key: `contract/${i}`,
-        label: `Contract Cost ${i}`,
+        label: <React.Fragment>Contract Cost {i}</React.Fragment>,
         icon: <Icon path={mdiPlus} size={1} />
     });
 }
@@ -120,7 +147,7 @@ const items: MenuItem["items"] = [
                 icon: <Icon path={mdiLightningBolt} size={1} />,
                 label: "Energy Costs"
             },
-            { key: "energy-costs", icon: <MailOutlined />, label: "Energy Costs" }
+            { key: "energy-costs", icon: <Icon path={mdiEmailOutline} size={1} />, label: "Energy Costs" }
         ]
     }
 ];
@@ -138,9 +165,8 @@ export default function CostNavigation() {
                     collapsible
                     collapsed={collapsed}
                     onCollapse={(value) => setCollapsed(value)}
-                    className="bg-primary text-white"
                 >
-                    <Title className={"text-center text-white"} level={3}>
+                    <Title style={{ textAlign: "center", color: "#fff", marginBottom: "0" }} level={4}>
                         Cost
                     </Title>
                     <Menu
