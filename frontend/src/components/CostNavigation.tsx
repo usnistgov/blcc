@@ -175,6 +175,7 @@ export default function CostNavigation() {
                         defaultOpenKeys={["sub1"]}
                         mode="inline"
                         inlineCollapsed={collapsed}
+                        onClick={({ key }) => navigate(`/editor/alternative/${key}`)}
                     >
                         {items.map((item) =>
                             item.items ? (
