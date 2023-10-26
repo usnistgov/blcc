@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { DesktopOutlined, PieChartOutlined, UserOutlined } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 
 const { Sider } = Layout;
@@ -26,17 +25,14 @@ for (let i = 1; i < 4; i++) {
 const items: MenuItem[] = [
     {
         key: "gen-info",
-        icon: <PieChartOutlined />,
         label: "General Information"
     },
     {
         key: "alternative",
-        icon: <DesktopOutlined />,
         label: "Alternative Summary"
     },
     {
         key: "alternatives",
-        icon: <UserOutlined />,
         label: "Alternatives",
         items: alternatives
     }

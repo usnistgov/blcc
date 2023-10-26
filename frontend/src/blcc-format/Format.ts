@@ -53,8 +53,8 @@ export type NonUSLocation = {
 };
 
 export enum DiscountingMethod {
-    END_OF_YEAR,
-    MID_YEAR
+    END_OF_YEAR = "End of Year",
+    MID_YEAR = "Mid Year"
 }
 
 export enum DollarMethod {

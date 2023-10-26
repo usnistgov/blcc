@@ -1,15 +1,23 @@
-import { Typography, Divider, Switch } from "antd";
+import { Divider, Switch, Typography } from "antd";
 
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
 
-import { analysisType, analysisPurpose, emissionsRateScenario, socialCostOfGHG } from "../../constants/DROPDOWN";
-import { countries, states, zipcodes } from "../../constants/LOCATION";
+import { analysisPurpose, analysisType, emissionsRateScenario, socialCostOfGHG } from "../../constants/DROPDOWN";
+import { countries, zipcodes } from "../../constants/LOCATION";
+import { DiscountingMethod } from "../../blcc-format/Format";
+import { of } from "rxjs";
+import { Model } from "../../model/Model";
 
-const { component: TextInput } = textInput();
-const { component: TextArea } = textArea();
+const { component: Input } = textInput();
+
+const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
+const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
+const { onChange$: descriptionChange$, component: TextArea } = textArea();
 const { component: DropDown } = dropdown();
+
+export { nameChange$, descriptionChange$, analystChange$ };
 
 const { Title } = Typography;
 
@@ -20,16 +28,19 @@ export default function GeneralInformation() {
     const studyPeriod: string[] = [];
     for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
 
+    //const locationModel = Model.useLocation();
+    //const { component: LocationInputs } = createLocationInputs(locationModel);
+
     return (
         <div className={"w-full h-full p-8 "}>
             <div className="w-1/2 grid grid-cols-2">
                 <span className="pb-3">
                     <Title level={5}>Project Name</Title>
-                    <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
+                    <NameInput className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
                 <span>
                     <Title level={5}>Analyst</Title>
-                    <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
+                    <AnalystInput className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
 
                 <span className="pb-3">
@@ -66,19 +77,19 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Discounting Convention</Title>
-                        <DropDown className="w-3/4" options={["End of Year", "Mid Year"]} />
+                        <DropDown className="w-3/4" options={Object.values(DiscountingMethod)} />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
-                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
                     </span>
                     <span className="pb-3 w-full">
                         <Title level={5}>Nominal Discount Rate</Title>
-                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
                     </span>
                     <span>
                         <Title level={5}>Real Discount Rate</Title>
-                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
@@ -96,15 +107,15 @@ export default function GeneralInformation() {
                     </span>
                     <span>
                         <Title level={5}>City</Title>
-                        <TextInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>State</Title>
-                        <DropDown className="w-3/4" options={states} />
+                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span>
                         <Title level={5}>Zip</Title>
-                        <DropDown className="w-3/4" options={zip} />
+                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                 </div>
             </div>

@@ -1,0 +1,61 @@
+import { selfDependent } from "@react-rxjs/utils";
+import { AnalysisType, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
+import { bind } from "@react-rxjs/core";
+import { map, merge } from "rxjs";
+import { imported$ } from "../blcc-format/Import";
+import { createLocationModel } from "./LocationModel";
+
+const [_project$, connectProject] = selfDependent<Project>();
+
+export { _project$, connectProject };
+
+const [useName, name$] = bind(_project$.pipe(map((p) => p.name)), "Untitled Project");
+const [useDescription, description$] = bind(_project$.pipe(map((p) => p.description)), undefined);
+const [useAnalyst, analyst$] = bind(_project$.pipe(map((p) => p.analyst)), undefined);
+const [useAnalysisType, analysisType$] = bind(
+    _project$.pipe(map((p) => p.analysisType)),
+    AnalysisType.FEDERAL_FINANCED
+);
+const [usePurpose, purpose$] = bind(_project$.pipe(map((p) => p.purpose)), undefined);
+const [useDollarMethod, dollarMethod$] = bind(_project$.pipe(map((p) => p.dollarMethod)), DollarMethod.CONSTANT);
+const [useStudyPeriod, studyPeriod$] = bind(_project$.pipe(map((p) => p.studyPeriod)), 25);
+const [useConstructionPeriod, constructionPeriod$] = bind(_project$.pipe(map((p) => p.constructionPeriod)), 0);
+const [useDiscountingMethod, discountingMethod$] = bind(
+    _project$.pipe(map((p) => p.discountingMethod)),
+    DiscountingMethod.END_OF_YEAR
+);
+const [useRealDiscountRate, realDiscountRate$] = bind(_project$.pipe(map((p) => p.realDiscountRate)), 0.06);
+const [useNominalDiscountRate, nominalDiscountRate$] = bind(
+    _project$.pipe(map((p) => p.nominalDiscountRate)),
+    undefined
+);
+const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.inflationRate)), undefined);
+
+const Model = {
+    name$,
+    useName,
+    description$,
+    useDescription,
+    analyst$,
+    useAnalyst,
+    analysisType$,
+    useAnalysisType,
+    purpose$,
+    usePurpose,
+    dollarMethod$,
+    useDollarMethod,
+    studyPeriod$,
+    useStudyPeriod,
+    constructionPeriod$,
+    useConstructionPeriod,
+    discountingMethod$,
+    useDiscountingMethod,
+    realDiscountRate$,
+    useRealDiscountRate,
+    nominalDiscountRate$,
+    useNominalDiscountRate,
+    inflationRate$,
+    useInflationRate
+};
+
+export { Model };

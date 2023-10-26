@@ -6,7 +6,7 @@ import { mdiArrowLeft, mdiPlay } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
-import Model from "../model/Model";
+import { Model } from "../model/Model";
 
 const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
@@ -25,7 +25,7 @@ export default function ResultsAppBar() {
                 </BackButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-white"}>{Model.name}</p>
+                <p className={"text-white"}>{Model.useName()}</p>
                 <div className={"pl-4"}>
                     <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
                         Run

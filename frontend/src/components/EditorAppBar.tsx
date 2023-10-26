@@ -2,13 +2,11 @@ import ButtonBar from "./ButtonBar";
 import button, { ButtonType } from "./Button";
 import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
 import AppBar from "./AppBar";
-import Model from "../model/Model";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { upload } from "../blcc-format/Import";
-import { sample } from "rxjs";
-import { download } from "../util/DownloadFile";
+import { Model } from "../model/Model";
 
 const { component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -55,7 +53,7 @@ export default function EditorAppBar() {
                 </SaveAsButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"}>{Model.name}</p>
+                <p className={"text-base-lightest"}>{Model.useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
                     <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
                         Reports and Analysis

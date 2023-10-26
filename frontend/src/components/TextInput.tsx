@@ -1,7 +1,8 @@
-import { Observable } from "rxjs";
+import { EMPTY, Observable } from "rxjs";
 import React, { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Input } from "antd";
+import { bind } from "@react-rxjs/core";
 
 export enum TextInputType {
     PRIMARY = " ",
@@ -23,8 +24,13 @@ export type TextInput = {
     component: React.FC<PropsWithChildren & TextInputProps>;
 };
 
-export default function textInput(): TextInput {
+export default function textInput(
+    value$: Observable<string | undefined> = EMPTY,
+    placeholder$: Observable<string> = EMPTY
+): TextInput {
     const [onChange$, onChange] = createSignal<string>();
+    const [usePlaceholder] = bind(placeholder$, undefined);
+    const [useValue] = bind(value$, undefined);
 
     return {
         onChange$,
@@ -33,16 +39,16 @@ export default function textInput(): TextInput {
             className,
             type,
             disabled = false,
-            bordered = true,
-            placeholder
+            bordered = true
         }: PropsWithChildren & TextInputProps) => {
             return (
                 <Input
                     className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
                     onChange={(event) => onChange(event.target.value)}
-                    placeholder={placeholder}
+                    placeholder={usePlaceholder()}
                     bordered={bordered}
                     disabled={disabled}
+                    value={useValue()}
                 >
                     {children}
                 </Input>
