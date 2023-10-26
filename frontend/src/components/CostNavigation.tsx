@@ -24,6 +24,7 @@ type MenuItem = {
 };
 
 // will repalce once Model is set
+const rootSubmenuKeys: string[] = ["energy-costs", "water-costs", "capital-costs", "contract-costs", "other"];
 const energy = [
     {
         key: "add-energy-cost",
@@ -143,11 +144,11 @@ const items: MenuItem["items"] = [
         label: "Other",
         items: [
             {
-                key: "energy-costs",
+                key: "other-1",
                 icon: <Icon path={mdiLightningBolt} size={1} />,
                 label: "Energy Costs"
             },
-            { key: "energy-costs", icon: <Icon path={mdiEmailOutline} size={1} />, label: "Energy Costs" }
+            { key: "other-2", icon: <Icon path={mdiEmailOutline} size={1} />, label: "Energy Costs" }
         ]
     }
 ];
@@ -156,7 +157,18 @@ const background = "rgb(0 94 162)";
 
 export default function CostNavigation() {
     const [collapsed, setCollapsed] = useState(false);
+    const [openKeys, setOpenKeys] = useState(["energy-costs"]);
     const navigate = useNavigate();
+
+    const onOpenChange = (keys: string[]) => {
+        const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+        if (latestOpenKey && rootSubmenuKeys.indexOf(latestOpenKey!) === -1) {
+            setOpenKeys(keys);
+        } else {
+            setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+        }
+    };
+
     return (
         <>
             <Layout className="bg-primary">
@@ -171,15 +183,18 @@ export default function CostNavigation() {
                     </Title>
                     <Menu
                         className="bg-primary text-white"
-                        defaultSelectedKeys={["1"]}
-                        defaultOpenKeys={["sub1"]}
                         mode="inline"
-                        inlineCollapsed={collapsed}
-                        onClick={({ key }) => navigate(`/editor/alternative/${key}`)}
+                        openKeys={openKeys}
+                        onOpenChange={onOpenChange}
                     >
                         {items.map((item) =>
                             item.items ? (
-                                <SubMenu key={item.key} icon={item.icon} title={item.label}>
+                                <SubMenu
+                                    key={item.key}
+                                    icon={item.icon}
+                                    title={item.label}
+                                    onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
+                                >
                                     {item.items.map((child) => (
                                         <Item key={child.key}>{child.label}</Item>
                                     ))}
