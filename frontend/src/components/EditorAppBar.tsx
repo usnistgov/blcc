@@ -7,6 +7,9 @@ import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { upload } from "../blcc-format/Import";
 import { Model } from "../model/Model";
+import { download } from "../util/DownloadFile";
+import { project$ } from "../model/Project";
+import { sample } from "rxjs";
 
 const { component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -20,11 +23,8 @@ const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
  */
 export default function EditorAppBar() {
     const navigate = useNavigate();
-    //const projectName = Model.useProjectName();
 
-    //console.log(JSON.stringify(Model));
-    //useSubscribe(saveClick$, () => download(Model, Model.name));
-    //useSubscribe(Model.project$.pipe(sample(saveClick$)), (project) => download(project, project.name));
+    useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, project.name));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 

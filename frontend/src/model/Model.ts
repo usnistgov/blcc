@@ -1,9 +1,7 @@
 import { selfDependent } from "@react-rxjs/utils";
 import { AnalysisType, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
 import { bind } from "@react-rxjs/core";
-import { map, merge } from "rxjs";
-import { imported$ } from "../blcc-format/Import";
-import { createLocationModel } from "./LocationModel";
+import { map } from "rxjs";
 
 const [_project$, connectProject] = selfDependent<Project>();
 
