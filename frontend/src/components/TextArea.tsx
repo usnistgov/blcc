@@ -33,7 +33,7 @@ export default function textArea(): TextArea {
         }: PropsWithChildren & TextAreaProps) => {
             return (
                 <TextArea
-                    className={(className ?? "") + "w-44"}
+                    className={className ?? ""}
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={placeholder}
                     bordered={bordered}
