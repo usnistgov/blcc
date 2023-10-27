@@ -1,36 +1,39 @@
-import { Observable } from "rxjs";
+import { EMPTY, Observable } from "rxjs";
 import React, { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Select } from "antd";
+import { bind } from "@react-rxjs/core";
 
 export type DropdownProps = {
     className?: string;
-    options: (number | string)[];
     disabled?: boolean;
     placeholder?: string;
     showSearch?: boolean;
 };
 
-export type Dropdown = {
-    change$: Observable<string | number>;
-    selectSearch$: Observable<string | number>;
+export type Dropdown<T> = {
+    change$: Observable<T>;
+    selectSearch$: Observable<T>;
     component: React.FC<PropsWithChildren & DropdownProps>;
 };
 
 /**
  * Creates a dropdown component and its associated change stream.
  */
-export default function dropdown(): Dropdown {
-    const [change$, change] = createSignal<string | number>();
-    const [selectSearch$, selectSearch] = createSignal<string | number>();
+export default function dropdown<T extends string>(
+    options: T[],
+    value$: Observable<T | undefined> = EMPTY
+): Dropdown<T> {
+    const [change$, change] = createSignal<T>();
+    const [selectSearch$, selectSearch] = createSignal<T>();
+    const [useValue] = bind(value$, undefined);
 
     return {
         change$,
         selectSearch$,
         component: ({
             children,
-            className,
-            options,
+            className = "",
             disabled = false,
             placeholder,
             showSearch = true
@@ -42,10 +45,11 @@ export default function dropdown(): Dropdown {
                     disabled={disabled}
                     placeholder={placeholder}
                     showSearch={showSearch}
-                    onSearch={selectSearch}
+                    onSearch={(v) => selectSearch(v as T)}
+                    value={useValue()}
                 >
                     {children}
-                    {options?.map((option) => (
+                    {options.map((option) => (
                         <Select.Option key={option} value={option}>
                             {option}
                         </Select.Option>
