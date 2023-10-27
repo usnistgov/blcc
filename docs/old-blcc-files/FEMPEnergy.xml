@@ -1,211 +1,211 @@
 <?xml version="1.0"?>
 <Project>
-  <Name>Heating/Cooling System </Name>
-  <Comment>Replacement of Baseboard/ AC System with Heat Pump in Park Service 
-House
-</Comment>
-  <Location>District of Columbia</Location>
-  <Analyst>Courtney Mayer</Analyst>
-  <AnalysisPurpose>2</AnalysisPurpose>
-  <BaseDate>April 1, 2022</BaseDate>
-  <PCPeriod>0 years 0 months</PCPeriod>
-  <Duration>15 years 0 months</Duration>
-  <DiscountingMethod>1</DiscountingMethod>
-  <DiscountRate>0.03</DiscountRate>
-  <Alternatives>
-    <Alternative>
-      <Name>Existing System</Name>
-      <Comment>Keep existing system</Comment>
-      <CapitalComponents>
-        <CapitalComponent>
-          <Name>Baseboard Heater</Name>
-          <InitialCost>500.0</InitialCost>
-          <Duration>15 years 0 months</Duration>
-            <Escalation>
-              <SimpleEscalation>
-              </SimpleEscalation>
-            </Escalation>
-          <PhaseIn>
-            <PhaseIn>
-              <Portions>1.0
-              </Portions>
-              <Intervals>0 years 0 months
-              </Intervals>
-            </PhaseIn>
-          </PhaseIn>
-          <ResaleValueFactor>0.1</ResaleValueFactor>
-          <ResaleEscalation>
-            <SimpleEscalation>
-            </SimpleEscalation>
-          </ResaleEscalation>
-        </CapitalComponent>
-        <CapitalComponent>
-          <Name>Window AC Unit</Name>
-          <Comment>Existing System</Comment>
-          <InitialCost>1000.0</InitialCost>
-          <Duration>15 years 0 months</Duration>
-            <Escalation>
-              <SimpleEscalation>
-              </SimpleEscalation>
-            </Escalation>
-          <PhaseIn>
-            <PhaseIn>
-              <Portions>1.0
-              </Portions>
-              <Intervals>0 years 0 months
-              </Intervals>
-            </PhaseIn>
-          </PhaseIn>
-          <ResaleValueFactor>0.1</ResaleValueFactor>
-          <ResaleEscalation>
-            <SimpleEscalation>
-            </SimpleEscalation>
-          </ResaleEscalation>
-          <CapitalReplacements>
-            <CapitalReplacement>
-              <Name>Fan replacement</Name>
-              <InitialCost>600.0</InitialCost>
-              <Start>10 years 0 months</Start>
-              <Duration>10 years 0 months</Duration>
-                <Escalation>
-                  <SimpleEscalation>
-                  </SimpleEscalation>
-                </Escalation>
-              <ResaleValueFactor>0.5</ResaleValueFactor>
-            </CapitalReplacement>
-          </CapitalReplacements>
-          <RecurringCosts>
-            <RecurringCost>
-              <Name>Routine Maintenance</Name>
-              <Duration>Remaining</Duration>
-              <Amount>50.0</Amount>
-              <Escalation>
-                <SimpleEscalation>
-                </SimpleEscalation>
-              </Escalation>
-              <Index>
-                <UsageIndex>
-                  <Intervals>Remaining
-                  </Intervals>
-                  <Values>1.0
-                  </Values>
-                </UsageIndex>
-              </Index>
-            </RecurringCost>
-          </RecurringCosts>
-          <NonRecurringCosts>
-            <NonRecurringCost>
-              <Name>Cleaning</Name>
-              <Start>10 years 0 months</Start>
-              <Amount>200.0</Amount>
-              <Escalation>
-                <SimpleEscalation>
-                </SimpleEscalation>
-              </Escalation>
-            </NonRecurringCost>
-          </NonRecurringCosts>
-        </CapitalComponent>
-      </CapitalComponents>
-      <EnergyUsages>
-        <EnergyUsage>
-          <FuelType>Electricity</FuelType>
-          <Name>Electricity</Name>
-          <Duration>Remaining</Duration>
-          <YearlyUsage>15000.0</YearlyUsage>
-          <Units>kWh</Units>
-          <UnitCost>0.08</UnitCost>
-          <UsageIndex>
-            <UsageIndex>
-              <Intervals>Remaining
-              </Intervals>
-              <Values>1.0
-              </Values>
-            </UsageIndex>
-          </UsageIndex>
-          <State>District of Columbia</State>
-          <RateSchedule>Commercial</RateSchedule>
-          <Emissions>District of Columbia</Emissions>
-        </EnergyUsage>
-      </EnergyUsages>
-    </Alternative>
-    <Alternative>
-      <Name>New System</Name>
-      <Comment>Replace BB/AC with Heat Pump</Comment>
-      <CapitalComponents>
-        <CapitalComponent>
-          <Name>Heat Pump</Name>
-          <InitialCost>3000.0</InitialCost>
-          <Duration>20 years 0 months</Duration>
-            <Escalation>
-              <SimpleEscalation>
-              </SimpleEscalation>
-            </Escalation>
-          <PhaseIn>
-            <PhaseIn>
-              <Portions>1.0
-              </Portions>
-              <Intervals>0 years 0 months
-              </Intervals>
-            </PhaseIn>
-          </PhaseIn>
-          <ResaleValueFactor>0.25</ResaleValueFactor>
-          <ResaleEscalation>
-            <SimpleEscalation>
-            </SimpleEscalation>
-          </ResaleEscalation>
-          <RecurringCosts>
-            <RecurringCost>
-              <Name>Routine OM</Name>
-              <Duration>Remaining</Duration>
-              <Amount>100.0</Amount>
-              <Escalation>
-                <SimpleEscalation>
-                </SimpleEscalation>
-              </Escalation>
-              <Index>
-                <UsageIndex>
-                  <Intervals>Remaining
-                  </Intervals>
-                  <Values>1.0
-                  </Values>
-                </UsageIndex>
-              </Index>
-            </RecurringCost>
-          </RecurringCosts>
-          <NonRecurringCosts>
-            <NonRecurringCost>
-              <Name>Overhaul</Name>
-              <Start>8 years 0 months</Start>
-              <Amount>600.0</Amount>
-              <Escalation>
-                <SimpleEscalation>
-                </SimpleEscalation>
-              </Escalation>
-            </NonRecurringCost>
-          </NonRecurringCosts>
-        </CapitalComponent>
-      </CapitalComponents>
-      <EnergyUsages>
-        <EnergyUsage>
-          <FuelType>Electricity</FuelType>
-          <Name>Electricity</Name>
-          <Duration>Remaining</Duration>
-          <YearlyUsage>10250.0</YearlyUsage>
-          <Units>kWh</Units>
-          <UnitCost>0.08</UnitCost>
-          <UsageIndex>
-            <UsageIndex>
-              <Intervals>Remaining
-              </Intervals>
-              <Values>1.0
-              </Values>
-            </UsageIndex>
-          </UsageIndex>
-          <State>District of Columbia</State>
-          <RateSchedule>Commercial</RateSchedule>
-          <Emissions>District of Columbia</Emissions>
-        </EnergyUsage>
-      </EnergyUsages>
-    </Alternative>
-  </Alternatives>
+    <Name>Heating/Cooling System</Name>
+    <Comment>Replacement of Baseboard/ AC System with Heat Pump in Park Service
+        House
+    </Comment>
+    <Location>District of Columbia</Location>
+    <Analyst>Courtney Mayer</Analyst>
+    <AnalysisPurpose>2</AnalysisPurpose>
+    <BaseDate>April 1, 2022</BaseDate>
+    <PCPeriod>0 years 0 months</PCPeriod>
+    <Duration>15 years 0 months</Duration>
+    <DiscountingMethod>1</DiscountingMethod>
+    <DiscountRate>0.03</DiscountRate>
+    <Alternatives>
+        <Alternative>
+            <Name>Existing System</Name>
+            <Comment>Keep existing system</Comment>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Baseboard Heater</Name>
+                    <InitialCost>500.0</InitialCost>
+                    <Duration>15 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0
+                            </Portions>
+                            <Intervals>0 years 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleValueFactor>0.1</ResaleValueFactor>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                </CapitalComponent>
+                <CapitalComponent>
+                    <Name>Window AC Unit</Name>
+                    <Comment>Existing System</Comment>
+                    <InitialCost>1000.0</InitialCost>
+                    <Duration>15 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0
+                            </Portions>
+                            <Intervals>0 years 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleValueFactor>0.1</ResaleValueFactor>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <CapitalReplacements>
+                        <CapitalReplacement>
+                            <Name>Fan replacement</Name>
+                            <InitialCost>600.0</InitialCost>
+                            <Start>10 years 0 months</Start>
+                            <Duration>10 years 0 months</Duration>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <ResaleValueFactor>0.5</ResaleValueFactor>
+                        </CapitalReplacement>
+                    </CapitalReplacements>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Routine Maintenance</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>50.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                    <NonRecurringCosts>
+                        <NonRecurringCost>
+                            <Name>Cleaning</Name>
+                            <Start>10 years 0 months</Start>
+                            <Amount>200.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                        </NonRecurringCost>
+                    </NonRecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+            <EnergyUsages>
+                <EnergyUsage>
+                    <FuelType>Electricity</FuelType>
+                    <Name>Electricity</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>15000.0</YearlyUsage>
+                    <Units>kWh</Units>
+                    <UnitCost>0.08</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>District of Columbia</State>
+                    <RateSchedule>Commercial</RateSchedule>
+                    <Emissions>District of Columbia</Emissions>
+                </EnergyUsage>
+            </EnergyUsages>
+        </Alternative>
+        <Alternative>
+            <Name>New System</Name>
+            <Comment>Replace BB/AC with Heat Pump</Comment>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Heat Pump</Name>
+                    <InitialCost>3000.0</InitialCost>
+                    <Duration>20 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0
+                            </Portions>
+                            <Intervals>0 years 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleValueFactor>0.25</ResaleValueFactor>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Routine OM</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>100.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                    <NonRecurringCosts>
+                        <NonRecurringCost>
+                            <Name>Overhaul</Name>
+                            <Start>8 years 0 months</Start>
+                            <Amount>600.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                        </NonRecurringCost>
+                    </NonRecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+            <EnergyUsages>
+                <EnergyUsage>
+                    <FuelType>Electricity</FuelType>
+                    <Name>Electricity</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>10250.0</YearlyUsage>
+                    <Units>kWh</Units>
+                    <UnitCost>0.08</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>District of Columbia</State>
+                    <RateSchedule>Commercial</RateSchedule>
+                    <Emissions>District of Columbia</Emissions>
+                </EnergyUsage>
+            </EnergyUsages>
+        </Alternative>
+    </Alternatives>
 </Project>
