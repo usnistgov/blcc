@@ -8,7 +8,9 @@ export enum ButtonType {
     PRIMARY_INVERTED = " bg-base-lightest hover:bg-base-lighter active:bg-base-light text-primary ",
     ERROR = " bg-error hover:bg-error-light active:bg-error-dark text-base-lightest ",
     SUCCESS = " bg-success hover:bg-success-light active:bg-success-dark text-base-lightest ",
-    DISABLED = " bg-base-lighter text-base-light "
+    DISABLED = " bg-base-lighter text-base-light ",
+    LINK = " link text-primary hover:text-primary-light active:text-primary-dark text-base-lightest ",
+    LINKERROR = " link text-error hover:text-error-light active:text-error-dark text-base-lightest "
 }
 
 export type ButtonProps = {
