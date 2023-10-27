@@ -28,8 +28,15 @@ const [useNominalDiscountRate, nominalDiscountRate$] = bind(
     undefined
 );
 const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.inflationRate)), undefined);
+//const [useState, state$] = bind(_project$.pipe(map((p) => p.location?.state)), undefined);
+const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
+
+const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
+const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
 
 const Model = {
+    project: _project$,
+
     name$,
     useName,
     description$,
@@ -53,7 +60,14 @@ const Model = {
     nominalDiscountRate$,
     useNominalDiscountRate,
     inflationRate$,
-    useInflationRate
+    useInflationRate,
+    city$,
+    useCity,
+
+    alternatives$,
+    useAlternatives,
+    costs$,
+    useCosts
 };
 
 export { Model };

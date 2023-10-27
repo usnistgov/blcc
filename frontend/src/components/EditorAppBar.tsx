@@ -24,7 +24,7 @@ const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
 export default function EditorAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, project.name));
+    useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, `${project.name}.blcc`));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 

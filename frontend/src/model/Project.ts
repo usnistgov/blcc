@@ -1,11 +1,27 @@
 import { imported$ } from "../blcc-format/Import";
 import { scan } from "rxjs";
-import { Project } from "../blcc-format/Format";
+import { Alternative, AnalysisType, Cost, Project } from "../blcc-format/Format";
 import { mergeWithKey } from "@react-rxjs/utils";
-import { analystChange$, descriptionChange$, nameChange$ } from "../pages/editor/GeneralInformation";
+import {
+    analysisPurposeChange$,
+    analysisTypeChange$,
+    analystChange$,
+    descriptionChange$,
+    nameChange$
+} from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
+import { addAlternative$ } from "../components/Navigation";
+import { shareLatest } from "@react-rxjs/core";
 
-const project$ = mergeWithKey({ imported$, nameChange$, descriptionChange$, analystChange$ }).pipe(
+const project$ = mergeWithKey({
+    imported$,
+    nameChange$,
+    descriptionChange$,
+    analystChange$,
+    analysisTypeChange$,
+    analysisPurposeChange$,
+    addAlternative$
+}).pipe(
     scan(
         (accumulator, operation) => {
             switch (operation.type) {
@@ -24,14 +40,30 @@ const project$ = mergeWithKey({ imported$, nameChange$, descriptionChange$, anal
                     accumulator.analyst = operation.payload;
                     break;
                 }
+                case "analysisTypeChange$": {
+                    accumulator.analysisType = operation.payload;
+                    break;
+                }
+                case "analysisPurposeChange$": {
+                    accumulator.purpose = operation.payload;
+                    break;
+                }
+                case "addAlternative$": {
+                    accumulator.alternatives.push(operation.payload);
+                    break;
+                }
             }
 
             return accumulator;
         },
         {
-            name: "Untitled Project"
+            name: "Untitled Project",
+            analysisType: AnalysisType.FEDERAL_FINANCED,
+            alternatives: [] as Alternative[],
+            costs: [] as Cost[]
         } as Project
     ),
+    shareLatest(),
     connectProject()
 );
 

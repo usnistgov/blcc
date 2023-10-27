@@ -3,23 +3,34 @@ import { Divider, Switch, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
-
-import { analysisPurpose, analysisType, emissionsRateScenario, socialCostOfGHG } from "../../constants/DROPDOWN";
 import { countries, zipcodes } from "../../constants/LOCATION";
-import { DiscountingMethod } from "../../blcc-format/Format";
+import { AnalysisType, Purpose } from "../../blcc-format/Format";
 import { of } from "rxjs";
 import { Model } from "../../model/Model";
 
+const { Title } = Typography;
+
+/*
+ * rxjs components
+ */
 const { component: Input } = textInput();
 
 const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
 const { onChange$: descriptionChange$, component: TextArea } = textArea();
-const { component: DropDown } = dropdown();
+const { component: DropDown } = dropdown(countries);
+const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
+    Object.values(AnalysisType),
+    Model.analysisType$
+);
+const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = dropdown<Purpose>(
+    Object.values(Purpose),
+    Model.purpose$
+);
+//const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
+const { onChange$: cityChange$, component: CityInput } = textInput(Model.city$);
 
-export { nameChange$, descriptionChange$, analystChange$ };
-
-const { Title } = Typography;
+export { nameChange$, descriptionChange$, analystChange$, cityChange$, analysisTypeChange$, analysisPurposeChange$ };
 
 const zip: number[] = [];
 zipcodes.forEach((zips) => zip.push(zips.zip));
@@ -27,9 +38,6 @@ zipcodes.forEach((zips) => zip.push(zips.zip));
 export default function GeneralInformation() {
     const studyPeriod: string[] = [];
     for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
-
-    //const locationModel = Model.useLocation();
-    //const { component: LocationInputs } = createLocationInputs(locationModel);
 
     return (
         <div className={"w-full h-full p-8 "}>
@@ -45,11 +53,11 @@ export default function GeneralInformation() {
 
                 <span className="pb-3">
                     <Title level={5}>Analysis Type</Title>
-                    <DropDown className="w-3/4" options={analysisType} />
+                    <AnalysisTypeDropdown className={"w-3/4"} />
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Analysis Purpose</Title>
-                    <DropDown className="w-3/4" options={analysisPurpose} />
+                    <AnalysisPurposeDropdown className="w-3/4" placeholder={"N/A"} />
                 </span>
 
                 <span className="col-span-2 pb-3">
@@ -58,7 +66,7 @@ export default function GeneralInformation() {
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Length of Study Period</Title>
-                    <DropDown className="w-3/4" options={studyPeriod} />
+                    <DropDown className="w-3/4" />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
@@ -77,7 +85,7 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Discounting Convention</Title>
-                        <DropDown className="w-3/4" options={Object.values(DiscountingMethod)} />
+                        <DropDown className="w-3/4" />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
@@ -103,11 +111,11 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Country</Title>
-                        <DropDown className="w-3/4" options={countries} />
+                        <DropDown className="w-3/4" />
                     </span>
                     <span>
                         <Title level={5}>City</Title>
-                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
+                        <CityInput className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>State</Title>
@@ -131,11 +139,11 @@ export default function GeneralInformation() {
                 </Divider>
                 <span className="pb-3">
                     <Title level={5}>Emissions Rate Scenario</Title>
-                    <DropDown className="w-1/2" options={emissionsRateScenario} />
+                    <DropDown className="w-1/2" />
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Social Cost of GHG Scenario </Title>
-                    <DropDown className="w-1/2" options={socialCostOfGHG} />
+                    <DropDown className="w-1/2" />
                 </span>
             </div>
         </div>
