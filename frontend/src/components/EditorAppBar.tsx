@@ -2,14 +2,18 @@ import ButtonBar from "./ButtonBar";
 import button, { ButtonType } from "./Button";
 import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
 import AppBar from "./AppBar";
-import Model from "../model/Model";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
+import { upload } from "../blcc-format/Import";
+import { Model } from "../model/Model";
+import { download } from "../util/DownloadFile";
+import { project$ } from "../model/Project";
+import { sample } from "rxjs";
 
 const { component: NewButton } = button();
-const { component: OpenButton } = button();
-const { component: SaveButton } = button();
+const { click$: openClick$, component: OpenButton } = button();
+const { click$: saveClick$, component: SaveButton } = button();
 const { component: SaveAsButton } = button();
 
 const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
@@ -19,9 +23,10 @@ const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
  */
 export default function EditorAppBar() {
     const navigate = useNavigate();
-    const projectName = Model.useProjectName();
 
+    useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, `${project.name}.blcc`));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
+    useSubscribe(openClick$, () => document.getElementById("open")?.click());
 
     return (
         <AppBar className={"bg-primary"}>
@@ -32,6 +37,14 @@ export default function EditorAppBar() {
                 <OpenButton type={ButtonType.PRIMARY} icon={mdiFolder}>
                     Open
                 </OpenButton>
+                <input
+                    className={"hidden"}
+                    type={"file"}
+                    id={"open"}
+                    onChange={(event) => {
+                        if (event.currentTarget.files) upload(event.currentTarget.files);
+                    }}
+                />
                 <SaveButton type={ButtonType.PRIMARY} icon={mdiContentSave}>
                     Save
                 </SaveButton>
@@ -40,7 +53,7 @@ export default function EditorAppBar() {
                 </SaveAsButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"}>{projectName}</p>
+                <p className={"text-base-lightest"}>{Model.useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
                     <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
                         Reports and Analysis
