@@ -14,49 +14,56 @@ import Inputs from "./pages/results/Inputs";
 import Summary from "./pages/results/Summary";
 import AlternativeResults from "./pages/results/AlternativeResults";
 import AnnualResults from "./pages/results/AnnualResults";
+import { Subscribe } from "@react-rxjs/core";
+import { project$ } from "./model/Project";
+
+//FIXME: needed to force load the project stream
+project$.subscribe(console.log);
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <div className={"flex flex-col h-full"}>
-                {/* App bars */}
-                <Routes>
-                    <Route path={"/editor/*"} element={<EditorAppBar />} />
-                    <Route path={"/results/*"} element={<ResultsAppBar />} />
-                </Routes>
-
-                <div className={"flex h-full"}>
-                    {/* Navigation */}
+        <Subscribe>
+            <BrowserRouter>
+                <div className={"flex flex-col h-full"}>
+                    {/* App bars */}
                     <Routes>
-                        <Route path={"/editor"} element={<Navigation />}>
-                            <Route path={"alternative/*"} element={<CostNavigation />} />
-                        </Route>
-                        <Route path={"/results"} element={<ResultNavigation />} />
+                        <Route path={"/editor/*"} element={<EditorAppBar />} />
+                        <Route path={"/results/*"} element={<ResultsAppBar />} />
                     </Routes>
 
-                    {/* Pages */}
-                    <Routes>
-                        <Route path={"/editor"}>
-                            <Route index element={<GeneralInformation />} />
-                            <Route path={"alternative"}>
-                                <Route index element={<AlternativeSummary />} />
-                                <Route path={":alternativeID"} element={<Alternatives />} />
-                                <Route path={"cost/:costID"} element={<Cost />} />
+                    <div className={"flex h-full"}>
+                        {/* Navigation */}
+                        <Routes>
+                            <Route path={"/editor"} element={<Navigation />}>
+                                <Route path={"alternative/*"} element={<CostNavigation />} />
                             </Route>
-                        </Route>
-                        <Route path={"/results"}>
-                            <Route index element={<Inputs />} />
-                            <Route path={"alternative"} element={<AlternativeResults />} />
-                            <Route path={"annual"} element={<AnnualResults />} />
-                            <Route path={"summary"} element={<Summary />} />
-                        </Route>
+                            <Route path={"/results"} element={<ResultNavigation />} />
+                        </Routes>
+
+                        {/* Pages */}
+                        <Routes>
+                            <Route path={"/editor"}>
+                                <Route index element={<GeneralInformation />} />
+                                <Route path={"alternative"}>
+                                    <Route index element={<AlternativeSummary />} />
+                                    <Route path={":alternativeID"} element={<Alternatives />} />
+                                    <Route path={"cost/:costID"} element={<Cost />} />
+                                </Route>
+                            </Route>
+                            <Route path={"/results"}>
+                                <Route index element={<Inputs />} />
+                                <Route path={"alternative"} element={<AlternativeResults />} />
+                                <Route path={"annual"} element={<AnnualResults />} />
+                                <Route path={"summary"} element={<Summary />} />
+                            </Route>
+                        </Routes>
+                    </div>
+
+                    <Routes>
+                        <Route path={"/editor/*"} element={<Statistics />} />
                     </Routes>
                 </div>
-
-                <Routes>
-                    <Route path={"/editor/*"} element={<Statistics />} />
-                </Routes>
-            </div>
-        </BrowserRouter>
+            </BrowserRouter>
+        </Subscribe>
     );
 }
