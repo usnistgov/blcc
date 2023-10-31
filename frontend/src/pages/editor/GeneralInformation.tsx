@@ -3,6 +3,7 @@ import { Divider, Switch, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
+import inputNumber from "../../components/InputNumber";
 import { Country, State, zipcodes } from "../../constants/LOCATION";
 import { AnalysisType, Purpose } from "../../blcc-format/Format";
 import { of } from "rxjs";
@@ -17,7 +18,7 @@ const { component: Input } = textInput();
 
 const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
-const { onChange$: descriptionChange$, component: TextArea } = textArea();
+const { onChange$: descriptionChange$, component: DescInput } = textArea();
 const { component: DropDown } = dropdown([]);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
@@ -27,6 +28,7 @@ const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = 
     Object.values(Purpose),
     Model.purpose$
 );
+const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumber(Model.studyPeriod$);
 const { onChange$: inflationChange$, component: GenInflationRate } = textInput(Model.inflationRate$);
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = textInput(Model.nominalDiscountRate$);
 const { onChange$: realDiscChange$, component: RealDiscRate } = textInput(Model.realDiscountRate$);
@@ -52,17 +54,14 @@ export {
     nomDiscChange$,
     realDiscChange$,
     stateChange$,
-    stateDDChange$
+    stateDDChange$,
+    studyPeriodChange$
 };
 
 const zip: number[] = [];
 zipcodes.forEach((zips) => zip.push(zips.zip));
 
 export default function GeneralInformation() {
-    const studyPeriod: string[] = [];
-    for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
-    console.log(Model.useCountry());
-
     return (
         <div className={"w-full h-full p-8 "}>
             <div className="w-1/2 grid grid-cols-2">
@@ -88,11 +87,11 @@ export default function GeneralInformation() {
                 )}
                 <span className="col-span-2 pb-3">
                     <Title level={5}>Description</Title>
-                    <TextArea className="w-full" />
+                    <DescInput className="w-full" />
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Length of Study Period</Title>
-                    <DropDown className="w-3/4" />
+                    <StudyPeriodInput after="years" defaultValue={0} max={40} min={0} />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
