@@ -3,7 +3,7 @@ import { Divider, Switch, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
-import { countries, zipcodes } from "../../constants/LOCATION";
+import { Country, State, zipcodes } from "../../constants/LOCATION";
 import { AnalysisType, Purpose } from "../../blcc-format/Format";
 import { of } from "rxjs";
 import { Model } from "../../model/Model";
@@ -18,7 +18,7 @@ const { component: Input } = textInput();
 const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
 const { onChange$: descriptionChange$, component: TextArea } = textArea();
-const { component: DropDown } = dropdown(countries);
+const { component: DropDown } = dropdown([]);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
     Model.analysisType$
@@ -27,10 +27,33 @@ const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = 
     Object.values(Purpose),
     Model.purpose$
 );
-//const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
+const { onChange$: inflationChange$, component: GenInflationRate } = textInput(Model.inflationRate$);
+const { onChange$: nomDiscChange$, component: NominalDiscRate } = textInput(Model.nominalDiscountRate$);
+const { onChange$: realDiscChange$, component: RealDiscRate } = textInput(Model.realDiscountRate$);
+
+const { change$: countryChange$, component: CountryDropdown } = dropdown<Country>(
+    Object.values(Country),
+    Model.country$
+);
+const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
+const { change$: stateDDChange$, component: StateDropdown } = dropdown<State>(Object.values(State), Model.state$);
+
 const { onChange$: cityChange$, component: CityInput } = textInput(Model.city$);
 
-export { nameChange$, descriptionChange$, analystChange$, cityChange$, analysisTypeChange$, analysisPurposeChange$ };
+export {
+    nameChange$,
+    descriptionChange$,
+    analystChange$,
+    countryChange$,
+    cityChange$,
+    analysisTypeChange$,
+    analysisPurposeChange$,
+    inflationChange$,
+    nomDiscChange$,
+    realDiscChange$,
+    stateChange$,
+    stateDDChange$
+};
 
 const zip: number[] = [];
 zipcodes.forEach((zips) => zip.push(zips.zip));
@@ -38,6 +61,7 @@ zipcodes.forEach((zips) => zip.push(zips.zip));
 export default function GeneralInformation() {
     const studyPeriod: string[] = [];
     for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
+    console.log(Model.useCountry());
 
     return (
         <div className={"w-full h-full p-8 "}>
@@ -50,16 +74,18 @@ export default function GeneralInformation() {
                     <Title level={5}>Analyst</Title>
                     <AnalystInput className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
-
                 <span className="pb-3">
                     <Title level={5}>Analysis Type</Title>
                     <AnalysisTypeDropdown className={"w-3/4"} />
                 </span>
-                <span className="pb-3">
-                    <Title level={5}>Analysis Purpose</Title>
-                    <AnalysisPurposeDropdown className="w-3/4" placeholder={"N/A"} />
-                </span>
-
+                {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" ? (
+                    <span className="pb-3">
+                        <Title level={5}>Analysis Purpose</Title>
+                        <AnalysisPurposeDropdown className="w-3/4" />
+                    </span>
+                ) : (
+                    ""
+                )}
                 <span className="col-span-2 pb-3">
                     <Title level={5}>Description</Title>
                     <TextArea className="w-full" />
@@ -89,15 +115,15 @@ export default function GeneralInformation() {
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
-                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
+                        <GenInflationRate className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span className="pb-3 w-full">
                         <Title level={5}>Nominal Discount Rate</Title>
-                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
+                        <NominalDiscRate className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span>
                         <Title level={5}>Real Discount Rate</Title>
-                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
+                        <RealDiscRate className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
@@ -111,7 +137,7 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Country</Title>
-                        <DropDown className="w-3/4" />
+                        <CountryDropdown className="w-3/4" />
                     </span>
                     <span>
                         <Title level={5}>City</Title>
@@ -119,12 +145,20 @@ export default function GeneralInformation() {
                     </span>
                     <span className="pb-3">
                         <Title level={5}>State</Title>
-                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
+                        {Model.useCountry() === "United States of America" ? (
+                            <StateDropdown className="w-3/4" />
+                        ) : (
+                            <StateInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        )}
                     </span>
-                    <span>
-                        <Title level={5}>Zip</Title>
-                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
-                    </span>
+                    {Model.useCountry() === "United States of America" ? (
+                        <span>
+                            <Title level={5}>Zip</Title>
+                            <Input className="w-3/4" type={TextInputType.PRIMARY} />
+                        </span>
+                    ) : (
+                        ""
+                    )}
                 </div>
             </div>
 

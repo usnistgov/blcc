@@ -7,7 +7,13 @@ import {
     analysisTypeChange$,
     analystChange$,
     descriptionChange$,
-    nameChange$
+    inflationChange$,
+    nameChange$,
+    nomDiscChange$,
+    realDiscChange$,
+    countryChange$,
+    stateChange$,
+    stateDDChange$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { addAlternative$ } from "../components/Navigation";
@@ -20,7 +26,13 @@ const project$ = mergeWithKey({
     analystChange$,
     analysisTypeChange$,
     analysisPurposeChange$,
-    addAlternative$
+    addAlternative$,
+    inflationChange$,
+    nomDiscChange$,
+    realDiscChange$,
+    countryChange$,
+    stateChange$,
+    stateDDChange$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -50,6 +62,30 @@ const project$ = mergeWithKey({
                 }
                 case "addAlternative$": {
                     accumulator.alternatives.push(operation.payload);
+                    break;
+                }
+                case "inflationChange$": {
+                    accumulator.inflationRate = operation.payload;
+                    break;
+                }
+                case "nomDiscChange$": {
+                    accumulator.nominalDiscountRate = operation.payload;
+                    break;
+                }
+                case "realDiscChange$": {
+                    accumulator.realDiscountRate = operation.payload;
+                    break;
+                }
+                case "countryChange$": {
+                    accumulator.country = operation.payload;
+                    break;
+                }
+                case "stateChange$": {
+                    accumulator.state = operation.payload;
+                    break;
+                }
+                case "stateDDChange$": {
+                    accumulator.state = operation.payload;
                     break;
                 }
             }

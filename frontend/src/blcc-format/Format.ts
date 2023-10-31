@@ -1,4 +1,5 @@
 import { Version } from "./Verison";
+import { Country, State } from "../constants/LOCATION";
 
 export type Project = {
     version: Version;
@@ -18,6 +19,8 @@ export type Project = {
     alternatives: Alternative[];
     costs: Cost[];
     ghg: GHG;
+    country: Country;
+    state: State | string;
 };
 
 export type GHG = {
@@ -40,15 +43,15 @@ export enum SocialCostOfGhgScenario {
 export type Location = USLocation | NonUSLocation;
 
 export type USLocation = {
-    country: "US";
-    state?: string;
+    country: Country;
+    state?: State;
     city?: string;
     zipcode?: string;
 };
 
 export type NonUSLocation = {
-    country?: string;
-    stateProvince?: string;
+    country?: Country;
+    stateProvince?: State;
     city?: string;
 };
 

@@ -1,5 +1,6 @@
 import { selfDependent } from "@react-rxjs/utils";
 import { AnalysisType, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
+import { Country, State } from "../constants/LOCATION";
 import { bind } from "@react-rxjs/core";
 import { map } from "rxjs";
 
@@ -28,7 +29,22 @@ const [useNominalDiscountRate, nominalDiscountRate$] = bind(
     undefined
 );
 const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.inflationRate)), undefined);
-//const [useState, state$] = bind(_project$.pipe(map((p) => p.location?.state)), undefined);
+const [useCountry, country$] = bind(_project$.pipe(map((p) => p.location?.country)), Country.USA);
+// const [useState, state$] = bind(_project$.pipe(map((p) => p.location?.state || p.location?.stateProvince)), undefined);
+const [useState, state$] = bind(
+    _project$.pipe(
+        map((p) => {
+            if ("state" in p.location) {
+                return p.location.state;
+            } else if ("stateProvince" in p.location) {
+                return p.location.stateProvince;
+            } else {
+                return undefined; // Provide a default value or handle the case when neither property exists
+            }
+        })
+    ),
+    State.AL
+);
 const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
 
 const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
@@ -61,8 +77,12 @@ const Model = {
     useNominalDiscountRate,
     inflationRate$,
     useInflationRate,
+    country$,
+    useCountry,
     city$,
     useCity,
+    state$,
+    useState,
 
     alternatives$,
     useAlternatives,
