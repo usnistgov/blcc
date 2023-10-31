@@ -16,7 +16,9 @@ import {
     stateDDChange$,
     studyPeriodChange$,
     discountingMethodChange$,
-    zipChange$
+    zipChange$,
+    emissionsRateChange$,
+    socialCostChange$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { addAlternative$ } from "../components/Navigation";
@@ -38,7 +40,9 @@ const project$ = mergeWithKey({
     stateDDChange$,
     studyPeriodChange$,
     discountingMethodChange$,
-    zipChange$
+    zipChange$,
+    emissionsRateChange$,
+    socialCostChange$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -104,6 +108,14 @@ const project$ = mergeWithKey({
                 }
                 case "zipChange$": {
                     accumulator.zip = operation.payload;
+                    break;
+                }
+                case "emissionsRateChange$": {
+                    accumulator.ghg.emissionsRateScenario = operation.payload;
+                    break;
+                }
+                case "socialCostChange$": {
+                    accumulator.ghg.socialCostOfGhgScenario = operation.payload;
                     break;
                 }
             }

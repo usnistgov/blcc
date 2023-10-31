@@ -5,7 +5,13 @@ import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
 import inputNumber from "../../components/InputNumber";
 import { Country, State } from "../../constants/LOCATION";
-import { AnalysisType, Purpose, DiscountingMethod } from "../../blcc-format/Format";
+import {
+    AnalysisType,
+    Purpose,
+    DiscountingMethod,
+    EmissionsRateScenario,
+    SocialCostOfGhgScenario
+} from "../../blcc-format/Format";
 import { of } from "rxjs";
 import { Model } from "../../model/Model";
 
@@ -14,12 +20,10 @@ const { Title } = Typography;
 /*
  * rxjs components
  */
-const { component: Input } = textInput();
 
 const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
 const { onChange$: descriptionChange$, component: DescInput } = textArea();
-const { component: DropDown } = dropdown([]);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
     Model.analysisType$
@@ -46,6 +50,15 @@ const { change$: stateDDChange$, component: StateDropdown } = dropdown<State>(Ob
 const { onChange$: cityChange$, component: CityInput } = textInput(Model.city$);
 const { onChange$: zipChange$, component: ZipInput } = textInput(Model.zip$);
 
+const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = dropdown<EmissionsRateScenario>(
+    Object.values(EmissionsRateScenario),
+    Model.emissionsRate$
+);
+const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<SocialCostOfGhgScenario>(
+    Object.values(SocialCostOfGhgScenario),
+    Model.socialCostOfGhgScenario$
+);
+
 export {
     nameChange$,
     descriptionChange$,
@@ -61,7 +74,9 @@ export {
     stateDDChange$,
     studyPeriodChange$,
     discountingMethodChange$,
-    zipChange$
+    zipChange$,
+    emissionsRateChange$,
+    socialCostChange$
 };
 
 export default function GeneralInformation() {
@@ -175,11 +190,11 @@ export default function GeneralInformation() {
                 </Divider>
                 <span className="pb-3">
                     <Title level={5}>Emissions Rate Scenario</Title>
-                    <DropDown className="w-1/2" />
+                    <EmissionsRateDropdown className="w-1/2" />
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Social Cost of GHG Scenario </Title>
-                    <DropDown className="w-1/2" />
+                    <SocialCostDropdown className="w-1/2" />
                 </span>
             </div>
         </div>
