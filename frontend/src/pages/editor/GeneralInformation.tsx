@@ -4,8 +4,8 @@ import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
 import inputNumber from "../../components/InputNumber";
-import { Country, State, zipcodes } from "../../constants/LOCATION";
-import { AnalysisType, Purpose } from "../../blcc-format/Format";
+import { Country, State } from "../../constants/LOCATION";
+import { AnalysisType, Purpose, DiscountingMethod } from "../../blcc-format/Format";
 import { of } from "rxjs";
 import { Model } from "../../model/Model";
 
@@ -32,6 +32,10 @@ const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumb
 const { onChange$: inflationChange$, component: GenInflationRate } = textInput(Model.inflationRate$);
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = textInput(Model.nominalDiscountRate$);
 const { onChange$: realDiscChange$, component: RealDiscRate } = textInput(Model.realDiscountRate$);
+const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown<DiscountingMethod>(
+    Object.values(DiscountingMethod),
+    Model.discountingMethod$
+);
 
 const { change$: countryChange$, component: CountryDropdown } = dropdown<Country>(
     Object.values(Country),
@@ -39,8 +43,8 @@ const { change$: countryChange$, component: CountryDropdown } = dropdown<Country
 );
 const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
 const { change$: stateDDChange$, component: StateDropdown } = dropdown<State>(Object.values(State), Model.state$);
-
 const { onChange$: cityChange$, component: CityInput } = textInput(Model.city$);
+const { onChange$: zipChange$, component: ZipInput } = textInput(Model.zip$);
 
 export {
     nameChange$,
@@ -55,11 +59,10 @@ export {
     realDiscChange$,
     stateChange$,
     stateDDChange$,
-    studyPeriodChange$
+    studyPeriodChange$,
+    discountingMethodChange$,
+    zipChange$
 };
-
-const zip: number[] = [];
-zipcodes.forEach((zips) => zip.push(zips.zip));
 
 export default function GeneralInformation() {
     return (
@@ -110,7 +113,7 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Discounting Convention</Title>
-                        <DropDown className="w-3/4" />
+                        <DiscountingConvention className="w-3/4" />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
@@ -153,7 +156,7 @@ export default function GeneralInformation() {
                     {Model.useCountry() === "United States of America" ? (
                         <span>
                             <Title level={5}>Zip</Title>
-                            <Input className="w-3/4" type={TextInputType.PRIMARY} />
+                            <ZipInput className="w-3/4" type={TextInputType.PRIMARY} />
                         </span>
                     ) : (
                         ""

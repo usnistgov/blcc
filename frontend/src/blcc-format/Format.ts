@@ -21,6 +21,7 @@ export type Project = {
     ghg: GHG;
     country: Country;
     state: State | string;
+    zip: string;
 };
 
 export type GHG = {

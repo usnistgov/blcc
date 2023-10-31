@@ -32,6 +32,7 @@ const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.infl
 const [useCountry, country$] = bind(_project$.pipe(map((p) => p.location?.country)), Country.USA);
 const [useState, state$] = bind(_project$.pipe(map((p) => p.location?.state || p.location?.stateProvince)), undefined);
 const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
+const [useZip, zip$] = bind(_project$.pipe(map((p) => p?.zip)), undefined);
 
 const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
 const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
@@ -69,6 +70,8 @@ const Model = {
     useCity,
     state$,
     useState,
+    useZip,
+    zip$,
 
     alternatives$,
     useAlternatives,

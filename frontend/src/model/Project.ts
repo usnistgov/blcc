@@ -14,7 +14,9 @@ import {
     countryChange$,
     stateChange$,
     stateDDChange$,
-    studyPeriodChange$
+    studyPeriodChange$,
+    discountingMethodChange$,
+    zipChange$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { addAlternative$ } from "../components/Navigation";
@@ -34,7 +36,9 @@ const project$ = mergeWithKey({
     countryChange$,
     stateChange$,
     stateDDChange$,
-    studyPeriodChange$
+    studyPeriodChange$,
+    discountingMethodChange$,
+    zipChange$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -92,6 +96,14 @@ const project$ = mergeWithKey({
                 }
                 case "studyPeriodChange$": {
                     accumulator.studyPeriod = operation.payload;
+                    break;
+                }
+                case "discountingMethodChange$": {
+                    accumulator.discountingMethod = operation.payload;
+                    break;
+                }
+                case "zipChange$": {
+                    accumulator.zip = operation.payload;
                     break;
                 }
             }
