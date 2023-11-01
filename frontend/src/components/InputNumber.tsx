@@ -11,6 +11,7 @@ export type NumberInputProps = {
     defaultValue?: number;
     after?: JSX.Element | string;
     before?: JSX.Element | string;
+    controls: boolean;
 };
 
 export type NumberInput = {
@@ -31,7 +32,8 @@ export default function textInput(value$: Observable<number | undefined> = EMPTY
             max,
             defaultValue,
             after,
-            before
+            before,
+            controls
         }: PropsWithChildren & NumberInputProps) => {
             return (
                 <InputNumber
@@ -43,6 +45,7 @@ export default function textInput(value$: Observable<number | undefined> = EMPTY
                     defaultValue={defaultValue}
                     addonAfter={after}
                     addonBefore={before}
+                    controls={controls}
                 >
                     {children}
                 </InputNumber>

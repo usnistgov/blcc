@@ -33,9 +33,9 @@ const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = 
     Model.purpose$
 );
 const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumber(Model.studyPeriod$);
-const { onChange$: inflationChange$, component: GenInflationRate } = textInput(Model.inflationRate$);
-const { onChange$: nomDiscChange$, component: NominalDiscRate } = textInput(Model.nominalDiscountRate$);
-const { onChange$: realDiscChange$, component: RealDiscRate } = textInput(Model.realDiscountRate$);
+const { onChange$: inflationChange$, component: GenInflationRate } = inputNumber(Model.inflationRate$);
+const { onChange$: nomDiscChange$, component: NominalDiscRate } = inputNumber(Model.nominalDiscountRate$);
+const { onChange$: realDiscChange$, component: RealDiscRate } = inputNumber(Model.realDiscountRate$);
 const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown<DiscountingMethod>(
     Object.values(DiscountingMethod),
     Model.discountingMethod$
@@ -109,7 +109,7 @@ export default function GeneralInformation() {
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Length of Study Period</Title>
-                    <StudyPeriodInput after="years" defaultValue={0} max={40} min={0} />
+                    <StudyPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
@@ -132,15 +132,15 @@ export default function GeneralInformation() {
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
-                        <GenInflationRate className="w-3/4" type={TextInputType.PRIMARY} />
+                        <GenInflationRate className="w-3/4" controls={false} />
                     </span>
                     <span className="pb-3 w-full">
                         <Title level={5}>Nominal Discount Rate</Title>
-                        <NominalDiscRate className="w-3/4" type={TextInputType.PRIMARY} />
+                        <NominalDiscRate className="w-3/4" controls={false} min={0.0} />
                     </span>
                     <span>
                         <Title level={5}>Real Discount Rate</Title>
-                        <RealDiscRate className="w-3/4" type={TextInputType.PRIMARY} />
+                        <RealDiscRate className="w-3/4" controls={false} min={0.0} />
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
