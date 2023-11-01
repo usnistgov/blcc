@@ -14,11 +14,12 @@ import {
     countryChange$,
     stateChange$,
     stateDDChange$,
+    zipChange$,
     studyPeriodChange$,
     discountingMethodChange$,
-    zipChange$,
     emissionsRateChange$,
-    socialCostChange$
+    socialCostChange$,
+    combinedLocation$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { addAlternative$ } from "../components/Navigation";
@@ -38,11 +39,12 @@ const project$ = mergeWithKey({
     countryChange$,
     stateChange$,
     stateDDChange$,
+    zipChange$,
     studyPeriodChange$,
     discountingMethodChange$,
-    zipChange$,
     emissionsRateChange$,
-    socialCostChange$
+    socialCostChange$,
+    combinedLocation$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -90,24 +92,12 @@ const project$ = mergeWithKey({
                     accumulator.country = operation.payload;
                     break;
                 }
-                case "stateChange$": {
-                    accumulator.state = operation.payload;
-                    break;
-                }
-                case "stateDDChange$": {
-                    accumulator.state = operation.payload;
-                    break;
-                }
                 case "studyPeriodChange$": {
                     accumulator.studyPeriod = operation.payload;
                     break;
                 }
                 case "discountingMethodChange$": {
                     accumulator.discountingMethod = operation.payload;
-                    break;
-                }
-                case "zipChange$": {
-                    accumulator.zip = operation.payload;
                     break;
                 }
                 case "emissionsRateChange$": {
@@ -118,6 +108,10 @@ const project$ = mergeWithKey({
                     accumulator.ghg.socialCostOfGhgScenario = operation.payload;
                     break;
                 }
+                case "combinedLocation$": {
+                    accumulator.location = operation.payload;
+                    break;
+                }
             }
 
             return accumulator;
@@ -125,8 +119,10 @@ const project$ = mergeWithKey({
         {
             name: "Untitled Project",
             analysisType: AnalysisType.FEDERAL_FINANCED,
+            country: "United States of America",
             alternatives: [] as Alternative[],
-            costs: [] as Cost[]
+            costs: [] as Cost[],
+            location: undefined
         } as Project
     ),
     shareLatest(),

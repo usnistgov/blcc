@@ -20,8 +20,6 @@ export type Project = {
     costs: Cost[];
     ghg: GHG;
     country: Country;
-    state: State | string;
-    zip: string;
 };
 
 export type GHG = {

@@ -12,7 +12,8 @@ import {
     EmissionsRateScenario,
     SocialCostOfGhgScenario
 } from "../../blcc-format/Format";
-import { of } from "rxjs";
+import { of, merge, combineLatest } from "rxjs";
+import { map, startWith } from "rxjs/operators";
 import { Model } from "../../model/Model";
 
 const { Title } = Typography;
@@ -59,24 +60,48 @@ const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<S
     Model.socialCostOfGhgScenario$
 );
 
+const combinedLocation$ = combineLatest([
+    countryChange$,
+    merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+    merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+    merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
+]).pipe(
+    map(([country, state, city, zipcode]) => {
+        if (country === "United States of America")
+            return {
+                country,
+                city,
+                state,
+                zipcode
+            };
+
+        return {
+            country,
+            city,
+            stateProvice: state
+        };
+    })
+);
+
 export {
     nameChange$,
     descriptionChange$,
     analystChange$,
-    countryChange$,
-    cityChange$,
     analysisTypeChange$,
     analysisPurposeChange$,
     inflationChange$,
     nomDiscChange$,
     realDiscChange$,
+    countryChange$,
+    cityChange$,
     stateChange$,
     stateDDChange$,
     studyPeriodChange$,
     discountingMethodChange$,
     zipChange$,
     emissionsRateChange$,
-    socialCostChange$
+    socialCostChange$,
+    combinedLocation$
 };
 
 export default function GeneralInformation() {
@@ -154,7 +179,7 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Country</Title>
-                        <CountryDropdown className="w-3/4" />
+                        <CountryDropdown className="w-3/4" value={Model.useCountry()} />
                     </span>
                     <span>
                         <Title level={5}>City</Title>

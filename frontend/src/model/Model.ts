@@ -29,10 +29,11 @@ const [useNominalDiscountRate, nominalDiscountRate$] = bind(
     undefined
 );
 const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.inflationRate)), undefined);
-const [useCountry, country$] = bind(_project$.pipe(map((p) => p.location?.country)), Country.USA);
-const [useState, state$] = bind(_project$.pipe(map((p) => p.location?.state || p.location?.stateProvince)), undefined);
+const [useCountry, country$] = bind(_project$.pipe(map((p) => p?.country)), Country.USA);
+const [useState, state$] = bind(_project$.pipe(map((p) => p.state)), undefined);
 const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
 const [useZip, zip$] = bind(_project$.pipe(map((p) => p?.zip)), undefined);
+const [useCombinedLocation, combinedLocation$] = bind(_project$.pipe(map((p) => p?.location)), undefined);
 
 const [useEmissionsRate, emissionsRate$] = bind(_project$.pipe(map((p) => p.ghg?.emissionsRateScenario)), undefined);
 const [useSocialCostRate, socialCostOfGhgScenario$] = bind(
@@ -82,6 +83,8 @@ const Model = {
     emissionsRate$,
     useSocialCostRate,
     socialCostOfGhgScenario$,
+    useCombinedLocation,
+    combinedLocation$,
 
     alternatives$,
     useAlternatives,
