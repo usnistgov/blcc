@@ -35,7 +35,7 @@ const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.altern
 const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
 
 const Model = {
-    project: _project$,
+    project$: _project$,
 
     name$,
     useName,

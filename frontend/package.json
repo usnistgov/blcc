@@ -21,7 +21,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "e3-sdk": "file:./e3-sdk-1.0.10.tgz"
   },
   "devDependencies": {
     "@types/object-hash": "^3.0.4",
