@@ -21,7 +21,7 @@ dependencies:
     specifier: ^5.9.4
     version: 5.10.0(react-dom@18.2.0)(react@18.2.0)
   e3-sdk:
-    specifier: file:./e3-sdk-1.0.10.tgz
+    specifier: file:e3-sdk-1.0.10.tgz
     version: file:e3-sdk-1.0.10.tgz
   fast-xml-parser:
     specifier: ^4.3.2

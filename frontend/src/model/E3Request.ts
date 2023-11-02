@@ -3,6 +3,8 @@ import {
     CapitalCost,
     Cost,
     CostTypes,
+    DiscountingMethod,
+    DollarOrPercent,
     EnergyCost,
     ImplementationContractCost,
     OMRCost,
@@ -11,6 +13,7 @@ import {
     Project,
     RecurringContractCost,
     ReplacementCapitalCost,
+    ResidualValue,
     WaterCost
 } from "../blcc-format/Format";
 import {
@@ -18,49 +21,79 @@ import {
     AnalysisBuilder,
     AnalysisType,
     BcnBuilder,
+    BcnSubType,
     BcnType,
     E3,
     Output,
+    ProjectType,
+    RecurBuilder,
     RequestBuilder,
-    BcnSubType
+    TimestepComp,
+    TimestepValue
 } from "e3-sdk";
 
-export function toE3Request(): UnaryFunction<Observable<Project>, Observable<RequestBuilder>> {
+/**
+ * RXJS operator to take the project and create an E3 reqeust.
+ */
+export function toE3Object(): UnaryFunction<Observable<Project>, Observable<RequestBuilder>> {
     return pipe(
         map((project) => {
             const builder = new RequestBuilder();
 
-            const analysisBuilder = new AnalysisBuilder();
-            analysisBuilder.type(AnalysisType.BCA);
+            // Setup base E3 options
+            const analysisBuilder = new AnalysisBuilder()
+                .type(AnalysisType.LCCA)
+                .projectType(ProjectType.OTHER)
+                .addOutputType("measure")
+                .studyPeriod(project.studyPeriod)
+                .timestepValue(TimestepValue.YEAR)
+                .timestepComp(
+                    project.discountingMethod === DiscountingMethod.END_OF_YEAR
+                        ? TimestepComp.END_OF_YEAR
+                        : TimestepComp.MID_YEAR
+                )
+                .outputReal() // TODO add interest rate
+                .discountRateReal(project.realDiscountRate ?? 0)
+                .discountRateNominal(project.nominalDiscountRate ?? 0)
+                .inflationRate(project.inflationRate ?? 0);
 
-            project.costs.map((cost) => {
-                return costToBuilder(cost);
-            });
+            // Create costs
+            const costs = new Map(project.costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)]));
 
-            project.alternatives.map((alternative) => {
-                const builder = new AlternativeBuilder().name(alternative.name);
+            // Define alternatives
+            const alternativeBuilders = project.alternatives.map((alternative) => {
+                const builder = new AlternativeBuilder()
+                    .name(alternative.name)
+                    .addBcn(
+                        ...alternative.costs
+                            .flatMap((id) => costs.get(id))
+                            .filter((x): x is BcnBuilder => x !== undefined)
+                    );
 
                 if (alternative.baseline) return builder.baseline();
+
                 return builder;
             });
 
-            builder.analysis(analysisBuilder);
-
-            return builder;
+            // Create complete Request Builder and return
+            return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
         })
     );
 }
 
-export function makeRequest(): UnaryFunction<Observable<RequestBuilder>, Observable<Output>> {
+/**
+ * RXJS operator that tasks an E3 Request Builder object and executes the request and returns the E3 output object.
+ */
+export function E3Request(): UnaryFunction<Observable<RequestBuilder>, Observable<Output>> {
     return pipe(
         switchMap((builder) => E3.analyze(import.meta.env.VITE_REQUEST_URL, builder, import.meta.env.VITE_API_TOKEN))
     );
 }
 
-function costToBuilder(cost: Cost) {
+function costToBuilders(cost: Cost, studyPeriod: number): BcnBuilder[] {
     switch (cost.type) {
         case CostTypes.CAPITAL:
-            return capitalCostToBuilder(cost);
+            return capitalCostToBuilder(cost, studyPeriod);
         case CostTypes.ENERGY:
             return energyCostToBuilder(cost);
         case CostTypes.WATER:
@@ -80,43 +113,92 @@ function costToBuilder(cost: Cost) {
     }
 }
 
-function capitalCostToBuilder(cost: CapitalCost) {
-    return new BcnBuilder()
+function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilder[] {
+    const tag = "Initial Investment";
+
+    const builder = new BcnBuilder()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .name(cost.name)
+        .real()
+        .invest()
         .initialOccurrence(0)
-        .life(cost.expectedLife);
+        .life(cost.expectedLife)
+        .addTag(tag)
+        .quantityValue(cost.initialCost ?? 0); //TODO residual value
+
+    if (cost.residualValue)
+        return [builder, residualValueBcn(cost, cost.initialCost ?? 0, cost.residualValue, studyPeriod, [tag])];
+
+    return [builder];
 }
 
-function energyCostToBuilder(cost: EnergyCost) {
-    return new BcnBuilder().name(cost.name);
+function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .addTag("Energy", cost.fuelType, cost.unit)
+        .name(cost.name)
+        .real()
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .recur(new RecurBuilder().interval(1))
+        .quantityValue(cost.costPerUnit)
+        .quantity(cost.annualConsumption); // TODO escalation
+
+    if (cost.customerSector) builder.addTag(cost.customerSector);
+
+    return [builder];
 }
 
-function waterCostToBuilder(cost: WaterCost) {
-    return new BcnBuilder().name(cost.name);
+function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
+    const builder = new BcnBuilder().name(cost.name).addTag(cost.unit);
+    return [builder]; // TODO
 }
 
-function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost) {
-    return new BcnBuilder().name(cost.name);
+function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost): BcnBuilder[] {
+    return [new BcnBuilder().name(cost.name).life(cost.expectedLife ?? 1)]; //TODO residual value
 }
 
-function omrCostToBuilder(cost: OMRCost) {
-    return new BcnBuilder().name(cost.name);
+function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .addTag("OMR")
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .initialOccurrence(cost.initialOccurrence)
+        .real()
+        .quantityValue(cost.initialCost)
+        .quantity(1);
+
+    if (cost.rateOfRecurrence) builder.recur(new RecurBuilder().interval(cost.rateOfRecurrence));
+
+    return [builder];
 }
 
-function implementationContractCostToBuilder(cost: ImplementationContractCost) {
-    return new BcnBuilder().name(cost.name);
+function implementationContractCostToBuilder(cost: ImplementationContractCost): BcnBuilder[] {
+    return [new BcnBuilder().name(cost.name)];
 }
 
-function recurringContractCostToBuilder(cost: RecurringContractCost) {
-    return new BcnBuilder().name(cost.name);
+function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder[] {
+    return [new BcnBuilder().name(cost.name)];
 }
 
-function otherCostToBuilder(cost: OtherCost) {
-    return new BcnBuilder().name(cost.name);
+function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
+    return [new BcnBuilder().name(cost.name)];
 }
 
-function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary) {
-    return new BcnBuilder().name(cost.name);
+function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
+    return [new BcnBuilder().name(cost.name)];
+}
+
+function residualValueBcn(cost: Cost, value: number, obj: ResidualValue, studyPeriod: number, tags: string[]) {
+    return new BcnBuilder()
+        .name(`${cost.name} Residual Value`)
+        .type(BcnType.BENEFIT)
+        .subType(BcnSubType.DIRECT)
+        .addTag(...tags)
+        .real()
+        .initialOccurrence(studyPeriod + 1)
+        .quantity(1)
+        .quantityValue(obj.approach === DollarOrPercent.PERCENT ? value * -obj.value : -obj.value);
 }
