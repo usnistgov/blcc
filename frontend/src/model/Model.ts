@@ -40,6 +40,7 @@ const [useSocialCostRate, socialCostOfGhgScenario$] = bind(
     _project$.pipe(map((p) => p.ghg?.socialCostOfGhgScenario)),
     undefined
 );
+const [useCombinedGHG, combinedGHG$] = bind(_project$.pipe(map((p) => p?.ghg)), undefined);
 
 const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
 const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
@@ -85,6 +86,8 @@ const Model = {
     socialCostOfGhgScenario$,
     useCombinedLocation,
     combinedLocation$,
+    useCombinedGHG,
+    combinedGHG$,
 
     alternatives$,
     useAlternatives,

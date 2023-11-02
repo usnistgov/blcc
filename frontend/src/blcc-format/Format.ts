@@ -18,6 +18,7 @@ export type Project = {
     location: Location;
     alternatives: Alternative[];
     costs: Cost[];
+    emissionsRateScenario: EmissionsRateScenario;
     ghg: GHG;
     country: Country;
 };

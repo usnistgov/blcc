@@ -19,7 +19,8 @@ import {
     discountingMethodChange$,
     emissionsRateChange$,
     socialCostChange$,
-    combinedLocation$
+    combinedLocation$,
+    combinedGHG$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { addAlternative$ } from "../components/Navigation";
@@ -44,7 +45,8 @@ const project$ = mergeWithKey({
     discountingMethodChange$,
     emissionsRateChange$,
     socialCostChange$,
-    combinedLocation$
+    combinedLocation$,
+    combinedGHG$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -101,15 +103,15 @@ const project$ = mergeWithKey({
                     break;
                 }
                 case "emissionsRateChange$": {
-                    accumulator.ghg.emissionsRateScenario = operation.payload;
-                    break;
-                }
-                case "socialCostChange$": {
-                    accumulator.ghg.socialCostOfGhgScenario = operation.payload;
+                    accumulator.emissionsRateScenario = operation.payload;
                     break;
                 }
                 case "combinedLocation$": {
                     accumulator.location = operation.payload;
+                    break;
+                }
+                case "combinedGHG$": {
+                    accumulator.ghg = operation.payload;
                     break;
                 }
             }

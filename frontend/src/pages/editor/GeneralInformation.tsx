@@ -83,6 +83,18 @@ const combinedLocation$ = combineLatest([
     })
 );
 
+const combinedGHG$ = combineLatest([
+    emissionsRateChange$,
+    merge(socialCostChange$.pipe(startWith(undefined)), emissionsRateChange$.pipe(map(() => undefined)))
+]).pipe(
+    map(([emissionsRateScenario, socialCostOfGhgScenario]) => {
+        return {
+            emissionsRateScenario,
+            socialCostOfGhgScenario
+        };
+    })
+);
+
 export {
     nameChange$,
     descriptionChange$,
@@ -101,7 +113,8 @@ export {
     zipChange$,
     emissionsRateChange$,
     socialCostChange$,
-    combinedLocation$
+    combinedLocation$,
+    combinedGHG$
 };
 
 export default function GeneralInformation() {
