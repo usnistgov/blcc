@@ -2,6 +2,7 @@ import { map, Observable, pipe, switchMap, UnaryFunction } from "rxjs";
 import {
     CapitalCost,
     Cost,
+    CostBenefit,
     CostTypes,
     DiscountingMethod,
     DollarOrPercent,
@@ -75,6 +76,9 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 return builder;
             });
 
+            const hasBaseline = !!project.alternatives.find((alt) => alt.baseline);
+            if (!hasBaseline) alternativeBuilders[0].baseline();
+
             // Create complete Request Builder and return
             return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
         })
@@ -99,7 +103,7 @@ function costToBuilders(cost: Cost, studyPeriod: number): BcnBuilder[] {
         case CostTypes.WATER:
             return waterCostToBuilder(cost);
         case CostTypes.REPLACEMENT_CAPITAL:
-            return replacementCapitalCostToBuilder(cost);
+            return replacementCapitalCostToBuilder(cost, studyPeriod);
         case CostTypes.OMR:
             return omrCostToBuilder(cost);
         case CostTypes.IMPLEMENTATION_CONTRACT:
@@ -128,7 +132,16 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
         .quantityValue(cost.initialCost ?? 0); //TODO residual value
 
     if (cost.residualValue)
-        return [builder, residualValueBcn(cost, cost.initialCost ?? 0, cost.residualValue, studyPeriod, [tag])];
+        return [
+            builder,
+            residualValueBcn(
+                cost,
+                (cost.initialCost ?? 0) + (cost.amountFinanced ?? 0),
+                cost.residualValue,
+                studyPeriod,
+                [tag]
+            )
+        ];
 
     return [builder];
 }
@@ -151,12 +164,22 @@ function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
 }
 
 function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
-    const builder = new BcnBuilder().name(cost.name).addTag(cost.unit);
+    const builder = new BcnBuilder().name(cost.name).addTag(cost.unit).addTag("Water Usage");
     return [builder]; // TODO
 }
 
-function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost): BcnBuilder[] {
-    return [new BcnBuilder().name(cost.name).life(cost.expectedLife ?? 1)]; //TODO residual value
+function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeriod: number): BcnBuilder[] {
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .real()
+        .invest()
+        .life(cost.expectedLife ?? 1)
+        .quantityValue(cost.initialCost)
+        .quantityValue(1); //TODO annual rate of change
+
+    if (cost.residualValue) return [builder, residualValueBcn(cost, cost.initialCost, cost.residualValue, studyPeriod)];
+
+    return [builder];
 }
 
 function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
@@ -170,28 +193,80 @@ function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
         .quantityValue(cost.initialCost)
         .quantity(1);
 
-    if (cost.rateOfRecurrence) builder.recur(new RecurBuilder().interval(cost.rateOfRecurrence));
+    if (cost.rateOfRecurrence) builder.recur(new RecurBuilder().interval(cost.rateOfRecurrence)); //TODO rate of change
 
     return [builder];
 }
 
 function implementationContractCostToBuilder(cost: ImplementationContractCost): BcnBuilder[] {
-    return [new BcnBuilder().name(cost.name)];
+    return [
+        new BcnBuilder()
+            .name(cost.name)
+            .type(BcnType.COST)
+            .subType(BcnSubType.DIRECT)
+            .addTag("Implementation Contract Cost")
+            .real()
+            .invest()
+            .quantity(1)
+            .quantityValue(cost.cost)
+            .initialOccurrence(cost.occurrence + 1)
+    ];
 }
 
 function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder[] {
-    return [new BcnBuilder().name(cost.name)];
+    return [
+        new BcnBuilder()
+            .name(cost.name)
+            .type(BcnType.COST)
+            .subType(BcnSubType.DIRECT)
+            .addTag("Recurring Contract Cost")
+            .real()
+            .invest()
+            .recur(new RecurBuilder().interval(cost.rateOfRecurrence ?? 1))
+            .initialOccurrence(cost.initialOccurrence)
+            .quantity(1)
+            .quantityValue(cost.initialOccurrence + 1)
+    ];
 }
 
 function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
-    return [new BcnBuilder().name(cost.name)];
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .real()
+        .invest()
+        .initialOccurrence(cost.initialOccurrence)
+        .type(cost.costOrBenefit === CostBenefit.COST ? BcnType.COST : BcnType.BENEFIT)
+        .subType(BcnSubType.DIRECT)
+        .addTag("Other")
+        .addTag(cost.tag)
+        .addTag(cost.unit)
+        .quantityValue(cost.valuePerUnit)
+        .quantity(cost.numberOfUnits)
+        .quantityUnit(cost.unit); //TODO rate of change
+
+    if (cost.recurring) builder.recur(new RecurBuilder().interval(1));
+
+    return [builder];
 }
 
 function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
-    return [new BcnBuilder().name(cost.name)];
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .addTag("Other Non-Monetary")
+        .addTag(cost.unit)
+        .addTag(cost.tag)
+        .initialOccurrence(cost.initialOccurrence)
+        .type(BcnType.NON_MONETARY)
+        .subType(BcnSubType.DIRECT)
+        .quantity(cost.numberOfUnits)
+        .quantityValue(1); // TODO rate of change
+
+    if (cost.recurring) builder.recur(new RecurBuilder().interval(cost.rateOfRecurrence ?? 1));
+
+    return [builder];
 }
 
-function residualValueBcn(cost: Cost, value: number, obj: ResidualValue, studyPeriod: number, tags: string[]) {
+function residualValueBcn(cost: Cost, value: number, obj: ResidualValue, studyPeriod: number, tags: string[] = []) {
     return new BcnBuilder()
         .name(`${cost.name} Residual Value`)
         .type(BcnType.BENEFIT)
