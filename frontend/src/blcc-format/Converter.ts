@@ -273,9 +273,9 @@ function convertCost(cost: any, studyPeriod: number) {
                 type: CostTypes.CAPITAL,
                 initialCost: cost["InitialCost"],
                 amountFinanced: cost["AmountFinanced"],
-                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
+                annualRateOfChange: undefined,
                 expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
-                costAdjustment: undefined,
+                costAdjustment: parseEscalation(cost["Escalation"], studyPeriod),
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost["ResaleValueFactor"]
                     ? ({

@@ -16,19 +16,9 @@ import AlternativeResults from "./pages/results/AlternativeResults";
 import AnnualResults from "./pages/results/AnnualResults";
 import { Subscribe } from "@react-rxjs/core";
 import { project$ } from "./model/Project";
-import { Model } from "./model/Model";
-import { toE3Object } from "./model/E3Request";
-import { map } from "rxjs";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
-
-Model.project$
-    .pipe(
-        toE3Object(),
-        map((b) => b.build())
-    )
-    .subscribe(console.log);
 
 export default function App() {
     return (
