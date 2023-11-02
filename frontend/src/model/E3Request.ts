@@ -173,6 +173,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .name(cost.name)
         .real()
         .invest()
+        .addTag("Replacement Capital")
         .life(cost.expectedLife ?? 1)
         .quantityValue(cost.initialCost)
         .quantityValue(1); //TODO annual rate of change
