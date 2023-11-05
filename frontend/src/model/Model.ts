@@ -34,6 +34,7 @@ const [useState, state$] = bind(_project$.pipe(map((p) => p.state)), undefined);
 const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
 const [useZip, zip$] = bind(_project$.pipe(map((p) => p?.zip)), undefined);
 const [useCombinedLocation, combinedLocation$] = bind(_project$.pipe(map((p) => p?.location)), undefined);
+const [useModifiedDollarMethod, modifiedDollarMethod$] = bind(_project$.pipe(map((p) => p?.dollarMethod)), undefined);
 
 const [useEmissionsRate, emissionsRate$] = bind(_project$.pipe(map((p) => p.ghg?.emissionsRateScenario)), undefined);
 const [useSocialCostRate, socialCostOfGhgScenario$] = bind(
@@ -60,6 +61,8 @@ const Model = {
     usePurpose,
     dollarMethod$,
     useDollarMethod,
+    useModifiedDollarMethod,
+    modifiedDollarMethod$,
     studyPeriod$,
     useStudyPeriod,
     constructionPeriod$,

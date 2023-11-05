@@ -1,12 +1,14 @@
 import { imported$ } from "../blcc-format/Import";
 import { scan } from "rxjs";
-import { Alternative, AnalysisType, Cost, Project } from "../blcc-format/Format";
+import { Alternative, AnalysisType, Cost, Project, DollarMethod } from "../blcc-format/Format";
 import { mergeWithKey } from "@react-rxjs/utils";
 import {
     analysisPurposeChange$,
     analysisTypeChange$,
     analystChange$,
     descriptionChange$,
+    dollarMethodChange$,
+    modifiedDollarMethod$,
     inflationChange$,
     nameChange$,
     nomDiscChange$,
@@ -34,6 +36,8 @@ const project$ = mergeWithKey({
     analysisTypeChange$,
     analysisPurposeChange$,
     addAlternative$,
+    dollarMethodChange$,
+    modifiedDollarMethod$,
     inflationChange$,
     nomDiscChange$,
     realDiscChange$,
@@ -76,6 +80,10 @@ const project$ = mergeWithKey({
                 }
                 case "addAlternative$": {
                     accumulator.alternatives.push(operation.payload);
+                    break;
+                }
+                case "modifiedDollarMethod$": {
+                    accumulator.dollarMethod = operation.payload;
                     break;
                 }
                 case "inflationChange$": {
@@ -124,7 +132,8 @@ const project$ = mergeWithKey({
             country: "United States of America",
             alternatives: [] as Alternative[],
             costs: [] as Cost[],
-            location: undefined
+            location: undefined,
+            dollarMethod: DollarMethod.CONSTANT
         } as Project
     ),
     shareLatest(),

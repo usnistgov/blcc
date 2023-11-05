@@ -1,19 +1,22 @@
-import { Divider, Switch, Typography } from "antd";
+import { Divider, Typography } from "antd";
 
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
 import inputNumber from "../../components/InputNumber";
+import switchComp from "../../components/Switch";
+
 import { Country, State } from "../../constants/LOCATION";
 import {
     AnalysisType,
     Purpose,
     DiscountingMethod,
     EmissionsRateScenario,
-    SocialCostOfGhgScenario
+    SocialCostOfGhgScenario,
+    DollarMethod
 } from "../../blcc-format/Format";
-import { of, merge, combineLatest } from "rxjs";
-import { map, startWith } from "rxjs/operators";
+import { of, merge, combineLatest, iif } from "rxjs";
+import { map, startWith, switchMap, mergeMap } from "rxjs/operators";
 import { Model } from "../../model/Model";
 
 const { Title } = Typography;
@@ -34,6 +37,7 @@ const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = 
     Model.purpose$
 );
 const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumber(Model.studyPeriod$);
+const { onChange$: dollarMethodChange$, component: Switch } = switchComp();
 const { onChange$: inflationChange$, component: GenInflationRate } = inputNumber(Model.inflationRate$);
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = inputNumber(Model.nominalDiscountRate$);
 const { onChange$: realDiscChange$, component: RealDiscRate } = inputNumber(Model.realDiscountRate$);
@@ -60,32 +64,73 @@ const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<S
     Model.socialCostOfGhgScenario$
 );
 
+// const combinedLocation$ = combineLatest([
+//     countryChange$,
+//     merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+//     merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+//     merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+//     merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
+// ]).pipe(
+//     map(([country, state, city, zipcode]) => {
+//         if (country === "United States of America")
+//             return {
+//                 country,
+//                 city,
+//                 state,
+//                 zipcode
+//             };
+
+//         return {
+//             country,
+//             city,
+//             stateProvice: state
+//         };
+//     })
+// );
+
 const combinedLocation$ = combineLatest([
-    countryChange$,
+    countryChange$.pipe(startWith("United States of America")),
     merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+    merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
     merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
     merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
 ]).pipe(
-    map(([country, state, city, zipcode]) => {
-        if (country === "United States of America")
-            return {
-                country,
-                city,
-                state,
-                zipcode
-            };
-
-        return {
-            country,
-            city,
-            stateProvice: state
-        };
-    })
+    mergeMap(([country]) =>
+        iif(
+            () => country === "United States of America",
+            combineLatest([
+                countryChange$.pipe(startWith("United States of America")),
+                merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+                merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+                merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
+            ]).pipe(
+                map(([country, state, city, zipcode]) => ({
+                    country,
+                    state,
+                    city,
+                    zipcode
+                }))
+            ),
+            combineLatest([
+                countryChange$.pipe(startWith("United States of America")),
+                merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+                merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
+            ]).pipe(
+                map(([country, state, city]) => ({
+                    country,
+                    stateProvince: state,
+                    city
+                }))
+            )
+        )
+    )
 );
 
+combinedLocation$.subscribe((data) => console.log(data));
+
 const combinedGHG$ = combineLatest([
-    emissionsRateChange$,
-    merge(socialCostChange$.pipe(startWith(undefined)), emissionsRateChange$.pipe(map(() => undefined)))
+    emissionsRateChange$.pipe(startWith(undefined)),
+    socialCostChange$.pipe(startWith(undefined))
 ]).pipe(
     map(([emissionsRateScenario, socialCostOfGhgScenario]) => {
         return {
@@ -95,12 +140,20 @@ const combinedGHG$ = combineLatest([
     })
 );
 
+const modifiedDollarMethod$ = dollarMethodChange$.pipe(
+    map((val) => {
+        return val ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
+    })
+);
+
 export {
     nameChange$,
     descriptionChange$,
     analystChange$,
     analysisTypeChange$,
     analysisPurposeChange$,
+    dollarMethodChange$,
+    modifiedDollarMethod$,
     inflationChange$,
     nomDiscChange$,
     realDiscChange$,
