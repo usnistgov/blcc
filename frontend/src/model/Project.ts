@@ -18,6 +18,7 @@ import {
     stateDDChange$,
     zipChange$,
     studyPeriodChange$,
+    constructionPeriodChange$,
     discountingMethodChange$,
     emissionsRateChange$,
     socialCostChange$,
@@ -46,6 +47,7 @@ const project$ = mergeWithKey({
     stateDDChange$,
     zipChange$,
     studyPeriodChange$,
+    constructionPeriodChange$,
     discountingMethodChange$,
     emissionsRateChange$,
     socialCostChange$,
@@ -104,6 +106,10 @@ const project$ = mergeWithKey({
                 }
                 case "studyPeriodChange$": {
                     accumulator.studyPeriod = operation.payload;
+                    break;
+                }
+                case "constructionPeriodChange$": {
+                    accumulator.constructionPeriod = operation.payload;
                     break;
                 }
                 case "discountingMethodChange$": {

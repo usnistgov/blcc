@@ -37,6 +37,9 @@ const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = 
     Model.purpose$
 );
 const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumber(Model.studyPeriod$);
+const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = inputNumber(
+    Model.constructionPeriod$
+);
 const { onChange$: dollarMethodChange$, component: Switch } = switchComp();
 const { onChange$: inflationChange$, component: GenInflationRate } = inputNumber(Model.inflationRate$);
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = inputNumber(Model.nominalDiscountRate$);
@@ -131,6 +134,7 @@ export {
     stateChange$,
     stateDDChange$,
     studyPeriodChange$,
+    constructionPeriodChange$,
     discountingMethodChange$,
     zipChange$,
     emissionsRateChange$,
@@ -170,6 +174,10 @@ export default function GeneralInformation() {
                 <span className="pb-3">
                     <Title level={5}>Length of Study Period</Title>
                     <StudyPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
+                </span>
+                <span className="pb-3 pl-3">
+                    <Title level={5}>Construction Period</Title>
+                    <ConstructionPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
