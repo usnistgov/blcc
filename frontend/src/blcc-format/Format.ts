@@ -18,9 +18,7 @@ export type Project = {
     location: Location;
     alternatives: Alternative[];
     costs: Cost[];
-    emissionsRateScenario: EmissionsRateScenario;
     ghg: GHG;
-    country: Country;
 };
 
 export type GHG = {
@@ -43,7 +41,7 @@ export enum SocialCostOfGhgScenario {
 export type Location = USLocation | NonUSLocation;
 
 export type USLocation = {
-    country: Country;
+    country: Country.USA;
     state?: State;
     city?: string;
     zipcode?: string;

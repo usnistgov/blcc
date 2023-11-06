@@ -1,58 +1,48 @@
 import { imported$ } from "../blcc-format/Import";
 import { scan } from "rxjs";
-import { Alternative, AnalysisType, Cost, Project, DollarMethod } from "../blcc-format/Format";
+import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
 import { mergeWithKey } from "@react-rxjs/utils";
 import {
     analysisPurposeChange$,
     analysisTypeChange$,
     analystChange$,
+    combinedGHG$,
+    combinedLocation$,
+    constructionPeriodChange$,
     descriptionChange$,
-    dollarMethodChange$,
-    modifiedDollarMethod$,
+    discountingMethodChange$,
     inflationChange$,
+    modifiedDollarMethod$,
     nameChange$,
     nomDiscChange$,
     realDiscChange$,
-    countryChange$,
-    stateChange$,
-    stateDDChange$,
-    zipChange$,
-    studyPeriodChange$,
-    constructionPeriodChange$,
-    discountingMethodChange$,
-    emissionsRateChange$,
-    socialCostChange$,
-    combinedLocation$,
-    combinedGHG$
+    studyPeriodChange$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { addAlternative$ } from "../components/Navigation";
 import { shareLatest } from "@react-rxjs/core";
+import { Version } from "../blcc-format/Verison";
+import { Country } from "../constants/LOCATION";
 
 const project$ = mergeWithKey({
     imported$,
-    nameChange$,
-    descriptionChange$,
-    analystChange$,
-    analysisTypeChange$,
-    analysisPurposeChange$,
     addAlternative$,
-    dollarMethodChange$,
-    modifiedDollarMethod$,
-    inflationChange$,
-    nomDiscChange$,
-    realDiscChange$,
-    countryChange$,
-    stateChange$,
-    stateDDChange$,
-    zipChange$,
-    studyPeriodChange$,
-    constructionPeriodChange$,
-    discountingMethodChange$,
-    emissionsRateChange$,
-    socialCostChange$,
-    combinedLocation$,
-    combinedGHG$
+
+    // Default behavior
+    name: nameChange$,
+    description: descriptionChange$,
+    analyst: analystChange$,
+    analysisType: analysisTypeChange$,
+    purpose: analysisPurposeChange$,
+    dollarMethod: modifiedDollarMethod$,
+    inflationRate: inflationChange$,
+    nominalDiscountRate: nomDiscChange$,
+    realDiscountRate: realDiscChange$,
+    studyPeriod: studyPeriodChange$,
+    constructionPeriod: constructionPeriodChange$,
+    discountingMethod: discountingMethodChange$,
+    location: combinedLocation$,
+    ghg: combinedGHG$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -60,72 +50,15 @@ const project$ = mergeWithKey({
                 case "imported$": {
                     return operation.payload;
                 }
-                case "nameChange$": {
-                    accumulator.name = operation.payload;
-                    break;
-                }
-                case "descriptionChange$": {
-                    accumulator.description = operation.payload;
-                    break;
-                }
-                case "analystChange$": {
-                    accumulator.analyst = operation.payload;
-                    break;
-                }
-                case "analysisTypeChange$": {
-                    accumulator.analysisType = operation.payload;
-                    break;
-                }
-                case "analysisPurposeChange$": {
-                    accumulator.purpose = operation.payload;
-                    break;
-                }
                 case "addAlternative$": {
                     accumulator.alternatives.push(operation.payload);
                     break;
                 }
-                case "modifiedDollarMethod$": {
-                    accumulator.dollarMethod = operation.payload;
-                    break;
-                }
-                case "inflationChange$": {
-                    accumulator.inflationRate = operation.payload;
-                    break;
-                }
-                case "nomDiscChange$": {
-                    accumulator.nominalDiscountRate = operation.payload;
-                    break;
-                }
-                case "realDiscChange$": {
-                    accumulator.realDiscountRate = operation.payload;
-                    break;
-                }
-                case "countryChange$": {
-                    accumulator.country = operation.payload;
-                    break;
-                }
-                case "studyPeriodChange$": {
-                    accumulator.studyPeriod = operation.payload;
-                    break;
-                }
-                case "constructionPeriodChange$": {
-                    accumulator.constructionPeriod = operation.payload;
-                    break;
-                }
-                case "discountingMethodChange$": {
-                    accumulator.discountingMethod = operation.payload;
-                    break;
-                }
-                case "emissionsRateChange$": {
-                    accumulator.emissionsRateScenario = operation.payload;
-                    break;
-                }
-                case "combinedLocation$": {
-                    accumulator.location = operation.payload;
-                    break;
-                }
-                case "combinedGHG$": {
-                    accumulator.ghg = operation.payload;
+                /*
+                 * By default the operation type denotes the property in project object and is set to the payload.
+                 */
+                default: {
+                    accumulator[operation.type] = operation.payload as never;
                     break;
                 }
             }
@@ -133,13 +66,22 @@ const project$ = mergeWithKey({
             return accumulator;
         },
         {
+            version: Version.V1,
             name: "Untitled Project",
             analysisType: AnalysisType.FEDERAL_FINANCED,
-            country: "United States of America",
+            dollarMethod: DollarMethod.CONSTANT,
+            studyPeriod: 25,
+            constructionPeriod: 0,
+            discountingMethod: DiscountingMethod.END_OF_YEAR,
             alternatives: [] as Alternative[],
             costs: [] as Cost[],
-            location: undefined,
-            dollarMethod: DollarMethod.CONSTANT
+            location: {
+                country: Country.USA
+            },
+            ghg: {
+                emissionsRateScenario: undefined,
+                socialCostOfGhgScenario: undefined
+            }
         } as Project
     ),
     shareLatest(),

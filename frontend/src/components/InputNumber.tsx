@@ -38,7 +38,9 @@ export default function textInput(value$: Observable<number | undefined> = EMPTY
             return (
                 <InputNumber
                     className={className}
-                    onChange={onChange}
+                    onChange={(value) => {
+                        if (value !== null) onChange(value);
+                    }}
                     value={useValue()}
                     min={min}
                     max={max}

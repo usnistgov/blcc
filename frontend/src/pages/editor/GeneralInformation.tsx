@@ -13,9 +13,12 @@ import {
     DiscountingMethod,
     EmissionsRateScenario,
     SocialCostOfGhgScenario,
-    DollarMethod
+    DollarMethod,
+    Location,
+    USLocation,
+    NonUSLocation
 } from "../../blcc-format/Format";
-import { of, merge, combineLatest, iif } from "rxjs";
+import { of, merge, combineLatest, iif, Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { Model } from "../../model/Model";
 
@@ -67,34 +70,40 @@ const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<S
     Model.socialCostOfGhgScenario$
 );
 
-const combinedLocation$ = countryChange$.pipe(
-    startWith("United States of America"),
+const combinedLocation$: Observable<Location> = countryChange$.pipe(
+    startWith(Country.USA),
     switchMap((country) =>
         iif(
-            () => country === "United States of America",
+            () => country === Country.USA,
             combineLatest([
                 countryChange$.pipe(startWith(country)),
                 merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
                 merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
                 merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
             ]).pipe(
-                map(([country, state, city, zipcode]) => ({
-                    country,
-                    city,
-                    state,
-                    zipcode
-                }))
+                map(
+                    ([country, state, city, zipcode]) =>
+                        ({
+                            country,
+                            city,
+                            state,
+                            zipcode
+                        }) as USLocation
+                )
             ),
             combineLatest([
                 countryChange$.pipe(startWith(country)),
                 merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
                 merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
             ]).pipe(
-                map(([country, state, city]) => ({
-                    country,
-                    city,
-                    stateProvince: state
-                }))
+                map(
+                    ([country, state, city]) =>
+                        ({
+                            country,
+                            city,
+                            stateProvince: state
+                        }) as NonUSLocation
+                )
             )
         )
     )
@@ -112,7 +121,7 @@ const combinedGHG$ = combineLatest([
     })
 );
 
-const modifiedDollarMethod$ = dollarMethodChange$.pipe(
+const modifiedDollarMethod$: Observable<DollarMethod> = dollarMethodChange$.pipe(
     map((val) => {
         return val ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
     })
@@ -124,21 +133,13 @@ export {
     analystChange$,
     analysisTypeChange$,
     analysisPurposeChange$,
-    dollarMethodChange$,
     modifiedDollarMethod$,
     inflationChange$,
     nomDiscChange$,
     realDiscChange$,
-    countryChange$,
-    cityChange$,
-    stateChange$,
-    stateDDChange$,
     studyPeriodChange$,
     constructionPeriodChange$,
     discountingMethodChange$,
-    zipChange$,
-    emissionsRateChange$,
-    socialCostChange$,
     combinedLocation$,
     combinedGHG$
 };
