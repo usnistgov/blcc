@@ -16,7 +16,7 @@ import {
     DollarMethod
 } from "../../blcc-format/Format";
 import { of, merge, combineLatest, iif } from "rxjs";
-import { map, startWith, switchMap, mergeMap } from "rxjs/operators";
+import { map, startWith, switchMap } from "rxjs/operators";
 import { Model } from "../../model/Model";
 
 const { Title } = Typography;
@@ -64,69 +64,38 @@ const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<S
     Model.socialCostOfGhgScenario$
 );
 
-// const combinedLocation$ = combineLatest([
-//     countryChange$,
-//     merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-//     merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-//     merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-//     merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
-// ]).pipe(
-//     map(([country, state, city, zipcode]) => {
-//         if (country === "United States of America")
-//             return {
-//                 country,
-//                 city,
-//                 state,
-//                 zipcode
-//             };
-
-//         return {
-//             country,
-//             city,
-//             stateProvice: state
-//         };
-//     })
-// );
-
-const combinedLocation$ = combineLatest([
-    countryChange$.pipe(startWith("United States of America")),
-    merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-    merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-    merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-    merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
-]).pipe(
-    mergeMap(([country]) =>
+const combinedLocation$ = countryChange$.pipe(
+    startWith("United States of America"),
+    switchMap((country) =>
         iif(
             () => country === "United States of America",
             combineLatest([
-                countryChange$.pipe(startWith("United States of America")),
+                countryChange$.pipe(startWith(country)),
                 merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
                 merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
                 merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
             ]).pipe(
                 map(([country, state, city, zipcode]) => ({
                     country,
-                    state,
                     city,
+                    state,
                     zipcode
                 }))
             ),
             combineLatest([
-                countryChange$.pipe(startWith("United States of America")),
+                countryChange$.pipe(startWith(country)),
                 merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
                 merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
             ]).pipe(
                 map(([country, state, city]) => ({
                     country,
-                    stateProvince: state,
-                    city
+                    city,
+                    stateProvince: state
                 }))
             )
         )
     )
 );
-
-combinedLocation$.subscribe((data) => console.log(data));
 
 const combinedGHG$ = combineLatest([
     emissionsRateChange$.pipe(startWith(undefined)),
