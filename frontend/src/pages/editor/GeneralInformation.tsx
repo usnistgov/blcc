@@ -9,16 +9,16 @@ import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
 import {
     AnalysisType,
-    Purpose,
     DiscountingMethod,
-    EmissionsRateScenario,
-    SocialCostOfGhgScenario,
     DollarMethod,
+    EmissionsRateScenario,
     Location,
-    USLocation,
-    NonUSLocation
+    NonUSLocation,
+    Purpose,
+    SocialCostOfGhgScenario,
+    USLocation
 } from "../../blcc-format/Format";
-import { of, merge, combineLatest, iif, Observable } from "rxjs";
+import { combineLatest, iif, merge, Observable, of } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { Model } from "../../model/Model";
 
@@ -231,13 +231,13 @@ export default function GeneralInformation() {
                     </span>
                     <span className="pb-3">
                         <Title level={5}>State</Title>
-                        {Model.useCountry() === "United States of America" ? (
+                        {Model.useCountry() === Country.USA ? (
                             <StateDropdown className="w-3/4" />
                         ) : (
                             <StateInput className="w-3/4" type={TextInputType.PRIMARY} />
                         )}
                     </span>
-                    {Model.useCountry() === "United States of America" ? (
+                    {Model.useCountry() === Country.USA ? (
                         <span>
                             <Title level={5}>Zip</Title>
                             <ZipInput className="w-3/4" type={TextInputType.PRIMARY} />
