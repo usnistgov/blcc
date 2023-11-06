@@ -33,6 +33,7 @@ import {
 } from "./Format";
 import { Version } from "./Verison";
 import objectHash from "object-hash";
+import { Country, stateToAbbreviation } from "../constants/LOCATION";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
@@ -147,11 +148,11 @@ function convertDiscountMethod(old: number) {
 }
 
 function parseLocation(old: string | undefined): USLocation {
-    if (old === undefined) return { country: "US" };
+    if (old === undefined) return { country: Country.USA };
 
     return {
-        country: "US",
-        state: old,
+        country: Country.USA,
+        state: stateToAbbreviation[old],
         city: undefined,
         zipcode: undefined
     };
