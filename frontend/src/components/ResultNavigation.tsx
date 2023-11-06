@@ -6,8 +6,6 @@ import { mdiTextBoxEditOutline, mdiListBoxOutline, mdiFormatListGroup, mdiFormat
 
 const { Sider } = Layout;
 
-const { Item, SubMenu } = Menu;
-
 type MenuItem = {
     key: React.Key;
     icon?: React.ReactNode;
