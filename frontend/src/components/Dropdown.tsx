@@ -9,6 +9,7 @@ export type DropdownProps = {
     disabled?: boolean;
     placeholder?: string;
     showSearch?: boolean;
+    value?: string;
 };
 
 export type Dropdown<T> = {
