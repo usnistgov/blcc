@@ -1,7 +1,8 @@
 import { selfDependent } from "@react-rxjs/utils";
-import { AnalysisType, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
+import { AnalysisType, DiscountingMethod, DollarMethod, Project, USLocation } from "../blcc-format/Format";
+import { Country } from "../constants/LOCATION";
 import { bind } from "@react-rxjs/core";
-import { map } from "rxjs";
+import { filter, map } from "rxjs";
 
 const [_project$, connectProject] = selfDependent<Project>();
 
@@ -28,14 +29,40 @@ const [useNominalDiscountRate, nominalDiscountRate$] = bind(
     undefined
 );
 const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.inflationRate)), undefined);
-//const [useState, state$] = bind(_project$.pipe(map((p) => p.location?.state)), undefined);
+const [useCountry, country$] = bind(_project$.pipe(map((p) => p.location?.country)), Country.USA);
+const [useState, state$] = bind(
+    _project$.pipe(
+        map((p) => {
+            if (p.location?.country === Country.USA) return (p.location as USLocation)?.state;
+
+            return p.location?.stateProvince;
+        })
+    ),
+    undefined
+);
 const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
+const [useZip, zip$] = bind(
+    _project$.pipe(
+        filter((p) => p.location.country === Country.USA),
+        map((p) => (p.location as USLocation)?.zipcode)
+    ),
+    undefined
+);
+const [useCombinedLocation, combinedLocation$] = bind(_project$.pipe(map((p) => p?.location)), undefined);
+const [useModifiedDollarMethod, modifiedDollarMethod$] = bind(_project$.pipe(map((p) => p?.dollarMethod)), undefined);
+
+const [useEmissionsRate, emissionsRate$] = bind(_project$.pipe(map((p) => p.ghg?.emissionsRateScenario)), undefined);
+const [useSocialCostRate, socialCostOfGhgScenario$] = bind(
+    _project$.pipe(map((p) => p.ghg?.socialCostOfGhgScenario)),
+    undefined
+);
+const [useCombinedGHG, combinedGHG$] = bind(_project$.pipe(map((p) => p?.ghg)), undefined);
 
 const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
 const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
 
 const Model = {
-    project: _project$,
+    project$: _project$,
 
     name$,
     useName,
@@ -49,6 +76,8 @@ const Model = {
     usePurpose,
     dollarMethod$,
     useDollarMethod,
+    useModifiedDollarMethod,
+    modifiedDollarMethod$,
     studyPeriod$,
     useStudyPeriod,
     constructionPeriod$,
@@ -61,8 +90,22 @@ const Model = {
     useNominalDiscountRate,
     inflationRate$,
     useInflationRate,
+    country$,
+    useCountry,
     city$,
     useCity,
+    state$,
+    useState,
+    useZip,
+    zip$,
+    useEmissionsRate,
+    emissionsRate$,
+    useSocialCostRate,
+    socialCostOfGhgScenario$,
+    useCombinedLocation,
+    combinedLocation$,
+    useCombinedGHG,
+    combinedGHG$,
 
     alternatives$,
     useAlternatives,
