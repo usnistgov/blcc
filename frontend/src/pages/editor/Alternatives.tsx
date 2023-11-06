@@ -1,19 +1,28 @@
-import { Divider, Switch, Typography } from "antd";
+import { useState } from "react";
+
+import { Divider, Switch, Typography, Modal, Checkbox, Col, Row } from "antd";
 import button, { ButtonType } from "../../components/Button";
+
 import Icon from "@mdi/react";
 import { mdiPlus, mdiContentCopy, mdiMinus } from "@mdi/js";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { Model } from "../../model/Model";
+
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import table from "../../components/Table";
+import dropdown from "../../components/Dropdown";
+
 import { of } from "rxjs";
 
 const { component: AddAlternative } = button();
 const { component: Clone } = button();
 const { component: Remove } = button();
-const { component: AddCost } = button();
+const { click$: openModal$, component: AddCost } = button();
 
 const { component: NameInput } = textInput();
 const { component: DescInput } = textArea();
+const { component: NewCostInput } = textInput();
 
 const { Title } = Typography;
 
@@ -33,7 +42,36 @@ const { component: CapitalCosts } = table(of(dataSource));
 const { component: ContractCosts } = table(of(dataSource));
 const { component: OtherCosts } = table(of(dataSource));
 
+const costs = [
+    "Capital Cost",
+    "Energy Cost",
+    "Water Cost",
+    "Replacement Capital Cost",
+    "OMR Cost",
+    "Implementation Contract Cost",
+    "Recurring Contract Cost",
+    "Other Cost",
+    "Other Non Monetary"
+];
+
+const { component: CostCategoryDropdown } = dropdown(costs);
+
 export default function Alternatives() {
+    const [open, setOpen] = useState(false);
+    const plainOptions = Model.useAlternatives();
+
+    useSubscribe(openModal$, () => setOpen(true));
+
+    const handleOk = (e: React.MouseEvent<HTMLElement>) => {
+        console.log(e);
+        setOpen(false);
+    };
+
+    const handleCancel = (e: React.MouseEvent<HTMLElement>) => {
+        console.log(e);
+        setOpen(false);
+    };
+
     return (
         <div className="w-full h-full bg-white p-3">
             <div className={"float-right"}>
@@ -74,6 +112,41 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Cost
                 </AddCost>
+                <Modal
+                    title="Add New Cost"
+                    open={open}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    okButtonProps={{ disabled: false }}
+                    cancelButtonProps={{ disabled: false }}
+                >
+                    <div>
+                        <Title level={5}>Name</Title>
+                        <NewCostInput type={TextInputType.PRIMARY} />
+                    </div>
+                    <br />
+                    <div className="w-full">
+                        <Title level={5}>Add to Alternatives</Title>
+                        <Checkbox.Group style={{ width: "100%" }}>
+                            <Row>
+                                {plainOptions.length
+                                    ? plainOptions.map((option) => (
+                                          <Col span={16}>
+                                              <Checkbox value={option} key={option}>
+                                                  {option}
+                                              </Checkbox>
+                                          </Col>
+                                      ))
+                                    : "No Alternatives"}
+                            </Row>
+                        </Checkbox.Group>
+                    </div>
+                    <br />
+                    <div>
+                        <Title level={5}>Cost Category</Title>
+                        <CostCategoryDropdown className="w-full" />
+                    </div>
+                </Modal>
             </div>
             <Divider className="m-0 mb-4" />
             <div className="flex justify-between" style={{ alignContent: "space-between" }}>
