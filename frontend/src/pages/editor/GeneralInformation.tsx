@@ -1,11 +1,25 @@
-import { Divider, Switch, Typography } from "antd";
+import { Divider, Typography } from "antd";
 
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
-import { countries, zipcodes } from "../../constants/LOCATION";
-import { AnalysisType, Purpose } from "../../blcc-format/Format";
-import { of } from "rxjs";
+import inputNumber from "../../components/InputNumber";
+import switchComp from "../../components/Switch";
+
+import { Country, State } from "../../constants/LOCATION";
+import {
+    AnalysisType,
+    DiscountingMethod,
+    DollarMethod,
+    EmissionsRateScenario,
+    Location,
+    NonUSLocation,
+    Purpose,
+    SocialCostOfGhgScenario,
+    USLocation
+} from "../../blcc-format/Format";
+import { combineLatest, iif, merge, Observable, of } from "rxjs";
+import { map, startWith, switchMap } from "rxjs/operators";
 import { Model } from "../../model/Model";
 
 const { Title } = Typography;
@@ -13,12 +27,10 @@ const { Title } = Typography;
 /*
  * rxjs components
  */
-const { component: Input } = textInput();
 
 const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
-const { onChange$: descriptionChange$, component: TextArea } = textArea();
-const { component: DropDown } = dropdown(countries);
+const { onChange$: descriptionChange$, component: DescInput } = textArea();
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
     Model.analysisType$
@@ -27,18 +39,112 @@ const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = 
     Object.values(Purpose),
     Model.purpose$
 );
-//const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
+const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumber(Model.studyPeriod$);
+const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = inputNumber(
+    Model.constructionPeriod$
+);
+const { onChange$: dollarMethodChange$, component: Switch } = switchComp();
+const { onChange$: inflationChange$, component: GenInflationRate } = inputNumber(Model.inflationRate$);
+const { onChange$: nomDiscChange$, component: NominalDiscRate } = inputNumber(Model.nominalDiscountRate$);
+const { onChange$: realDiscChange$, component: RealDiscRate } = inputNumber(Model.realDiscountRate$);
+const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown<DiscountingMethod>(
+    Object.values(DiscountingMethod),
+    Model.discountingMethod$
+);
+
+const { change$: countryChange$, component: CountryDropdown } = dropdown<Country>(
+    Object.values(Country),
+    Model.country$
+);
+const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
+const { change$: stateDDChange$, component: StateDropdown } = dropdown<State>(Object.values(State), Model.state$);
 const { onChange$: cityChange$, component: CityInput } = textInput(Model.city$);
+const { onChange$: zipChange$, component: ZipInput } = textInput(Model.zip$);
 
-export { nameChange$, descriptionChange$, analystChange$, cityChange$, analysisTypeChange$, analysisPurposeChange$ };
+const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = dropdown<EmissionsRateScenario>(
+    Object.values(EmissionsRateScenario),
+    Model.emissionsRate$
+);
+const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<SocialCostOfGhgScenario>(
+    Object.values(SocialCostOfGhgScenario),
+    Model.socialCostOfGhgScenario$
+);
 
-const zip: number[] = [];
-zipcodes.forEach((zips) => zip.push(zips.zip));
+const combinedLocation$: Observable<Location> = countryChange$.pipe(
+    startWith(Country.USA),
+    switchMap((country) =>
+        iif(
+            () => country === Country.USA,
+            combineLatest([
+                countryChange$.pipe(startWith(country)),
+                merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+                merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+                merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
+            ]).pipe(
+                map(
+                    ([country, state, city, zipcode]) =>
+                        ({
+                            country,
+                            city,
+                            state,
+                            zipcode
+                        }) as USLocation
+                )
+            ),
+            combineLatest([
+                countryChange$.pipe(startWith(country)),
+                merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
+                merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
+            ]).pipe(
+                map(
+                    ([country, state, city]) =>
+                        ({
+                            country,
+                            city,
+                            stateProvince: state
+                        }) as NonUSLocation
+                )
+            )
+        )
+    )
+);
+
+const combinedGHG$ = combineLatest([
+    emissionsRateChange$.pipe(startWith(undefined)),
+    socialCostChange$.pipe(startWith(undefined))
+]).pipe(
+    map(([emissionsRateScenario, socialCostOfGhgScenario]) => {
+        return {
+            emissionsRateScenario,
+            socialCostOfGhgScenario
+        };
+    })
+);
+
+const modifiedDollarMethod$: Observable<DollarMethod> = dollarMethodChange$.pipe(
+    map((val) => {
+        return val ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
+    })
+);
+
+export {
+    nameChange$,
+    descriptionChange$,
+    analystChange$,
+    analysisTypeChange$,
+    analysisPurposeChange$,
+    modifiedDollarMethod$,
+    inflationChange$,
+    nomDiscChange$,
+    realDiscChange$,
+    studyPeriodChange$,
+    constructionPeriodChange$,
+    discountingMethodChange$,
+    combinedLocation$,
+    combinedGHG$
+};
 
 export default function GeneralInformation() {
-    const studyPeriod: string[] = [];
-    for (let i = 0; i < 41; i++) studyPeriod.push(i + " years");
-
     return (
         <div className={"w-full h-full p-8 "}>
             <div className="w-1/2 grid grid-cols-2">
@@ -50,23 +156,29 @@ export default function GeneralInformation() {
                     <Title level={5}>Analyst</Title>
                     <AnalystInput className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
-
                 <span className="pb-3">
                     <Title level={5}>Analysis Type</Title>
                     <AnalysisTypeDropdown className={"w-3/4"} />
                 </span>
-                <span className="pb-3">
-                    <Title level={5}>Analysis Purpose</Title>
-                    <AnalysisPurposeDropdown className="w-3/4" placeholder={"N/A"} />
-                </span>
-
+                {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" ? (
+                    <span className="pb-3">
+                        <Title level={5}>Analysis Purpose</Title>
+                        <AnalysisPurposeDropdown className="w-3/4" />
+                    </span>
+                ) : (
+                    ""
+                )}
                 <span className="col-span-2 pb-3">
                     <Title level={5}>Description</Title>
-                    <TextArea className="w-full" />
+                    <DescInput className="w-full" />
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Length of Study Period</Title>
-                    <DropDown className="w-3/4" />
+                    <StudyPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
+                </span>
+                <span className="pb-3 pl-3">
+                    <Title level={5}>Construction Period</Title>
+                    <ConstructionPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
@@ -85,19 +197,19 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Discounting Convention</Title>
-                        <DropDown className="w-3/4" />
+                        <DiscountingConvention className="w-3/4" />
                     </span>
                     <span className="pb-3">
                         <Title level={5}>General Inflation Rate</Title>
-                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
+                        <GenInflationRate className="w-3/4" controls={false} />
                     </span>
                     <span className="pb-3 w-full">
                         <Title level={5}>Nominal Discount Rate</Title>
-                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
+                        <NominalDiscRate className="w-3/4" controls={false} min={0.0} />
                     </span>
                     <span>
                         <Title level={5}>Real Discount Rate</Title>
-                        {/*<TextInput className="w-3/4" type={TextInputType.PRIMARY} />*/}
+                        <RealDiscRate className="w-3/4" controls={false} min={0.0} />
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
@@ -111,7 +223,7 @@ export default function GeneralInformation() {
                     </Divider>
                     <span className="pb-3">
                         <Title level={5}>Country</Title>
-                        <DropDown className="w-3/4" />
+                        <CountryDropdown className="w-3/4" value={Model.useCountry()} />
                     </span>
                     <span>
                         <Title level={5}>City</Title>
@@ -119,12 +231,20 @@ export default function GeneralInformation() {
                     </span>
                     <span className="pb-3">
                         <Title level={5}>State</Title>
-                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
+                        {Model.useCountry() === Country.USA ? (
+                            <StateDropdown className="w-3/4" />
+                        ) : (
+                            <StateInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        )}
                     </span>
-                    <span>
-                        <Title level={5}>Zip</Title>
-                        <Input className="w-3/4" type={TextInputType.PRIMARY} />
-                    </span>
+                    {Model.useCountry() === Country.USA ? (
+                        <span>
+                            <Title level={5}>Zip</Title>
+                            <ZipInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        </span>
+                    ) : (
+                        ""
+                    )}
                 </div>
             </div>
 
@@ -139,11 +259,11 @@ export default function GeneralInformation() {
                 </Divider>
                 <span className="pb-3">
                     <Title level={5}>Emissions Rate Scenario</Title>
-                    <DropDown className="w-1/2" />
+                    <EmissionsRateDropdown className="w-1/2" />
                 </span>
                 <span className="pb-3">
                     <Title level={5}>Social Cost of GHG Scenario </Title>
-                    <DropDown className="w-1/2" />
+                    <SocialCostDropdown className="w-1/2" />
                 </span>
             </div>
         </div>
