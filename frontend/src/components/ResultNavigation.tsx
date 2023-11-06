@@ -57,21 +57,8 @@ export default function ResultNavigation() {
                         mode="inline"
                         defaultSelectedKeys={["gen-info"]}
                         onClick={({ key }) => navigate(`/results/${key}`)}
-                    >
-                        {items.map((item) =>
-                            item.items ? (
-                                <SubMenu key={item.key} icon={item.icon} title={item.label}>
-                                    {item.items.map((child) => (
-                                        <Item key={child.key}>{child.label}</Item>
-                                    ))}
-                                </SubMenu>
-                            ) : (
-                                <Item key={item.key} icon={item.icon}>
-                                    {item.label}
-                                </Item>
-                            )
-                        )}
-                    </Menu>
+                        items={items}
+                    />
                 </Sider>
             </Layout>
             <Outlet />
