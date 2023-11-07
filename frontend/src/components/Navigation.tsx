@@ -54,7 +54,7 @@ const [useMenuItems] = bind(
                 label: "General Information"
             },
             {
-                key: "alternative",
+                key: "",
                 label: "Alternative Summary"
             },
             {
