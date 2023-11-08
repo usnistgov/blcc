@@ -120,7 +120,7 @@ export type CapitalCost = Type<CostTypes.CAPITAL> &
     BaseCost & {
         initialCost?: number;
         amountFinanced?: number;
-        annualRateOfChange?: number | number[];
+        annualRateOfChange?: number;
         expectedLife: number;
         costAdjustment?: number;
         phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
@@ -227,7 +227,7 @@ export type WaterUnit = LiquidUnit | CubicUnit;
 export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
     BaseCost & {
         initialCost: number;
-        annualRateOfChange?: number | number[];
+        annualRateOfChange?: number;
         expectedLife?: number;
         residualValue?: ResidualValue;
     };
@@ -236,7 +236,6 @@ export type OMRCost = Type<CostTypes.OMR> &
     BaseCost & {
         initialCost: number;
         initialOccurrence: number;
-        annualRateOfChange?: number | number[];
         rateOfRecurrence?: number;
     };
 
@@ -281,7 +280,7 @@ export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
         recurring: boolean;
         rateOfRecurrence: number;
         rateOfChangeValue: number | number[];
-        rateOfChangeUnit: number | number[];
+        rateOfChangeUnits: number | number[];
     };
 
 export type Type<T> = {
