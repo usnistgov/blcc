@@ -30,7 +30,8 @@ import {
     RecurBuilder,
     RequestBuilder,
     TimestepComp,
-    TimestepValue
+    TimestepValue,
+    VarRate
 } from "e3-sdk";
 
 /**
@@ -119,31 +120,56 @@ function costToBuilders(cost: Cost, studyPeriod: number): BcnBuilder[] {
 
 function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilder[] {
     const tag = "Initial Investment";
+    const result = [];
 
-    const builder = new BcnBuilder()
-        .type(BcnType.COST)
-        .subType(BcnSubType.DIRECT)
-        .name(cost.name)
-        .real()
-        .invest()
-        .initialOccurrence(0)
-        .life(cost.expectedLife)
-        .addTag(tag)
-        .quantityValue(cost.initialCost ?? 0); //TODO residual value
+    if (cost.phaseIn) {
+        // Create multiple phase in BCNs
+        const adjusted = (cost.initialCost ?? 0) * Math.pow(1 + (cost.costAdjustment ?? 0), cost.phaseIn.length);
 
+        result.push(
+            ...cost.phaseIn.map((phaseIn, i) =>
+                new BcnBuilder()
+                    .type(BcnType.COST)
+                    .subType(BcnSubType.DIRECT)
+                    .name(`${cost.name} Phase-In year ${i}`)
+                    .real()
+                    .invest()
+                    .initialOccurrence(0)
+                    .life(cost.expectedLife)
+                    .addTag(tag)
+                    .quantityValue(adjusted * phaseIn)
+            )
+        );
+    } else {
+        // Default BCN
+        result.push(
+            new BcnBuilder()
+                .type(BcnType.COST)
+                .subType(BcnSubType.DIRECT)
+                .name(cost.name)
+                .real()
+                .invest()
+                .initialOccurrence(0)
+                .life(cost.expectedLife)
+                .addTag(tag)
+                .quantityValue(cost.initialCost ?? 0)
+        );
+    }
+
+    // Add residual value if there is any
     if (cost.residualValue)
-        return [
-            builder,
+        result.push(
             residualValueBcn(
                 cost,
                 (cost.initialCost ?? 0) + (cost.amountFinanced ?? 0),
                 cost.residualValue,
                 studyPeriod,
+                cost.annualRateOfChange ?? 0,
                 [tag]
             )
-        ];
+        );
 
-    return [builder];
+    return result;
 }
 
 function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
@@ -154,18 +180,72 @@ function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .recur(new RecurBuilder().interval(1))
+        .recur(recurrence(cost))
         .quantityValue(cost.costPerUnit)
-        .quantity(cost.annualConsumption); // TODO escalation
+        .quantity(cost.annualConsumption);
+
+    if (cost.useIndex) {
+        const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
+        builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
+    }
 
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
     return [builder];
 }
 
+function recurrence(cost: EnergyCost | WaterCost): RecurBuilder {
+    const builder = new RecurBuilder().interval(1);
+
+    if (cost.escalation)
+        builder
+            .varRate(VarRate.YEAR_BY_YEAR)
+            .varValue(Array.isArray(cost.escalation) ? cost.escalation : [cost.escalation]);
+
+    return builder;
+}
+
 function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
-    const builder = new BcnBuilder().name(cost.name).addTag(cost.unit).addTag("Water Usage");
-    return [builder]; // TODO
+    const recurBuilder = recurrence(cost);
+
+    return [
+        ...cost.usage.map((usage) => {
+            const builder = new BcnBuilder()
+                .name(cost.name)
+                .addTag(cost.unit)
+                .addTag(`${cost.name} ${usage.season} Water Usage`)
+                .real()
+                .invest()
+                .recur(recurBuilder)
+                .quantity(usage.amount)
+                .quantityValue(usage.costPerUnit);
+
+            if (cost.useIndex) {
+                const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
+                builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
+            }
+
+            return builder;
+        }),
+        ...cost.disposal.map((disposal) => {
+            const builder = new BcnBuilder()
+                .name(cost.name)
+                .addTag(cost.unit)
+                .addTag(`${cost.name} ${disposal.season} Water Disposal`)
+                .real()
+                .invest()
+                .recur(recurBuilder)
+                .quantity(disposal.amount)
+                .quantityValue(disposal.costPerUnit);
+
+            if (cost.useIndex) {
+                const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
+                builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
+            }
+
+            return builder;
+        })
+    ];
 }
 
 function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeriod: number): BcnBuilder[] {
@@ -176,9 +256,13 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .addTag("Replacement Capital")
         .life(cost.expectedLife ?? 1)
         .quantityValue(cost.initialCost)
-        .quantityValue(1); //TODO annual rate of change
+        .quantityValue(1);
 
-    if (cost.residualValue) return [builder, residualValueBcn(cost, cost.initialCost, cost.residualValue, studyPeriod)];
+    if (cost.residualValue)
+        return [
+            builder,
+            residualValueBcn(cost, cost.initialCost, cost.residualValue, studyPeriod, cost.annualRateOfChange ?? 0)
+        ];
 
     return [builder];
 }
@@ -245,7 +329,7 @@ function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
         .quantity(cost.numberOfUnits)
         .quantityUnit(cost.unit); //TODO rate of change
 
-    if (cost.recurring) builder.recur(new RecurBuilder().interval(1));
+    applyRateOfChange(builder, cost);
 
     return [builder];
 }
@@ -260,14 +344,42 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
         .type(BcnType.NON_MONETARY)
         .subType(BcnSubType.DIRECT)
         .quantity(cost.numberOfUnits)
-        .quantityValue(1); // TODO rate of change
+        .quantityValue(1);
 
-    if (cost.recurring) builder.recur(new RecurBuilder().interval(cost.rateOfRecurrence ?? 1));
+    applyRateOfChange(builder, cost);
 
     return [builder];
 }
 
-function residualValueBcn(cost: Cost, value: number, obj: ResidualValue, studyPeriod: number, tags: string[] = []) {
+function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary) {
+    if (cost.rateOfChangeUnits)
+        builder
+            .quantityVarRate(VarRate.YEAR_BY_YEAR)
+            .quantityVarValue(
+                Array.isArray(cost.rateOfChangeUnits) ? cost.rateOfChangeUnits : [cost.rateOfChangeUnits]
+            );
+
+    if (cost.recurring) {
+        const recurBuilder = new RecurBuilder().interval(1);
+
+        if (cost.rateOfChangeValue) {
+            recurBuilder
+                .varRate(VarRate.YEAR_BY_YEAR)
+                .varValue(Array.isArray(cost.rateOfChangeValue) ? cost.rateOfChangeValue : [cost.rateOfChangeValue]);
+        }
+
+        builder.recur(recurBuilder);
+    }
+}
+
+function residualValueBcn(
+    cost: Cost,
+    value: number,
+    obj: ResidualValue,
+    studyPeriod: number,
+    rateOfChange: number = 0,
+    tags: string[] = []
+): BcnBuilder {
     return new BcnBuilder()
         .name(`${cost.name} Residual Value`)
         .type(BcnType.BENEFIT)
@@ -276,5 +388,9 @@ function residualValueBcn(cost: Cost, value: number, obj: ResidualValue, studyPe
         .real()
         .initialOccurrence(studyPeriod + 1)
         .quantity(1)
-        .quantityValue(obj.approach === DollarOrPercent.PERCENT ? value * -obj.value : -obj.value);
+        .quantityValue(
+            obj.approach === DollarOrPercent.PERCENT
+                ? value * Math.pow(1 + rateOfChange, studyPeriod) * -obj.value
+                : -obj.value
+        );
 }
