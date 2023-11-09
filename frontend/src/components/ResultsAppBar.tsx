@@ -14,6 +14,9 @@ const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
 
 const output$ = Model.project$.pipe(sample(runClick$), toE3Object(), E3Request());
+
+output$.subscribe(console.log);
+
 export { output$ };
 
 Model.project$
