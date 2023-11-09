@@ -137,6 +137,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                     .initialOccurrence(0)
                     .life(cost.expectedLife)
                     .addTag(tag)
+                    .quantity(1)
                     .quantityValue(adjusted * phaseIn)
             )
         );
@@ -152,6 +153,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 .initialOccurrence(0)
                 .life(cost.expectedLife)
                 .addTag(tag)
+                .quantity(1)
                 .quantityValue(cost.initialCost ?? 0)
         );
     }
@@ -253,8 +255,11 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .name(cost.name)
         .real()
         .invest()
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
         .addTag("Replacement Capital")
         .life(cost.expectedLife ?? 1)
+        .quantity(1)
         .quantityValue(cost.initialCost)
         .quantityValue(1);
 
