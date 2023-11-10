@@ -6,6 +6,7 @@ import { mdiPlus } from "@mdi/js";
 import { mergeMap, from } from "rxjs";
 import { bind } from "@react-rxjs/core";
 import { map, toArray, withLatestFrom } from "rxjs/operators";
+import { CostTypes } from "../../blcc-format/Format";
 
 const { Title } = Typography;
 const { component: Button } = button();
@@ -25,8 +26,20 @@ const altCostObject$ = Model.alternatives$.pipe(
     mergeMap(([altArray, combinedCostObj]) =>
         from(altArray).pipe(
             map((alt) => {
-                const updatedCosts = alt.costs.map((cost) => combinedCostObj[cost]);
-                return { ...alt, costs: updatedCosts };
+                let [capitalCost, waterCost, energyCost, otherCost] = [0, 0, 0, 0];
+                const updatedCosts = alt.costs.map((cost) => {
+                    if (combinedCostObj[cost]?.type === CostTypes.CAPITAL) capitalCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.ENERGY) energyCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.WATER) waterCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.REPLACEMENT_CAPITAL) capitalCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.OMR) capitalCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.IMPLEMENTATION_CONTRACT) capitalCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.RECURRING_CONTRACT) capitalCost += 1;
+                    else if (combinedCostObj[cost]?.type === CostTypes.OTHER) otherCost += 1;
+                    else otherCost += 1;
+                    return combinedCostObj[cost];
+                });
+                return { ...alt, costs: updatedCosts, capitalCosts, energyCosts, waterCosts, otherCosts };
             }),
             toArray()
         )
@@ -56,19 +69,19 @@ export default function AlternativeSummary() {
                             <br />
                             <div className="costs flex justify-between">
                                 <div className="water-costs border">
-                                    <Title level={5}>Energy Costs </Title>
+                                    <Title level={5}>Energy Costs {alt?.energyCosts}</Title>
                                     <Divider className="m-0" />
                                 </div>
                                 <div className="water-costs border">
-                                    <Title level={5}>Water Costs </Title>
+                                    <Title level={5}>Water Costs {alt?.waterCosts}</Title>
                                     <Divider className="m-0" />
                                 </div>
                                 <div className="water-costs border">
-                                    <Title level={5}>Capital Costs </Title>
+                                    <Title level={5}>Capital Costs {alt?.capitalCosts}</Title>
                                     <Divider className="m-0" />
                                 </div>
                                 <div className="water-costs border">
-                                    <Title level={5}>Other Costs </Title>
+                                    <Title level={5}>Other Costs {alt?.otherCosts}</Title>
                                     <Divider className="m-0" />
                                 </div>
                             </div>
