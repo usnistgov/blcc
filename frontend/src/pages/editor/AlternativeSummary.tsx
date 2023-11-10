@@ -46,7 +46,7 @@ const altCostObject$ = Model.alternatives$.pipe(
                 };
                 const otherCosts = {
                     Other: 0,
-                    "Non-Monetory": 0
+                    "Non-Monetary": 0
                 };
                 const updatedCosts = alt.costs.map((cost) => {
                     if (combinedCostObj[cost]?.type === CostTypes.CAPITAL) {
@@ -77,7 +77,7 @@ const altCostObject$ = Model.alternatives$.pipe(
                         capitalCosts.total += 1;
                     } else if (combinedCostObj[cost]?.type === CostTypes.OTHER_NON_MONETARY) {
                         otherCosts.Other += 1;
-                        otherCosts["Non-Monetory"] += 1;
+                        otherCosts["Non-Monetary"] += 1;
                     } else otherCosts.Other += 1;
                     return combinedCostObj[cost];
                 });
@@ -105,48 +105,63 @@ export default function AlternativeSummary() {
                 </div>
                 {finalAlternatives?.map((alt) => (
                     <div className="flex justify-center align-middle">
-                        <div className="bg-primary-light p-5 w-1/2 rounded mb-5">
+                        <div className="bg-primary-light p-5 w-3/4 rounded mb-5">
                             <Title level={4}>{alt?.name}</Title>
                             <p>{alt?.description}</p>
                             <br />
                             <div className="costs flex justify-between">
-                                <div className="water-costs ">
-                                    <Title level={5}>Energy Costs {alt?.energyCosts.total}</Title>
+                                <div className="water-costs w-40">
+                                    <div className=" flex justify-between">
+                                        <Title level={5}>Energy Costs</Title>
+                                        <p>{alt?.energyCosts?.total}</p>
+                                    </div>
                                     <Divider className="m-0" />
                                     {Object.keys(alt?.energyCosts).map((type) =>
                                         type !== "total" ? (
-                                            <p>
-                                                {type} - {alt?.energyCosts[type]}
-                                            </p>
+                                            <div className="flex justify-between">
+                                                <p>{type}</p>
+                                                <p>{alt?.energyCosts[type]}</p>
+                                            </div>
                                         ) : (
                                             ""
                                         )
                                     )}
                                 </div>
-                                <div className="water-costs ">
-                                    <Title level={5}>Water Costs {alt?.waterCosts}</Title>
+                                <div className="water-costs w-44">
+                                    <div className=" flex justify-between">
+                                        <Title level={5}>Water Costs</Title>
+                                        <p>{alt?.waterCosts}</p>
+                                    </div>
                                     <Divider className="m-0" />
                                 </div>
-                                <div className="water-costs ">
-                                    <Title level={5}>Capital Costs {alt?.capitalCosts?.total}</Title>
+                                <div className="water-costs w-60 ">
+                                    <div className=" flex justify-between">
+                                        <Title level={5}>Capital Costs</Title>
+                                        <p>{alt?.capitalCosts?.total}</p>
+                                    </div>
                                     <Divider className="m-0" />
                                     {Object.keys(alt?.capitalCosts).map((type) =>
                                         type !== "total" ? (
-                                            <p>
-                                                {type} - {alt?.capitalCosts[type]}
-                                            </p>
+                                            <div className="flex justify-between">
+                                                <p>{type}</p>
+                                                <p>{alt?.capitalCosts[type]}</p>
+                                            </div>
                                         ) : (
                                             ""
                                         )
                                     )}
                                 </div>
-                                <div className="water-costs ">
-                                    <Title level={5}>Other Costs {alt?.otherCosts.Other}</Title>
+                                <div className="water-costs w-44 ">
+                                    <div className=" flex justify-between">
+                                        <Title level={5}>Other Costs</Title>
+                                        <p>{alt?.otherCosts?.Other}</p>
+                                    </div>
                                     <Divider className="m-0" />
                                     {Object.keys(alt?.otherCosts).map((type) => (
-                                        <p>
-                                            {type} - {alt?.otherCosts[type]}
-                                        </p>
+                                        <div className="flex justify-between w-44">
+                                            <p>{type}</p>
+                                            <p>{alt?.otherCosts[type]}</p>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
