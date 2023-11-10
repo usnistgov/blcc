@@ -1,12 +1,12 @@
-import { Model } from "../../model/Model";
-import { Divider, Typography } from "antd";
-import button, { ButtonType } from "../../components/Button";
-import Icon from "@mdi/react";
 import { mdiPlus } from "@mdi/js";
-import { mergeMap, from } from "rxjs";
+import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
+import { Divider, Typography } from "antd";
+import { from, mergeMap } from "rxjs";
 import { map, toArray, withLatestFrom } from "rxjs/operators";
-import { CostTypes } from "../../blcc-format/Format";
+import { CostTypes, FuelType } from "../../blcc-format/Format";
+import button, { ButtonType } from "../../components/Button";
+import { Model } from "../../model/Model";
 
 const { Title } = Typography;
 const { component: Button } = button();
@@ -26,8 +26,8 @@ const altCostObject$ = Model.alternatives$.pipe(
     mergeMap(([altArray, combinedCostObj]) =>
         from(altArray).pipe(
             map((alt) => {
-                let [waterCosts, energyCosts] = [0, 0];
-                let capitalCosts = {
+                let waterCosts = 0;
+                const capitalCosts = {
                     total: 0,
                     CAPITAL: 0,
                     REPLACEMENT_CAPITAL: 0,
@@ -35,7 +35,16 @@ const altCostObject$ = Model.alternatives$.pipe(
                     IMPLEMENTATION_CONTRACT: 0,
                     RECURRING_CONTRACT: 0
                 };
-                let otherCosts = {
+                const energyCosts = {
+                    total: 0,
+                    ELECTRICITY: 0,
+                    DISTILLATE_OIL: 0,
+                    RESIDUAL_OIL: 0,
+                    NATURAL_GAS: 0,
+                    PROPANE: 0,
+                    OTHER: 0
+                };
+                const otherCosts = {
                     Other: 0,
                     "Non-Monetory": 0
                 };
@@ -43,8 +52,17 @@ const altCostObject$ = Model.alternatives$.pipe(
                     if (combinedCostObj[cost]?.type === CostTypes.CAPITAL) {
                         capitalCosts.CAPITAL += 1;
                         capitalCosts.total += 1;
-                    } else if (combinedCostObj[cost]?.type === CostTypes.ENERGY) energyCosts += 1;
-                    else if (combinedCostObj[cost]?.type === CostTypes.WATER) waterCosts += 1;
+                    } else if (combinedCostObj[cost]?.type === CostTypes.ENERGY) {
+                        if (combinedCostObj[cost]?.fuelType === FuelType.ELECTRICITY) energyCosts.ELECTRICITY += 1;
+                        else if (combinedCostObj[cost]?.fuelType === FuelType.DISTILLATE_OIL)
+                            energyCosts.DISTILLATE_OIL += 1;
+                        else if (combinedCostObj[cost]?.fuelType === FuelType.RESIDUAL_OIL)
+                            energyCosts.RESIDUAL_OIL += 1;
+                        else if (combinedCostObj[cost]?.fuelType === FuelType.NATURAL_GAS) energyCosts.NATURAL_GAS += 1;
+                        else if (combinedCostObj[cost]?.fuelType === FuelType.PROPANE) energyCosts.PROPANE += 1;
+                        else energyCosts.OTHER += 1;
+                        energyCosts.total += 1;
+                    } else if (combinedCostObj[cost]?.type === CostTypes.WATER) waterCosts += 1;
                     else if (combinedCostObj[cost]?.type === CostTypes.REPLACEMENT_CAPITAL) {
                         capitalCosts.REPLACEMENT_CAPITAL += 1;
                         capitalCosts.total += 1;
@@ -74,8 +92,6 @@ const [useAltCostObject] = bind(altCostObject$, []);
 
 export default function AlternativeSummary() {
     const finalAlternatives = useAltCostObject();
-    const allCosts = Object.keys(CostTypes);
-    console.log(finalAlternatives, allCosts);
 
     return (
         <div>
@@ -95,8 +111,17 @@ export default function AlternativeSummary() {
                             <br />
                             <div className="costs flex justify-between">
                                 <div className="water-costs ">
-                                    <Title level={5}>Energy Costs {alt?.energyCosts}</Title>
+                                    <Title level={5}>Energy Costs {alt?.energyCosts.total}</Title>
                                     <Divider className="m-0" />
+                                    {Object.keys(alt?.energyCosts).map((type) =>
+                                        type !== "total" ? (
+                                            <p>
+                                                {type} - {alt?.energyCosts[type]}
+                                            </p>
+                                        ) : (
+                                            ""
+                                        )
+                                    )}
                                 </div>
                                 <div className="water-costs ">
                                     <Title level={5}>Water Costs {alt?.waterCosts}</Title>
@@ -118,22 +143,13 @@ export default function AlternativeSummary() {
                                 <div className="water-costs ">
                                     <Title level={5}>Other Costs {alt?.otherCosts.Other}</Title>
                                     <Divider className="m-0" />
-                                    {Object.keys(alt?.otherCosts).map(
-                                        (type) => (
-                                            // type !== "Other" ? (
-                                            <p>
-                                                {type} - {alt?.otherCosts[type]}
-                                            </p>
-                                        )
-                                        // ) : (
-                                        //     ""
-                                        // )
-                                    )}
+                                    {Object.keys(alt?.otherCosts).map((type) => (
+                                        <p>
+                                            {type} - {alt?.otherCosts[type]}
+                                        </p>
+                                    ))}
                                 </div>
                             </div>
-                            {/* {alt.costs.map((cost) => (
-                                <div>{cost?.name}</div>
-                            ))} */}
                         </div>
                     </div>
                 ))}
