@@ -20,7 +20,7 @@ async fn main() -> std::io::Result<()> {
             .service(Files::new("/", "./public/dist/").show_files_listing())
             .default_service(web::to(index))
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind(("0.0.0.0", 8080))?
         .run()
         .await
 }
