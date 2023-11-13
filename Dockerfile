@@ -10,7 +10,9 @@ RUN pnpm install
 COPY ./frontend/ /app
 RUN pnpm run build
 
-FROM rust:slim AS backend-builder
+FROM rust:alpine AS backend-builder
+
+RUN apk add musl-dev
 
 WORKDIR /app
 COPY ./backend /app
@@ -19,9 +21,13 @@ ENV TARGET x86_64-unknown-linux-musl
 RUN rustup target add "$TARGET"
 RUN cargo build --release --locked --target "$TARGET"
 
+ARG CACHEBUST=1
+RUN ls /app/target/x86_64-unknown-linux-musl/release
+
 FROM scratch
 
-COPY --from=backend-builder /app/target/release/arb_data /server
-COPY --from=frontend-builder /app/dist /public
+COPY --from=backend-builder /app/target/x86_64-unknown-linux-musl/release/backend /server
+COPY --from=frontend-builder /app/dist /public/dist
 
-CMD ["/server"]
+EXPOSE 8080
+CMD ["./server"]
