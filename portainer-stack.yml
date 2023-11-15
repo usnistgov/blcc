@@ -1,0 +1,5 @@
+version: "3.6"
+services:
+  server:
+    image: dockreg.el.nist.gov/blcc/server:latest
+    hostname: blcc
