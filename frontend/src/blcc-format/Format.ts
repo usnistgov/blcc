@@ -1,5 +1,5 @@
-import { Version } from "./Verison";
 import { Country, State } from "../constants/LOCATION";
+import { Version } from "./Verison";
 
 export type Project = {
     version: Version;
@@ -88,15 +88,15 @@ export type Alternative = {
 };
 
 export enum CostTypes {
-    CAPITAL,
-    ENERGY,
-    WATER,
-    REPLACEMENT_CAPITAL,
-    OMR,
-    IMPLEMENTATION_CONTRACT,
-    RECURRING_CONTRACT,
-    OTHER,
-    OTHER_NON_MONETARY
+    CAPITAL = "Capital",
+    ENERGY = "Energy",
+    WATER = "Water",
+    REPLACEMENT_CAPITAL = "Replacement Capital",
+    OMR = "OMR",
+    IMPLEMENTATION_CONTRACT = "Contract Implementation",
+    RECURRING_CONTRACT = "Recurring Contract",
+    OTHER = "Other",
+    OTHER_NON_MONETARY = "Non-Monetary"
 }
 
 export type Cost = (
