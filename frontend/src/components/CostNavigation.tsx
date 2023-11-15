@@ -1,16 +1,12 @@
+import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiPlus, mdiWater } from "@mdi/js";
+import Icon from "@mdi/react";
+import { Layout, Menu, Typography } from "antd";
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Layout, Menu, Typography } from "antd";
-import Icon from "@mdi/react";
-import {
-    mdiPlus,
-    mdiLightningBolt,
-    mdiWater,
-    mdiFileSign,
-    mdiCurrencyUsd,
-    mdiFormatListBulletedType,
-    mdiEmailOutline
-} from "@mdi/js";
+
+import { Cost } from "../blcc-format/Format";
+import { Model } from "../model/Model";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/helper";
 
 const { Sider } = Layout;
 const { Item, SubMenu } = Menu;
@@ -20,138 +16,10 @@ type MenuItem = {
     key: React.Key;
     icon?: React.ReactNode;
     label: React.ReactNode;
-    items?: MenuItem[];
+    children?: MenuItem[];
 };
 
-// will repalce once Model is set
 const rootSubmenuKeys: string[] = ["energy-costs", "water-costs", "capital-costs", "contract-costs", "other"];
-const energy = [
-    {
-        key: "add-energy-cost",
-        icon: <Icon path={mdiPlus} size={1} />,
-        label: (
-            <React.Fragment>
-                <span className="flex items-center">
-                    <Icon path={mdiPlus} size={1} />
-                    Add Energy Cost
-                </span>
-            </React.Fragment>
-        )
-    }
-];
-for (let i = 1; i < 4; i++) {
-    energy.push({
-        key: `energy/${i}`,
-        label: <React.Fragment>Energy Cost {i}</React.Fragment>,
-        icon: <Icon path={mdiPlus} size={1} />
-    });
-}
-
-const water = [
-    {
-        key: "add-water-cost",
-        icon: <Icon path={mdiPlus} size={1} />,
-        label: (
-            <React.Fragment>
-                <span className="flex items-center">
-                    <Icon path={mdiPlus} size={1} />
-                    Add Water Cost
-                </span>
-            </React.Fragment>
-        )
-    }
-];
-for (let i = 1; i < 4; i++) {
-    water.push({
-        key: `water/${i}`,
-        label: <React.Fragment>Water Cost {i}</React.Fragment>,
-        icon: <Icon path={mdiPlus} size={1} />
-    });
-}
-
-const capital = [
-    {
-        key: "add-capital-cost",
-        icon: <Icon path={mdiPlus} size={1} />,
-        label: (
-            <React.Fragment>
-                <span className="flex items-center">
-                    <Icon path={mdiPlus} size={1} />
-                    Add Capital Cost
-                </span>
-            </React.Fragment>
-        )
-    }
-];
-for (let i = 1; i < 4; i++) {
-    capital.push({
-        key: `capital/${i}`,
-        label: <React.Fragment>Capital Cost {i}</React.Fragment>,
-        icon: <Icon path={mdiPlus} size={1} />
-    });
-}
-
-const contract = [
-    {
-        key: "add-contract-cost",
-        icon: <Icon path={mdiPlus} size={1} />,
-        label: (
-            <React.Fragment>
-                <span className="flex items-center">
-                    <Icon path={mdiPlus} size={1} />
-                    Add Contract Cost
-                </span>
-            </React.Fragment>
-        )
-    }
-];
-for (let i = 1; i < 4; i++) {
-    contract.push({
-        key: `contract/${i}`,
-        label: <React.Fragment>Contract Cost {i}</React.Fragment>,
-        icon: <Icon path={mdiPlus} size={1} />
-    });
-}
-
-const items: MenuItem["items"] = [
-    {
-        key: "energy-costs",
-        icon: <Icon path={mdiLightningBolt} size={1} />,
-        label: "Energy Costs",
-        items: energy
-    },
-    {
-        key: "water-costs",
-        icon: <Icon path={mdiWater} size={1} />,
-        label: "Water Costs",
-        items: water
-    },
-    {
-        key: "capital-costs",
-        icon: <Icon path={mdiCurrencyUsd} size={1} />,
-        label: "Capital Costs",
-        items: capital
-    },
-    {
-        key: "contract-costs",
-        icon: <Icon path={mdiFileSign} size={1} />,
-        label: "Contract Costs",
-        items: contract
-    },
-    {
-        key: "other",
-        icon: <Icon path={mdiFormatListBulletedType} size={1} />,
-        label: "Other",
-        items: [
-            {
-                key: "other-1",
-                icon: <Icon path={mdiLightningBolt} size={1} />,
-                label: "Energy Costs"
-            },
-            { key: "other-2", icon: <Icon path={mdiEmailOutline} size={1} />, label: "Energy Costs" }
-        ]
-    }
-];
 
 const background = "rgb(0 94 162)";
 
@@ -159,6 +27,7 @@ export default function CostNavigation() {
     const [collapsed, setCollapsed] = useState(false);
     const [openKeys, setOpenKeys] = useState(["energy-costs"]);
     const navigate = useNavigate();
+    const costs = Model.useCosts();
 
     const onOpenChange = (keys: string[]) => {
         const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
@@ -168,6 +37,112 @@ export default function CostNavigation() {
             setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
         }
     };
+
+    const waterCosts = costs.filter(isWaterCost);
+    const energyCosts = costs.filter(isEnergyCost);
+    const capitalCosts = costs.filter(isCapitalCost);
+    const contractCosts = costs.filter(isContractCost);
+    const otherCosts = costs.filter(isOtherCost);
+
+    const retrieveSubMenu = (costs: Cost[], key: string, arr: MenuItem[]) => {
+        for (let i = 0; i < costs.length; i++) {
+            arr.push({
+                key: `${key}/${costs[i]?.id}`,
+                label: <React.Fragment>{costs[i]?.name}</React.Fragment>,
+                icon: <Icon path={mdiPlus} size={1} />
+            });
+        }
+    };
+
+    const addCostItem = (cost: string) => {
+        return (
+            <React.Fragment>
+                <span className="flex items-center">
+                    <Icon path={mdiPlus} size={1} />
+                    Add {cost} Cost
+                </span>
+            </React.Fragment>
+        );
+    };
+
+    const energy = [
+        {
+            key: "add-energy-cost",
+            icon: <Icon path={mdiPlus} size={1} />,
+            label: addCostItem("Energy")
+        }
+    ];
+
+    const water = [
+        {
+            key: "add-water-cost",
+            icon: <Icon path={mdiPlus} size={1} />,
+            label: addCostItem("Water")
+        }
+    ];
+
+    const capital = [
+        {
+            key: "add-capital-cost",
+            icon: <Icon path={mdiPlus} size={1} />,
+            label: addCostItem("Capital")
+        }
+    ];
+
+    const other = [
+        {
+            key: "add-other-cost",
+            icon: <Icon path={mdiPlus} size={1} />,
+            label: addCostItem("Other")
+        }
+    ];
+
+    const contract = [
+        {
+            key: "add-contract-cost",
+            icon: <Icon path={mdiPlus} size={1} />,
+            label: addCostItem("Contract")
+        }
+    ];
+
+    retrieveSubMenu(energyCosts, "energy", energy);
+    retrieveSubMenu(waterCosts, "water", water);
+    retrieveSubMenu(capitalCosts, "capital", capital);
+    retrieveSubMenu(contractCosts, "contract", contract);
+    retrieveSubMenu(otherCosts, "other", other);
+
+    const items: MenuItem["children"] = [
+        {
+            key: "energy-costs",
+            icon: <Icon path={mdiLightningBolt} size={1} />,
+            label: "Energy Costs",
+            children: energy
+        },
+        {
+            key: "water-costs",
+            icon: <Icon path={mdiWater} size={1} />,
+            label: "Water Costs",
+            children: water
+        },
+        {
+            key: "capital-costs",
+            icon: <Icon path={mdiCurrencyUsd} size={1} />,
+            label: "Capital Costs",
+            children: capital
+        },
+        {
+            key: "contract-costs",
+            icon: <Icon path={mdiFileSign} size={1} />,
+            label: "Contract Costs",
+            children: contract
+        },
+        {
+            key: "other",
+            icon: <Icon path={mdiFormatListBulletedType} size={1} />,
+            label: "Other",
+            children: other
+        }
+    ];
 
     return (
         <>
@@ -188,14 +163,14 @@ export default function CostNavigation() {
                         onOpenChange={onOpenChange}
                     >
                         {items.map((item) =>
-                            item.items ? (
+                            item.children ? (
                                 <SubMenu
                                     key={item.key}
                                     icon={item.icon}
                                     title={item.label}
                                     onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
                                 >
-                                    {item.items.map((child) => (
+                                    {item.children.map((child) => (
                                         <Item key={child.key}>{child.label}</Item>
                                     ))}
                                 </SubMenu>
