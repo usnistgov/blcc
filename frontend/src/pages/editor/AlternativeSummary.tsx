@@ -7,7 +7,7 @@ import { Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
-import { isCapitalCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/util";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/util";
 
 const { Title } = Typography;
 const { component: Button } = button();
@@ -56,6 +56,10 @@ export function createAlternativeCard(index: number) {
     const [capitalCosts, capitalCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isCapitalCost))), []);
     const [capitalSubcategories] = bind(capitalCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
 
+    // Count all contract costs and its subcategories
+    const [contractCosts, contractCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isContractCost))), []);
+    const [contractSubcategories] = bind(contractCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
+
     // Count all other costs and its subcategories
     const [otherCosts, otherCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isOtherCost))), []);
     const [otherSubcategories] = bind(otherCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
@@ -75,6 +79,11 @@ export function createAlternativeCard(index: number) {
             label: "Capital Costs",
             hook: capitalCosts,
             children: capitalSubcategories
+        },
+        {
+            label: "Contract Costs",
+            hook: contractCosts,
+            children: contractSubcategories
         },
         {
             label: "Other Costs",
