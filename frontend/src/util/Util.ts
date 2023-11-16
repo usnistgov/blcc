@@ -13,13 +13,7 @@ export function isWaterCost(cost: Cost) {
 // Returns true if the given cost is a capital cost or one of its subcategories.
 export function isCapitalCost(cost: Cost) {
     const type = cost.type;
-    return (
-        type === CostTypes.CAPITAL ||
-        type === CostTypes.REPLACEMENT_CAPITAL ||
-        type === CostTypes.IMPLEMENTATION_CONTRACT ||
-        type === CostTypes.OMR ||
-        type === CostTypes.RECURRING_CONTRACT
-    );
+    return type === CostTypes.CAPITAL || type === CostTypes.REPLACEMENT_CAPITAL || type === CostTypes.OMR;
 }
 
 // Returns true if the given cost is a contract cost or one of its subcategories.
