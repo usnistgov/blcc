@@ -1,8 +1,8 @@
-import { Observable } from "rxjs";
-import React, { PropsWithChildren, useState } from "react";
-import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
-import { Form, Input, Table, Typography } from "antd";
+import { createSignal } from "@react-rxjs/utils";
+import { Form, Input, Table, TablePaginationConfig, Typography } from "antd";
+import React, { PropsWithChildren, useState } from "react";
+import { Observable } from "rxjs";
 
 type Column<T> = {
     title: string;
@@ -15,6 +15,7 @@ type Column<T> = {
 export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
+    pagination?: TablePaginationConfig | false;
 };
 
 export type Table<T> = {
@@ -43,6 +44,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
         changedData$,
         component: ({
             className,
+            pagination,
             columns = [
                 {
                     title: "Column 1",
@@ -172,6 +174,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         className={(className ? className : "") + " px-2"}
                         columns={mergedColumns}
                         dataSource={useTableData()}
+                        pagination={pagination}
                     />
                 </Form>
             );
