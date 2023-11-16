@@ -1,48 +1,45 @@
 import { useState } from "react";
+import { Cost, CostTypes } from "../../blcc-format/Format";
 
-import { Divider, Switch, Typography, Modal, Checkbox, Col, Row } from "antd";
+import { Checkbox, Col, Divider, Modal, Row, Switch, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 
+import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { mdiPlus, mdiContentCopy, mdiMinus } from "@mdi/js";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { Model } from "../../model/Model";
 
-import textInput, { TextInputType } from "../../components/TextInput";
-import textArea from "../../components/TextArea";
-import table from "../../components/Table";
 import dropdown from "../../components/Dropdown";
+import table from "../../components/Table";
+import textArea from "../../components/TextArea";
+import textInput, { TextInputType } from "../../components/TextInput";
 
 import { of } from "rxjs";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { component: AddAlternative } = button();
 const { component: Clone } = button();
 const { component: Remove } = button();
 const { click$: openModal$, component: AddCost } = button();
 
-const { component: NameInput } = textInput();
-const { component: DescInput } = textArea();
+const { component: NameInput } = textInput(Model.name$);
+const { component: DescInput } = textArea(Model.description$);
 const { component: NewCostInput } = textInput();
 
 const { Title } = Typography;
 
-const dataSource = [
-    {
-        key: "1",
-        costs: "Cost 1"
-    },
-    {
-        key: "2",
-        costs: "Cost 2"
-    }
-];
-const { component: EnergyCosts } = table(of(dataSource));
-const { component: WaterCosts } = table(of(dataSource));
-const { component: CapitalCosts } = table(of(dataSource));
-const { component: ContractCosts } = table(of(dataSource));
-const { component: OtherCosts } = table(of(dataSource));
+const columns = (costType: string) => {
+    return [
+        {
+            title: `${costType} Costs`,
+            dataIndex: "name",
+            key: "column1",
+            editable: false
+        }
+    ];
+};
 
-const costs = [
+const costList = [
     "Capital Cost",
     "Energy Cost",
     "Water Cost",
@@ -54,11 +51,17 @@ const costs = [
     "Other Non Monetary"
 ];
 
-const { component: CostCategoryDropdown } = dropdown(costs);
+const { component: CostCategoryDropdown } = dropdown(costList);
 
 export default function Alternatives() {
+    // get the index of the alternative from url
+    const altIndex = 1;
+
     const [open, setOpen] = useState(false);
-    const plainOptions = Model.useAlternatives();
+    const alts = Model.useAlternatives();
+    const costs = Model.useCosts();
+    const altCosts: Cost[] = [];
+    alts[altIndex]?.costs?.forEach((a) => altCosts?.push(costs[a]));
 
     useSubscribe(openModal$, () => setOpen(true));
 
@@ -71,6 +74,18 @@ export default function Alternatives() {
         console.log(e);
         setOpen(false);
     };
+
+    const waterCosts = altCosts.filter(isWaterCost);
+    const energyCosts = altCosts.filter(isEnergyCost);
+    const capitalCosts = altCosts.filter(isCapitalCost);
+    const contractCosts = altCosts.filter(isContractCost);
+    const otherCosts = altCosts.filter(isOtherCost);
+
+    const { component: EnergyCosts } = table(of(energyCosts));
+    const { component: WaterCosts } = table(of(waterCosts));
+    const { component: CapitalCosts } = table(of(capitalCosts));
+    const { component: ContractCosts } = table(of(contractCosts));
+    const { component: OtherCosts } = table(of(otherCosts));
 
     return (
         <div className="w-full h-full bg-white p-3">
@@ -129,8 +144,8 @@ export default function Alternatives() {
                         <Title level={5}>Add to Alternatives</Title>
                         <Checkbox.Group style={{ width: "100%" }}>
                             <Row>
-                                {plainOptions.length
-                                    ? plainOptions.map((option) => (
+                                {alts.length
+                                    ? alts.map((option) => (
                                           <Col span={16}>
                                               <Checkbox value={option} key={option}>
                                                   {option}
@@ -150,56 +165,11 @@ export default function Alternatives() {
             </div>
             <Divider className="m-0 mb-4" />
             <div className="flex justify-between" style={{ alignContent: "space-between" }}>
-                <EnergyCosts
-                    columns={[
-                        {
-                            title: "Energy Costs",
-                            dataIndex: "costs",
-                            key: "column1",
-                            editable: false
-                        }
-                    ]}
-                />
-                <WaterCosts
-                    columns={[
-                        {
-                            title: "Water Costs",
-                            dataIndex: "costs",
-                            key: "column1",
-                            editable: false
-                        }
-                    ]}
-                />
-                <CapitalCosts
-                    columns={[
-                        {
-                            title: "Capital Costs",
-                            dataIndex: "costs",
-                            key: "column1",
-                            editable: false
-                        }
-                    ]}
-                />
-                <ContractCosts
-                    columns={[
-                        {
-                            title: "Contract Costs",
-                            dataIndex: "costs",
-                            key: "column1",
-                            editable: false
-                        }
-                    ]}
-                />
-                <OtherCosts
-                    columns={[
-                        {
-                            title: "Other Costs",
-                            dataIndex: "costs",
-                            key: "column1",
-                            editable: false
-                        }
-                    ]}
-                />
+                <EnergyCosts pagination={false} columns={columns("Energy")} />
+                <WaterCosts pagination={false} columns={columns("Water")} />
+                <CapitalCosts pagination={false} columns={columns("Capital")} />
+                <ContractCosts pagination={false} columns={columns("Contract")} />
+                <OtherCosts pagination={false} columns={columns("Other")} />
                 <div />
             </div>
         </div>
