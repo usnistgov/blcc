@@ -9,7 +9,6 @@ import { Model } from "../model/Model";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/util";
 
 const { Sider } = Layout;
-const { Item, SubMenu } = Menu;
 const { Title } = Typography;
 
 type MenuItem = {
@@ -47,9 +46,12 @@ export default function CostNavigation() {
     const retrieveSubMenu = (costs: Cost[], key: string, arr: MenuItem[]) => {
         for (let i = 0; i < costs.length; i++) {
             arr.push({
-                key: `${key}/${costs[i]?.id}`,
-                label: <React.Fragment>{costs[i]?.name}</React.Fragment>,
-                icon: <Icon path={mdiPlus} size={1} />
+                key: `${costs[i]?.id}`,
+                label: costs[i]?.name ? (
+                    <React.Fragment>{costs[i]?.name}</React.Fragment>
+                ) : (
+                    <React.Fragment>{key} (No Name)</React.Fragment>
+                )
             });
         }
     };
@@ -161,26 +163,9 @@ export default function CostNavigation() {
                         mode="inline"
                         openKeys={openKeys}
                         onOpenChange={onOpenChange}
-                    >
-                        {items.map((item) =>
-                            item.children ? (
-                                <SubMenu
-                                    key={item.key}
-                                    icon={item.icon}
-                                    title={item.label}
-                                    onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
-                                >
-                                    {item.children.map((child) => (
-                                        <Item key={child.key}>{child.label}</Item>
-                                    ))}
-                                </SubMenu>
-                            ) : (
-                                <Item key={item.key} icon={item.icon}>
-                                    {item.label}
-                                </Item>
-                            )
-                        )}
-                    </Menu>
+                        onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
+                        items={items}
+                    />
                 </Sider>
             </Layout>
             <Outlet />
