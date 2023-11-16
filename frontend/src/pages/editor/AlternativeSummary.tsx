@@ -3,10 +3,11 @@ import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { Divider, Typography } from "antd";
 import { map, withLatestFrom } from "rxjs/operators";
-import { Cost, CostTypes, EnergyCost } from "../../blcc-format/Format";
+import { Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
+import { isCapitalCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/util";
 
 const { Title } = Typography;
 const { component: Button } = button();
@@ -114,39 +115,4 @@ export function createAlternativeCard(index: number) {
             );
         }
     };
-}
-
-function isEnergyCost(cost: Cost) {
-    return cost.type === CostTypes.ENERGY;
-}
-
-/**
- * Returns true if the given cost is a water cost.
- */
-function isWaterCost(cost: Cost) {
-    return cost.type === CostTypes.WATER;
-}
-
-/**
- * Returns true if the given cost is a capital cost or one of its subcategories.
- */
-function isCapitalCost(cost: Cost) {
-    const type = cost.type;
-
-    return (
-        type === CostTypes.CAPITAL ||
-        type === CostTypes.REPLACEMENT_CAPITAL ||
-        type === CostTypes.IMPLEMENTATION_CONTRACT ||
-        type === CostTypes.OMR ||
-        type === CostTypes.RECURRING_CONTRACT
-    );
-}
-
-/**
- * Returns true if the given cost is an 'other' cost or one of its subcategories.
- */
-function isOtherCost(cost: Cost) {
-    const type = cost.type;
-
-    return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
