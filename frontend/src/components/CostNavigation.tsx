@@ -6,7 +6,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import { Cost } from "../blcc-format/Format";
 import { Model } from "../model/Model";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/helper";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/util";
 
 const { Sider } = Layout;
 const { Item, SubMenu } = Menu;
