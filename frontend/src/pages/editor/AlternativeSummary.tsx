@@ -7,7 +7,7 @@ import { Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/util";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { Title } = Typography;
 const { component: Button } = button();
