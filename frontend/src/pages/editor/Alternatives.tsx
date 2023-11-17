@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
-import { Cost, CostTypes } from "../../blcc-format/Format";
+import { Cost, CostTypes, EnergyCost } from "../../blcc-format/Format";
 
-import { Checkbox, Col, Divider, Modal, Row, Switch, Typography } from "antd";
+import { Checkbox, Col, Divider, Modal, Row, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import { Model } from "../../model/Model";
-
 import dropdown from "../../components/Dropdown";
+import switchComp from "../../components/Switch";
 import table from "../../components/Table";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { Model } from "../../model/Model";
+import { countProperty } from "../../util/Operators";
 
-import { useParams } from "react-router-dom";
-import { of } from "rxjs";
+import { useNavigate, useParams } from "react-router-dom";
+import { Observable, of } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { component: AddAlternative } = button();
 const { component: Clone } = button();
 const { component: Remove } = button();
+const { onChange$: baselineChange$, component: Switch } = switchComp();
 const { click$: openModal$, component: AddCost } = button();
 
 const { Title } = Typography;
@@ -29,16 +31,16 @@ const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 const { component: NewCostInput } = textInput();
 
-const columns = (costType: string) => {
-    return [
-        {
-            title: `${costType} Costs`,
-            dataIndex: "name",
-            key: "name",
-            editable: false
-        }
-    ];
-};
+// const columns = (costType: string) => {
+//     return [
+//         {
+//             title: `${costType} Costs`,
+//             dataIndex: "name",
+//             key: "name",
+//             editable: false
+//         }
+//     ];
+// };
 
 const costList = [
     "Capital Cost",
@@ -54,13 +56,13 @@ const costList = [
 
 const { component: CostCategoryDropdown } = dropdown(costList);
 
-export default function Alternatives() {
-    const params = useParams();
-    const [altIndex, setAltIndex] = useState(params?.alternativeID);
+export { baselineChange$ };
 
+export default function Alternatives() {
+    const navigate = useNavigate();
+    const params = useParams();
     // get the index of the alternative from url
-    // const altIndex = +params?.alternativeID;
-    console.log(params);
+    const [altIndex, setAltIndex] = useState(params?.alternativeID);
 
     useEffect(() => {
         setAltIndex(params?.alternativeID);
@@ -90,11 +92,58 @@ export default function Alternatives() {
     const contractCosts = altCosts.filter(isContractCost);
     const otherCosts = altCosts.filter(isOtherCost);
 
-    const { component: EnergyCosts } = table(of(energyCosts));
-    const { component: WaterCosts } = table(of(waterCosts));
-    const { component: CapitalCosts } = table(of(capitalCosts));
-    const { component: ContractCosts } = table(of(contractCosts));
-    const { component: OtherCosts } = table(of(otherCosts));
+    const countProp = (arr, key: string) => {
+        const res = {};
+        arr.map((a) => {
+            if (res?.[a?.[key]]) res?.[a?.[key]].push(a);
+            else res[a?.[key]] = [a];
+        });
+
+        const result = Object.keys(res).map((key) => ({
+            key,
+            items: res[key]
+        }));
+        return result;
+    };
+
+    const energySubcategories = countProp(energyCosts, "fuelType");
+    const capitalSubcategories = countProp(capitalCosts, "type");
+    const contractSubcategories = countProp(contractCosts, "type");
+    const otherSubcategories = countProp(otherCosts, "type");
+    console.log(energySubcategories, capitalSubcategories);
+
+    const categories = [
+        {
+            label: "Energy Costs",
+            // hook: energyCosts
+            children: energySubcategories
+        },
+        {
+            label: "Water Costs"
+            // hook: waterCosts
+        },
+        {
+            label: "Capital Costs",
+            // hook: capitalCosts
+            children: capitalSubcategories
+        },
+        {
+            label: "Contract Costs",
+            // hook: contractCosts
+            children: contractSubcategories
+        },
+        {
+            label: "Other Costs",
+            // hook: otherCosts
+            children: otherSubcategories
+        }
+    ];
+
+    // const { component: EnergyCosts } = table(of(energyCosts));
+    // const { component: WaterCosts } = table(of(waterCosts));
+    // const { component: CapitalCosts } = table(of(capitalCosts));
+    // const { component: ContractCosts } = table(of(contractCosts));
+    // const { component: OtherCosts } = table(of(otherCosts));
 
     return (
         <div className="w-full h-full bg-white p-3">
@@ -125,7 +174,7 @@ export default function Alternatives() {
                 </div>
                 <span className="w-1/2">
                     <Title level={5}>Baseline Alternative</Title>
-                    <Switch defaultChecked />
+                    <Switch className="" checkedChildren="" unCheckedChildren="" defaultChecked />
                     <p>Only one alternative can be the baseline.</p>
                 </span>
             </div>
@@ -174,11 +223,29 @@ export default function Alternatives() {
             </div>
             <Divider className="m-0 mb-4" />
             <div className="flex justify-between" style={{ alignContent: "space-between" }}>
-                <EnergyCosts pagination={false} columns={columns("Energy")} />
-                <WaterCosts pagination={false} columns={columns("Water")} />
-                <CapitalCosts pagination={false} columns={columns("Capital")} />
-                <ContractCosts pagination={false} columns={columns("Contract")} />
-                <OtherCosts pagination={false} columns={columns("Other")} />
+                {categories.map((category) => (
+                    <div className="water-costs w-40" key={category.label}>
+                        <div className=" flex justify-between">
+                            <Title level={5}>{category.label}</Title>
+                        </div>
+                        <Divider className="m-0" />
+                        {category?.children?.map((obj) => (
+                            <div className="flex flex-col justify-between m-2 border" key={obj.key}>
+                                <div className="border bg-primary text-center text-white">{obj.key}</div>
+                                <ul className="hover:cursor-pointer">
+                                    {obj.items.map((item) => (
+                                        <li
+                                            className="text-ellipsis"
+                                            onClick={() => navigate(`/editor/alternative/cost/${item.id}`)}
+                                        >
+                                            {item.name || "Unknown"}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                ))}
                 <div />
             </div>
         </div>
