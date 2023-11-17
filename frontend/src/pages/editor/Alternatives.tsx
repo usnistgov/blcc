@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Cost, CostTypes } from "../../blcc-format/Format";
 
 import { Checkbox, Col, Divider, Modal, Row, Switch, Typography } from "antd";
@@ -14,6 +14,7 @@ import table from "../../components/Table";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
 
+import { useParams } from "react-router-dom";
 import { of } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
@@ -22,18 +23,18 @@ const { component: Clone } = button();
 const { component: Remove } = button();
 const { click$: openModal$, component: AddCost } = button();
 
+const { Title } = Typography;
+
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 const { component: NewCostInput } = textInput();
-
-const { Title } = Typography;
 
 const columns = (costType: string) => {
     return [
         {
             title: `${costType} Costs`,
             dataIndex: "name",
-            key: "column1",
+            key: "name",
             editable: false
         }
     ];
@@ -54,8 +55,16 @@ const costList = [
 const { component: CostCategoryDropdown } = dropdown(costList);
 
 export default function Alternatives() {
+    const params = useParams();
+    const [altIndex, setAltIndex] = useState(params?.alternativeID);
+
     // get the index of the alternative from url
-    const altIndex = 1;
+    // const altIndex = +params?.alternativeID;
+    console.log(params);
+
+    useEffect(() => {
+        setAltIndex(params?.alternativeID);
+    }, [params]);
 
     const [open, setOpen] = useState(false);
     const alts = Model.useAlternatives();
