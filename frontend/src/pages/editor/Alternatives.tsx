@@ -110,7 +110,7 @@ export default function Alternatives() {
     const capitalSubcategories = countProp(capitalCosts, "type");
     const contractSubcategories = countProp(contractCosts, "type");
     const otherSubcategories = countProp(otherCosts, "type");
-    console.log(energySubcategories, capitalSubcategories);
+    console.log(energySubcategories, capitalSubcategories, waterCosts);
 
     const categories = [
         {
@@ -119,8 +119,9 @@ export default function Alternatives() {
             children: energySubcategories
         },
         {
-            label: "Water Costs"
-            // hook: waterCosts
+            label: "Water Costs",
+            // hook: waterCosts,
+            children: waterCosts
         },
         {
             label: "Capital Costs",
@@ -205,8 +206,8 @@ export default function Alternatives() {
                                 {alts.length
                                     ? alts.map((option) => (
                                           <Col span={16}>
-                                              <Checkbox value={option} key={option}>
-                                                  {option}
+                                              <Checkbox value={option?.name} key={option?.id}>
+                                                  {option?.name}
                                               </Checkbox>
                                           </Col>
                                       ))
@@ -230,17 +231,28 @@ export default function Alternatives() {
                         </div>
                         <Divider className="m-0" />
                         {category?.children?.map((obj) => (
-                            <div className="flex flex-col justify-between m-2 border" key={obj.key}>
-                                <div className="border bg-primary text-center text-white">{obj.key}</div>
+                            <div className="flex flex-col justify-between m-2 border">
+                                <div className="border bg-primary text-center text-white">{obj?.key || ""}</div>
                                 <ul className="hover:cursor-pointer">
-                                    {obj.items.map((item) => (
+                                    {obj?.items ? (
+                                        obj?.items?.map((item) => (
+                                            <li
+                                                key={item?.id}
+                                                className=""
+                                                onClick={() => navigate(`/editor/alternative/cost/${item?.id}`)}
+                                            >
+                                                {item?.name || "Unknown"}
+                                            </li>
+                                        ))
+                                    ) : (
                                         <li
-                                            className="text-ellipsis"
-                                            onClick={() => navigate(`/editor/alternative/cost/${item.id}`)}
+                                            className=""
+                                            key={obj?.name - obj?.id}
+                                            onClick={() => navigate(`/editor/alternative/cost/${obj?.id}`)}
                                         >
-                                            {item.name || "Unknown"}
+                                            {obj?.name || "Unknown"}
                                         </li>
-                                    ))}
+                                    )}
                                 </ul>
                             </div>
                         ))}
