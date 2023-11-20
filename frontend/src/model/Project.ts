@@ -1,7 +1,12 @@
-import { imported$ } from "../blcc-format/Import";
+import { shareLatest } from "@react-rxjs/core";
+import { mergeWithKey } from "@react-rxjs/utils";
 import { scan } from "rxjs";
 import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
-import { mergeWithKey } from "@react-rxjs/utils";
+import { imported$ } from "../blcc-format/Import";
+import { Version } from "../blcc-format/Verison";
+import { addAlternative$ } from "../components/Navigation";
+import { Country } from "../constants/LOCATION";
+import { modifiedbaselineChange$ } from "../pages/editor/Alternatives";
 import {
     analysisPurposeChange$,
     analysisTypeChange$,
@@ -19,10 +24,6 @@ import {
     studyPeriodChange$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
-import { addAlternative$ } from "../components/Navigation";
-import { shareLatest } from "@react-rxjs/core";
-import { Version } from "../blcc-format/Verison";
-import { Country } from "../constants/LOCATION";
 
 const project$ = mergeWithKey({
     imported$,
@@ -42,7 +43,8 @@ const project$ = mergeWithKey({
     constructionPeriod: constructionPeriodChange$,
     discountingMethod: discountingMethodChange$,
     location: combinedLocation$,
-    ghg: combinedGHG$
+    ghg: combinedGHG$,
+    baselineChange$: modifiedbaselineChange$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -52,6 +54,14 @@ const project$ = mergeWithKey({
                 }
                 case "addAlternative$": {
                     accumulator.alternatives.push(operation.payload);
+                    break;
+                }
+                case "baselineChange$": {
+                    const [val, altId] = operation.payload;
+                    accumulator.alternatives.forEach((alt) => {
+                        if (alt.id == altId) alt.baseline = val;
+                        else alt.baseline = false;
+                    });
                     break;
                 }
                 /*
