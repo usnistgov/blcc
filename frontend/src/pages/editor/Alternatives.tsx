@@ -19,16 +19,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Observable, of } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
-const { component: AddAlternative } = button();
 const { component: Clone } = button();
 const { component: Remove } = button();
 const { onChange$: baselineChange$, component: Switch } = switchComp();
-const { click$: openModal$, component: AddCost } = button();
+const { click$: openAltModal$, component: AddAlternative } = button();
+const { click$: openCostModal$, component: AddCost } = button();
 
 const { Title } = Typography;
 
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
+const { component: NewAltInput } = textInput();
 const { component: NewCostInput } = textInput();
 
 // const columns = (costType: string) => {
@@ -68,22 +69,30 @@ export default function Alternatives() {
         setAltIndex(params?.alternativeID);
     }, [params]);
 
-    const [open, setOpen] = useState(false);
+    const [openAddAlternative, setOpenAddAlternative] = useState(false);
+    const [openAddCost, setOpenAddCost] = useState(false);
     const alts = Model.useAlternatives();
     const costs = Model.useCosts();
     const altCosts: Cost[] = [];
     alts[altIndex]?.costs?.forEach((a) => altCosts?.push(costs[a]));
 
-    useSubscribe(openModal$, () => setOpen(true));
+    useSubscribe(openCostModal$, () => setOpenAddCost(true));
+    useSubscribe(openAltModal$, () => setOpenAddAlternative(true));
 
-    const handleOk = (e: React.MouseEvent<HTMLElement>) => {
-        console.log(e);
-        setOpen(false);
+    const handleAltOk = () => {
+        setOpenAddAlternative(false);
     };
 
-    const handleCancel = (e: React.MouseEvent<HTMLElement>) => {
-        console.log(e);
-        setOpen(false);
+    const handleCostOk = () => {
+        setOpenAddCost(false);
+    };
+
+    const handleAltCancel = () => {
+        setOpenAddAlternative(false);
+    };
+
+    const handleCostCancel = () => {
+        setOpenAddCost(false);
     };
 
     const waterCosts = altCosts.filter(isWaterCost);
@@ -153,6 +162,20 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
                 </AddAlternative>
+                <Modal
+                    title="Add New Alternative"
+                    open={openAddAlternative}
+                    onOk={handleAltOk}
+                    onCancel={handleAltCancel}
+                    okButtonProps={{ disabled: false }}
+                    cancelButtonProps={{ disabled: false }}
+                >
+                    <div>
+                        <Title level={5}>Name</Title>
+                        <NewAltInput type={TextInputType.PRIMARY} />
+                    </div>
+                    <p>Further changes can be made in the associated alternative page.</p>
+                </Modal>
                 <Clone type={ButtonType.LINK}>
                     <Icon path={mdiContentCopy} size={1} /> Clone
                 </Clone>
@@ -188,9 +211,9 @@ export default function Alternatives() {
                 </AddCost>
                 <Modal
                     title="Add New Cost"
-                    open={open}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
+                    open={openAddCost}
+                    onOk={handleCostOk}
+                    onCancel={handleCostCancel}
                     okButtonProps={{ disabled: false }}
                     cancelButtonProps={{ disabled: false }}
                 >
