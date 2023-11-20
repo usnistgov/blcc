@@ -1,3 +1,4 @@
+import { createSignal } from "@react-rxjs/utils";
 import { useEffect, useState } from "react";
 import { Cost, CostTypes, EnergyCost } from "../../blcc-format/Format";
 
@@ -17,13 +18,16 @@ import { countProperty } from "../../util/Operators";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { Observable, of } from "rxjs";
+import { map, withLatestFrom } from "rxjs/operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { component: Clone } = button();
 const { component: Remove } = button();
-const { onChange$: baselineChange$, component: Switch } = switchComp();
+
 const { click$: openAltModal$, component: AddAlternative } = button();
 const { click$: openCostModal$, component: AddCost } = button();
+const { onChange$: baselineChange$, component: Switch } = switchComp();
+const [altId$, setAltId] = createSignal();
 
 const { Title } = Typography;
 
@@ -57,24 +61,29 @@ const costList = [
 
 const { component: CostCategoryDropdown } = dropdown(costList);
 
-export { baselineChange$ };
+export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
 
 export default function Alternatives() {
     const navigate = useNavigate();
-    const params = useParams();
+    const { alternativeID } = useParams();
     // get the index of the alternative from url
-    const [altIndex, setAltIndex] = useState(params?.alternativeID);
+    // const [altIndex, setAltIndex] = useState(alternativeID);
 
     useEffect(() => {
-        setAltIndex(params?.alternativeID);
-    }, [params]);
+        if (alternativeID !== undefined) {
+            setAltId(alternativeID);
+            // setAltIndex(alternativeID);
+        }
+    }, [alternativeID]);
 
     const [openAddAlternative, setOpenAddAlternative] = useState(false);
     const [openAddCost, setOpenAddCost] = useState(false);
+
     const alts = Model.useAlternatives();
     const costs = Model.useCosts();
     const altCosts: Cost[] = [];
-    alts[altIndex]?.costs?.forEach((a) => altCosts?.push(costs[a]));
+
+    alts[alternativeID]?.costs?.forEach((a) => altCosts?.push(costs[a]));
 
     useSubscribe(openCostModal$, () => setOpenAddCost(true));
     useSubscribe(openAltModal$, () => setOpenAddAlternative(true));
@@ -198,7 +207,12 @@ export default function Alternatives() {
                 </div>
                 <span className="w-1/2">
                     <Title level={5}>Baseline Alternative</Title>
-                    <Switch className="" checkedChildren="" unCheckedChildren="" defaultChecked />
+                    <Switch
+                        className=""
+                        checkedChildren=""
+                        unCheckedChildren=""
+                        defaultChecked={alts[alternativeID]?.baseline != undefined ? true : false}
+                    />
                     <p>Only one alternative can be the baseline.</p>
                 </span>
             </div>
