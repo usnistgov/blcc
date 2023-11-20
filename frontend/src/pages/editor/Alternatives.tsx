@@ -238,7 +238,7 @@ export default function Alternatives() {
                                         obj?.items?.map((item) => (
                                             <li
                                                 key={item?.id}
-                                                className=""
+                                                className="overflow-hidden whitespace-nowrap text-ellipsis"
                                                 onClick={() => navigate(`/editor/alternative/cost/${item?.id}`)}
                                             >
                                                 {item?.name || "Unknown"}
@@ -246,7 +246,7 @@ export default function Alternatives() {
                                         ))
                                     ) : (
                                         <li
-                                            className=""
+                                            className="overflow-hidden whitespace-nowrap text-ellipsis"
                                             key={obj?.name - obj?.id}
                                             onClick={() => navigate(`/editor/alternative/cost/${obj?.id}`)}
                                         >
