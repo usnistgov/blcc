@@ -1,6 +1,6 @@
 import { createSignal } from "@react-rxjs/utils";
 import { useEffect, useState } from "react";
-import { Cost, CostTypes, EnergyCost } from "../../blcc-format/Format";
+import { Cost } from "../../blcc-format/Format";
 
 import { Checkbox, Col, Divider, Modal, Row, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
@@ -9,16 +9,15 @@ import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import dropdown from "../../components/Dropdown";
 import switchComp from "../../components/Switch";
-import table from "../../components/Table";
+
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { Model } from "../../model/Model";
-import { countProperty } from "../../util/Operators";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { Observable, of } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { Observable } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { component: Clone } = button();
@@ -35,17 +34,6 @@ const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 const { component: NewAltInput } = textInput();
 const { component: NewCostInput } = textInput();
-
-// const columns = (costType: string) => {
-//     return [
-//         {
-//             title: `${costType} Costs`,
-//             dataIndex: "name",
-//             key: "name",
-//             editable: false
-//         }
-//     ];
-// };
 
 const costList = [
     "Capital Cost",
@@ -65,14 +53,12 @@ export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withL
 
 export default function Alternatives() {
     const navigate = useNavigate();
-    const { alternativeID } = useParams();
     // get the index of the alternative from url
-    // const [altIndex, setAltIndex] = useState(alternativeID);
+    const { alternativeID } = useParams();
 
     useEffect(() => {
         if (alternativeID !== undefined) {
             setAltId(alternativeID);
-            // setAltIndex(alternativeID);
         }
     }, [alternativeID]);
 
@@ -128,41 +114,29 @@ export default function Alternatives() {
     const capitalSubcategories = countProp(capitalCosts, "type");
     const contractSubcategories = countProp(contractCosts, "type");
     const otherSubcategories = countProp(otherCosts, "type");
-    console.log(energySubcategories, capitalSubcategories, waterCosts);
 
     const categories = [
         {
             label: "Energy Costs",
-            // hook: energyCosts
             children: energySubcategories
         },
         {
             label: "Water Costs",
-            // hook: waterCosts,
             children: waterCosts
         },
         {
             label: "Capital Costs",
-            // hook: capitalCosts
             children: capitalSubcategories
         },
         {
             label: "Contract Costs",
-            // hook: contractCosts
             children: contractSubcategories
         },
         {
             label: "Other Costs",
-            // hook: otherCosts
             children: otherSubcategories
         }
     ];
-
-    // const { component: EnergyCosts } = table(of(energyCosts));
-    // const { component: WaterCosts } = table(of(waterCosts));
-    // const { component: CapitalCosts } = table(of(capitalCosts));
-    // const { component: ContractCosts } = table(of(contractCosts));
-    // const { component: OtherCosts } = table(of(otherCosts));
 
     return (
         <div className="w-full h-full bg-white p-3">
@@ -274,7 +248,7 @@ export default function Alternatives() {
                                     {obj?.items ? (
                                         obj?.items?.map((item) => (
                                             <li
-                                                key={item?.id}
+                                                key={alternativeID - item?.id}
                                                 className="overflow-hidden whitespace-nowrap text-ellipsis"
                                                 onClick={() => navigate(`/editor/alternative/cost/${item?.id}`)}
                                             >
@@ -284,7 +258,7 @@ export default function Alternatives() {
                                     ) : (
                                         <li
                                             className="overflow-hidden whitespace-nowrap text-ellipsis"
-                                            key={obj?.name - obj?.id}
+                                            key={alternativeID - obj?.name - obj?.id}
                                             onClick={() => navigate(`/editor/alternative/cost/${obj?.id}`)}
                                         >
                                             {obj?.name || "Unknown"}
