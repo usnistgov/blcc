@@ -9,6 +9,7 @@ import { Country } from "../constants/LOCATION";
 import {
     modifiedAddAlternative$,
     modifiedbaselineChange$,
+    modifiedcloneAlternative$,
     modifiedremoveAlternative$
 } from "../pages/editor/Alternatives";
 import {
@@ -50,7 +51,8 @@ const project$ = mergeWithKey({
     ghg: combinedGHG$,
     baselineChange$: modifiedbaselineChange$,
     addAlternative2$: modifiedAddAlternative$,
-    removeAlternative$: modifiedremoveAlternative$
+    removeAlternative$: modifiedremoveAlternative$,
+    cloneAlternative$: modifiedcloneAlternative$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -70,6 +72,13 @@ const project$ = mergeWithKey({
                     const [_, altId] = operation.payload;
                     const alts = accumulator.alternatives.filter((alt) => alt.id != altId);
                     accumulator.alternatives = alts;
+                    break;
+                }
+                case "cloneAlternative$": {
+                    const [id, altId] = [operation.payload.id, operation.payload.altId];
+                    const a = accumulator.alternatives.find((alt) => alt.id == altId);
+                    const clonedAlt = { ...a, id, name: `Clone of ${a.name}` };
+                    accumulator.alternatives.push(clonedAlt);
                     break;
                 }
                 case "baselineChange$": {
