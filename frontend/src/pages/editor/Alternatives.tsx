@@ -20,7 +20,7 @@ import { Observable } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
-const { component: Clone } = button();
+const { click$: cloneAlternative$, component: Clone } = button();
 const { click$: removeAlternative$, component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternative } = button();
@@ -56,6 +56,17 @@ const { change$: addCostType$, component: CostCategoryDropdown } = dropdown(Obje
 
 export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
 export const modifiedremoveAlternative$: Observable<T> = removeAlternative$.pipe(withLatestFrom(altId$));
+export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
+    withLatestFrom(Model.alternatives$),
+    withLatestFrom(altId$),
+    map(([alts, altId]) => {
+        const nextID = getNewID(alts[1]);
+        return {
+            id: nextID,
+            altId
+        };
+    })
+);
 
 export const modifiedAddAlternative$ = addAlternative$.pipe(
     withLatestFrom(Model.alternatives$),
