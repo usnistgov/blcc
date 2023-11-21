@@ -2,7 +2,7 @@ import { createSignal } from "@react-rxjs/utils";
 import { useEffect, useState } from "react";
 import { Cost } from "../../blcc-format/Format";
 
-import { Checkbox, Col, Divider, Modal, Row, Typography } from "antd";
+import { Button, Checkbox, Col, Divider, Modal, Row, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
@@ -17,13 +17,14 @@ import { Model } from "../../model/Model";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { Observable } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
+import { map, withLatestFrom } from "rxjs/operators";
+import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { component: Clone } = button();
 const { component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternative } = button();
+const { click$: addAlternative$, component: AddAlternativeBtn } = button();
 const { click$: openCostModal$, component: AddCost } = button();
 const { onChange$: baselineChange$, component: Switch } = switchComp();
 const [altId$, setAltId] = createSignal();
@@ -32,7 +33,7 @@ const { Title } = Typography;
 
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
-const { component: NewAltInput } = textInput();
+const { onChange$: addAltChange$, component: NewAltInput } = textInput();
 const { component: NewCostInput } = textInput();
 
 const costList = [
@@ -50,6 +51,20 @@ const costList = [
 const { component: CostCategoryDropdown } = dropdown(costList);
 
 export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
+
+export const modifiedAddAlternative$ = addAlternative$.pipe(
+    withLatestFrom(Model.alternatives$),
+    withLatestFrom(addAltChange$),
+    map(([alts, name]) => {
+        const nextID = getNewID(alts[1]);
+        return {
+            id: nextID,
+            name: name,
+            costs: [],
+            baseline: false
+        };
+    })
+);
 
 export default function Alternatives() {
     const navigate = useNavigate();
@@ -152,6 +167,14 @@ export default function Alternatives() {
                     onCancel={handleAltCancel}
                     okButtonProps={{ disabled: false }}
                     cancelButtonProps={{ disabled: false }}
+                    footer={[
+                        <Button key="back" onClick={handleAltCancel}>
+                            Return
+                        </Button>,
+                        <AddAlternativeBtn type={ButtonType.PRIMARY} key="add">
+                            Add
+                        </AddAlternativeBtn>
+                    ]}
                 >
                     <div>
                         <Title level={5}>Name</Title>
