@@ -1,4 +1,4 @@
-import { Cost, CostTypes } from "../blcc-format/Format";
+import { Alternative, Cost, CostTypes } from "../blcc-format/Format";
 
 // Returns true if the given cost is a energy cost.
 export function isEnergyCost(cost: Cost) {
@@ -26,4 +26,13 @@ export function isContractCost(cost: Cost) {
 export function isOtherCost(cost: Cost) {
     const type = cost.type;
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
+}
+
+export function getNewID(alternatives: Alternative[]) {
+    const ids = alternatives.map((alt) => alt.id);
+    const newID = Math.max(...ids) + 1;
+
+    if (newID < 0) return 0;
+
+    return newID;
 }
