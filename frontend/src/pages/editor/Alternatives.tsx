@@ -21,11 +21,14 @@ import { map, withLatestFrom } from "rxjs/operators";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { component: Clone } = button();
-const { component: Remove } = button();
+const { click$: removeAlternative$, component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternative } = button();
 const { click$: addAlternative$, component: AddAlternativeBtn } = button();
+const { click$: addCost$, component: AddCostBtn } = button();
+
 const { click$: openCostModal$, component: AddCost } = button();
+// const { click$: openCostModal$, component: AddCost } = button();
 const { onChange$: baselineChange$, component: Switch } = switchComp();
 const [altId$, setAltId] = createSignal();
 
@@ -34,7 +37,7 @@ const { Title } = Typography;
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 const { onChange$: addAltChange$, component: NewAltInput } = textInput();
-const { component: NewCostInput } = textInput();
+const { onChange$: addCostChange$, component: NewCostInput } = textInput();
 
 const costList = [
     "Capital Cost",
@@ -48,9 +51,11 @@ const costList = [
     "Other Non Monetary"
 ];
 
-const { component: CostCategoryDropdown } = dropdown(costList);
+// const { onChange$: addCostType$, component: CostCategoryDropdown } = dropdown(costList);
+const { change$: addCostType$, component: CostCategoryDropdown } = dropdown(Object.values(costList));
 
 export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
+export const modifiedremoveAlternative$: Observable<T> = removeAlternative$.pipe(withLatestFrom(altId$));
 
 export const modifiedAddAlternative$ = addAlternative$.pipe(
     withLatestFrom(Model.alternatives$),
@@ -88,6 +93,7 @@ export default function Alternatives() {
 
     useSubscribe(openCostModal$, () => setOpenAddCost(true));
     useSubscribe(openAltModal$, () => setOpenAddAlternative(true));
+    useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
 
     const handleAltOk = () => {
         setOpenAddAlternative(false);
@@ -225,8 +231,14 @@ export default function Alternatives() {
                     open={openAddCost}
                     onOk={handleCostOk}
                     onCancel={handleCostCancel}
-                    okButtonProps={{ disabled: false }}
-                    cancelButtonProps={{ disabled: false }}
+                    footer={[
+                        <Button key="back" onClick={handleAltCancel}>
+                            Return
+                        </Button>,
+                        <AddCostBtn type={ButtonType.PRIMARY} key="add-cost-btn">
+                            Add
+                        </AddCostBtn>
+                    ]}
                 >
                     <div>
                         <Title level={5}>Name</Title>

@@ -6,7 +6,11 @@ import { imported$ } from "../blcc-format/Import";
 import { Version } from "../blcc-format/Verison";
 import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
-import { modifiedbaselineChange$ } from "../pages/editor/Alternatives";
+import {
+    modifiedAddAlternative$,
+    modifiedbaselineChange$,
+    modifiedremoveAlternative$
+} from "../pages/editor/Alternatives";
 import {
     analysisPurposeChange$,
     analysisTypeChange$,
@@ -44,7 +48,9 @@ const project$ = mergeWithKey({
     discountingMethod: discountingMethodChange$,
     location: combinedLocation$,
     ghg: combinedGHG$,
-    baselineChange$: modifiedbaselineChange$
+    baselineChange$: modifiedbaselineChange$,
+    addAlternative2$: modifiedAddAlternative$,
+    removeAlternative$: modifiedremoveAlternative$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -54,6 +60,16 @@ const project$ = mergeWithKey({
                 }
                 case "addAlternative$": {
                     accumulator.alternatives.push(operation.payload);
+                    break;
+                }
+                case "addAlternative2$": {
+                    accumulator.alternatives.push(operation.payload);
+                    break;
+                }
+                case "removeAlternative$": {
+                    const [_, altId] = operation.payload;
+                    const alts = accumulator.alternatives.filter((alt) => alt.id != altId);
+                    accumulator.alternatives = alts;
                     break;
                 }
                 case "baselineChange$": {
