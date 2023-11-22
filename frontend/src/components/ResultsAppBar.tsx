@@ -8,23 +8,18 @@ import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { Model } from "../model/Model";
 import { E3Request, toE3Object } from "../model/E3Request";
-import { map, sample } from "rxjs";
+import { sample } from "rxjs";
+import { bind, shareLatest } from "@react-rxjs/core";
 
 const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
 
-const output$ = Model.project$.pipe(sample(runClick$), toE3Object(), E3Request());
+const e3Result$ = Model.project$.pipe(sample(runClick$), toE3Object(), E3Request(), shareLatest());
+const [useE3Result] = bind(e3Result$, undefined);
 
-output$.subscribe(console.log);
+export { e3Result$, useE3Result };
 
-export { output$ };
-
-Model.project$
-    .pipe(
-        toE3Object(),
-        map((b) => b.build())
-    )
-    .subscribe(console.log);
+e3Result$.subscribe(console.log);
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
