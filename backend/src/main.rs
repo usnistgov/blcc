@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use actix_cors::Cors;
 
 use actix_files::{Files, NamedFile};
 use actix_web::{App, HttpServer, middleware, Result, web};
@@ -15,6 +16,18 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
+            .wrap(Cors::default()
+                .allowed_origin("http://localhost:8080")
+                .allowed_methods(vec!["GET"])
+            )
+            .wrap(middleware::DefaultHeaders::new().add((
+                "Content-Security-Policy",
+                "default-src 'self' https://*.nist.gov; \
+                script-src 'self' 'unsafe-inline'; \
+                style-src 'self' 'unsafe-inline'; \
+                img-src 'self'; \
+                connect-src 'self' https://*.nist.gov;"
+            )))
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .service(Files::new("/", "./public/dist/").show_files_listing())
