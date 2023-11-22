@@ -46,7 +46,7 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
             const analysisBuilder = new AnalysisBuilder()
                 .type(AnalysisType.LCCA)
                 .projectType(ProjectType.OTHER)
-                .addOutputType("measure")
+                .addOutputType("measure", "optional", "required")
                 .studyPeriod(project.studyPeriod)
                 .timestepValue(TimestepValue.YEAR)
                 .timestepComp(
@@ -57,7 +57,8 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 .outputReal() // TODO add interest rate
                 .discountRateReal(project.realDiscountRate ?? 0)
                 .discountRateNominal(project.nominalDiscountRate ?? 0)
-                .inflationRate(project.inflationRate ?? 0);
+                .inflationRate(project.inflationRate ?? 0)
+                .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
 
             // Create costs
             const costs = new Map(project.costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)]));
