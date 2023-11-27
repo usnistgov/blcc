@@ -7,6 +7,7 @@ import button, { ButtonType } from "../../components/Button";
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
+import checkBoxComp from "../../components/Checkbox";
 import dropdown from "../../components/Dropdown";
 import switchComp from "../../components/Switch";
 
@@ -38,6 +39,7 @@ const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 const { onChange$: addAltChange$, component: NewAltInput } = textInput();
 const { onChange$: addCostChange$, component: NewCostInput } = textInput();
+const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
 
 const costList = [
     "Capital Cost",
@@ -79,6 +81,29 @@ export const modifiedAddAlternative$ = addAlternative$.pipe(
             costs: [],
             baseline: false
         };
+    })
+);
+
+const collectCheckedAlt = (a, checked: boolean, value: number) => {
+    if (checked) a.add(value);
+    else a.delete(value);
+    return a;
+};
+
+const a = new Set([]);
+export const checkedBox$ = onCheck$.pipe(
+    map((e) => {
+        const target = e.target;
+        collectCheckedAlt(a, target.checked, target.value);
+        return a;
+    })
+);
+export const check$ = addCost$.pipe(
+    withLatestFrom(addCostChange$),
+    withLatestFrom(addCostType$),
+    withLatestFrom(checkedBox$),
+    map((e) => {
+        return e;
     })
 );
 
@@ -263,9 +288,9 @@ export default function Alternatives() {
                                 {alts.length
                                     ? alts.map((option) => (
                                           <Col span={16}>
-                                              <Checkbox value={option?.name} key={option?.id}>
+                                              <CheckboxComp value={option?.id} key={option?.id}>
                                                   {option?.name}
-                                              </Checkbox>
+                                              </CheckboxComp>
                                           </Col>
                                       ))
                                     : "No Alternatives"}

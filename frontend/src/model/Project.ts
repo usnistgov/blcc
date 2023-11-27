@@ -7,6 +7,7 @@ import { Version } from "../blcc-format/Verison";
 import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
 import {
+    check$,
     modifiedAddAlternative$,
     modifiedbaselineChange$,
     modifiedcloneAlternative$,
@@ -52,7 +53,8 @@ const project$ = mergeWithKey({
     baselineChange$: modifiedbaselineChange$,
     addAlternative2$: modifiedAddAlternative$,
     removeAlternative$: modifiedremoveAlternative$,
-    cloneAlternative$: modifiedcloneAlternative$
+    cloneAlternative$: modifiedcloneAlternative$,
+    addCost$: check$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -79,6 +81,20 @@ const project$ = mergeWithKey({
                     const a = accumulator.alternatives.find((alt) => alt.id == altId);
                     const clonedAlt = { ...a, id, name: `Clone of ${a.name}` };
                     accumulator.alternatives.push(clonedAlt);
+                    break;
+                }
+                case "addCost$": {
+                    const [name, alts] = operation.payload;
+                    const ids = accumulator.costs.map((cost) => cost.id);
+                    const newID = Math.max(...ids) + 1;
+                    const cost = { id: newID, name: name[0][1], type: name[1] };
+                    accumulator.costs.push(cost);
+                    const array = [...alts];
+                    accumulator.alternatives.map((alt) => {
+                        if (array.indexOf(alt?.id) !== -1) {
+                            alt.costs.push(newID);
+                        }
+                    });
                     break;
                 }
                 case "baselineChange$": {
