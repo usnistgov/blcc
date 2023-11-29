@@ -17,7 +17,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .wrap(Cors::default()
-                .allowed_origin("http://localhost:8080")
+                .allowed_origin("https://blcctest.el.nist.gov")
                 .allowed_methods(vec!["GET"])
             )
             .wrap(middleware::DefaultHeaders::new().add((
