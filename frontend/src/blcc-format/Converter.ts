@@ -96,7 +96,7 @@ function parseYears(value: string): DateDiff {
     const exec = yearRegex.exec(value);
     if (exec !== null) return { type: "Year", value: parseInt(exec.groups?.["years"] ?? "0") };
 
-    return { type: "Year", value: 0 };
+    return { type: "Year", value: 1 };
 }
 
 function convertAnalysisType(old: number) {
@@ -230,21 +230,17 @@ function renameSubComponent(name: string) {
 }
 
 function convertCosts(costCache: Map<string, any>, studyPeriod: number): Cost[] {
-    return Array.from(costCache.values()).map((oldCost, i) => {
-        return {
-            id: i,
-            name: oldCost["Name"],
-            description: oldCost["Comment"] ?? undefined,
-            ...convertCost(oldCost, studyPeriod)
-        } as Cost;
-    });
+    return Array.from(costCache.values()).map((oldCost, i) => convertCost(oldCost, studyPeriod, i));
 }
 
-function convertCost(cost: any, studyPeriod: number) {
+function convertCost(cost: any, studyPeriod: number, id: number) {
     const type: CostComponent = cost.type;
     switch (type) {
         case "CapitalReplacement":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost["InitialCost"],
                 annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
@@ -256,6 +252,9 @@ function convertCost(cost: any, studyPeriod: number) {
             } as ReplacementCapitalCost;
         case "NonRecurringCost":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost["Amount"],
                 annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
@@ -263,6 +262,9 @@ function convertCost(cost: any, studyPeriod: number) {
             } as ReplacementCapitalCost;
         case "RecurringCost":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.OMR,
                 initialCost: cost["Amount"],
                 initialOccurrence: initialFromUseIndex(cost["Index"], studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
@@ -271,12 +273,15 @@ function convertCost(cost: any, studyPeriod: number) {
             } as OMRCost;
         case "CapitalComponent":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.CAPITAL,
-                initialCost: cost["InitialCost"],
+                initialCost: cost["InitialCost"] ?? 0,
                 amountFinanced: cost["AmountFinanced"],
-                annualRateOfChange: parseEscalation(cost["Escalation"], studyPeriod),
+                annualRateOfChange: undefined,
                 expectedLife: (parseYears(cost["Duration"]) as { type: "Year"; value: number }).value,
-                costAdjustment: undefined,
+                costAdjustment: parseEscalation(cost["Escalation"], studyPeriod),
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost["ResaleValueFactor"]
                     ? ({
@@ -287,6 +292,9 @@ function convertCost(cost: any, studyPeriod: number) {
             } as CapitalCost;
         case "EnergyUsage":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.ENERGY,
                 fuelType: parseFuelType(cost["FuelType"]),
                 customerSector: cost["RateSchedule"] as CustomerSector,
@@ -301,6 +309,9 @@ function convertCost(cost: any, studyPeriod: number) {
             } as EnergyCost;
         case "WaterUsage":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.WATER,
                 unit: parseUnit(cost["Units"]),
                 usage: parseSeasonalUsage(cost, "Usage"),
@@ -311,6 +322,9 @@ function convertCost(cost: any, studyPeriod: number) {
             } as WaterCost;
         case "RecurringContractCost":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost["Amount"],
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
@@ -319,6 +333,9 @@ function convertCost(cost: any, studyPeriod: number) {
             } as RecurringContractCost;
         case "NonRecurringContractCost":
             return {
+                id,
+                name: cost["Name"],
+                description: cost["Comment"] ?? undefined,
                 type: CostTypes.IMPLEMENTATION_CONTRACT,
                 cost: cost["Amount"],
                 occurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value

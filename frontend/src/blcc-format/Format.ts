@@ -99,7 +99,7 @@ export enum CostTypes {
     OTHER_NON_MONETARY = "Non-Monetary"
 }
 
-export type Cost = (
+export type Cost =
     | CapitalCost
     | EnergyCost
     | WaterCost
@@ -108,23 +108,25 @@ export type Cost = (
     | ImplementationContractCost
     | RecurringContractCost
     | OtherCost
-    | OtherNonMonetary
-) & {
+    | OtherNonMonetary;
+
+export type BaseCost = {
     id: ID;
     name: string;
     description?: string;
     location?: Location;
 };
 
-export type CapitalCost = Type<CostTypes.CAPITAL> & {
-    initialCost?: number;
-    amountFinanced?: number;
-    annualRateOfChange?: number | number[];
-    expectedLife: number;
-    costAdjustment?: number;
-    phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
-    residualValue?: ResidualValue;
-};
+export type CapitalCost = Type<CostTypes.CAPITAL> &
+    BaseCost & {
+        initialCost?: number;
+        amountFinanced?: number;
+        annualRateOfChange?: number;
+        expectedLife: number;
+        costAdjustment?: number;
+        phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
+        residualValue?: ResidualValue;
+    };
 
 export type ResidualValue = {
     approach: DollarOrPercent;
@@ -145,18 +147,19 @@ export enum FuelType {
     OTHER = "Other (Coal, Steam, etc.)"
 }
 
-export type EnergyCost = Type<CostTypes.ENERGY> & {
-    fuelType: FuelType;
-    customerSector?: CustomerSector;
-    location?: Location;
-    costPerUnit: number;
-    annualConsumption: number;
-    unit: Unit;
-    demandCharge?: number;
-    rebate?: number;
-    escalation?: number | number[];
-    useIndex?: number | number[];
-};
+export type EnergyCost = Type<CostTypes.ENERGY> &
+    BaseCost & {
+        fuelType: FuelType;
+        customerSector?: CustomerSector;
+        location?: Location;
+        costPerUnit: number;
+        annualConsumption: number;
+        unit: Unit;
+        demandCharge?: number;
+        rebate?: number;
+        escalation?: number | number[];
+        useIndex?: number | number[];
+    };
 
 export enum CustomerSector {
     RESIDENTIAL = "Residential",
@@ -198,13 +201,14 @@ export type FuelOilUnit = EnergyUnit | LiquidUnit;
 export type LiquefiedPetroleumGasUnit = EnergyUnit | CubicUnit | LiquidUnit;
 export type CoalUnit = EnergyUnit | WeightUnit;
 
-export type WaterCost = Type<CostTypes.WATER> & {
-    unit: WaterUnit;
-    usage: SeasonUsage[]; //Default to summer and winter, can only have one of each season
-    disposal: SeasonUsage[];
-    escalation?: number | number[];
-    useIndex?: number | number[];
-};
+export type WaterCost = Type<CostTypes.WATER> &
+    BaseCost & {
+        unit: WaterUnit;
+        usage: SeasonUsage[]; //Default to summer and winter, can only have one of each season
+        disposal: SeasonUsage[];
+        escalation?: number | number[];
+        useIndex?: number | number[];
+    };
 
 export type SeasonUsage = {
     season: Season;
@@ -221,59 +225,64 @@ export enum Season {
 
 export type WaterUnit = LiquidUnit | CubicUnit;
 
-export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> & {
-    initialCost: number;
-    annualRateOfChange?: number | number[];
-    expectedLife?: number;
-    residualValue?: ResidualValue;
-};
+export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
+    BaseCost & {
+        initialCost: number;
+        annualRateOfChange?: number;
+        expectedLife?: number;
+        residualValue?: ResidualValue;
+    };
 
-export type OMRCost = Type<CostTypes.OMR> & {
-    initialCost: number;
-    initialOccurrence: number;
-    annualRateOfChange?: number | number[];
-    rateOfRecurrence?: number;
-};
+export type OMRCost = Type<CostTypes.OMR> &
+    BaseCost & {
+        initialCost: number;
+        initialOccurrence: number;
+        rateOfRecurrence?: number;
+    };
 
-export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT> & {
-    occurrence: number;
-    cost: number;
-};
+export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT> &
+    BaseCost & {
+        occurrence: number;
+        cost: number;
+    };
 
-export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> & {
-    initialCost: number;
-    initialOccurrence: number;
-    annualRateOfChange: number;
-    rateOfRecurrence?: number;
-};
+export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> &
+    BaseCost & {
+        initialCost: number;
+        initialOccurrence: number;
+        annualRateOfChange: number;
+        rateOfRecurrence?: number;
+    };
 
-export type OtherCost = Type<CostTypes.OTHER> & {
-    costOrBenefit: CostBenefit;
-    tag: string;
-    initialOccurrence: number;
-    valuePerUnit: number;
-    numberOfUnits: number;
-    unit: string | Unit;
-    recurring: boolean;
-    rateOfChangeValue: number | number[];
-    rateOfChangeUnits: number | number[];
-};
+export type OtherCost = Type<CostTypes.OTHER> &
+    BaseCost & {
+        costOrBenefit: CostBenefit;
+        tag: string;
+        initialOccurrence: number;
+        valuePerUnit: number;
+        numberOfUnits: number;
+        unit: string | Unit;
+        recurring: boolean;
+        rateOfChangeValue: number | number[];
+        rateOfChangeUnits: number | number[];
+    };
 
 export enum CostBenefit {
     COST = "Cost",
     Benefit = "Benefit"
 }
 
-export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> & {
-    tag: string;
-    initialOccurrence: number;
-    numberOfUnits: number;
-    unit: string | Unit;
-    recurring: boolean;
-    rateOfRecurrence: number;
-    rateOfChangeValue: number | number[];
-    rateOfChangeUnit: number | number[];
-};
+export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
+    BaseCost & {
+        tag: string;
+        initialOccurrence: number;
+        numberOfUnits: number;
+        unit: string | Unit;
+        recurring: boolean;
+        rateOfRecurrence: number;
+        rateOfChangeValue: number | number[];
+        rateOfChangeUnits: number | number[];
+    };
 
 export type Type<T> = {
     type: T;
