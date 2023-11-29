@@ -1,9 +1,10 @@
-import { Divider, Typography } from "antd";
+import { Divider } from "antd";
+import resultsInput from "../../components/ResultsInput";
 import { Model } from "../../model/Model";
 
-const { Title } = Typography;
-
 import { useE3Result } from "../../components/ResultsAppBar";
+
+const { component: ResultsInput } = resultsInput();
 
 export default function Inputs() {
     const e3Result = useE3Result();
@@ -11,40 +12,15 @@ export default function Inputs() {
     return (
         <div className={"w-full h-full p-8"}>
             <div className="w-1/2 grid grid-cols-2">
-                <span className="pb-3">
-                    <Title level={5}>Project Name</Title>
-                    <h2>{Model.useName() || "Untitled Project"}</h2>
-                </span>
-                <span>
-                    <Title level={5}>Analyst</Title>
-                    <h2>{Model.useAnalyst() || "Unknown"}</h2>
-                </span>
-                <span className="pb-3">
-                    <Title level={5}>Analysis Type</Title>
-                    <h2>{Model.useAnalysisType() || "Unknown"}</h2>
-                </span>
-                {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" ? (
-                    <span className="pb-3">
-                        <Title level={5}>Analysis Purpose</Title>
-                        <h2>{Model.usePurpose() || "Unknown"}</h2>
-                    </span>
-                ) : (
-                    ""
-                )}
-                <span className="col-span-2 pb-3">
-                    <Title level={5}>Description</Title>
-                    <h2>{Model.useDescription() || "None"}</h2>
-                </span>
-                <span className="pb-3">
-                    <Title level={5}>Length of Study Period</Title>
-                    <h2>{Model.useStudyPeriod() || "Unknown"}</h2>
-                </span>
-                <span className="pb-3 pl-3">
-                    <Title level={5}>Construction Period</Title>
-                    <h2>{Model.useConstructionPeriod() || "Unknown"}</h2>
-                </span>
+                <ResultsInput label="Project Name" dataVal={Model.useName()} />
+                <ResultsInput label="Analyst" dataVal={Model.useAnalyst()} />
+                <ResultsInput label="Analysis Type" dataVal={Model.useAnalysisType()} />
+                <ResultsInput label="Purpose" dataVal={Model.usePurpose()} />
+                <ResultsInput label="Description" dataVal={Model.useDescription()} />
+                <ResultsInput label="Study Period" dataVal={Model.useStudyPeriod()} />
+                <ResultsInput label="Construction Period" dataVal={Model.useConstructionPeriod()} />
+                <ResultsInput label="Dollar Method" dataVal={Model.useDollarMethod()} />
             </div>
-
             <div className="grid grid-cols-2">
                 <div className="grid grid-cols-2">
                     <Divider
@@ -55,27 +31,11 @@ export default function Inputs() {
                     >
                         Discounting
                     </Divider>
-                    <span className="pb-3">
-                        <Title level={5}>Dollar Method</Title>
-                        <h2>{Model.useDollarMethod() || "Unknown"}</h2>
-                        {/* <h2>{Model.useModifiedDollarMethod() || "Unknown"}</h2> */}
-                    </span>
-                    <span className="pb-3">
-                        <Title level={5}>Discounting Convention</Title>
-                        <h2>{Model.useDiscountingMethod() || "Unknown"}</h2>
-                    </span>
-                    <span className="pb-3">
-                        <Title level={5}>General Inflation Rate</Title>
-                        <h2>{Model.useInflationRate() || "Unknown"}</h2>
-                    </span>
-                    <span className="pb-3 w-full">
-                        <Title level={5}>Nominal Discount Rate</Title>
-                        <h2>{Model.useNominalDiscountRate() || "Unknown"}</h2>
-                    </span>
-                    <span>
-                        <Title level={5}>Real Discount Rate</Title>
-                        <h2>{Model.useRealDiscountRate() || "Unknown"}</h2>
-                    </span>
+
+                    <ResultsInput label="Discounting Convention" dataVal={Model.useDiscountingMethod()} />
+                    <ResultsInput label="General Inflation Rate" dataVal={Model.useInflationRate()} />
+                    <ResultsInput label="Nominal Discount Rate" dataVal={Model.useNominalDiscountRate()} />
+                    <ResultsInput label="Real Discount Rate" dataVal={Model.useRealDiscountRate()} />
                 </div>
                 <div className="grid grid-cols-2">
                     <Divider
@@ -86,23 +46,10 @@ export default function Inputs() {
                     >
                         Location
                     </Divider>
-                    <span className="pb-3">
-                        <Title level={5}>Country</Title>
-                        <h2>{Model.useCountry() || "Unknown"}</h2>
-                    </span>
-                    <span>
-                        <Title level={5}>City</Title>
-                        <h2>{Model.useCity() || "Unknown"}</h2>
-                    </span>
-                    <span className="pb-3">
-                        <Title level={5}>State</Title>
-                        <h2>{Model.useState() || "Unknown"}</h2>
-                    </span>
-
-                    <span>
-                        <Title level={5}>Zip</Title>
-                        <h2>{Model.useZip() || "Unknown"}</h2>
-                    </span>
+                    <ResultsInput label="Country" dataVal={Model.useCountry()} />
+                    <ResultsInput label="City" dataVal={Model.useCity()} />
+                    <ResultsInput label="State" dataVal={Model.useState()} />
+                    <ResultsInput label="Zip" dataVal={Model.useZip()} />
                 </div>
             </div>
 
@@ -115,14 +62,8 @@ export default function Inputs() {
                 >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
-                <span className="pb-3">
-                    <Title level={5}>Emissions Rate Scenario</Title>
-                    <h2>{Model.useEmissionsRate() || "Unknown"}</h2>
-                </span>
-                <span className="pb-3">
-                    <Title level={5}>Social Cost of GHG Scenario </Title>
-                    <h2>{Model.useSocialCostRate() || "Unknown"}</h2>
-                </span>
+                <ResultsInput label="Emissions Rate Scenario" dataVal={Model.useEmissionsRate()} />
+                <ResultsInput label="Social Cost of GHG Scenario" dataVal={Model.useSocialCostRate()} />
             </div>
             <pre>{e3Result === undefined ? "No Results" : JSON.stringify(e3Result, undefined, 4)}</pre>
         </div>
