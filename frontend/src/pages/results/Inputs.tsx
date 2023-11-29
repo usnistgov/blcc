@@ -3,7 +3,11 @@ import { Model } from "../../model/Model";
 
 const { Title } = Typography;
 
+import { useE3Result } from "../../components/ResultsAppBar";
+
 export default function Inputs() {
+    const e3Result = useE3Result();
+
     return (
         <div className={"w-full h-full p-8"}>
             <div className="w-1/2 grid grid-cols-2">
@@ -120,6 +124,7 @@ export default function Inputs() {
                     <h2>{Model.useSocialCostRate() || "Unknown"}</h2>
                 </span>
             </div>
+            <pre>{e3Result === undefined ? "No Results" : JSON.stringify(e3Result, undefined, 4)}</pre>
         </div>
     );
 }
