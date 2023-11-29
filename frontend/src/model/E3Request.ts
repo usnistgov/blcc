@@ -78,8 +78,8 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 return builder;
             });
 
-            const hasBaseline = !!project.alternatives.find((alt) => alt.baseline);
-            if (!hasBaseline) alternativeBuilders[0].baseline();
+            const hasBaseline = !!project.alternatives.find((alt) => alt["baseline"]);
+            if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
             // Create complete Request Builder and return
             return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);

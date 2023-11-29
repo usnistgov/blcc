@@ -10,6 +10,7 @@ import {
 import { Version } from "../blcc-format/Verison";
 import { of } from "rxjs";
 import { toE3Object } from "./E3Request";
+import { Country } from "../constants/LOCATION";
 
 const project: Project = {
     version: Version.V1,
@@ -20,7 +21,7 @@ const project: Project = {
     constructionPeriod: 0,
     discountingMethod: DiscountingMethod.END_OF_YEAR,
     location: {
-        country: "US",
+        country: Country.USA,
         state: undefined,
         city: undefined,
         zipcode: undefined
