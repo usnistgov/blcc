@@ -7,6 +7,7 @@ import button, { ButtonType } from "../../components/Button";
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
+import addAlternative from "../../components/AddAlternativeModal";
 import checkBoxComp from "../../components/Checkbox";
 import dropdown from "../../components/Dropdown";
 import switchComp from "../../components/Switch";
@@ -106,6 +107,7 @@ export const check$ = addCost$.pipe(
         return e;
     })
 );
+const { component: AddAlternativeModal } = addAlternative();
 
 export default function Alternatives() {
     const navigate = useNavigate();
@@ -202,7 +204,8 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
                 </AddAlternative>
-                <Modal
+                <AddAlternativeModal open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} />
+                {/* <Modal
                     title="Add New Alternative"
                     open={openAddAlternative}
                     onOk={handleAltOk}
@@ -223,7 +226,7 @@ export default function Alternatives() {
                         <NewAltInput type={TextInputType.PRIMARY} />
                     </div>
                     <p>Further changes can be made in the associated alternative page.</p>
-                </Modal>
+                </Modal> */}
                 <Clone type={ButtonType.LINK}>
                     <Icon path={mdiContentCopy} size={1} /> Clone
                 </Clone>
