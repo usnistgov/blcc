@@ -2,17 +2,13 @@
  * Creates a common component to display data for the Input page.
  */
 import { Typography } from "antd";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 
 const { Title } = Typography;
 
 export type InputProps = {
     label: string;
     dataVal: string | number | undefined;
-};
-
-export type ResultsInput = {
-    component: React.FC<PropsWithChildren & InputProps>;
 };
 
 export default function ResultsInput(props: InputProps) {
