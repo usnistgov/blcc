@@ -1,10 +1,8 @@
 import { Divider } from "antd";
-import resultsInput from "../../components/ResultsInput";
+import ResultsInput from "../../components/ResultsInput";
 import { Model } from "../../model/Model";
 
 import { useE3Result } from "../../components/ResultsAppBar";
-
-const { component: ResultsInput } = resultsInput();
 
 export default function Inputs() {
     const e3Result = useE3Result();
