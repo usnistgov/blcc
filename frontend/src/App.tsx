@@ -1,23 +1,23 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import EditorAppBar from "./components/EditorAppBar";
-import ResultsAppBar from "./components/ResultsAppBar";
-import Navigation from "./components/Navigation";
-import GeneralInformation from "./pages/editor/GeneralInformation";
-import Alternatives from "./pages/editor/Alternatives";
-import React from "react";
-import Cost from "./pages/editor/Cost";
-import AlternativeSummary from "./pages/editor/AlternativeSummary";
-import Statistics from "./components/Statistics";
-import CostNavigation from "./components/CostNavigation";
-import ResultNavigation from "./components/ResultNavigation";
-import Inputs from "./pages/results/Inputs";
-import Summary from "./pages/results/Summary";
-import AlternativeResults from "./pages/results/AlternativeResults";
-import AnnualResults from "./pages/results/AnnualResults";
 import { Subscribe } from "@react-rxjs/core";
-import { project$ } from "./model/Project";
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import CostNavigation from "./components/CostNavigation";
+import EditorAppBar from "./components/EditorAppBar";
+import Navigation from "./components/Navigation";
+import ResultNavigation from "./components/ResultNavigation";
+import ResultsAppBar from "./components/ResultsAppBar";
+import Statistics from "./components/Statistics";
 import { toE3Object } from "./model/E3Request";
 import { Model } from "./model/Model";
+import { project$ } from "./model/Project";
+import AlternativeSummary from "./pages/editor/AlternativeSummary";
+import Alternatives from "./pages/editor/Alternatives";
+import Cost from "./pages/editor/Cost";
+import GeneralInformation from "./pages/editor/GeneralInformation";
+import AlternativeResults from "./pages/results/AlternativeResults";
+import AnnualResults from "./pages/results/AnnualResults";
+import Inputs from "./pages/results/Inputs";
+import Summary from "./pages/results/Summary";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
@@ -41,7 +41,7 @@ export default function App() {
                             <Route path={"/editor"} element={<Navigation />}>
                                 <Route path={"alternative/*"} element={<CostNavigation />} />
                             </Route>
-                            <Route path={"/results"} element={<ResultNavigation />} />
+                            <Route path={"/results/*"} element={<ResultNavigation />} />
                         </Routes>
 
                         {/* Pages */}
