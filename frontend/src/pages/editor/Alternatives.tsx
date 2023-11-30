@@ -7,7 +7,7 @@ import button, { ButtonType } from "../../components/Button";
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import addAlternative from "../../components/AddAlternativeModal";
+import AddAlternativeModal from "../../components/AddAlternativeModal";
 import checkBoxComp from "../../components/Checkbox";
 import dropdown from "../../components/Dropdown";
 import switchComp from "../../components/Switch";
@@ -26,7 +26,7 @@ const { click$: cloneAlternative$, component: Clone } = button();
 const { click$: removeAlternative$, component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternative } = button();
-const { click$: addAlternative$, component: AddAlternativeBtn } = button();
+// const { click$: addAlternative$, component: AddAlternativeBtn } = button();
 const { click$: addCost$, component: AddCostBtn } = button();
 
 const { click$: openCostModal$, component: AddCost } = button();
@@ -38,7 +38,7 @@ const { Title } = Typography;
 
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
-const { onChange$: addAltChange$, component: NewAltInput } = textInput();
+// const { onChange$: addAltChange$, component: NewAltInput } = textInput();
 const { onChange$: addCostChange$, component: NewCostInput } = textInput();
 const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
 
@@ -71,19 +71,19 @@ export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
     })
 );
 
-export const modifiedAddAlternative$ = addAlternative$.pipe(
-    withLatestFrom(Model.alternatives$),
-    withLatestFrom(addAltChange$),
-    map(([alts, name]) => {
-        const nextID = getNewID(alts[1]);
-        return {
-            id: nextID,
-            name: name,
-            costs: [],
-            baseline: false
-        };
-    })
-);
+// export const modifiedAddAlternative$ = addAlternative$.pipe(
+//     withLatestFrom(Model.alternatives$),
+//     withLatestFrom(addAltChange$),
+//     map(([alts, name]) => {
+//         const nextID = getNewID(alts[1]);
+//         return {
+//             id: nextID,
+//             name: name,
+//             costs: [],
+//             baseline: false
+//         };
+//     })
+// );
 
 const collectCheckedAlt = (a, checked: boolean, value: number) => {
     if (checked) a.add(value);
@@ -107,7 +107,7 @@ export const check$ = addCost$.pipe(
         return e;
     })
 );
-const { component: AddAlternativeModal } = addAlternative();
+const { component: AddAlternatives } = AddAlternativeModal();
 
 export default function Alternatives() {
     const navigate = useNavigate();
@@ -131,7 +131,7 @@ export default function Alternatives() {
 
     useSubscribe(openCostModal$, () => setOpenAddCost(true));
     useSubscribe(openAltModal$, () => setOpenAddAlternative(true));
-    useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
+    // useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
 
     const handleAltOk = () => {
         setOpenAddAlternative(false);
@@ -204,7 +204,7 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
                 </AddAlternative>
-                <AddAlternativeModal open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} />
+                <AddAlternatives open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} />
                 {/* <Modal
                     title="Add New Alternative"
                     open={openAddAlternative}
