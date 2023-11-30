@@ -4,11 +4,11 @@ import { scan } from "rxjs";
 import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
 import { imported$ } from "../blcc-format/Import";
 import { Version } from "../blcc-format/Verison";
+import { modifiedAddAlternative$ } from "../components/AddAlternativeModal";
 import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
 import {
     check$,
-    modifiedAddAlternative$,
     modifiedbaselineChange$,
     modifiedcloneAlternative$,
     modifiedremoveAlternative$

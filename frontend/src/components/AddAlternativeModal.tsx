@@ -1,12 +1,12 @@
 import { Button, Modal, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
+import { map, withLatestFrom } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
 
+import { Model } from "../model/Model";
+import { getNewID } from "../util/Util";
 const { Title } = Typography;
-
-const { click$: addAlternative$, component: AddAlternativeBtn } = button();
-const { onChange$: addAltChange$, component: NewAltInput } = textInput();
 
 export type ModalProps = {
     handleCancel: void;
@@ -18,7 +18,25 @@ export type ModalComp = {
     component: React.FC<PropsWithChildren & ModalProps>;
 };
 
-export default function addAlternative(): ModalComp {
+const { click$: addAlternative$, component: AddAlternativeBtn } = button();
+const { onChange$: addAltChange$, component: NewAltInput } = textInput();
+
+export const modifiedAddAlternative$ = addAlternative$.pipe(
+    withLatestFrom(Model.alternatives$),
+    withLatestFrom(addAltChange$),
+    map(([alts, name]) => {
+        const nextID = getNewID(alts[1]);
+        console.log("clicked here");
+        return {
+            id: nextID,
+            name: name,
+            costs: [],
+            baseline: false
+        };
+    })
+);
+
+const AddAlternativeModal = () => {
     return {
         component: ({ handleCancel, handleOk, open }: PropsWithChildren & ModalProps) => {
             return (
@@ -47,4 +65,6 @@ export default function addAlternative(): ModalComp {
             );
         }
     };
-}
+};
+
+export default AddAlternativeModal;
