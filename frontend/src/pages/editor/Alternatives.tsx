@@ -20,6 +20,7 @@ import { Model } from "../../model/Model";
 import { useNavigate, useParams } from "react-router-dom";
 import { Observable } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
+import AddCostModal from "../../components/AddCostModal";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { click$: cloneAlternative$, component: Clone } = button();
@@ -27,7 +28,7 @@ const { click$: removeAlternative$, component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternative } = button();
 // const { click$: addAlternative$, component: AddAlternativeBtn } = button();
-const { click$: addCost$, component: AddCostBtn } = button();
+// const { click$: addCost$, component: AddCostBtn } = button();
 
 const { click$: openCostModal$, component: AddCost } = button();
 // const { click$: openCostModal$, component: AddCost } = button();
@@ -39,23 +40,23 @@ const { Title } = Typography;
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 // const { onChange$: addAltChange$, component: NewAltInput } = textInput();
-const { onChange$: addCostChange$, component: NewCostInput } = textInput();
-const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
+// const { onChange$: addCostChange$, component: NewCostInput } = textInput();
+// const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
 
-const costList = [
-    "Capital Cost",
-    "Energy Cost",
-    "Water Cost",
-    "Replacement Capital Cost",
-    "OMR Cost",
-    "Implementation Contract Cost",
-    "Recurring Contract Cost",
-    "Other Cost",
-    "Other Non Monetary"
-];
+// const costList = [
+//     "Capital Cost",
+//     "Energy Cost",
+//     "Water Cost",
+//     "Replacement Capital Cost",
+//     "OMR Cost",
+//     "Implementation Contract Cost",
+//     "Recurring Contract Cost",
+//     "Other Cost",
+//     "Other Non Monetary"
+// ];
 
 // const { onChange$: addCostType$, component: CostCategoryDropdown } = dropdown(costList);
-const { change$: addCostType$, component: CostCategoryDropdown } = dropdown(Object.values(costList));
+// const { change$: addCostType$, component: CostCategoryDropdown } = dropdown(Object.values(costList));
 
 export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
 export const modifiedremoveAlternative$: Observable<T> = removeAlternative$.pipe(withLatestFrom(altId$));
@@ -85,29 +86,30 @@ export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
 //     })
 // );
 
-const collectCheckedAlt = (a, checked: boolean, value: number) => {
-    if (checked) a.add(value);
-    else a.delete(value);
-    return a;
-};
+// const collectCheckedAlt = (a, checked: boolean, value: number) => {
+//     if (checked) a.add(value);
+//     else a.delete(value);
+//     return a;
+// };
 
-const a = new Set([]);
-export const checkedBox$ = onCheck$.pipe(
-    map((e) => {
-        const target = e.target;
-        collectCheckedAlt(a, target.checked, target.value);
-        return a;
-    })
-);
-export const check$ = addCost$.pipe(
-    withLatestFrom(addCostChange$),
-    withLatestFrom(addCostType$),
-    withLatestFrom(checkedBox$),
-    map((e) => {
-        return e;
-    })
-);
+// const a = new Set([]);
+// export const checkedBox$ = onCheck$.pipe(
+//     map((e) => {
+//         const target = e.target;
+//         collectCheckedAlt(a, target.checked, target.value);
+//         return a;
+//     })
+// );
+// export const check$ = addCost$.pipe(
+//     withLatestFrom(addCostChange$),
+//     withLatestFrom(addCostType$),
+//     withLatestFrom(checkedBox$),
+//     map((e) => {
+//         return e;
+//     })
+// );
 const { component: AddAlternatives } = AddAlternativeModal();
+const { component: AddCosts } = AddCostModal();
 
 export default function Alternatives() {
     const navigate = useNavigate();
@@ -133,9 +135,9 @@ export default function Alternatives() {
     useSubscribe(openAltModal$, () => setOpenAddAlternative(true));
     // useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
 
-    const handleAltOk = () => {
-        setOpenAddAlternative(false);
-    };
+    // const handleAltOk = () => {
+    //     setOpenAddAlternative(false);
+    // };
 
     const handleCostOk = () => {
         setOpenAddCost(false);
@@ -204,7 +206,12 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
                 </AddAlternative>
-                <AddAlternatives open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} />
+                {/* open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} */}
+                <AddAlternatives
+                    open={openAddAlternative}
+                    handleCancel={handleAltCancel}
+                    setOpenAddAlternative={setOpenAddAlternative}
+                />
                 {/* <Modal
                     title="Add New Alternative"
                     open={openAddAlternative}
@@ -265,47 +272,53 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Cost
                 </AddCost>
-                <Modal
-                    title="Add New Cost"
+                <AddCosts
                     open={openAddCost}
-                    onOk={handleCostOk}
-                    onCancel={handleCostCancel}
-                    footer={[
-                        <Button key="back" onClick={handleAltCancel}>
-                            Return
-                        </Button>,
-                        <AddCostBtn type={ButtonType.PRIMARY} key="add-cost-btn">
-                            Add
-                        </AddCostBtn>
-                    ]}
-                >
-                    <div>
-                        <Title level={5}>Name</Title>
-                        <NewCostInput type={TextInputType.PRIMARY} />
-                    </div>
-                    <br />
-                    <div className="w-full">
-                        <Title level={5}>Add to Alternatives</Title>
-                        <Checkbox.Group style={{ width: "100%" }}>
-                            <Row>
-                                {alts.length
-                                    ? alts.map((option) => (
-                                          <Col span={16}>
-                                              <CheckboxComp value={option?.id} key={option?.id}>
-                                                  {option?.name}
-                                              </CheckboxComp>
-                                          </Col>
-                                      ))
-                                    : "No Alternatives"}
-                            </Row>
-                        </Checkbox.Group>
-                    </div>
-                    <br />
-                    <div>
-                        <Title level={5}>Cost Category</Title>
-                        <CostCategoryDropdown className="w-full" />
-                    </div>
-                </Modal>
+                    handleCancel={handleCostCancel}
+                    // setOpenAddAlternative={setOpenAddAlternative}
+                />
+                //{" "}
+                {/* <Modal
+                //     title="Add New Cost"
+                //     open={openAddCost}
+                //     onOk={handleCostOk}
+                //     onCancel={handleCostCancel}
+                    // footer={[
+                //         <Button key="back" onClick={handleCostCancel}>
+                //             Return
+                //         </Button>,
+                //         <AddCostBtn type={ButtonType.PRIMARY} key="add-cost-btn">
+                //             Add
+                //         </AddCostBtn>
+                //     ]}
+                // >
+                //     <div>
+                //         <Title level={5}>Name</Title>
+                //         <NewCostInput type={TextInputType.PRIMARY} />
+                //     </div>
+                //     <br />
+                //     <div className="w-full">
+                //         <Title level={5}>Add to Alternatives</Title>
+                //         <Checkbox.Group style={{ width: "100%" }}>
+                //             <Row>
+                //                 {alts.length
+                //                     ? alts.map((option) => (
+                //                           <Col span={16}>
+                //                               <CheckboxComp value={option?.id} key={option?.id}>
+                //                                   {option?.name}
+                //                               </CheckboxComp>
+                //                           </Col>
+                //                       ))
+                //                     : "No Alternatives"}
+                //             </Row>
+                //         </Checkbox.Group>
+                //     </div>
+                //     <br />
+                //     <div>
+                //         <Title level={5}>Cost Category</Title>
+                //         <CostCategoryDropdown className="w-full" />
+                //     </div>
+                // </Modal> */}
             </div>
             <Divider className="m-0 mb-4" />
             <div className="flex justify-between" style={{ alignContent: "space-between" }}>
