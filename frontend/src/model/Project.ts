@@ -5,10 +5,10 @@ import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Proje
 import { imported$ } from "../blcc-format/Import";
 import { Version } from "../blcc-format/Verison";
 import { modifiedAddAlternative$ } from "../components/AddAlternativeModal";
+import { check$ } from "../components/AddCostModal";
 import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
 import {
-    check$,
     modifiedbaselineChange$,
     modifiedcloneAlternative$,
     modifiedremoveAlternative$
