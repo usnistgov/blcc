@@ -1,59 +1,38 @@
 import { createSignal } from "@react-rxjs/utils";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Cost } from "../../blcc-format/Format";
 
 import { Divider, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
+const { Title } = Typography;
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import AddAlternativeModal from "../../components/AddAlternativeModal";
-import checkBoxComp from "../../components/Checkbox";
-import dropdown from "../../components/Dropdown";
-import switchComp from "../../components/Switch";
 
+import AddAlternativeModal from "../../components/AddAlternativeModal";
+import AddCostModal from "../../components/AddCostModal";
+import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
-import { useSubscribe } from "../../hooks/UseSubscribe";
+
 import { Model } from "../../model/Model";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { Observable } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
-import AddCostModal from "../../components/AddCostModal";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { click$: cloneAlternative$, component: Clone } = button();
 const { click$: removeAlternative$, component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternativeBtn } = button();
-// const { click$: addCost$, component: AddCostBtn } = button();
 
-const { click$: openCostModal$, component: AddCost } = button();
+const { click$: openCostModal$, component: AddCostBtn } = button();
 const { onChange$: baselineChange$, component: Switch } = switchComp();
 const [altId$, setAltId] = createSignal();
 
-const { Title } = Typography;
-
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
-// const { onChange$: addCostChange$, component: NewCostInput } = textInput();
-// const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
-
-// const costList = [
-//     "Capital Cost",
-//     "Energy Cost",
-//     "Water Cost",
-//     "Replacement Capital Cost",
-//     "OMR Cost",
-//     "Implementation Contract Cost",
-//     "Recurring Contract Cost",
-//     "Other Cost",
-//     "Other Non Monetary"
-// ];
-
-// const { onChange$: addCostType$, component: CostCategoryDropdown } = dropdown(costList);
-// const { change$: addCostType$, component: CostCategoryDropdown } = dropdown(Object.values(costList));
 
 export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
 export const modifiedremoveAlternative$: Observable<T> = removeAlternative$.pipe(withLatestFrom(altId$));
@@ -72,28 +51,6 @@ export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
 export const modifiedOpenAltModal$: Observable<T> = openAltModal$.pipe(map(() => true));
 export const modifiedOpenCostModal$: Observable<T> = openCostModal$.pipe(map(() => true));
 
-// const collectCheckedAlt = (a, checked: boolean, value: number) => {
-//     if (checked) a.add(value);
-//     else a.delete(value);
-//     return a;
-// };
-
-// const a = new Set([]);
-// export const checkedBox$ = onCheck$.pipe(
-//     map((e) => {
-//         const target = e.target;
-//         collectCheckedAlt(a, target.checked, target.value);
-//         return a;
-//     })
-// );
-// export const check$ = addCost$.pipe(
-//     withLatestFrom(addCostChange$),
-//     withLatestFrom(addCostType$),
-//     withLatestFrom(checkedBox$),
-//     map((e) => {
-//         return e;
-//     })
-// );
 const { component: AddAlternatives } = AddAlternativeModal(modifiedOpenAltModal$);
 const { component: AddCosts } = AddCostModal(modifiedOpenCostModal$);
 
@@ -108,24 +65,11 @@ export default function Alternatives() {
         }
     }, [alternativeID]);
 
-    const [openAddCost, setOpenAddCost] = useState(false);
-
     const alts = Model.useAlternatives();
     const costs = Model.useCosts();
     const altCosts: Cost[] = [];
 
     alts[alternativeID]?.costs?.forEach((a) => altCosts?.push(costs[a]));
-
-    useSubscribe(openCostModal$, () => setOpenAddCost(true));
-    // useSubscribe(modifiedOpenAltModal$, () => setOpenAddAlternative(true));
-
-    const handleCostOk = () => {
-        setOpenAddCost(false);
-    };
-
-    const handleCostCancel = () => {
-        setOpenAddCost(false);
-    };
 
     const waterCosts = altCosts.filter(isWaterCost);
     const energyCosts = altCosts.filter(isEnergyCost);
@@ -217,53 +161,11 @@ export default function Alternatives() {
             <br />
             <div className="flex justify-between">
                 <Title level={4}>Alternative Costs</Title>
-                <AddCost type={ButtonType.LINK}>
+                <AddCostBtn type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Cost
-                </AddCost>
+                </AddCostBtn>
                 <AddCosts />
-                {/* open={openAddCost} handleCancel={handleCostCancel} */}
-                {/* <Modal
-                //     title="Add New Cost"
-                //     open={openAddCost}
-                //     onOk={handleCostOk}
-                //     onCancel={handleCostCancel}
-                    // footer={[
-                //         <Button key="back" onClick={handleCostCancel}>
-                //             Return
-                //         </Button>,
-                //         <AddCostBtn type={ButtonType.PRIMARY} key="add-cost-btn">
-                //             Add
-                //         </AddCostBtn>
-                //     ]}
-                // >
-                //     <div>
-                //         <Title level={5}>Name</Title>
-                //         <NewCostInput type={TextInputType.PRIMARY} />
-                //     </div>
-                //     <br />
-                //     <div className="w-full">
-                //         <Title level={5}>Add to Alternatives</Title>
-                //         <Checkbox.Group style={{ width: "100%" }}>
-                //             <Row>
-                //                 {alts.length
-                //                     ? alts.map((option) => (
-                //                           <Col span={16}>
-                //                               <CheckboxComp value={option?.id} key={option?.id}>
-                //                                   {option?.name}
-                //                               </CheckboxComp>
-                //                           </Col>
-                //                       ))
-                //                     : "No Alternatives"}
-                //             </Row>
-                //         </Checkbox.Group>
-                //     </div>
-                //     <br />
-                //     <div>
-                //         <Title level={5}>Cost Category</Title>
-                //         <CostCategoryDropdown className="w-full" />
-                //     </div>
-                // </Modal> */}
             </div>
             <Divider className="m-0 mb-4" />
             <div className="flex justify-between" style={{ alignContent: "space-between" }}>
@@ -278,7 +180,7 @@ export default function Alternatives() {
                                 <div className="border bg-primary text-center text-white">{obj?.key || ""}</div>
                                 <ul className="hover:cursor-pointer">
                                     {obj?.items ? (
-                                        obj?.items?.map((item) => (
+                                        obj?.items?.map((item: Cost) => (
                                             <li
                                                 key={alternativeID - item?.id}
                                                 className="overflow-hidden whitespace-nowrap text-ellipsis"
