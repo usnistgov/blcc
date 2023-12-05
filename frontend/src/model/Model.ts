@@ -1,14 +1,17 @@
 import { selfDependent } from "@react-rxjs/utils";
 import { AnalysisType, DiscountingMethod, DollarMethod, Project, USLocation } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
-import { bind } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { filter, map } from "rxjs";
 
-const [_project$, connectProject] = selfDependent<Project>();
+const [_p$, connectProject] = selfDependent<Project>();
+
+const _project$ = _p$.pipe(shareLatest());
 
 export { _project$, connectProject };
 
 const [useName, name$] = bind(_project$.pipe(map((p) => p.name)), "Untitled Project");
+
 const [useDescription, description$] = bind(_project$.pipe(map((p) => p.description)), undefined);
 const [useAnalyst, analyst$] = bind(_project$.pipe(map((p) => p.analyst)), undefined);
 const [useAnalysisType, analysisType$] = bind(
