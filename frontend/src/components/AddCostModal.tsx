@@ -1,31 +1,25 @@
 import { bind } from "@react-rxjs/core";
-import { Button, Checkbox, Col, Modal, Row, Typography } from "antd";
-import React, { PropsWithChildren, useState } from "react";
+import { createSignal } from "@react-rxjs/utils";
+import { Checkbox, Col, Modal, Row, Typography } from "antd";
+import React, { PropsWithChildren } from "react";
+import { Observable, merge } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import checkBoxComp from "../components/Checkbox";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
-import { useSubscribe } from "../hooks/UseSubscribe";
 
 import { Model } from "../model/Model";
-import { getNewID } from "../util/Util";
 const { Title } = Typography;
 
-export type ModalProps = {
-    handleCancel?: MouseEventHandler<HTMLElement>;
-    handleOk?: void;
-    open?: boolean;
-    setOpenAddAlternative?: any;
-};
-
 export type ModalComp = {
-    component: React.FC<PropsWithChildren & ModalProps>;
+    component: React.FC<PropsWithChildren>;
 };
 
 const { click$: addCost$, component: AddCostBtn } = button();
 const { onChange$: addCostChange$, component: NewCostInput } = textInput();
 const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
+const { click$: cancel$, component: CancelBtn } = button();
 
 const costList = [
     "Capital Cost",
@@ -55,7 +49,7 @@ export const checkedBox$ = onCheck$.pipe(
         return a;
     })
 );
-export const check$ = addCost$.pipe(
+export const modifiedAddCost$ = addCost$.pipe(
     withLatestFrom(addCostChange$),
     withLatestFrom(addCostType$),
     withLatestFrom(checkedBox$),
@@ -64,34 +58,31 @@ export const check$ = addCost$.pipe(
     })
 );
 
-const AddCostModal = () => {
+const AddCostModal = (modifiedOpenModal$: Observable<boolean>) => {
+    const [modalCancel$, cancel] = createSignal();
+    const [useOpen] = bind(
+        merge(
+            modifiedOpenModal$,
+            cancel$.pipe(map(() => false)),
+            modifiedAddCost$.pipe(map(() => false)),
+            modalCancel$.pipe(map(() => false))
+        ),
+        false
+    );
     return {
-        component: ({ open, handleCancel }: PropsWithChildren & ModalProps) => {
-            // const [openAddAlternative, setOpenAddAlternative] = useState(open);
+        component: () => {
+            const openModal = useOpen();
             const alts = Model.useAlternatives();
-            const costs = Model.useCosts();
-            const handleOk = () => {
-                // useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
-                // useModifiedAddAlternative();
-                // setOpenAddAlternative(false);
-                console.log(open);
-            };
-
-            const handleAltCancel = () => {
-                setOpenAddAlternative(false);
-            };
-            console.log(open);
 
             return (
                 <Modal
                     title="Add New Cost"
-                    open={open}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
+                    open={openModal}
+                    onCancel={cancel}
                     footer={[
-                        <Button key="back" onClick={handleCancel}>
+                        <CancelBtn type={ButtonType.ERROR} key="back">
                             Return
-                        </Button>,
+                        </CancelBtn>,
                         <AddCostBtn type={ButtonType.PRIMARY} key="add-cost-btn">
                             Add
                         </AddCostBtn>
