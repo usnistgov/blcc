@@ -2,10 +2,12 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
+import { useNavigate } from "react-router-dom";
 import { Observable, merge } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
+import { useSubscribe } from "../hooks/UseSubscribe";
 import { Model } from "../model/Model";
 import { getNewID } from "../util/Util";
 const { Title } = Typography;
@@ -52,6 +54,10 @@ function AddAlternativeModal(modifiedOpenModal$: Observable<boolean>) {
         modifiedAddAlternative$,
         component: () => {
             const openModal = useOpen();
+            const navigate = useNavigate();
+            useSubscribe(modifiedAddAlternative$, (alt) => {
+                navigate(`/editor/alternative/${alt?.id - 1}`);
+            });
 
             return (
                 <Modal
