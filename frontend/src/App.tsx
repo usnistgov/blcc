@@ -7,8 +7,6 @@ import Navigation from "./components/Navigation";
 import ResultNavigation from "./components/ResultNavigation";
 import ResultsAppBar from "./components/ResultsAppBar";
 import Statistics from "./components/Statistics";
-import { toE3Object } from "./model/E3Request";
-import { Model } from "./model/Model";
 import { project$ } from "./model/Project";
 import AlternativeSummary from "./pages/editor/AlternativeSummary";
 import Alternatives from "./pages/editor/Alternatives";
@@ -21,8 +19,6 @@ import Summary from "./pages/results/Summary";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
-
-Model.project$.pipe(toE3Object()).subscribe((b) => console.log(b.build()));
 
 export default function App() {
     return (
@@ -65,6 +61,7 @@ export default function App() {
 
                     <Routes>
                         <Route path={"/editor/*"} element={<Statistics />} />
+                        <Route path={"/results/*"} element={<></>} />
                     </Routes>
                 </div>
             </BrowserRouter>
