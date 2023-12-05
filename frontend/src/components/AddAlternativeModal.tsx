@@ -1,17 +1,17 @@
-import { Button, Modal, Typography } from "antd";
+import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
+import { Modal, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
+import { Observable, merge } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
-
 import { Model } from "../model/Model";
 import { getNewID } from "../util/Util";
 const { Title } = Typography;
 
 export type ModalProps = {
-    handleCancel: void;
-    handleOk: void;
-    open: boolean;
+    open?: boolean;
 };
 
 export type ModalComp = {
@@ -19,6 +19,7 @@ export type ModalComp = {
 };
 
 const { click$: addAlternative$, component: AddAlternativeBtn } = button();
+const { click$: cancel$, component: CancelBtn } = button();
 const { onChange$: addAltChange$, component: NewAltInput } = textInput();
 
 export const modifiedAddAlternative$ = addAlternative$.pipe(
@@ -26,7 +27,6 @@ export const modifiedAddAlternative$ = addAlternative$.pipe(
     withLatestFrom(addAltChange$),
     map(([alts, name]) => {
         const nextID = getNewID(alts[1]);
-        console.log("clicked here");
         return {
             id: nextID,
             name: name,
@@ -36,21 +36,34 @@ export const modifiedAddAlternative$ = addAlternative$.pipe(
     })
 );
 
-const AddAlternativeModal = () => {
+function AddAlternativeModal(modifiedOpenModal$: Observable<boolean>) {
+    const [modalCancel$, cancel] = createSignal();
+    const [useOpen] = bind(
+        merge(
+            modifiedOpenModal$,
+            cancel$.pipe(map(() => false)),
+            modifiedAddAlternative$.pipe(map(() => false)),
+            modalCancel$.pipe(map(() => false))
+        ),
+        false
+    );
+
     return {
-        component: ({ handleCancel, handleOk, open }: PropsWithChildren & ModalProps) => {
+        modifiedAddAlternative$,
+        component: () => {
+            const openModal = useOpen();
+
             return (
                 <Modal
                     title="Add New Alternative"
-                    open={open}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
+                    open={openModal}
+                    onCancel={cancel}
                     okButtonProps={{ disabled: false }}
                     cancelButtonProps={{ disabled: false }}
                     footer={[
-                        <Button key="back" onClick={handleCancel}>
+                        <CancelBtn key="back" type={ButtonType.ERROR}>
                             Return
-                        </Button>,
+                        </CancelBtn>,
                         <AddAlternativeBtn type={ButtonType.PRIMARY} key="add">
                             Add
                         </AddAlternativeBtn>
@@ -65,6 +78,6 @@ const AddAlternativeModal = () => {
             );
         }
     };
-};
+}
 
 export default AddAlternativeModal;

@@ -19,7 +19,7 @@ import { Model } from "../../model/Model";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { Observable } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { map, startWith, withLatestFrom } from "rxjs/operators";
 import AddCostModal from "../../components/AddCostModal";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
@@ -27,6 +27,7 @@ const { click$: cloneAlternative$, component: Clone } = button();
 const { click$: removeAlternative$, component: Remove } = button();
 
 const { click$: openAltModal$, component: AddAlternative } = button();
+openAltModal$.pipe(startWith(false));
 // const { click$: addAlternative$, component: AddAlternativeBtn } = button();
 // const { click$: addCost$, component: AddCostBtn } = button();
 
@@ -72,6 +73,8 @@ export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
     })
 );
 
+export const modifiedOpenAltModal$: Observable<T> = openAltModal$.pipe(map(() => true));
+
 // export const modifiedAddAlternative$ = addAlternative$.pipe(
 //     withLatestFrom(Model.alternatives$),
 //     withLatestFrom(addAltChange$),
@@ -108,7 +111,7 @@ export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
 //         return e;
 //     })
 // );
-const { component: AddAlternatives } = AddAlternativeModal();
+const { component: AddAlternatives } = AddAlternativeModal(modifiedOpenAltModal$);
 const { component: AddCosts } = AddCostModal();
 
 export default function Alternatives() {
@@ -132,7 +135,9 @@ export default function Alternatives() {
     alts[alternativeID]?.costs?.forEach((a) => altCosts?.push(costs[a]));
 
     useSubscribe(openCostModal$, () => setOpenAddCost(true));
-    useSubscribe(openAltModal$, () => setOpenAddAlternative(true));
+    useSubscribe(modifiedOpenAltModal$, () => setOpenAddAlternative(true));
+    // console.log(modifiedOpenAltModal$);
+    // modifiedOpenAltModal$.subscribe(console.log);
     // useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
 
     // const handleAltOk = () => {
@@ -207,11 +212,7 @@ export default function Alternatives() {
                     Add Alternative
                 </AddAlternative>
                 {/* open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} */}
-                <AddAlternatives
-                    open={openAddAlternative}
-                    handleCancel={handleAltCancel}
-                    setOpenAddAlternative={setOpenAddAlternative}
-                />
+                <AddAlternatives />
                 {/* <Modal
                     title="Add New Alternative"
                     open={openAddAlternative}
@@ -277,7 +278,7 @@ export default function Alternatives() {
                     handleCancel={handleCostCancel}
                     // setOpenAddAlternative={setOpenAddAlternative}
                 />
-                //{" "}
+
                 {/* <Modal
                 //     title="Add New Cost"
                 //     open={openAddCost}
