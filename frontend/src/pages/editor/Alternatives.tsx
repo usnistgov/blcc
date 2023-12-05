@@ -2,7 +2,7 @@ import { createSignal } from "@react-rxjs/utils";
 import { useEffect, useState } from "react";
 import { Cost } from "../../blcc-format/Format";
 
-import { Button, Checkbox, Col, Divider, Modal, Row, Typography } from "antd";
+import { Divider, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
@@ -19,20 +19,17 @@ import { Model } from "../../model/Model";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { Observable } from "rxjs";
-import { map, startWith, withLatestFrom } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import AddCostModal from "../../components/AddCostModal";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { click$: cloneAlternative$, component: Clone } = button();
 const { click$: removeAlternative$, component: Remove } = button();
 
-const { click$: openAltModal$, component: AddAlternative } = button();
-openAltModal$.pipe(startWith(false));
-// const { click$: addAlternative$, component: AddAlternativeBtn } = button();
+const { click$: openAltModal$, component: AddAlternativeBtn } = button();
 // const { click$: addCost$, component: AddCostBtn } = button();
 
 const { click$: openCostModal$, component: AddCost } = button();
-// const { click$: openCostModal$, component: AddCost } = button();
 const { onChange$: baselineChange$, component: Switch } = switchComp();
 const [altId$, setAltId] = createSignal();
 
@@ -40,7 +37,6 @@ const { Title } = Typography;
 
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
-// const { onChange$: addAltChange$, component: NewAltInput } = textInput();
 // const { onChange$: addCostChange$, component: NewCostInput } = textInput();
 // const { onChange$: onCheck$, component: CheckboxComp } = checkBoxComp();
 
@@ -74,20 +70,7 @@ export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
 );
 
 export const modifiedOpenAltModal$: Observable<T> = openAltModal$.pipe(map(() => true));
-
-// export const modifiedAddAlternative$ = addAlternative$.pipe(
-//     withLatestFrom(Model.alternatives$),
-//     withLatestFrom(addAltChange$),
-//     map(([alts, name]) => {
-//         const nextID = getNewID(alts[1]);
-//         return {
-//             id: nextID,
-//             name: name,
-//             costs: [],
-//             baseline: false
-//         };
-//     })
-// );
+export const modifiedOpenCostModal$: Observable<T> = openCostModal$.pipe(map(() => true));
 
 // const collectCheckedAlt = (a, checked: boolean, value: number) => {
 //     if (checked) a.add(value);
@@ -112,7 +95,7 @@ export const modifiedOpenAltModal$: Observable<T> = openAltModal$.pipe(map(() =>
 //     })
 // );
 const { component: AddAlternatives } = AddAlternativeModal(modifiedOpenAltModal$);
-const { component: AddCosts } = AddCostModal();
+const { component: AddCosts } = AddCostModal(modifiedOpenCostModal$);
 
 export default function Alternatives() {
     const navigate = useNavigate();
@@ -125,7 +108,6 @@ export default function Alternatives() {
         }
     }, [alternativeID]);
 
-    const [openAddAlternative, setOpenAddAlternative] = useState(false);
     const [openAddCost, setOpenAddCost] = useState(false);
 
     const alts = Model.useAlternatives();
@@ -135,21 +117,10 @@ export default function Alternatives() {
     alts[alternativeID]?.costs?.forEach((a) => altCosts?.push(costs[a]));
 
     useSubscribe(openCostModal$, () => setOpenAddCost(true));
-    useSubscribe(modifiedOpenAltModal$, () => setOpenAddAlternative(true));
-    // console.log(modifiedOpenAltModal$);
-    // modifiedOpenAltModal$.subscribe(console.log);
-    // useSubscribe(modifiedAddAlternative$, () => setOpenAddAlternative(false));
-
-    // const handleAltOk = () => {
-    //     setOpenAddAlternative(false);
-    // };
+    // useSubscribe(modifiedOpenAltModal$, () => setOpenAddAlternative(true));
 
     const handleCostOk = () => {
         setOpenAddCost(false);
-    };
-
-    const handleAltCancel = () => {
-        setOpenAddAlternative(false);
     };
 
     const handleCostCancel = () => {
@@ -207,34 +178,11 @@ export default function Alternatives() {
     return (
         <div className="w-full h-full bg-white p-3">
             <div className={"float-right"}>
-                <AddAlternative type={ButtonType.LINK}>
+                <AddAlternativeBtn type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
-                </AddAlternative>
-                {/* open={openAddAlternative} handleCancel={handleAltCancel} handleOk={handleAltOk} */}
+                </AddAlternativeBtn>
                 <AddAlternatives />
-                {/* <Modal
-                    title="Add New Alternative"
-                    open={openAddAlternative}
-                    onOk={handleAltOk}
-                    onCancel={handleAltCancel}
-                    okButtonProps={{ disabled: false }}
-                    cancelButtonProps={{ disabled: false }}
-                    footer={[
-                        <Button key="back" onClick={handleAltCancel}>
-                            Return
-                        </Button>,
-                        <AddAlternativeBtn type={ButtonType.PRIMARY} key="add">
-                            Add
-                        </AddAlternativeBtn>
-                    ]}
-                >
-                    <div>
-                        <Title level={5}>Name</Title>
-                        <NewAltInput type={TextInputType.PRIMARY} />
-                    </div>
-                    <p>Further changes can be made in the associated alternative page.</p>
-                </Modal> */}
                 <Clone type={ButtonType.LINK}>
                     <Icon path={mdiContentCopy} size={1} /> Clone
                 </Clone>
@@ -273,12 +221,8 @@ export default function Alternatives() {
                     <Icon path={mdiPlus} size={1} />
                     Add Cost
                 </AddCost>
-                <AddCosts
-                    open={openAddCost}
-                    handleCancel={handleCostCancel}
-                    // setOpenAddAlternative={setOpenAddAlternative}
-                />
-
+                <AddCosts />
+                {/* open={openAddCost} handleCancel={handleCostCancel} */}
                 {/* <Modal
                 //     title="Add New Cost"
                 //     open={openAddCost}
