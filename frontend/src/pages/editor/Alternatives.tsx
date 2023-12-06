@@ -1,5 +1,5 @@
+import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { useEffect } from "react";
 import { Cost } from "../../blcc-format/Format";
 
 import { Divider, Typography } from "antd";
@@ -17,7 +17,7 @@ import textInput, { TextInputType } from "../../components/TextInput";
 
 import { Model } from "../../model/Model";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Observable } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
@@ -54,20 +54,31 @@ export const modifiedOpenCostModal$: Observable<T> = openCostModal$.pipe(map(() 
 const { component: AddAlternatives } = AddAlternativeModal(modifiedOpenAltModal$);
 const { component: AddCosts } = AddCostModal(modifiedOpenCostModal$);
 
+import { siteId$ } from "../../components/SiteContent";
+
+const alternativeID = siteId$.pipe(
+    map(({ alternativeId }) => alternativeId),
+    withLatestFrom(Model.alternatives$),
+    map(([altId, alts]) => alts.find((a) => a.id === altId))
+);
+
+// just the single alternative
+const [useAlt, alt$] = bind(alternativeID, undefined);
+
 export default function Alternatives() {
     const navigate = useNavigate();
-    // get the index of the alternative from url
-    const { alternativeID } = useParams();
-
-    useEffect(() => {
-        if (alternativeID !== undefined) {
-            setAltId(alternativeID);
-        }
-    }, [alternativeID]);
 
     const alts = Model.useAlternatives();
     const costs = Model.useCosts();
     const altCosts: Cost[] = [];
+
+    const singleAlt = useAlt();
+
+    console.log(alternativeID, alt$, singleAlt);
+
+    console.log(altId$, siteId$);
+    siteId$.subscribe((val) => console.log(val));
+    siteId$.subscribe(console.log);
 
     alts[alternativeID]?.costs?.forEach((a) => altCosts?.push(costs[a]));
 
