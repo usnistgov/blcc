@@ -2,6 +2,7 @@ import { Observable } from "rxjs";
 import React, { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Switch } from "antd";
+import { bind } from "@react-rxjs/core";
 
 export type SwitchProps = {
     className?: string;
@@ -20,8 +21,9 @@ export type SwitchComp = {
 /**
  * Creates a switch component and its associated change stream.
  */
-export default function switchComp(): SwitchComp {
+export default function switchComp(value$: Observable<boolean>): SwitchComp {
     const [onChange$, onChange] = createSignal<boolean>();
+    const [value] = bind(value$, false);
 
     return {
         onChange$,
@@ -37,6 +39,7 @@ export default function switchComp(): SwitchComp {
                     className={className}
                     onChange={onChange}
                     disabled={disabled}
+                    checked={value()}
                     defaultChecked={defaultChecked}
                     checkedChildren={checkedChildren}
                     unCheckedChildren={unCheckedChildren}
