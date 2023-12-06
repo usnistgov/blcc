@@ -43,7 +43,19 @@ const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumb
 const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = inputNumber(
     Model.constructionPeriod$
 );
-const { onChange$: dollarMethodChange$, component: Switch } = switchComp();
+const { onChange$: dollarMethodChange$, component: Switch } = switchComp(
+    Model.dollarMethod$.pipe(
+        map((method) => {
+            switch (method) {
+                case DollarMethod.CURRENT:
+                    return false;
+                case DollarMethod.CONSTANT:
+                default:
+                    return true;
+            }
+        })
+    )
+);
 const { onChange$: inflationChange$, component: GenInflationRate } = inputNumber(Model.inflationRate$);
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = inputNumber(Model.nominalDiscountRate$);
 const { onChange$: realDiscChange$, component: RealDiscRate } = inputNumber(Model.realDiscountRate$);
