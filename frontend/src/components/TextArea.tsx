@@ -2,6 +2,7 @@ import { Observable } from "rxjs";
 import React, { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Input } from "antd";
+import { bind } from "@react-rxjs/core";
 
 export type TextAreaProps = {
     className?: string;
@@ -18,8 +19,9 @@ export type TextArea = {
     component: React.FC<PropsWithChildren & TextAreaProps>;
 };
 
-export default function textArea(): TextArea {
+export default function textArea(value$: Observable<string | undefined>): TextArea {
     const [onChange$, onChange] = createSignal<string>();
+    const [value] = bind(value$, undefined);
 
     return {
         onChange$,
@@ -39,6 +41,7 @@ export default function textArea(): TextArea {
                     bordered={bordered}
                     disabled={disabled}
                     rows={rows}
+                    value={value()}
                 >
                     {children}
                 </TextArea>

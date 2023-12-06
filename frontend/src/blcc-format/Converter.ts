@@ -113,7 +113,8 @@ function convertAnalysisType(old: number) {
             return AnalysisType.OMB_NON_ENERGY;
         case 5:
             return AnalysisType.MILCON_NON_ENERGY;
-        //TODO: handle possible error
+        default:
+            return AnalysisType.FEMP_ENERGY;
     }
 }
 
@@ -130,10 +131,11 @@ function convertAnalysisPurpose(old: number) {
 
 function convertDollarMethod(old: number) {
     switch (old) {
-        case 0:
-            return DollarMethod.CONSTANT;
         case 1:
             return DollarMethod.CURRENT;
+        case 0:
+        default:
+            return DollarMethod.CONSTANT;
     }
 }
 
