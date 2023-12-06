@@ -30,7 +30,7 @@ const { Title } = Typography;
 
 const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
-const { onChange$: descriptionChange$, component: DescInput } = textArea();
+const { onChange$: descriptionChange$, component: DescInput } = textArea(Model.description$);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
     Model.analysisType$
