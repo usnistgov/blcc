@@ -131,10 +131,11 @@ function convertAnalysisPurpose(old: number) {
 
 function convertDollarMethod(old: number) {
     switch (old) {
-        case 0:
-            return DollarMethod.CONSTANT;
         case 1:
             return DollarMethod.CURRENT;
+        case 0:
+        default:
+            return DollarMethod.CONSTANT;
     }
 }
 
