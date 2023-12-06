@@ -113,7 +113,8 @@ function convertAnalysisType(old: number) {
             return AnalysisType.OMB_NON_ENERGY;
         case 5:
             return AnalysisType.MILCON_NON_ENERGY;
-        //TODO: handle possible error
+        default:
+            return AnalysisType.FEMP_ENERGY;
     }
 }
 
