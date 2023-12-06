@@ -5,7 +5,7 @@ import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Proje
 import { imported$ } from "../blcc-format/Import";
 import { Version } from "../blcc-format/Verison";
 import { modifiedAddAlternative$ } from "../components/AddAlternativeModal";
-import { check$ } from "../components/AddCostModal";
+import { modifiedAddCost$ } from "../components/AddCostModal";
 import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
 import {
@@ -54,7 +54,7 @@ const project$ = mergeWithKey({
     addAlternative2$: modifiedAddAlternative$,
     removeAlternative$: modifiedremoveAlternative$,
     cloneAlternative$: modifiedcloneAlternative$,
-    addCost$: check$
+    addCost$: modifiedAddCost$
 }).pipe(
     scan(
         (accumulator, operation) => {
