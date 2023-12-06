@@ -20,17 +20,23 @@ async fn main() -> std::io::Result<()> {
                 .allowed_origin("https://blcctest.el.nist.gov")
                 .allowed_methods(vec!["GET"])
             )
-            .wrap(middleware::DefaultHeaders::new().add((
-                "Content-Security-Policy",
-                "default-src 'self' https://*.nist.gov; \
-                script-src 'self' 'unsafe-inline'; \
-                style-src 'self' 'unsafe-inline'; \
-                img-src 'self'; \
-                connect-src 'self' https://*.nist.gov;"
-            )))
+            .wrap(
+                middleware::DefaultHeaders::new()
+                    .add((
+                        "Content-Security-Policy",
+                        "default-src 'self' https://*.nist.gov; \
+                        script-src 'self'; \
+                        style-src 'self' 'unsafe-inline'; \
+                        img-src 'self'; \
+                        connect-src 'self' https://*.nist.gov; \
+                        object-src 'none'; \
+                        frame-ancestors 'none';"
+                    ))
+                    .add(("Referrer-Policy", "strict-origin-when-cross-origin"))
+            )
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
-            .service(Files::new("/", "./public/dist/").show_files_listing())
+            .service(Files::new("/", "./public/dist/"))
             .default_service(web::to(index))
     })
         .bind(("0.0.0.0", 8080))?
