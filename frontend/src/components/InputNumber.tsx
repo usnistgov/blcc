@@ -1,8 +1,8 @@
-import { EMPTY, Observable } from "rxjs";
-import React, { PropsWithChildren } from "react";
-import { createSignal } from "@react-rxjs/utils";
-import { InputNumber } from "antd";
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
+import { InputNumber, Typography } from "antd";
+import React, { PropsWithChildren } from "react";
+import { EMPTY, Observable } from "rxjs";
 
 export type NumberInputProps = {
     className?: string;
@@ -12,12 +12,15 @@ export type NumberInputProps = {
     after?: JSX.Element | string;
     before?: JSX.Element | string;
     controls: boolean;
+    label?: string;
 };
 
 export type NumberInput = {
     onChange$: Observable<number>;
     component: React.FC<PropsWithChildren & NumberInputProps>;
 };
+
+const { Title } = Typography;
 
 export default function textInput(value$: Observable<number | undefined> = EMPTY): NumberInput {
     const [onChange$, onChange] = createSignal<number>();
@@ -33,24 +36,28 @@ export default function textInput(value$: Observable<number | undefined> = EMPTY
             defaultValue,
             after,
             before,
-            controls
+            controls,
+            label
         }: PropsWithChildren & NumberInputProps) => {
             return (
-                <InputNumber
-                    className={className}
-                    onChange={(value) => {
-                        if (value !== null) onChange(value);
-                    }}
-                    value={useValue()}
-                    min={min}
-                    max={max}
-                    defaultValue={defaultValue}
-                    addonAfter={after}
-                    addonBefore={before}
-                    controls={controls}
-                >
-                    {children}
-                </InputNumber>
+                <>
+                    <Title level={5}>{label}</Title>
+                    <InputNumber
+                        className={className}
+                        onChange={(value) => {
+                            if (value !== null) onChange(value);
+                        }}
+                        value={useValue()}
+                        min={min}
+                        max={max}
+                        defaultValue={defaultValue}
+                        addonAfter={after}
+                        addonBefore={before}
+                        controls={controls}
+                    >
+                        {children}
+                    </InputNumber>
+                </>
             );
         }
     };
