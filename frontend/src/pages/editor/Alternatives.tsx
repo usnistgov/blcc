@@ -74,7 +74,7 @@ export default function Alternatives() {
 
     const singleAlt = useAlt();
     singleAlt?.costs?.forEach((a) => altCosts?.push(costs[a]));
-    console.log(singleAlt?.id);
+    setAltId(singleAlt?.id);
 
     const waterCosts = altCosts.filter(isWaterCost);
     const energyCosts = altCosts.filter(isEnergyCost);
