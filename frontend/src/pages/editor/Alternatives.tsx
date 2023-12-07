@@ -155,10 +155,13 @@ export default function Alternatives() {
                 <span className="w-1/2">
                     <Title level={5}>Baseline Alternative</Title>
                     <Switch
+                        key={singleAlt?.id + "switch"}
                         className=""
                         checkedChildren=""
                         unCheckedChildren=""
-                        defaultChecked={alts[singleAlt?.id]?.baseline != undefined ? true : false}
+                        defaultChecked={
+                            alts[singleAlt?.id]?.baseline == undefined ? false : alts[singleAlt?.id]?.baseline
+                        }
                     />
                     <p>Only one alternative can be the baseline.</p>
                 </span>
