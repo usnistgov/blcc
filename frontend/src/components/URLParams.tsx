@@ -1,9 +1,9 @@
 import { createSignal } from "@react-rxjs/utils";
 import { PropsWithChildren, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Params, useParams } from "react-router-dom";
 
 // add the type to createSignal
-export const [siteId$, setSiteId] = createSignal();
+export const [siteId$, setSiteId] = createSignal<Params<string>>();
 
 const ParamsComponent = ({ children }: PropsWithChildren) => {
     const params = useParams();

@@ -34,6 +34,8 @@ const [altId$, setAltId] = createSignal();
 const { component: NameInput } = textInput(Model.name$);
 const { component: DescInput } = textArea(Model.description$);
 
+import { siteId$ } from "../../components/URLParams";
+
 export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
 export const modifiedremoveAlternative$: Observable<T> = removeAlternative$.pipe(withLatestFrom(altId$));
 export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
@@ -54,10 +56,8 @@ export const modifiedOpenCostModal$: Observable<T> = openCostModal$.pipe(map(() 
 const { component: AddAlternatives } = AddAlternativeModal(modifiedOpenAltModal$);
 const { component: AddCosts } = AddCostModal(modifiedOpenCostModal$);
 
-import { siteId$ } from "../../components/SiteContent";
-
 const alternativeID = siteId$.pipe(
-    map(({ alternativeId }) => alternativeId),
+    map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)),
     withLatestFrom(Model.alternatives$),
     map(([altId, alts]) => alts.find((a) => a.id === altId))
 );
@@ -73,14 +73,8 @@ export default function Alternatives() {
     const altCosts: Cost[] = [];
 
     const singleAlt = useAlt();
-
-    console.log(alternativeID, alt$, singleAlt);
-
-    console.log(altId$, siteId$);
-    siteId$.subscribe((val) => console.log(val));
-    siteId$.subscribe(console.log);
-
-    alts[alternativeID]?.costs?.forEach((a) => altCosts?.push(costs[a]));
+    singleAlt?.costs?.forEach((a) => altCosts?.push(costs[a]));
+    console.log(singleAlt?.id);
 
     const waterCosts = altCosts.filter(isWaterCost);
     const energyCosts = altCosts.filter(isEnergyCost);
@@ -164,7 +158,7 @@ export default function Alternatives() {
                         className=""
                         checkedChildren=""
                         unCheckedChildren=""
-                        defaultChecked={alts[alternativeID]?.baseline != undefined ? true : false}
+                        defaultChecked={alts[singleAlt?.id]?.baseline != undefined ? true : false}
                     />
                     <p>Only one alternative can be the baseline.</p>
                 </span>
@@ -193,7 +187,7 @@ export default function Alternatives() {
                                     {obj?.items ? (
                                         obj?.items?.map((item: Cost) => (
                                             <li
-                                                key={alternativeID - item?.id}
+                                                key={singleAlt?.id - item?.id}
                                                 className="overflow-hidden whitespace-nowrap text-ellipsis"
                                                 onClick={() => navigate(`/editor/alternative/cost/${item?.id}`)}
                                             >
@@ -203,7 +197,7 @@ export default function Alternatives() {
                                     ) : (
                                         <li
                                             className="overflow-hidden whitespace-nowrap text-ellipsis"
-                                            key={alternativeID - obj?.name - obj?.id}
+                                            key={singleAlt?.id - obj?.name - obj?.id}
                                             onClick={() => navigate(`/editor/alternative/cost/${obj?.id}`)}
                                         >
                                             {obj?.name || "Unknown"}
