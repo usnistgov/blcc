@@ -20,12 +20,12 @@ const items: MenuItem[] = [
         label: "Input"
     },
     {
-        key: "annual-results",
+        key: "annual",
         icon: <Icon path={mdiListBoxOutline} size={1} />,
         label: "Annual Results"
     },
     {
-        key: "results-by-alternative",
+        key: "alternative",
         icon: <Icon path={mdiFormatListGroup} size={1} />,
         label: "Results by Alternative"
     },
