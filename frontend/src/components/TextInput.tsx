@@ -1,8 +1,8 @@
-import { EMPTY, Observable } from "rxjs";
-import React, { PropsWithChildren } from "react";
-import { createSignal } from "@react-rxjs/utils";
-import { Input } from "antd";
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
+import { Input, Typography } from "antd";
+import React, { PropsWithChildren } from "react";
+import { EMPTY, Observable } from "rxjs";
 
 export enum TextInputType {
     PRIMARY = " ",
@@ -17,12 +17,15 @@ export type TextInputProps = {
     disabled?: boolean;
     placeholder?: string;
     bordered?: boolean;
+    label?: string;
 };
 
 export type TextInput = {
     onChange$: Observable<string>;
     component: React.FC<PropsWithChildren & TextInputProps>;
 };
+
+const { Title } = Typography;
 
 export default function textInput(
     value$: Observable<string | undefined> = EMPTY,
@@ -39,19 +42,23 @@ export default function textInput(
             className,
             type,
             disabled = false,
-            bordered = true
+            bordered = true,
+            label
         }: PropsWithChildren & TextInputProps) => {
             return (
-                <Input
-                    className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
-                    onChange={(event) => onChange(event.target.value)}
-                    placeholder={usePlaceholder()}
-                    bordered={bordered}
-                    disabled={disabled}
-                    value={useValue()}
-                >
-                    {children}
-                </Input>
+                <>
+                    <Title level={5}>{label}</Title>
+                    <Input
+                        className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
+                        onChange={(event) => onChange(event.target.value)}
+                        placeholder={usePlaceholder()}
+                        bordered={bordered}
+                        disabled={disabled}
+                        value={useValue()}
+                    >
+                        {children}
+                    </Input>
+                </>
             );
         }
     };
