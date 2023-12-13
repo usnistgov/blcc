@@ -1,6 +1,6 @@
-import { Alternative, Cost, CostTypes } from "../blcc-format/Format";
+import { Cost, CostTypes } from "../blcc-format/Format";
 
-// Returns true if the given cost is a energy cost.
+// Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {
     return cost !== undefined && cost.type === CostTypes.ENERGY;
 }
