@@ -7,7 +7,7 @@ import Navigation from "./components/Navigation";
 import ResultNavigation from "./components/ResultNavigation";
 import ResultsAppBar from "./components/ResultsAppBar";
 import Statistics from "./components/Statistics";
-import ParamsComponent from "./components/URLParams";
+import UrlParameters from "./components/UrlParameters";
 import { project$ } from "./model/Project";
 import AlternativeSummary from "./pages/editor/AlternativeSummary";
 import Alternatives from "./pages/editor/Alternatives";
@@ -38,7 +38,7 @@ export default function App() {
                             <Route path={"/editor"} element={<Navigation />}>
                                 <Route path={"alternative/*"} element={<CostNavigation />} />
                             </Route>
-                            <Route path={"/results"} element={<ResultNavigation />} />
+                            <Route path={"/results/*"} element={<ResultNavigation />} />
                         </Routes>
 
                         {/* Pages */}
@@ -50,9 +50,9 @@ export default function App() {
                                     <Route
                                         path={":alternativeID"}
                                         element={
-                                            <ParamsComponent>
+                                            <UrlParameters>
                                                 <Alternatives />
-                                            </ParamsComponent>
+                                            </UrlParameters>
                                         }
                                     />
                                     <Route path={"cost/:costID"} element={<Cost />} />
@@ -69,6 +69,7 @@ export default function App() {
 
                     <Routes>
                         <Route path={"/editor/*"} element={<Statistics />} />
+                        <Route path={"/results/*"} element={<></>} />
                     </Routes>
                 </div>
             </BrowserRouter>

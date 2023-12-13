@@ -2,12 +2,12 @@ import { Alternative, Cost, CostTypes } from "../blcc-format/Format";
 
 // Returns true if the given cost is a energy cost.
 export function isEnergyCost(cost: Cost) {
-    return cost.type === CostTypes.ENERGY;
+    return cost !== undefined && cost.type === CostTypes.ENERGY;
 }
 
 // Returns true if the given cost is a water cost.
 export function isWaterCost(cost: Cost) {
-    return cost.type === CostTypes.WATER;
+    return cost !== undefined && cost.type === CostTypes.WATER;
 }
 
 // Returns true if the given cost is a capital cost or one of its subcategories.
@@ -28,8 +28,8 @@ export function isOtherCost(cost: Cost) {
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
 
-export function getNewID(alternatives: Alternative[]) {
-    const ids = alternatives.map((alt) => alt.id);
+export function getNewID(values: { id: number }[]) {
+    const ids = values.map((value) => value.id);
     const newID = Math.max(...ids) + 1;
 
     if (newID < 0) return 0;

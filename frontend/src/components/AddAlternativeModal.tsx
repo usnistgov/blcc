@@ -1,76 +1,63 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Observable, merge } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { combineLatest, merge, Observable, sample } from "rxjs";
+import { map } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { Model } from "../model/Model";
 import { getNewID } from "../util/Util";
+import { mdiClose, mdiPlus } from "@mdi/js";
+
 const { Title } = Typography;
+const { click$: addClick$, component: AddAlternativeBtn } = button();
+const { click$: cancelClick$, component: CancelBtn } = button();
+const { onChange$: name$, component: NewAltInput } = textInput();
 
-export type ModalProps = {
-    open?: boolean;
-};
-
-export type ModalComp = {
-    component: React.FC<PropsWithChildren & ModalProps>;
-};
-
-const { click$: addAlternative$, component: AddAlternativeBtn } = button();
-const { click$: cancel$, component: CancelBtn } = button();
-const { onChange$: addAltChange$, component: NewAltInput } = textInput();
-
-export const modifiedAddAlternative$ = addAlternative$.pipe(
-    withLatestFrom(Model.alternatives$),
-    withLatestFrom(addAltChange$),
-    map(([alts, name]) => {
-        const nextID = getNewID(alts[1]);
-        return {
-            id: nextID,
-            name: name,
-            costs: [],
-            baseline: false
-        };
-    })
+export const addAlternative$ = combineLatest([Model.alternatives$, name$]).pipe(
+    sample(addClick$),
+    map(([alts, name]) => ({
+        id: getNewID(alts),
+        name: name,
+        costs: [],
+        baseline: false
+    }))
 );
 
-function AddAlternativeModal(modifiedOpenModal$: Observable<boolean>) {
+export default function addAlternativeModal(open$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
     const [useOpen] = bind(
         merge(
-            modifiedOpenModal$,
-            cancel$.pipe(map(() => false)),
-            modifiedAddAlternative$.pipe(map(() => false)),
+            open$,
+            cancelClick$.pipe(map(() => false)),
+            addAlternative$.pipe(map(() => false)),
             modalCancel$.pipe(map(() => false))
         ),
         false
     );
 
     return {
-        modifiedAddAlternative$,
         component: () => {
-            const openModal = useOpen();
             const navigate = useNavigate();
-            useSubscribe(modifiedAddAlternative$, (alt) => {
+            useSubscribe(addAlternative$, (alt) => {
                 navigate(`/editor/alternative/${alt?.id - 1}`);
             });
 
             return (
                 <Modal
                     title="Add New Alternative"
-                    open={openModal}
+                    open={useOpen()}
                     onCancel={cancel}
                     okButtonProps={{ disabled: false }}
                     cancelButtonProps={{ disabled: false }}
                     footer={[
-                        <CancelBtn key="back" type={ButtonType.ERROR}>
-                            Return
+                        <CancelBtn key="back" type={ButtonType.ERROR} icon={mdiClose}>
+                            Cancel
                         </CancelBtn>,
-                        <AddAlternativeBtn type={ButtonType.PRIMARY} key="add">
+                        <AddAlternativeBtn type={ButtonType.PRIMARY} key="add" icon={mdiPlus}>
                             Add
                         </AddAlternativeBtn>
                     ]}
@@ -85,5 +72,3 @@ function AddAlternativeModal(modifiedOpenModal$: Observable<boolean>) {
         }
     };
 }
-
-export default AddAlternativeModal;

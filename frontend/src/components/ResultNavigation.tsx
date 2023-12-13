@@ -1,8 +1,8 @@
+import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEditOutline } from "@mdi/js";
+import Icon from "@mdi/react";
+import { Layout, Menu } from "antd";
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Layout, Menu } from "antd";
-import Icon from "@mdi/react";
-import { mdiTextBoxEditOutline, mdiListBoxOutline, mdiFormatListGroup, mdiFormatListText } from "@mdi/js";
 
 const { Sider } = Layout;
 
@@ -54,7 +54,13 @@ export default function ResultNavigation() {
                         style={{ background, color: "#fff" }}
                         mode="inline"
                         defaultSelectedKeys={["gen-info"]}
-                        onClick={({ key }) => navigate(`/results/${key}`)}
+                        onClick={({ key }) => {
+                            if (key === "input") {
+                                navigate(`/results/`); // Call your click handler
+                            } else {
+                                navigate(`/results/${key}`);
+                            }
+                        }}
                         items={items}
                     />
                 </Sider>
