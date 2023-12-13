@@ -1,8 +1,8 @@
-import { Observable } from "rxjs";
-import React, { PropsWithChildren } from "react";
-import { createSignal } from "@react-rxjs/utils";
-import { Input } from "antd";
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
+import { Input, Typography } from "antd";
+import React, { PropsWithChildren } from "react";
+import { Observable } from "rxjs";
 
 export type TextAreaProps = {
     className?: string;
@@ -10,9 +10,11 @@ export type TextAreaProps = {
     placeholder?: string;
     bordered?: boolean;
     rows?: number;
+    label?: string;
 };
 
 const { TextArea } = Input;
+const { Title } = Typography;
 
 export type TextArea = {
     onChange$: Observable<string>;
@@ -31,20 +33,24 @@ export default function textArea(value$: Observable<string | undefined>): TextAr
             disabled = false,
             bordered = true,
             placeholder,
-            rows = 4
+            rows = 4,
+            label
         }: PropsWithChildren & TextAreaProps) => {
             return (
-                <TextArea
-                    className={(className ?? "") + "w-44"}
-                    onChange={(event) => onChange(event.target.value)}
-                    placeholder={placeholder}
-                    bordered={bordered}
-                    disabled={disabled}
-                    rows={rows}
-                    value={value()}
-                >
-                    {children}
-                </TextArea>
+                <>
+                    <Title level={5}>{label}</Title>
+                    <TextArea
+                        className={(className ?? "") + "w-44"}
+                        onChange={(event) => onChange(event.target.value)}
+                        placeholder={placeholder}
+                        bordered={bordered}
+                        disabled={disabled}
+                        rows={rows}
+                        value={value()}
+                    >
+                        {children}
+                    </TextArea>
+                </>
             );
         }
     };
