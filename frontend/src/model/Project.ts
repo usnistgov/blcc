@@ -4,14 +4,14 @@ import { scan } from "rxjs";
 import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Project } from "../blcc-format/Format";
 import { imported$ } from "../blcc-format/Import";
 import { Version } from "../blcc-format/Verison";
-import { modifiedAddAlternative$ } from "../components/AddAlternativeModal";
-import { modifiedAddCost$ } from "../components/AddCostModal";
+import { newCost$ } from "../components/AddCostModal";
 import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
 import {
-    modifiedbaselineChange$,
-    modifiedcloneAlternative$,
-    modifiedremoveAlternative$
+    alternativeNameChange$,
+    cloneAlternative$,
+    modifiedBaselineChange$,
+    removeAlternative$
 } from "../pages/editor/Alternatives";
 import {
     analysisPurposeChange$,
@@ -30,6 +30,7 @@ import {
     studyPeriodChange$
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
+import { getNewID } from "../util/Util";
 
 const project$ = mergeWithKey({
     imported$,
@@ -50,11 +51,12 @@ const project$ = mergeWithKey({
     discountingMethod: discountingMethodChange$,
     location: combinedLocation$,
     ghg: combinedGHG$,
-    baselineChange$: modifiedbaselineChange$,
-    addAlternative2$: modifiedAddAlternative$,
-    removeAlternative$: modifiedremoveAlternative$,
-    cloneAlternative$: modifiedcloneAlternative$,
-    addCost$: modifiedAddCost$
+    baselineChange$: modifiedBaselineChange$,
+    addAlternative2$: addAlternative$,
+    removeAlternative$,
+    cloneAlternative$,
+    newCost$,
+    alternativeNameChange$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -71,28 +73,31 @@ const project$ = mergeWithKey({
                     break;
                 }
                 case "removeAlternative$": {
-                    const [_, altId] = operation.payload;
-                    const alts = accumulator.alternatives.filter((alt) => alt.id != altId);
-                    accumulator.alternatives = alts;
+                    accumulator.alternatives = accumulator.alternatives.filter((alt) => alt.id != operation.payload);
                     break;
                 }
                 case "cloneAlternative$": {
-                    const [id, altId] = [operation.payload.id, operation.payload.altId];
-                    const a = accumulator.alternatives.find((alt) => alt.id == altId);
-                    const clonedAlt = { ...a, id, name: `Clone of ${a.name}` };
+                    const alt = accumulator.alternatives.find((alt) => alt.id == operation.payload);
+                    const clonedAlt = {
+                        ...alt,
+                        id: getNewID(accumulator.alternatives),
+                        name: `Clone of ${alt?.name}`
+                    } as Alternative;
                     accumulator.alternatives.push(clonedAlt);
                     break;
                 }
-                case "addCost$": {
-                    const [name, alts] = operation.payload;
-                    const ids = accumulator.costs.map((cost) => cost.id);
-                    const newID = Math.max(...ids) + 1;
-                    const cost = { id: newID, name: name[0][1], type: name[1] };
-                    accumulator.costs.push(cost);
-                    const array = [...alts];
-                    accumulator.alternatives.map((alt) => {
-                        if (array.indexOf(alt?.id) !== -1) {
-                            alt.costs.push(newID);
+                case "newCost$": {
+                    const [name, type, alts] = operation.payload;
+
+                    // Create new Cost
+                    const id = getNewID(accumulator.costs);
+                    accumulator.costs.push({ id, name, type } as Cost);
+
+                    // Add cost to checked alternatives
+                    const altSet = new Set(alts);
+                    accumulator.alternatives.forEach((alt) => {
+                        if (altSet.has(alt.id)) {
+                            alt.costs.push(id);
                         }
                     });
                     break;
@@ -104,6 +109,15 @@ const project$ = mergeWithKey({
                         else alt.baseline = false;
                     });
                     break;
+                }
+                case "alternativeNameChange$": {
+                    const [newName, id] = operation.payload;
+                    const alternative = accumulator.alternatives.find((alt) => alt.id === id);
+
+                    if (alternative === undefined) return accumulator;
+
+                    alternative.name = newName;
+                    return accumulator;
                 }
                 /*
                  * By default the operation type denotes the property in project object and is set to the payload.

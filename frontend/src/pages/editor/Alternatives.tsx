@@ -1,143 +1,147 @@
-import { bind } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
-import { Cost } from "../../blcc-format/Format";
-
+import { Alternative, Cost, CostTypes, FuelType } from "../../blcc-format/Format";
 import { Divider, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
-const { Title } = Typography;
-
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-
-import AddAlternativeModal from "../../components/AddAlternativeModal";
-import AddCostModal from "../../components/AddCostModal";
+import { urlParameters$ } from "../../components/UrlParameters";
+import addAlternativeModal from "../../components/AddAlternativeModal";
+import addCostModal from "../../components/AddCostModal";
 import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
-
 import { Model } from "../../model/Model";
-
 import { useNavigate } from "react-router-dom";
-import { Observable } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
-import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
+import { combineLatest, filter, sample } from "rxjs";
+import { bind } from "@react-rxjs/core";
+import { combinedCostObject$ } from "./AlternativeSummary";
 
-const { click$: cloneAlternative$, component: Clone } = button();
-const { click$: removeAlternative$, component: Remove } = button();
+const { Title } = Typography;
 
-const { click$: openAltModal$, component: AddAlternativeBtn } = button();
-
-const { click$: openCostModal$, component: AddCostBtn } = button();
-const { onChange$: baselineChange$, component: Switch } = switchComp();
-const [altId$, setAltId] = createSignal();
-
-const { component: NameInput } = textInput(Model.name$);
-const { component: DescInput } = textArea(Model.description$);
-
-import { siteId$ } from "../../components/URLParams";
-
-export const modifiedbaselineChange$: Observable<T> = baselineChange$.pipe(withLatestFrom(altId$));
-export const modifiedremoveAlternative$: Observable<T> = removeAlternative$.pipe(withLatestFrom(altId$));
-export const modifiedcloneAlternative$: Observable<T> = cloneAlternative$.pipe(
-    withLatestFrom(Model.alternatives$),
-    withLatestFrom(altId$),
-    map(([alts, altId]) => {
-        const nextID = getNewID(alts[1]);
-        return {
-            id: nextID,
-            altId
-        };
-    })
+const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)));
+const alt$ = combineLatest([alternativeID$, Model.alternatives$]).pipe(
+    map(([altId, alts]) => alts.find((a) => a.id === altId)),
+    filter((alt): alt is Alternative => alt !== undefined)
 );
 
-export const modifiedOpenAltModal$: Observable<T> = openAltModal$.pipe(map(() => true));
-export const modifiedOpenCostModal$: Observable<T> = openCostModal$.pipe(map(() => true));
-
-const { component: AddAlternatives } = AddAlternativeModal(modifiedOpenAltModal$);
-const { component: AddCosts } = AddCostModal(modifiedOpenCostModal$);
-
-const alternativeID = siteId$.pipe(
-    map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)),
-    withLatestFrom(Model.alternatives$),
-    map(([altId, alts]) => alts.find((a) => a.id === altId))
+const { click$: cloneAlternativeClick$, component: CloneButton } = button();
+const { click$: removeAlternativeClick$, component: RemoveButton } = button();
+const { click$: openAltModal$, component: AddAlternativeButton } = button();
+const { click$: openCostModal$, component: AddCostButton } = button();
+const { onChange$: baselineChange$, component: BaselineSwitch } = switchComp(
+    alt$.pipe(map((alt) => alt?.baseline ?? false))
 );
+const { onChange$: name$, component: NameInput } = textInput(alt$.pipe(map((alt) => alt.name)));
+const { component: DescInput } = textArea(alt$.pipe(map((alt) => alt.description)));
+
+export const alternativeNameChange$ = name$.pipe(withLatestFrom(alternativeID$));
+export const modifiedBaselineChange$ = baselineChange$.pipe(withLatestFrom(alternativeID$));
+export const removeAlternative$ = alternativeID$.pipe(sample(removeAlternativeClick$));
+export const cloneAlternative$ = alternativeID$.pipe(sample(cloneAlternativeClick$));
+
+const { component: AddAlternativeModal } = addAlternativeModal(openAltModal$.pipe(map(() => true)));
+const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
 // just the single alternative
-const [useAlt, alt$] = bind(alternativeID, undefined);
+const altCosts$ = alt$.pipe(
+    withLatestFrom(combinedCostObject$),
+    map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
+);
+
+type Subcategories<T> = {
+    [key in keyof T]: Cost[];
+};
+
+// Count all energy costs, and the count of its subcategories
+const [energyCategories] = bind(
+    altCosts$.pipe(
+        map((costs) => costs.filter(isEnergyCost)),
+        // @ts-expect-error groupBy is linted by mistake
+        map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>)
+    ),
+    undefined
+);
+
+// Count all water costs
+const [waterCosts] = bind(altCosts$.pipe(map((costs) => costs.filter(isWaterCost))), []);
+
+// Count all capital costs and its subcategories
+const [capitalCategories] = bind(
+    altCosts$.pipe(
+        map((costs) => costs.filter(isCapitalCost)),
+        // @ts-expect-error groupBy is linted by mistake
+        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
+    ),
+    undefined
+);
+
+// Count all contract costs and its subcategories
+const [contractCategories] = bind(
+    altCosts$.pipe(
+        map((costs) => costs.filter(isContractCost)),
+        // @ts-expect-error groupBy is linted by mistake
+        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
+    ),
+    undefined
+);
+
+// Count all other costs and its subcategories
+const [otherCategories] = bind(
+    altCosts$.pipe(
+        map((costs) => costs.filter(isOtherCost)),
+        // @ts-expect-error groupBy is linted by mistake
+        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
+    ),
+    undefined
+);
 
 export default function Alternatives() {
     const navigate = useNavigate();
 
-    const alts = Model.useAlternatives();
-    const costs = Model.useCosts();
-    const altCosts: Cost[] = [];
-
-    const singleAlt = useAlt();
-    singleAlt?.costs?.forEach((a) => altCosts?.push(costs[a]));
-    setAltId(singleAlt?.id);
-
-    const waterCosts = altCosts.filter(isWaterCost);
-    const energyCosts = altCosts.filter(isEnergyCost);
-    const capitalCosts = altCosts.filter(isCapitalCost);
-    const contractCosts = altCosts.filter(isContractCost);
-    const otherCosts = altCosts.filter(isOtherCost);
-
-    const countProp = (arr, key: string) => {
-        const res = {};
-        arr.map((a) => {
-            if (res?.[a?.[key]]) res?.[a?.[key]].push(a);
-            else res[a?.[key]] = [a];
-        });
-
-        const result = Object.keys(res).map((key) => ({
-            key,
-            items: res[key]
-        }));
-        return result;
-    };
-
-    const energySubcategories = countProp(energyCosts, "fuelType");
-    const capitalSubcategories = countProp(capitalCosts, "type");
-    const contractSubcategories = countProp(contractCosts, "type");
-    const otherSubcategories = countProp(otherCosts, "type");
+    // Navigate to general information page if there are no alternatives
+    const alternatives = Model.useAlternatives();
+    if (alternatives.length <= 0) navigate("/editor");
 
     const categories = [
         {
             label: "Energy Costs",
-            children: energySubcategories
+            children: energyCategories()
         },
         {
             label: "Water Costs",
-            children: waterCosts
+            children: waterCosts()
         },
         {
             label: "Capital Costs",
-            children: capitalSubcategories
+            children: capitalCategories()
         },
         {
             label: "Contract Costs",
-            children: contractSubcategories
+            children: contractCategories()
         },
         {
             label: "Other Costs",
-            children: otherSubcategories
+            children: otherCategories()
         }
     ];
 
     return (
         <div className="w-full h-full bg-white p-3">
+            <AddAlternativeModal />
+            <AddCostModal />
+
             <div className={"float-right"}>
-                <AddAlternativeBtn type={ButtonType.LINK}>
+                <AddAlternativeButton type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
-                </AddAlternativeBtn>
-                <AddAlternatives />
-                <Clone type={ButtonType.LINK}>
+                </AddAlternativeButton>
+                <CloneButton type={ButtonType.LINK}>
                     <Icon path={mdiContentCopy} size={1} /> Clone
-                </Clone>
-                <Remove type={ButtonType.LINKERROR}>
+                </CloneButton>
+                <RemoveButton type={ButtonType.LINKERROR}>
                     <Icon path={mdiMinus} size={1} /> Remove
-                </Remove>
+                </RemoveButton>
             </div>
             <Divider />
 
@@ -154,26 +158,17 @@ export default function Alternatives() {
                 </div>
                 <span className="w-1/2">
                     <Title level={5}>Baseline Alternative</Title>
-                    <Switch
-                        key={singleAlt?.id + "switch"}
-                        className=""
-                        checkedChildren=""
-                        unCheckedChildren=""
-                        defaultChecked={
-                            alts[singleAlt?.id]?.baseline == undefined ? false : alts[singleAlt?.id]?.baseline
-                        }
-                    />
+                    <BaselineSwitch />
                     <p>Only one alternative can be the baseline.</p>
                 </span>
             </div>
             <br />
             <div className="flex justify-between">
                 <Title level={4}>Alternative Costs</Title>
-                <AddCostBtn type={ButtonType.LINK}>
+                <AddCostButton type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Cost
-                </AddCostBtn>
-                <AddCosts />
+                </AddCostButton>
             </div>
             <Divider className="m-0 mb-4" />
             <div className="flex justify-between" style={{ alignContent: "space-between" }}>
@@ -183,32 +178,24 @@ export default function Alternatives() {
                             <Title level={5}>{category.label}</Title>
                         </div>
                         <Divider className="m-0" />
-                        {category?.children?.map((obj) => (
-                            <div className="flex flex-col justify-between m-2 border">
-                                <div className="border bg-primary text-center text-white">{obj?.key || ""}</div>
-                                <ul className="hover:cursor-pointer">
-                                    {obj?.items ? (
-                                        obj?.items?.map((item: Cost) => (
+                        {Object.entries(category.children ?? {}).map(([name, costs]) => {
+                            return (
+                                <div className="flex flex-col justify-between m-2 border">
+                                    <div className="border bg-primary text-center text-white">{name || ""}</div>
+                                    <ul className="hover:cursor-pointer">
+                                        {(costs as unknown as Cost[]).map((item: Cost) => (
                                             <li
-                                                key={singleAlt?.id - item?.id}
+                                                key={item.id}
                                                 className="overflow-hidden whitespace-nowrap text-ellipsis"
-                                                onClick={() => navigate(`/editor/alternative/cost/${item?.id}`)}
+                                                onClick={() => navigate(`/editor/cost/${item.id}`)}
                                             >
                                                 {item?.name || "Unknown"}
                                             </li>
-                                        ))
-                                    ) : (
-                                        <li
-                                            className="overflow-hidden whitespace-nowrap text-ellipsis"
-                                            key={singleAlt?.id - obj?.name - obj?.id}
-                                            onClick={() => navigate(`/editor/alternative/cost/${obj?.id}`)}
-                                        >
-                                            {obj?.name || "Unknown"}
-                                        </li>
-                                    )}
-                                </ul>
-                            </div>
-                        ))}
+                                        ))}
+                                    </ul>
+                                </div>
+                            );
+                        })}
                     </div>
                 ))}
                 <div />

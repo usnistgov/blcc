@@ -14,6 +14,8 @@ const { component: Button } = button();
 
 const combinedCostObject$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
 
+export { combinedCostObject$ };
+
 const [useCards] = bind(Model.alternatives$.pipe(map((alts) => alts.map((_a, i) => createAlternativeCard(i)))), []);
 
 export default function AlternativeSummary() {

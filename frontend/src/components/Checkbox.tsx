@@ -14,13 +14,13 @@ export type CheckboxProps = {
 
 export type CheckboxComp = {
     onChange$: Observable<boolean>;
-    component: React.FC<PropsWithChildren & CheckboxProps>;
+    component: React.FC<PropsWithChildren<CheckboxProps>>;
 };
 
 /**
  * Creates a checkbox component and its associated change stream.
  */
-export default function checkBoxComp(): CheckboxComp {
+export default function checkbox(): CheckboxComp {
     const [onChange$, onChange] = createSignal<boolean>();
 
     return {
@@ -35,12 +35,11 @@ export default function checkBoxComp(): CheckboxComp {
         }: PropsWithChildren & CheckboxProps) => {
             return (
                 <Checkbox
-                    onChange={onChange}
+                    onChange={(e) => onChange(e.target.checked)}
                     className={className}
                     disabled={disabled}
                     defaultChecked={defaultChecked}
                     key={key}
-                    value={value}
                 >
                     {children}
                 </Checkbox>
