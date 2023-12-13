@@ -135,7 +135,6 @@ export default function AnnualResults() {
             </div>
             <br />
             <div>
-                <h1>Annual Results for Alternative</h1>
                 <AlternativeDropdown className={"w-1/4"} label="Annual Results for Alternative" />
             </div>
             <br />
