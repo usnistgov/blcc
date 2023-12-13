@@ -1,12 +1,13 @@
-import { Divider, Typography } from "antd";
+import { Divider } from "antd";
 
-import textInput, { TextInputType } from "../../components/TextInput";
-import textArea from "../../components/TextArea";
 import dropdown from "../../components/Dropdown";
 import inputNumber from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
+import textArea from "../../components/TextArea";
+import textInput, { TextInputType } from "../../components/TextInput";
 
-import { Country, State } from "../../constants/LOCATION";
+import { Observable, combineLatest, iif, merge, of } from "rxjs";
+import { map, startWith, switchMap } from "rxjs/operators";
 import {
     AnalysisType,
     DiscountingMethod,
@@ -18,11 +19,8 @@ import {
     SocialCostOfGhgScenario,
     USLocation
 } from "../../blcc-format/Format";
-import { combineLatest, iif, merge, Observable, of } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Country, State } from "../../constants/LOCATION";
 import { Model } from "../../model/Model";
-
-const { Title } = Typography;
 
 /*
  * rxjs components
@@ -140,20 +138,20 @@ const modifiedDollarMethod$: Observable<DollarMethod> = dollarMethodChange$.pipe
 );
 
 export {
-    nameChange$,
-    descriptionChange$,
-    analystChange$,
-    analysisTypeChange$,
     analysisPurposeChange$,
-    modifiedDollarMethod$,
+    analysisTypeChange$,
+    analystChange$,
+    combinedGHG$,
+    combinedLocation$,
+    constructionPeriodChange$,
+    descriptionChange$,
+    discountingMethodChange$,
     inflationChange$,
+    modifiedDollarMethod$,
+    nameChange$,
     nomDiscChange$,
     realDiscChange$,
-    studyPeriodChange$,
-    constructionPeriodChange$,
-    discountingMethodChange$,
-    combinedLocation$,
-    combinedGHG$
+    studyPeriodChange$
 };
 
 export default function GeneralInformation() {
@@ -161,40 +159,46 @@ export default function GeneralInformation() {
         <div className={"w-full h-full p-8 "}>
             <div className="w-1/2 grid grid-cols-2">
                 <span className="pb-3">
-                    <Title level={5}>Project Name</Title>
-                    <NameInput className="w-3/4" type={TextInputType.PRIMARY} />
+                    <NameInput label="Project Name" className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
                 <span>
-                    <Title level={5}>Analyst</Title>
-                    <AnalystInput className="w-3/4" type={TextInputType.PRIMARY} />
+                    <AnalystInput label="Analyst" className="w-3/4" type={TextInputType.PRIMARY} />
                 </span>
                 <span className="pb-3">
-                    <Title level={5}>Analysis Type</Title>
-                    <AnalysisTypeDropdown className={"w-3/4"} />
+                    <AnalysisTypeDropdown label="Analysis Type" className={"w-3/4"} />
                 </span>
                 {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" ? (
                     <span className="pb-3">
-                        <Title level={5}>Analysis Purpose</Title>
-                        <AnalysisPurposeDropdown className="w-3/4" />
+                        <AnalysisPurposeDropdown label="Analysis Purpose" className="w-3/4" />
                     </span>
                 ) : (
                     ""
                 )}
                 <span className="col-span-2 pb-3">
-                    <Title level={5}>Description</Title>
-                    <DescInput className="w-full" />
+                    <DescInput label="Description" className="w-full" />
                 </span>
                 <span className="pb-3">
-                    <Title level={5}>Length of Study Period</Title>
-                    <StudyPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
+                    <StudyPeriodInput
+                        label="Length of Study Period"
+                        after="years"
+                        defaultValue={0}
+                        max={40}
+                        min={0}
+                        controls={true}
+                    />
                 </span>
                 <span className="pb-3 pl-3">
-                    <Title level={5}>Construction Period</Title>
-                    <ConstructionPeriodInput after="years" defaultValue={0} max={40} min={0} controls={true} />
+                    <ConstructionPeriodInput
+                        label="Construction Period"
+                        after="years"
+                        defaultValue={0}
+                        max={40}
+                        min={0}
+                        controls={true}
+                    />
                 </span>
             </div>
             <span className="w-1/4 pb-3">
-                <Title level={5}>Dollar Analysis</Title>
                 <Switch className="" checkedChildren="Consant" unCheckedChildren="Current" defaultChecked />
             </span>
             <div className="grid grid-cols-2">
@@ -208,20 +212,16 @@ export default function GeneralInformation() {
                         Discounting
                     </Divider>
                     <span className="pb-3">
-                        <Title level={5}>Discounting Convention</Title>
-                        <DiscountingConvention className="w-3/4" />
+                        <DiscountingConvention label="Discounting Convention" className="w-3/4" />
                     </span>
                     <span className="pb-3">
-                        <Title level={5}>General Inflation Rate</Title>
-                        <GenInflationRate className="w-3/4" controls={false} />
+                        <GenInflationRate label="General Inflation Rate" className="w-3/4" controls={false} />
                     </span>
                     <span className="pb-3 w-full">
-                        <Title level={5}>Nominal Discount Rate</Title>
-                        <NominalDiscRate className="w-3/4" controls={false} min={0.0} />
+                        <NominalDiscRate label="Nominal Discount Rate" className="w-3/4" controls={false} min={0.0} />
                     </span>
                     <span>
-                        <Title level={5}>Real Discount Rate</Title>
-                        <RealDiscRate className="w-3/4" controls={false} min={0.0} />
+                        <RealDiscRate label="Real Discount Rate" className="w-3/4" controls={false} min={0.0} />
                     </span>
                 </div>
                 <div className="grid grid-cols-2">
@@ -234,25 +234,21 @@ export default function GeneralInformation() {
                         Location
                     </Divider>
                     <span className="pb-3">
-                        <Title level={5}>Country</Title>
-                        <CountryDropdown className="w-3/4" value={Model.useCountry()} />
+                        <CountryDropdown label="Country" className="w-3/4" value={Model.useCountry()} />
                     </span>
                     <span>
-                        <Title level={5}>City</Title>
-                        <CityInput className="w-3/4" type={TextInputType.PRIMARY} />
+                        <CityInput label="City" className="w-3/4" type={TextInputType.PRIMARY} />
                     </span>
                     <span className="pb-3">
-                        <Title level={5}>State</Title>
                         {Model.useCountry() === Country.USA ? (
-                            <StateDropdown className="w-3/4" />
+                            <StateDropdown label="State" className="w-3/4" />
                         ) : (
-                            <StateInput className="w-3/4" type={TextInputType.PRIMARY} />
+                            <StateInput label="State" className="w-3/4" type={TextInputType.PRIMARY} />
                         )}
                     </span>
                     {Model.useCountry() === Country.USA ? (
                         <span>
-                            <Title level={5}>Zip</Title>
-                            <ZipInput className="w-3/4" type={TextInputType.PRIMARY} />
+                            <ZipInput label="Zip" className="w-3/4" type={TextInputType.PRIMARY} />
                         </span>
                     ) : (
                         ""
@@ -270,12 +266,10 @@ export default function GeneralInformation() {
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
                 <span className="pb-3">
-                    <Title level={5}>Emissions Rate Scenario</Title>
-                    <EmissionsRateDropdown className="w-1/2" />
+                    <EmissionsRateDropdown label="Emissions Rate Scenario" className="w-1/2" />
                 </span>
                 <span className="pb-3">
-                    <Title level={5}>Social Cost of GHG Scenario </Title>
-                    <SocialCostDropdown className="w-1/2" />
+                    <SocialCostDropdown label="Social Cost of GHG Scenario" className="w-1/2" />
                 </span>
             </div>
         </div>
