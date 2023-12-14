@@ -12,72 +12,6 @@ const { Title } = Typography;
 
 const alts = ["Alt 1", "Alt 2", "Alt 3"];
 
-const { component: NPVComparisonTable } = table();
-const { component: NPVByAltTable } = table();
-const NPVByAltTableCols = [
-    {
-        title: "Year",
-        dataIndex: "year",
-        key: "year",
-        editable: false
-    },
-    {
-        title: "Investment",
-        dataIndex: "investment",
-        key: "investment",
-        editable: false
-    },
-    {
-        title: "Energy",
-        dataIndex: "energy",
-        key: "energy",
-        editable: false,
-        children: [
-            { title: "Consumption", dataIndex: "consumption", key: "consumption", editable: false },
-            { title: "Demands", dataIndex: "demands", key: "demands", editable: false },
-            { title: "Rebates", dataIndex: "rebates", key: "rebates", editable: false }
-        ]
-    },
-    {
-        title: "Water",
-        dataIndex: "water",
-        key: "water",
-        editable: false,
-        children: [
-            { title: "Use", dataIndex: "use", key: "use", editable: false },
-            { title: "Disposal", dataIndex: "disposal", key: "disposal", editable: false }
-        ]
-    },
-    {
-        title: "OMR",
-        dataIndex: "omr",
-        key: "omr",
-        editable: false,
-        children: [
-            { title: "Recurring", dataIndex: "recurring", key: "recurring", editable: false },
-            { title: "Non-Recurring", dataIndex: "non-recurring", key: "non-recurring", editable: false }
-        ]
-    },
-    {
-        title: "Replace",
-        dataIndex: "replace",
-        key: "replace",
-        editable: false
-    },
-    {
-        title: "RV",
-        dataIndex: "rv",
-        key: "rv",
-        editable: false
-    },
-    {
-        title: "Total",
-        dataIndex: "total",
-        key: "total",
-        editable: false
-    }
-];
-
 const [useData] = bind(data$, {});
 
 const required$ = data$.pipe(map((datas) => datas?.required));
@@ -106,19 +40,33 @@ const resultsAlternatives$ = required$.pipe(map((alts) => alts.map((alt) => alt.
 const [useResultsAlternatives] = bind(resultsAlternatives$, []);
 const [useResultsColumns] = bind(resultsCols$, []);
 
-const { change$: AlternativeChange$, component: AlternativeDropdown } = dropdown(Object.values(alts));
+const cashFlow$ = required$.pipe(map((r) => r.map((a) => a.totalCostsDiscounted)));
+const cashFlowData$ = cashFlow$.pipe(
+    map((cash) => {
+        const cols = [];
+        for (let i = 0; i < cash?.[0]?.length; i++) {
+            const subCols = [];
+            subCols.push(i);
+            for (let j = 0; j < cash.length; j++) {
+                subCols.push(cash[j][i]);
+            }
+            cols.push(subCols);
+        }
+        const columnData = cols.map((arr) => {
+            const year = arr[0];
+            const values = arr.slice(1);
+            return { year, ...values };
+        });
+        return columnData;
+    })
+);
 
-// {json.optional[0].altId}
+const { change$: AlternativeChange$, component: AlternativeDropdown } = dropdown(Object.values(alts));
+const { component: NPVComparisonTable } = table(cashFlowData$);
 
 export default function AnnualResults() {
     const data = useData();
     console.log(data);
-
-    // [
-    //     year:..,
-    //     alt1:...,
-    //     alt2...,
-    // ]
 
     return (
         <div className={"w-full h-full p-5 "}>
@@ -126,7 +74,7 @@ export default function AnnualResults() {
                 <div>
                     <Title level={5}>NPV Cash Flow Comparison</Title>
                     <Divider />
-                    <NPVComparisonTable columns={useResultsColumns()} />
+                    <NPVComparisonTable editable={false} columns={useResultsColumns()} />
                 </div>
                 <div>
                     <Title level={5}>NPV Cash Flows</Title>
@@ -140,7 +88,6 @@ export default function AnnualResults() {
             <br />
             <Title level={5}>NPV Cash Flow by Alternative</Title>
             <Divider />
-            <NPVByAltTable columns={NPVByAltTableCols} />
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Title level={5}>NPV Cash Flows</Title>
