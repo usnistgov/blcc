@@ -1,20 +1,24 @@
-import { Observable } from "rxjs";
-import React, { PropsWithChildren, useState } from "react";
-import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
-import { Form, Input, Table, Typography } from "antd";
+import { createSignal } from "@react-rxjs/utils";
+import { Form, Input, Table, TablePaginationConfig, Typography } from "antd";
+import React, { PropsWithChildren, useState } from "react";
+import { Observable } from "rxjs";
 
 type Column<T> = {
     title: string;
     dataIndex: string;
     key?: string;
     editable?: boolean;
-    render?: (_: any, record: T) => JSX.Element;
+    fixed?: boolean;
+    render?: (_: unknown, record: T) => JSX.Element;
 };
 
 export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
+    editable: boolean;
+    scroll?: { x?: number | string; y?: number | string };
+    pagination?: false | TablePaginationConfig | undefined;
 };
 
 export type Table<T> = {
@@ -43,6 +47,9 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
         changedData$,
         component: ({
             className,
+            editable = false,
+            scroll,
+            pagination = false,
             columns = [
                 {
                     title: "Column 1",
@@ -119,7 +126,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                 {
                     title: "operation",
                     dataIndex: "operation",
-                    render: (_: any, record: T) => {
+                    render: (_: unknown, record: T) => {
                         const editable = isEditing(record.key);
                         return editable ? (
                             <span>
@@ -140,11 +147,17 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
             ];
 
             // logic to make all columns editable by default
-            columns.forEach((col) => {
-                col.editable = true;
-            });
+            if (editable) {
+                columns.forEach((col) => {
+                    col.editable = true;
+                });
 
-            columns = [...columns, ...operation];
+                columns = [...columns, ...operation];
+            } else {
+                columns.forEach((col) => {
+                    col.editable = false;
+                });
+            }
 
             const mergedColumns = columns.map((col) => {
                 if (!col.editable) {
@@ -156,7 +169,8 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         record,
                         dataIndex: col.dataIndex,
                         title: col.title,
-                        editing: isEditing(record.key)
+                        editing: isEditing(record.key),
+                        fixed: col.fixed
                     })
                 };
             });
@@ -172,6 +186,8 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         className={(className ? className : "") + " px-2"}
                         columns={mergedColumns}
                         dataSource={useTableData()}
+                        scroll={scroll}
+                        pagination={pagination}
                     />
                 </Form>
             );
