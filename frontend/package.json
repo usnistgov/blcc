@@ -16,6 +16,7 @@
     "@react-rxjs/core": "^0.10.7",
     "@react-rxjs/utils": "^0.9.7",
     "antd": "^5.11.3",
+    "billboard.js": "^3.10.3",
     "e3-sdk": "file:e3-sdk-1.0.10.tgz",
     "fast-xml-parser": "^4.3.2",
     "object-hash": "^3.0.0",
