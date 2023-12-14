@@ -1,8 +1,8 @@
-import { Observable } from "rxjs";
-import React, { PropsWithChildren, useState } from "react";
-import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import { Form, Input, Table, Typography } from "antd";
+import React, { PropsWithChildren, useState } from "react";
+import { Observable, of } from "rxjs";
 
 type Column<T> = {
     title: string;
@@ -15,6 +15,7 @@ type Column<T> = {
 export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
+    editable: boolean;
 };
 
 export type Table<T> = {
@@ -34,7 +35,7 @@ interface EditableCellProps<T> extends React.HTMLAttributes<HTMLElement> {
 /**
  * Creates a table component.
  */
-const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T> => {
+const table = (tableData$: Observable<T[]>): Table<T> => {
     // use bind
     const [useTableData] = bind(tableData$, []);
     const [changedData$, changedData] = createSignal<T[]>();
@@ -43,6 +44,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
         changedData$,
         component: ({
             className,
+            editable = false,
             columns = [
                 {
                     title: "Column 1",
@@ -140,11 +142,17 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
             ];
 
             // logic to make all columns editable by default
-            columns.forEach((col) => {
-                col.editable = true;
-            });
+            if (editable) {
+                columns.forEach((col) => {
+                    col.editable = true;
+                });
 
-            columns = [...columns, ...operation];
+                columns = [...columns, ...operation];
+            } else {
+                columns.forEach((col) => {
+                    col.editable = false;
+                });
+            }
 
             const mergedColumns = columns.map((col) => {
                 if (!col.editable) {
