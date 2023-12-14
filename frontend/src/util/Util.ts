@@ -27,3 +27,8 @@ export function isOtherCost(cost: Cost) {
     const type = cost.type;
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
+
+export const dollarFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+});
