@@ -23,14 +23,16 @@ const resultsCols$ = required$.pipe(
                 title: ` Alt #${alt?.altId.toString()}`,
                 dataIndex: alt?.altId.toString(),
                 key: alt?.altId.toString(),
-                editable: false
+                editable: false,
+                fixed: false
             };
         });
         cols.unshift({
             title: "Year",
             dataIndex: "year",
             key: "year",
-            editable: false
+            editable: false,
+            fixed: "left"
         });
         return cols;
     })
@@ -76,7 +78,7 @@ export default function AnnualResults() {
                 <div>
                     <Title level={5}>NPV Cash Flow Comparison</Title>
                     <Divider />
-                    <NPVComparisonTable editable={false} columns={useResultsColumns()} />
+                    <NPVComparisonTable editable={false} columns={useResultsColumns()} scroll={{ x: 300, y: 350 }} />
                 </div>
                 <div>
                     <Title level={5}>NPV Cash Flows</Title>

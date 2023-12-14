@@ -1,6 +1,6 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Form, Input, Table, Typography } from "antd";
+import { Form, Input, Table, TablePaginationConfig, Typography } from "antd";
 import React, { PropsWithChildren, useState } from "react";
 import { Observable, of } from "rxjs";
 
@@ -9,6 +9,7 @@ type Column<T> = {
     dataIndex: string;
     key?: string;
     editable?: boolean;
+    fixed?: string | boolean;
     render?: (_: any, record: T) => JSX.Element;
 };
 
@@ -16,6 +17,8 @@ export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
     editable: boolean;
+    scroll?: { x?: number | string; y?: number | string } | boolean;
+    pagination?: false | TablePaginationConfig | undefined;
 };
 
 export type Table<T> = {
@@ -45,6 +48,8 @@ const table = (tableData$: Observable<T[]>): Table<T> => {
         component: ({
             className,
             editable = false,
+            scroll,
+            pagination = false,
             columns = [
                 {
                     title: "Column 1",
@@ -164,7 +169,8 @@ const table = (tableData$: Observable<T[]>): Table<T> => {
                         record,
                         dataIndex: col.dataIndex,
                         title: col.title,
-                        editing: isEditing(record.key)
+                        editing: isEditing(record.key),
+                        fixed: col.fixed
                     })
                 };
             });
@@ -180,6 +186,8 @@ const table = (tableData$: Observable<T[]>): Table<T> => {
                         className={(className ? className : "") + " px-2"}
                         columns={mergedColumns}
                         dataSource={useTableData()}
+                        scroll={scroll}
+                        pagination={pagination}
                     />
                 </Form>
             );
