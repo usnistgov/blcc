@@ -29,5 +29,9 @@ export function isOtherCost(cost: Cost) {
 }
 
 export function roundTo2Decimals(num: number) {
-    return Math.round((num + Number.EPSILON) * 100) / 100;
+    const val = Math.round((num + Number.EPSILON) * 100) / 100;
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+    }).format(val);
 }

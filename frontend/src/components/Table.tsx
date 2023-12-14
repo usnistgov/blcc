@@ -2,14 +2,14 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Form, Input, Table, TablePaginationConfig, Typography } from "antd";
 import React, { PropsWithChildren, useState } from "react";
-import { Observable, of } from "rxjs";
+import { Observable } from "rxjs";
 
 type Column<T> = {
     title: string;
     dataIndex: string;
     key?: string;
     editable?: boolean;
-    fixed?: string | boolean;
+    fixed?: boolean;
     render?: (_: any, record: T) => JSX.Element;
 };
 
@@ -17,7 +17,7 @@ export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
     editable: boolean;
-    scroll?: { x?: number | string; y?: number | string } | boolean;
+    scroll?: { x?: number | string; y?: number | string };
     pagination?: false | TablePaginationConfig | undefined;
 };
 
