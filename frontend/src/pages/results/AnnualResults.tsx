@@ -5,7 +5,7 @@ import { map } from "rxjs/operators";
 import { json } from "../../../../docs/FederalFinancedE3Result";
 import dropdown from "../../components/Dropdown";
 import table from "../../components/Table";
-import { roundTo2Decimals } from "../../util/Util";
+import { dollarFormatter } from "../../util/Util";
 
 const data$ = of(json);
 
@@ -55,7 +55,7 @@ const cashFlowData$ = cashFlow$.pipe(
             const subCols = [];
             subCols.push(i);
             for (let j = 0; j < cash.length; j++) {
-                subCols.push(roundTo2Decimals(cash[j][i]));
+                subCols.push(dollarFormatter.format(cash[j][i]));
             }
             cols.push(subCols);
         }
