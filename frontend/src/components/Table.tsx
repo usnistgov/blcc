@@ -9,13 +9,16 @@ type Column<T> = {
     dataIndex: string;
     key?: string;
     editable?: boolean;
-    render?: (_: any, record: T) => JSX.Element;
+    fixed?: boolean;
+    render?: (_: unknown, record: T) => JSX.Element;
 };
 
 export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
-    pagination?: TablePaginationConfig | false;
+    editable: boolean;
+    scroll?: { x?: number | string; y?: number | string };
+    pagination?: false | TablePaginationConfig;
 };
 
 export type Table<T> = {
@@ -44,7 +47,9 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
         changedData$,
         component: ({
             className,
-            pagination,
+            editable = false,
+            scroll,
+            pagination = false,
             columns = [
                 {
                     title: "Column 1",
@@ -121,7 +126,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                 {
                     title: "operation",
                     dataIndex: "operation",
-                    render: (_: any, record: T) => {
+                    render: (_: unknown, record: T) => {
                         const editable = isEditing(record.key);
                         return editable ? (
                             <span>
@@ -142,11 +147,17 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
             ];
 
             // logic to make all columns editable by default
-            columns.forEach((col) => {
-                col.editable = true;
-            });
+            if (editable) {
+                columns.forEach((col) => {
+                    col.editable = true;
+                });
 
-            columns = [...columns, ...operation];
+                columns = [...columns, ...operation];
+            } else {
+                columns.forEach((col) => {
+                    col.editable = false;
+                });
+            }
 
             const mergedColumns = columns.map((col) => {
                 if (!col.editable) {
@@ -158,7 +169,8 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         record,
                         dataIndex: col.dataIndex,
                         title: col.title,
-                        editing: isEditing(record.key)
+                        editing: isEditing(record.key),
+                        fixed: col.fixed
                     })
                 };
             });
@@ -174,6 +186,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         className={(className ? className : "") + " px-2"}
                         columns={mergedColumns}
                         dataSource={useTableData()}
+                        scroll={scroll}
                         pagination={pagination}
                     />
                 </Form>
