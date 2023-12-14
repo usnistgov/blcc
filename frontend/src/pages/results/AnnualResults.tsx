@@ -13,7 +13,11 @@ const { Title } = Typography;
 
 const alts = ["Alt 1", "Alt 2", "Alt 3"];
 
-const [useData] = bind(data$, {});
+const [useData] = bind(data$, {
+    optional: [],
+    measure: [],
+    required: []
+});
 
 const required$ = data$.pipe(map((datas) => datas?.required));
 const resultsCols$ = required$.pipe(
@@ -32,7 +36,7 @@ const resultsCols$ = required$.pipe(
             dataIndex: "year",
             key: "year",
             editable: false,
-            fixed: "left"
+            fixed: true
         });
         return cols;
     })
