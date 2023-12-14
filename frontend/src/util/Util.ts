@@ -27,3 +27,7 @@ export function isOtherCost(cost: Cost) {
     const type = cost.type;
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
+
+export function roundTo2Decimals(num: number) {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
+}
