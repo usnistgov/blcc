@@ -60,7 +60,7 @@ const cashFlowData$ = cashFlow$.pipe(
             cols.push(subCols);
         }
         const columnData = cols.map((arr) => {
-            const key = arr[0];
+            const key = arr[0].toString();
             const year = arr[0];
             const values = arr.slice(1);
             return { key, year, ...values };

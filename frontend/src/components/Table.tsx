@@ -10,7 +10,7 @@ type Column<T> = {
     key?: string;
     editable?: boolean;
     fixed?: boolean;
-    render?: (_: any, record: T) => JSX.Element;
+    render?: (_: unknown, record: T) => JSX.Element;
 };
 
 export type TableProps<T> = {
@@ -38,7 +38,7 @@ interface EditableCellProps<T> extends React.HTMLAttributes<HTMLElement> {
 /**
  * Creates a table component.
  */
-const table = (tableData$: Observable<T[]>): Table<T> => {
+const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T> => {
     // use bind
     const [useTableData] = bind(tableData$, []);
     const [changedData$, changedData] = createSignal<T[]>();
@@ -126,7 +126,7 @@ const table = (tableData$: Observable<T[]>): Table<T> => {
                 {
                     title: "operation",
                     dataIndex: "operation",
-                    render: (_: any, record: T) => {
+                    render: (_: unknown, record: T) => {
                         const editable = isEditing(record.key);
                         return editable ? (
                             <span>
