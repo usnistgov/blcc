@@ -16,9 +16,22 @@ import AlternativeResults from "./pages/results/AlternativeResults";
 import AnnualResults from "./pages/results/AnnualResults";
 import Inputs from "./pages/results/Inputs";
 import Summary from "./pages/results/Summary";
+import { bar, line, pie, zoom } from "billboard.js";
+import "billboard.js/dist/billboard.css";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
+
+/**
+ * Initializes all Billboard.js elements.
+ */
+function initializeBillboardJS() {
+    bar();
+    pie();
+    line();
+    zoom();
+}
+initializeBillboardJS();
 
 export default function App() {
     return (
