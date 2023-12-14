@@ -28,10 +28,7 @@ export function isOtherCost(cost: Cost) {
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
 
-export function roundTo2Decimals(num: number) {
-    const val = Math.round((num + Number.EPSILON) * 100) / 100;
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD"
-    }).format(val);
-}
+export const dollarFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+});
