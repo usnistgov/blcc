@@ -21,9 +21,9 @@ export type TextArea = {
     component: React.FC<PropsWithChildren & TextAreaProps>;
 };
 
-export default function textArea(value$: Observable<string | undefined>): TextArea {
+export default function textArea(value$: Observable<string | undefined> = EMPTY): TextArea {
     const [onChange$, onChange] = createSignal<string>();
-    const [value] = bind(value$, undefined);
+    const [useValue] = bind(value$, undefined);
 
     return {
         onChange$,

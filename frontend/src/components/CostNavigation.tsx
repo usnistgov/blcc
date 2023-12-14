@@ -46,7 +46,7 @@ export default function CostNavigation() {
     const retrieveSubMenu = (costs: Cost[], key: string, arr: MenuItem[]) => {
         for (let i = 0; i < costs.length; i++) {
             arr.push({
-                key: `${costs[i]?.id}`,
+                key: `cost/${costs[i]?.id}`,
                 label: costs[i]?.name ? (
                     <React.Fragment>{costs[i]?.name}</React.Fragment>
                 ) : (
