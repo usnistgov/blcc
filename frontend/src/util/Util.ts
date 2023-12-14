@@ -36,3 +36,8 @@ export function getNewID(values: { id: number }[]) {
 
     return newID;
 }
+
+export const dollarFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+});
