@@ -7,6 +7,7 @@ import Navigation from "./components/Navigation";
 import ResultNavigation from "./components/ResultNavigation";
 import ResultsAppBar from "./components/ResultsAppBar";
 import Statistics from "./components/Statistics";
+import UrlParameters from "./components/UrlParameters";
 import { project$ } from "./model/Project";
 import AlternativeSummary from "./pages/editor/AlternativeSummary";
 import Alternatives from "./pages/editor/Alternatives";
@@ -59,7 +60,14 @@ export default function App() {
                                 <Route index element={<GeneralInformation />} />
                                 <Route path={"alternative"}>
                                     <Route index element={<AlternativeSummary />} />
-                                    <Route path={":alternativeID"} element={<Alternatives />} />
+                                    <Route
+                                        path={":alternativeID"}
+                                        element={
+                                            <UrlParameters>
+                                                <Alternatives />
+                                            </UrlParameters>
+                                        }
+                                    />
                                     <Route path={"cost/:costID"} element={<Cost />} />
                                 </Route>
                             </Route>

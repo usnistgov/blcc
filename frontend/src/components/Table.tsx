@@ -18,7 +18,7 @@ export type TableProps<T> = {
     columns: Column<T>[];
     editable: boolean;
     scroll?: { x?: number | string; y?: number | string };
-    pagination?: false | TablePaginationConfig | undefined;
+    pagination?: false | TablePaginationConfig;
 };
 
 export type Table<T> = {
