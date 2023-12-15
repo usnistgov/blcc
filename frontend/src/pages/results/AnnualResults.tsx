@@ -44,7 +44,7 @@ const resultsCols$ = required$.pipe(
 
 const resultsAlternatives$ = required$.pipe(map((alts) => alts.map((alt) => alt.altId)));
 
-const [useResultsAlternatives] = bind(resultsAlternatives$, []);
+export const [useResultsAlternatives] = bind(resultsAlternatives$, []);
 const [useResultsColumns] = bind(resultsCols$, []);
 
 const cashFlow$ = required$.pipe(map((r) => r.map((a) => a.totalCostsDiscounted)));
