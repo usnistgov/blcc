@@ -68,7 +68,14 @@ export default function App() {
                                             </UrlParameters>
                                         }
                                     />
-                                    <Route path={"cost/:costID"} element={<Cost />} />
+                                    <Route
+                                        path={"cost/:costID"}
+                                        element={
+                                            <UrlParameters>
+                                                <Cost />
+                                            </UrlParameters>
+                                        }
+                                    />
                                 </Route>
                             </Route>
                             <Route path={"/results"}>
