@@ -1,23 +1,27 @@
-import { urlParameters$ } from "../../components/UrlParameters";
-import { combineLatestWith } from "rxjs/operators";
-import { combinedCostObject$ } from "./AlternativeSummary";
-import { filter, map } from "rxjs";
-import { Cost as CostType, CostTypes } from "../../blcc-format/Format";
+import { map } from "rxjs";
+import { CostTypes } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { Divider } from "antd";
+import { Checkbox, Col, Divider, Row, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
 import EnergyCostFields from "./cost/EnergyCostFields";
+import { cost$, costType$ } from "../../model/Cost";
+import { Model } from "../../model/Model";
+import { createSignal } from "@react-rxjs/utils";
+import WaterCostFields from "./cost/WaterCostFields";
+import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
+import ReplacementCapitalCostFields from "./cost/ReplacementCapitalCostFields";
+import OMRCostFields from "./cost/OMRCostFields";
+import ImplementationContractCostFields from "./cost/ImplementationContractCostFields";
+import RecurringContractCostFields from "./cost/RecurringContractCostFields";
+import OtherCostFields from "./cost/OtherCostFields";
+import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
 
-export const cost$ = urlParameters$.pipe(
-    combineLatestWith(combinedCostObject$),
-    map(([{ costID }, costs]) => costs.get(parseInt(costID ?? "-1"))),
-    filter((cost): cost is CostType => cost !== undefined)
-);
-export const costType$ = cost$.pipe(map((cost) => cost.type));
+const { Title } = Typography;
+const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
 
 const [fieldComponent] = bind(
     costType$.pipe(
@@ -25,8 +29,22 @@ const [fieldComponent] = bind(
             switch (type) {
                 case CostTypes.ENERGY:
                     return <EnergyCostFields />;
-                default:
-                    return <div>Default</div>;
+                case CostTypes.WATER:
+                    return <WaterCostFields />;
+                case CostTypes.CAPITAL:
+                    return <InvestmentCapitalCostFields />;
+                case CostTypes.REPLACEMENT_CAPITAL:
+                    return <ReplacementCapitalCostFields />;
+                case CostTypes.OMR:
+                    return <OMRCostFields />;
+                case CostTypes.IMPLEMENTATION_CONTRACT:
+                    return <ImplementationContractCostFields />;
+                case CostTypes.RECURRING_CONTRACT:
+                    return <RecurringContractCostFields />;
+                case CostTypes.OTHER:
+                    return <OtherCostFields />;
+                case CostTypes.OTHER_NON_MONETARY:
+                    return <OtherNonMonetaryCostFields />;
             }
         })
     ),
@@ -58,8 +76,24 @@ export default function Cost() {
                 <Divider className="p-0 m-0" />
             </div>
 
-            <NameInput type={TextInputType.PRIMARY} label={"Name"} />
-            <DescriptionInput label={"Description"} />
+            <div className={"flex flex-row justify-between"}>
+                <div>
+                    <NameInput type={TextInputType.PRIMARY} label={"Name"} />
+                    <DescriptionInput label={"Description"} />
+                </div>
+                <div>
+                    <Title level={5}>Alternatives applied to</Title>
+                    <Checkbox.Group style={{ width: "100%" }} onChange={(values) => setCheckedAlts(values as number[])}>
+                        <Row>
+                            {Model.useAlternatives().map((alt) => (
+                                <Col span={16} key={alt.id}>
+                                    <Checkbox value={alt.id}>{alt.name}</Checkbox>
+                                </Col>
+                            )) || "No Alternatives"}
+                        </Row>
+                    </Checkbox.Group>
+                </div>
+            </div>
             <>{fieldComponent()}</>
         </div>
     );

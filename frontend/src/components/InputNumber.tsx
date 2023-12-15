@@ -40,7 +40,7 @@ export default function numberInput(value$: Observable<number | undefined> = EMP
             label
         }: PropsWithChildren & NumberInputProps) => {
             return (
-                <>
+                <div>
                     <Title level={5}>{label}</Title>
                     <InputNumber
                         className={className}
@@ -57,7 +57,7 @@ export default function numberInput(value$: Observable<number | undefined> = EMP
                     >
                         {children}
                     </InputNumber>
-                </>
+                </div>
             );
         }
     };
