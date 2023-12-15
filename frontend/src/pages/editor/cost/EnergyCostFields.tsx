@@ -1,8 +1,8 @@
 import { filter, map } from "rxjs";
-import { CostTypes, CustomerSector, EnergyCost, FuelType } from "../../../blcc-format/Format";
+import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
-import { cost$ } from "../Cost";
+import { cost$ } from "../../../model/Cost";
 
 const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
 
@@ -15,13 +15,23 @@ const { component: CustomerSectorDropdown } = dropdown(
     energyCost$.pipe(map((cost) => cost.customerSector))
 );
 const { component: CostPerUnitInput } = numberInput();
+const { component: AnnualConsumption } = numberInput();
+const { component: UnitDropdown } = dropdown(Object.values(EnergyUnit));
 
 export default function EnergyCostFields() {
     return (
-        <div className={""}>
-            <FuelTypeDropdown label={"Fuel Type"} />
-            <CustomerSectorDropdown label={"Customer Sector"} />
-            <CostPerUnitInput label={"Cost per Unit"} controls before={"$"} />
+        <div className={"flex flex-col"}>
+            <div className={"flex flex-row"}>
+                <FuelTypeDropdown label={"Fuel Type"} />
+                <CustomerSectorDropdown label={"Customer Sector"} />
+            </div>
+            <div className={"flex flex-row"}>
+                <CostPerUnitInput label={"Cost per Unit"} controls before={"$"} />
+                <AnnualConsumption label={"Annual Consumption"} controls />
+            </div>
+            <div>
+                <UnitDropdown label={"Unit"} />
+            </div>
         </div>
     );
 }
