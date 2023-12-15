@@ -22,7 +22,7 @@ export type NumberInput = {
 
 const { Title } = Typography;
 
-export default function textInput(value$: Observable<number | undefined> = EMPTY): NumberInput {
+export default function numberInput(value$: Observable<number | undefined> = EMPTY): NumberInput {
     const [onChange$, onChange] = createSignal<number>();
     const [useValue] = bind(value$, undefined);
 
