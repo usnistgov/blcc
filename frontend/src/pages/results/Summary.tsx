@@ -1,18 +1,83 @@
 import { Divider, Typography } from "antd";
 import { of } from "rxjs";
+import { map } from "rxjs/operators";
 import { json } from "../../../../docs/FederalFinancedE3Result";
-
 import table from "../../components/Table";
+import { dollarFormatter } from "../../util/Util";
 import { useResultsAlternatives } from "./AnnualResults";
-const data$ = of(json);
-
 const { Title } = Typography;
 
-const { component: LCResultsComparisonTable } = table();
-const { component: LCResultsBaselineTable } = table();
+const data$ = of(json);
+const measure$ = data$.pipe(map((datas) => datas?.measure));
+const optional$ = data$.pipe(map((datas) => datas?.optional));
+const LCResultsBaselineTableData$ = measure$.pipe(
+    map((alts) => {
+        const cols = alts.map((alt) => {
+            return {
+                key: alt?.altId.toString(),
+                alt: alt?.altId,
+                base: "No",
+                net: dollarFormatter.format(alt?.netSavings) || "0",
+                sir: dollarFormatter.format(alt?.sir) || "0",
+                airr: dollarFormatter.format(alt?.airr) || "0",
+                spp: dollarFormatter.format(alt?.spp) || "0",
+                dpp: dollarFormatter.format(alt?.dpp) || "0",
+                "energy-change": "0",
+                "ghg-change": "0",
+                "scc-change": "0",
+                "net-scc": "0"
+            };
+        });
+        return cols;
+    })
+);
+
+const addArray = (array: number[]) => array.reduce((acc, val) => acc + val, 0);
+
+const LCResultsComparisonTableData$ = optional$.pipe(
+    map((alts) => {
+        const result = alts.reduce((acc, { altId, ...rest }, index: number) => {
+            if (!acc[altId]) {
+                acc[altId] = [];
+            }
+            acc[altId][index] = rest;
+            return acc;
+        }, []);
+        const results = result.map(
+            (
+                subArr: {
+                    tag: string;
+                    totalTagCashflowDiscounted: number[];
+                    totalTagCashflowNonDiscounted: number[];
+                    totalTagQuantity: number[];
+                    units: string | null;
+                }[]
+            ) => subArr?.filter(Boolean)
+        );
+
+        const cols = results.map((alt, index) => {
+            return {
+                key: index.toString(),
+                alt: index,
+                base: "No",
+                initial: dollarFormatter.format(addArray(alt[index].totalTagCashflowDiscounted)) || "0",
+                lcc: "0",
+                energy: "0",
+                ghg: "0",
+                scc: "0",
+                lccscc: "0"
+            };
+        });
+
+        return cols;
+    })
+);
+
+const { component: LCResultsComparisonTable } = table(LCResultsComparisonTableData$);
+const { component: LCResultsBaselineTable } = table(LCResultsBaselineTableData$);
 
 const LCResultsComparisonTableColumns = [
-    { title: "Alterntaive", dataIndex: "alt", key: "alt", editable: false, fixed: true },
+    { title: "Alternative", dataIndex: "alt", key: "alt", editable: false, fixed: true },
     { title: "Base Case", dataIndex: "base", key: "base", editable: false, fixed: true },
     { title: "Initial Cost", dataIndex: "initial", key: "initial", editable: false, fixed: true },
     { title: "Life Cycle Cost", dataIndex: "lcc", key: "lcc", editable: false, fixed: true },
@@ -23,7 +88,7 @@ const LCResultsComparisonTableColumns = [
 ];
 
 const LCResultsBaselineTableColumns = [
-    { title: "Alterntaive", dataIndex: "alt", key: "alt", editable: false, fixed: true },
+    { title: "Alternative", dataIndex: "alt", key: "alt", editable: false, fixed: true },
     { title: "Base Case", dataIndex: "base", key: "base", editable: false, fixed: true },
     { title: "Net Savings", dataIndex: "net", key: "net", editable: false, fixed: true },
     { title: "SIR", dataIndex: "sir", key: "sir", editable: false, fixed: true },
