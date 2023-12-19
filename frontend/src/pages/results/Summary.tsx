@@ -73,8 +73,57 @@ const LCResultsComparisonTableData$ = optional$.pipe(
     })
 );
 
+const NPVCostsTableData$ = optional$.pipe(
+    map((alts) => {
+        const result = alts.reduce((acc, { altId, ...rest }, index: number) => {
+            if (!acc[altId]) {
+                acc[altId] = [];
+            }
+            acc[altId][index] = rest;
+            return acc;
+        }, []);
+        const results = result.map(
+            (
+                subArr: {
+                    tag: string;
+                    totalTagCashflowDiscounted: number[];
+                    totalTagCashflowNonDiscounted: number[];
+                    totalTagQuantity: number[];
+                    units: string | null;
+                }[]
+            ) => subArr?.filter(Boolean)
+        );
+
+        const cols = results.map((alt, index) => {
+            return {
+                key: index.toString(),
+                cost: index
+            };
+        });
+
+        cols.unshift(
+            {
+                cost: "Investment"
+            },
+            { cost: ["Energy", "Consumption"] },
+            { cost: "Demand" },
+            { cost: "Rebates" },
+            { cost: ["Water", "Usage"] },
+            { cost: "Disposal" },
+            { cost: ["OMR", "Recurring"] },
+            { cost: "Non-Recurring" },
+            { cost: "Replacement" },
+            { cost: "Residal Value" }
+        );
+
+        return cols;
+    })
+);
+
 const { component: LCResultsComparisonTable } = table(LCResultsComparisonTableData$);
 const { component: LCResultsBaselineTable } = table(LCResultsBaselineTableData$);
+const { component: NPVCostsTable } = table(NPVCostsTableData$);
+const { component: LCCResourceTable } = table(NPVCostsTableData$);
 
 const LCResultsComparisonTableColumns = [
     { title: "Alternative", dataIndex: "alt", key: "alt", editable: false, fixed: true },
@@ -104,6 +153,42 @@ const LCResultsBaselineTableColumns = [
 export default function Summary() {
     console.log(useResultsAlternatives());
 
+    const NPVCostsTableColumns = useResultsAlternatives().map((alt) => {
+        return {
+            title: ` Alt #${alt?.toString()}`,
+            dataIndex: alt?.toString(),
+            key: alt?.toString(),
+            editable: false,
+            fixed: false
+        };
+    });
+
+    NPVCostsTableColumns.unshift({
+        title: "Cost",
+        dataIndex: "cost",
+        key: "cost",
+        editable: false,
+        fixed: true
+    });
+
+    const LCCResourceTableColumns = useResultsAlternatives().map((alt) => {
+        return {
+            title: ` Alt #${alt?.toString()}`,
+            dataIndex: alt?.toString(),
+            key: alt?.toString(),
+            editable: false,
+            fixed: false
+        };
+    });
+
+    LCCResourceTableColumns.unshift({
+        title: "Resources",
+        dataIndex: "resources",
+        key: "resources",
+        editable: false,
+        fixed: true
+    });
+
     return (
         <div className={"w-full h-full p-5 "}>
             <div className="">
@@ -130,10 +215,20 @@ export default function Summary() {
                 <div>
                     <Title level={5}>NPV Costs by Cost Subcategory</Title>
                     <Divider />
+                    <NPVCostsTable
+                        editable={false}
+                        columns={NPVCostsTableColumns}
+                        // scroll={{ x: 300, y: 350 }}
+                    />
                 </div>
                 <div>
                     <Title level={5}>Life-Cycle Resource Consumption & Emissions Comparison</Title>
                     <Divider />
+                    <LCCResourceTable
+                        editable={false}
+                        columns={LCCResourceTableColumns}
+                        // scroll={{ x: 300, y: 350 }}
+                    />
                 </div>
             </div>
         </div>
