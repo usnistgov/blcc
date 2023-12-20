@@ -18,15 +18,27 @@ const [useData] = bind(data$, {
 });
 
 const required$ = data$.pipe(map((datas) => datas?.required));
+
+type colsType = {
+    title: string;
+    dataIndex: string;
+    key: string;
+    editable: boolean;
+    fixed: boolean;
+    align?: string;
+    width?: string;
+};
+
 const resultsCols$ = required$.pipe(
     map((alts) => {
-        const cols = alts.map((alt) => {
+        const cols: colsType[] = alts.map((alt) => {
             return {
                 title: ` Alt #${alt?.altId.toString()}`,
                 dataIndex: alt?.altId.toString(),
                 key: alt?.altId.toString(),
                 editable: false,
-                fixed: false
+                fixed: false,
+                align: "right"
             };
         });
         cols.unshift({
@@ -34,7 +46,8 @@ const resultsCols$ = required$.pipe(
             dataIndex: "year",
             key: "year",
             editable: false,
-            fixed: true
+            fixed: true,
+            width: "75px"
         });
         return cols;
     })
@@ -42,14 +55,33 @@ const resultsCols$ = required$.pipe(
 
 const resultsAlternatives$ = required$.pipe(map((alts) => alts.map((alt) => alt.altId)));
 
-const alternatives = Array.from(resultsAlternatives$);
-
-console.log(alternatives);
-
 const [useResultsAlternatives] = bind(resultsAlternatives$, []);
 const [useResultsColumns] = bind(resultsCols$, []);
 
 const cashFlow$ = required$.pipe(map((r) => r.map((a) => a.totalCostsDiscounted)));
+const NPVComparisonData$ = cashFlow$.pipe(
+    map((cash) => {
+        const cols = [];
+        for (let i = 0; i < cash?.[0]?.length; i++) {
+            const subCols = [];
+            subCols.push(i);
+            for (let j = 0; j < cash.length; j++) {
+                subCols.push(dollarFormatter.format(cash[j][i]));
+            }
+            cols.push(subCols);
+        }
+
+        const columnData = cols.map((arr) => {
+            const key = arr[0].toString();
+            const year = arr[0];
+            const values = arr.slice(1);
+            return { key, year, ...values };
+        });
+
+        return columnData;
+    })
+);
+
 const cashFlowData$ = cashFlow$.pipe(
     map((cash) => {
         const cols = [];
@@ -67,14 +99,22 @@ const cashFlowData$ = cashFlow$.pipe(
             const values = arr.slice(1);
             return { key, year, ...values };
         });
+
+        columnData.unshift(
+            { resources: "Energy", "sub-category": "Electricity" },
+            { resources: "", "sub-category": "Natural Gas" },
+            { resources: "", "sub-category": "Fuel Oil" },
+            { resources: "", "sub-category": "Propane" },
+            { resources: "", "sub-category": "Total" },
+            { resources: "Water", "sub-category": "Use" }
+        );
+
         return columnData;
     })
 );
 
-resultsAlternatives$.subscribe(console.log);
-
 const { change$: AlternativeChange$, component: AlternativeDropdown } = dropdown(resultsAlternatives$);
-const { component: NPVComparisonTable } = table(cashFlowData$);
+const { component: NPVComparisonTable } = table(NPVComparisonData$);
 const { component: ResourcesTable } = table(cashFlowData$);
 
 const resourcesTableColumns = [
@@ -84,6 +124,13 @@ const resourcesTableColumns = [
         key: "resources",
         editable: false,
         fixed: false
+    },
+    {
+        title: "",
+        dataIndex: "sub-category",
+        key: "sub-category",
+        editable: false,
+        fixed: true
     },
     {
         title: "Consumption",
@@ -115,12 +162,22 @@ export default function AlternativeResults() {
                 <div>
                     <Title level={5}>NPV Cash Flow Comparison</Title>
                     <Divider />
-                    <NPVComparisonTable editable={false} columns={useResultsColumns()} scroll={{ x: 300, y: 350 }} />
+                    <NPVComparisonTable
+                        editable={false}
+                        columns={useResultsColumns()}
+                        scroll={{ x: 300, y: 350 }}
+                        title="NPV Cash Flow Comparison"
+                    />
                 </div>
                 <div>
                     <Title level={5}>Energy & Water Use, Emissions, & Social Cost of GHG</Title>
                     <Divider />
-                    <ResourcesTable editable={false} columns={resourcesTableColumns} scroll={{ x: 300, y: 350 }} />
+                    <ResourcesTable
+                        editable={false}
+                        columns={resourcesTableColumns}
+                        scroll={{ x: 300, y: 350 }}
+                        title="Energy & Water Use, Emissions, & Social Cost of GHG"
+                    />
                 </div>
             </div>
             <br />
