@@ -1,11 +1,9 @@
-import { Divider, Typography } from "antd";
 import { of } from "rxjs";
 import { map } from "rxjs/operators";
 import { json } from "../../../../docs/FederalFinancedE3Result";
 import table from "../../components/Table";
 import { dollarFormatter } from "../../util/Util";
 import { useResultsAlternatives } from "./AnnualResults";
-const { Title } = Typography;
 
 const data$ = of(json);
 const measure$ = data$.pipe(map((datas) => datas?.measure));
@@ -179,8 +177,6 @@ const LCResultsBaselineTableColumns = [
 ];
 
 export default function Summary() {
-    console.log(useResultsAlternatives());
-
     const NPVCostsTableColumns = useResultsAlternatives().map((alt) => {
         return {
             title: ` Alt #${alt?.toString()}`,
@@ -219,45 +215,33 @@ export default function Summary() {
 
     return (
         <div className={"w-full h-full p-5 "}>
-            <div className="">
-                <Title level={5}>Life Cycle Results Comparison</Title>
-                <Divider />
-                <LCResultsComparisonTable
-                    editable={false}
-                    columns={LCResultsComparisonTableColumns}
-                    // scroll={{ x: 300, y: 350 }}
-                />
-            </div>
+            <LCResultsComparisonTable
+                editable={false}
+                columns={LCResultsComparisonTableColumns}
+                title="Life Cycle Results Comparison"
+                // scroll={{ x: 300, y: 350 }}
+            />
             <br />
-            <div>
-                <Title level={5}>Life Cycle Results Realtive to Baseline Alternative</Title>
-                <Divider />
-                <LCResultsBaselineTable
-                    editable={false}
-                    columns={LCResultsBaselineTableColumns}
-                    // scroll={{ x: 300, y: 350 }}
-                />
-            </div>
+            <LCResultsBaselineTable
+                editable={false}
+                columns={LCResultsBaselineTableColumns}
+                title="Life Cycle Results Realtive to Baseline Alternative"
+                // scroll={{ x: 300, y: 350 }}
+            />
             <br />
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <Title level={5}>NPV Costs by Cost Subcategory</Title>
-                    <Divider />
-                    <NPVCostsTable
-                        editable={false}
-                        columns={NPVCostsTableColumns}
-                        // scroll={{ x: 300, y: 350 }}
-                    />
-                </div>
-                <div>
-                    <Title level={5}>Life-Cycle Resource Consumption & Emissions Comparison</Title>
-                    <Divider />
-                    <LCCResourceTable
-                        editable={false}
-                        columns={LCCResourceTableColumns}
-                        // scroll={{ x: 300, y: 350 }}
-                    />
-                </div>
+                <NPVCostsTable
+                    editable={false}
+                    columns={NPVCostsTableColumns}
+                    title="NPV Costs by Cost Subcategory"
+                    // scroll={{ x: 300, y: 350 }}
+                />
+                <LCCResourceTable
+                    editable={false}
+                    columns={LCCResourceTableColumns}
+                    title="Life-Cycle Resource Consumption & Emissions Comparison"
+                    // scroll={{ x: 300, y: 350 }}
+                />
             </div>
         </div>
     );
