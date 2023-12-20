@@ -192,6 +192,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         pagination={pagination}
                         size="small"
                         title={() => title}
+                        bordered
                     />
                 </Form>
             );
