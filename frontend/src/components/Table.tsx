@@ -188,6 +188,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         dataSource={useTableData()}
                         scroll={scroll}
                         pagination={pagination}
+                        size="small"
                     />
                 </Form>
             );

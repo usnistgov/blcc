@@ -128,26 +128,54 @@ const { component: LCCResourceTable } = table(NPVCostsTableData$);
 const LCResultsComparisonTableColumns = [
     { title: "Alternative", dataIndex: "alt", key: "alt", editable: false, fixed: true },
     { title: "Base Case", dataIndex: "base", key: "base", editable: false, fixed: true },
-    { title: "Initial Cost", dataIndex: "initial", key: "initial", editable: false, fixed: true },
-    { title: "Life Cycle Cost", dataIndex: "lcc", key: "lcc", editable: false, fixed: true },
-    { title: "Energy", dataIndex: "energy", key: "energy", editable: false, fixed: true },
-    { title: "GHG Emissions", dataIndex: "ghg", key: "ghg", editable: false, fixed: true },
-    { title: "SCC", dataIndex: "scc", key: "scc", editable: false, fixed: true },
-    { title: "LCC + SCC", dataIndex: "lccscc", key: "lccscc", editable: false, fixed: true }
+    { title: "Initial Cost", dataIndex: "initial", key: "initial", editable: false, fixed: true, align: "right" },
+    { title: "Life Cycle Cost", dataIndex: "lcc", key: "lcc", editable: false, fixed: true, align: "right" },
+    { title: "Energy", dataIndex: "energy", key: "energy", editable: false, fixed: true, align: "right" },
+    { title: "GHG Emissions", dataIndex: "ghg", key: "ghg", editable: false, fixed: true, align: "right" },
+    { title: "SCC", dataIndex: "scc", key: "scc", editable: false, fixed: true, align: "right" },
+    { title: "LCC + SCC", dataIndex: "lccscc", key: "lccscc", editable: false, fixed: true, align: "right" }
 ];
 
 const LCResultsBaselineTableColumns = [
     { title: "Alternative", dataIndex: "alt", key: "alt", editable: false, fixed: true },
     { title: "Base Case", dataIndex: "base", key: "base", editable: false, fixed: true },
-    { title: "Net Savings", dataIndex: "net", key: "net", editable: false, fixed: true },
-    { title: "SIR", dataIndex: "sir", key: "sir", editable: false, fixed: true },
-    { title: "AIRR", dataIndex: "airr", key: "airr", editable: false, fixed: true },
-    { title: "SPP", dataIndex: "spp", key: "spp", editable: false, fixed: true },
-    { title: "DPP", dataIndex: "dpp", key: "dpp", editable: false, fixed: true },
-    { title: "Change in Energy", dataIndex: "energy-change", key: "energy-change", editable: false, fixed: true },
-    { title: "Change in GHG", dataIndex: "ghg-change", key: "ghg-change", editable: false, fixed: true },
-    { title: "Change in SCC", dataIndex: "scc-change", key: "scc-change", editable: false, fixed: true },
-    { title: "Net Savings & SCC Reductions", dataIndex: "net-scc", key: "net-scc", editable: false, fixed: true }
+    { title: "Net Savings", dataIndex: "net", key: "net", editable: false, fixed: true, align: "right" },
+    { title: "SIR", dataIndex: "sir", key: "sir", editable: false, fixed: true, align: "right" },
+    { title: "AIRR", dataIndex: "airr", key: "airr", editable: false, fixed: true, align: "right" },
+    { title: "SPP", dataIndex: "spp", key: "spp", editable: false, fixed: true, align: "right" },
+    { title: "DPP", dataIndex: "dpp", key: "dpp", editable: false, fixed: true, align: "right" },
+    {
+        title: "Change in Energy",
+        dataIndex: "energy-change",
+        key: "energy-change",
+        editable: false,
+        fixed: true,
+        align: "right"
+    },
+    {
+        title: "Change in GHG",
+        dataIndex: "ghg-change",
+        key: "ghg-change",
+        editable: false,
+        fixed: true,
+        align: "right"
+    },
+    {
+        title: "Change in SCC",
+        dataIndex: "scc-change",
+        key: "scc-change",
+        editable: false,
+        fixed: true,
+        align: "right"
+    },
+    {
+        title: "Net Savings & SCC Reductions",
+        dataIndex: "net-scc",
+        key: "net-scc",
+        editable: false,
+        fixed: true,
+        align: "right"
+    }
 ];
 
 export default function Summary() {
