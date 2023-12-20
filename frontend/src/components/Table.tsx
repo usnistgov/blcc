@@ -19,6 +19,7 @@ export type TableProps<T> = {
     editable: boolean;
     scroll?: { x?: number | string; y?: number | string };
     pagination?: false | TablePaginationConfig;
+    title: string;
 };
 
 export type Table<T> = {
@@ -50,6 +51,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
             editable = false,
             scroll,
             pagination = false,
+            title,
             columns = [
                 {
                     title: "Column 1",
@@ -189,6 +191,7 @@ const table = <T extends { key: string }>(tableData$: Observable<T[]>): Table<T>
                         scroll={scroll}
                         pagination={pagination}
                         size="small"
+                        title={() => title}
                     />
                 </Form>
             );
