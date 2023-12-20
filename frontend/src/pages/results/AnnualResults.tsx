@@ -11,8 +11,6 @@ const data$ = of(json);
 
 const { Title } = Typography;
 
-const alts = ["Alt 1", "Alt 2", "Alt 3"];
-
 const [useData] = bind(data$, {
     optional: [],
     measure: [],
@@ -28,7 +26,9 @@ const resultsCols$ = required$.pipe(
                 dataIndex: alt?.altId.toString(),
                 key: alt?.altId.toString(),
                 editable: false,
-                fixed: false
+                fixed: false,
+                align: "right",
+                width: "default"
             };
         });
         cols.unshift({
@@ -36,7 +36,9 @@ const resultsCols$ = required$.pipe(
             dataIndex: "year",
             key: "year",
             editable: false,
-            fixed: true
+            fixed: true,
+            width: "100px",
+            align: "left"
         });
         return cols;
     })
@@ -69,7 +71,7 @@ const cashFlowData$ = cashFlow$.pipe(
     })
 );
 
-const { change$: AlternativeChange$, component: AlternativeDropdown } = dropdown(Object.values(alts));
+const { change$: AlternativeChange$, component: AlternativeDropdown } = dropdown(resultsAlternatives$);
 const { component: NPVComparisonTable } = table(cashFlowData$);
 
 export default function AnnualResults() {
@@ -79,11 +81,12 @@ export default function AnnualResults() {
     return (
         <div className={"w-full h-full p-5 "}>
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <Title level={5}>NPV Cash Flow Comparison</Title>
-                    <Divider />
-                    <NPVComparisonTable editable={false} columns={useResultsColumns()} scroll={{ x: 300, y: 350 }} />
-                </div>
+                <NPVComparisonTable
+                    editable={false}
+                    columns={useResultsColumns()}
+                    scroll={{ x: 300, y: 350 }}
+                    title="NPV Cash Flow Comparison"
+                />
                 <div>
                     <Title level={5}>NPV Cash Flows</Title>
                     <Divider />
