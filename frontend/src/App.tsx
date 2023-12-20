@@ -19,6 +19,7 @@ import Inputs from "./pages/results/Inputs";
 import Summary from "./pages/results/Summary";
 import { bar, line, pie, zoom } from "billboard.js";
 import "billboard.js/dist/billboard.css";
+import Index from "./pages/Index";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
@@ -48,6 +49,7 @@ export default function App() {
                     <div className={"flex h-full"}>
                         {/* Navigation */}
                         <Routes>
+                            <Route index element={<Index />} />
                             <Route path={"/editor"} element={<Navigation />}>
                                 <Route path={"alternative/*"} element={<CostNavigation />} />
                             </Route>
