@@ -19,6 +19,7 @@
     "billboard.js": "^3.10.3",
     "e3-sdk": "file:e3-sdk-1.0.10.tgz",
     "fast-xml-parser": "^4.3.2",
+    "html-to-react": "^1.7.0",
     "object-hash": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
