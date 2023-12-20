@@ -100,18 +100,62 @@ const NPVCostsTableData$ = optional$.pipe(
         });
 
         cols.unshift(
-            {
-                cost: "Investment"
-            },
-            { cost: ["Energy", "Consumption"] },
-            { cost: "Demand" },
-            { cost: "Rebates" },
-            { cost: ["Water", "Usage"] },
-            { cost: "Disposal" },
-            { cost: ["OMR", "Recurring"] },
-            { cost: "Non-Recurring" },
+            { cost: "Investment" },
+            { cost: "Energy", "sub-category": "Consumption" },
+            { cost: "", "sub-category": "Demand" },
+            { cost: "", "sub-category": "Rebates" },
+            { cost: "Water", "sub-category": "Usage" },
+            { cost: "", "sub-category": "Disposal" },
+            { cost: "OMR", "sub-category": "Recurring" },
+            { cost: "", "sub-category": "Non-Recurring" },
             { cost: "Replacement" },
             { cost: "Residal Value" }
+        );
+
+        return cols;
+    })
+);
+
+const LCCResourceTableData$ = optional$.pipe(
+    map((alts) => {
+        const result = alts.reduce((acc, { altId, ...rest }, index: number) => {
+            if (!acc[altId]) {
+                acc[altId] = [];
+            }
+            acc[altId][index] = rest;
+            return acc;
+        }, []);
+        const results = result.map(
+            (
+                subArr: {
+                    tag: string;
+                    totalTagCashflowDiscounted: number[];
+                    totalTagCashflowNonDiscounted: number[];
+                    totalTagQuantity: number[];
+                    units: string | null;
+                }[]
+            ) => subArr?.filter(Boolean)
+        );
+
+        const cols = results.map((alt, index) => {
+            return {
+                key: index.toString(),
+                cost: index
+            };
+        });
+
+        cols.unshift(
+            { resources: "Consumption", "sub-category": "Electricity" },
+            { resources: "", "sub-category": "Natural Gas" },
+            { resources: "", "sub-category": "Fuel Oil" },
+            { resources: "", "sub-category": "Propane" },
+            { resources: "", "sub-category": "Total" },
+            { resources: "Emissions", "sub-category": "Electricity" },
+            { resources: "", "sub-category": "Natural Gas" },
+            { resources: "", "sub-category": "Fuel Oil" },
+            { resources: "", "sub-category": "Propane" },
+            { resources: "", "sub-category": "Total" },
+            { resources: "Water", "sub-category": "Use" }
         );
 
         return cols;
@@ -121,7 +165,7 @@ const NPVCostsTableData$ = optional$.pipe(
 const { component: LCResultsComparisonTable } = table(LCResultsComparisonTableData$);
 const { component: LCResultsBaselineTable } = table(LCResultsBaselineTableData$);
 const { component: NPVCostsTable } = table(NPVCostsTableData$);
-const { component: LCCResourceTable } = table(NPVCostsTableData$);
+const { component: LCCResourceTable } = table(LCCResourceTableData$);
 
 const LCResultsComparisonTableColumns = [
     { title: "Alternative", dataIndex: "alt", key: "alt", editable: false, fixed: true },
@@ -187,13 +231,27 @@ export default function Summary() {
         };
     });
 
-    NPVCostsTableColumns.unshift({
-        title: "Cost",
-        dataIndex: "cost",
-        key: "cost",
-        editable: false,
-        fixed: true
-    });
+    NPVCostsTableColumns.unshift(
+        {
+            title: "Cost",
+            dataIndex: "cost",
+            key: "cost",
+            editable: false,
+            fixed: true,
+            onCell: (_: never, index: number) => {
+                if (index === 0 || index === 8 || index === 9) {
+                    return { colSpan: 2 };
+                }
+            }
+        },
+        {
+            title: "Sub Category",
+            dataIndex: "sub-category",
+            key: "sub-category",
+            editable: false,
+            fixed: true
+        }
+    );
 
     const LCCResourceTableColumns = useResultsAlternatives().map((alt) => {
         return {
@@ -205,13 +263,22 @@ export default function Summary() {
         };
     });
 
-    LCCResourceTableColumns.unshift({
-        title: "Resources",
-        dataIndex: "resources",
-        key: "resources",
-        editable: false,
-        fixed: true
-    });
+    LCCResourceTableColumns.unshift(
+        {
+            title: "Resources",
+            dataIndex: "resources",
+            key: "resources",
+            editable: false,
+            fixed: true
+        },
+        {
+            title: "",
+            dataIndex: "sub-category",
+            key: "sub-category",
+            editable: false,
+            fixed: true
+        }
+    );
 
     return (
         <div className={"w-full h-full p-5 "}>
