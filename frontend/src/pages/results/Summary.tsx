@@ -1,16 +1,48 @@
-import { of } from "rxjs";
-import { map } from "rxjs/operators";
+import { Measures, Optional, Output } from "e3-sdk";
+import { Observable, of } from "rxjs";
+import { filter, map } from "rxjs/operators";
 import { json } from "../../../../docs/FederalFinancedE3Result";
 import table from "../../components/Table";
 import { dollarFormatter } from "../../util/Util";
 import { useResultsAlternatives } from "./AnnualResults";
 
-const data$ = of(json);
-const measure$ = data$.pipe(map((datas) => datas?.measure));
-const optional$ = data$.pipe(map((datas) => datas?.optional));
-const LCResultsBaselineTableData$ = measure$.pipe(
+const data$: Observable<Output> = of(json as unknown as Output);
+const measure$ = data$.pipe(
+    map((datas) => datas?.measure),
+    filter((measure): measure is Measures[] => measure !== undefined)
+);
+const optional$ = data$.pipe(
+    map((datas) => datas?.optional),
+    filter((optional): optional is Optional[] => optional !== undefined)
+);
+
+type ColType = {
+    title: string;
+    dataIndex: string;
+    key: string;
+    editable: boolean;
+    fixed: boolean;
+    onCell?: (_: never, index: number) => { colSpan: number } | undefined;
+};
+
+type LCResults = {
+    key: string;
+    alt: number;
+    base: string;
+    net: string;
+    sir: string;
+    airr: string;
+    spp: string;
+    dpp: string;
+    "energy-change": string;
+    "ghg-change": string;
+    "scc-change": string;
+    "net-scc": string;
+};
+
+const LCResultsBaselineTableData$: Observable<LCResults[]> = measure$.pipe(
     map((alts) => {
-        const cols = alts.map((alt) => {
+        const cols = alts?.map((alt) => {
             return {
                 key: alt?.altId.toString(),
                 alt: alt?.altId,
@@ -34,24 +66,15 @@ const addArray = (array: number[]) => array.reduce((acc, val) => acc + val, 0);
 
 const LCResultsComparisonTableData$ = optional$.pipe(
     map((alts) => {
-        const result = alts.reduce((acc, { altId, ...rest }, index: number) => {
-            if (!acc[altId]) {
-                acc[altId] = [];
+        const result = alts.reduce((acc, optional, index: number) => {
+            if (!acc[optional.altId]) {
+                acc[optional.altId] = [];
             }
-            acc[altId][index] = rest;
+            acc[optional.altId][index] = optional;
             return acc;
-        }, []);
-        const results = result.map(
-            (
-                subArr: {
-                    tag: string;
-                    totalTagCashflowDiscounted: number[];
-                    totalTagCashflowNonDiscounted: number[];
-                    totalTagQuantity: number[];
-                    units: string | null;
-                }[]
-            ) => subArr?.filter(Boolean)
-        );
+        }, [] as Optional[][]);
+
+        const results = result.map((subArr: Optional[]) => subArr?.filter(Boolean));
 
         const cols = results.map((alt, index) => {
             return {
@@ -71,35 +94,26 @@ const LCResultsComparisonTableData$ = optional$.pipe(
     })
 );
 
-const NPVCostsTableData$ = optional$.pipe(
+const NPVCostsTableData$: Observable<Optional[][]> = optional$.pipe(
     map((alts) => {
-        const result = alts.reduce((acc, { altId, ...rest }, index: number) => {
-            if (!acc[altId]) {
-                acc[altId] = [];
+        const result = alts.reduce((acc, optional, index: number) => {
+            if (!acc[optional.altId]) {
+                acc[optional.altId] = [];
             }
-            acc[altId][index] = rest;
+            acc[optional.altId][index] = optional;
             return acc;
-        }, []);
-        const results = result.map(
-            (
-                subArr: {
-                    tag: string;
-                    totalTagCashflowDiscounted: number[];
-                    totalTagCashflowNonDiscounted: number[];
-                    totalTagQuantity: number[];
-                    units: string | null;
-                }[]
-            ) => subArr?.filter(Boolean)
-        );
+        }, [] as Optional[][]);
 
-        const cols = results.map((alt, index) => {
-            return {
-                key: index.toString(),
-                cost: index
-            };
-        });
+        const results = result.map((subArr: Optional[]) => subArr?.filter(Boolean));
 
-        cols.unshift(
+        // const cols = results.map((alt, index) => {
+        //     return {
+        //         key: index.toString(),
+        //         cost: index
+        //     };
+        // });
+
+        results.unshift(
             { cost: "Investment" },
             { cost: "Energy", "sub-category": "Consumption" },
             { cost: "", "sub-category": "Demand" },
@@ -111,36 +125,25 @@ const NPVCostsTableData$ = optional$.pipe(
             { cost: "Replacement" },
             { cost: "Residal Value" }
         );
-
-        return cols;
+        return results;
     })
 );
 
 const LCCResourceTableData$ = optional$.pipe(
     map((alts) => {
-        const result = alts.reduce((acc, { altId, ...rest }, index: number) => {
-            if (!acc[altId]) {
-                acc[altId] = [];
+        const result = alts.reduce((acc, optional, index: number) => {
+            if (!acc[optional.altId]) {
+                acc[optional.altId] = [];
             }
-            acc[altId][index] = rest;
+            acc[optional.altId][index] = optional;
             return acc;
-        }, []);
-        const results = result.map(
-            (
-                subArr: {
-                    tag: string;
-                    totalTagCashflowDiscounted: number[];
-                    totalTagCashflowNonDiscounted: number[];
-                    totalTagQuantity: number[];
-                    units: string | null;
-                }[]
-            ) => subArr?.filter(Boolean)
-        );
+        }, [] as Optional[][]);
+        const results = result.map((subArr: Optional[]) => subArr?.filter(Boolean));
 
         const cols = results.map((alt, index) => {
             return {
                 key: index.toString(),
-                cost: index
+                resources: index
             };
         });
 
@@ -221,7 +224,7 @@ const LCResultsBaselineTableColumns = [
 ];
 
 export default function Summary() {
-    const NPVCostsTableColumns = useResultsAlternatives().map((alt) => {
+    const NPVCostsTableColumns: ColType[] = useResultsAlternatives().map((alt) => {
         return {
             title: ` Alt #${alt?.toString()}`,
             dataIndex: alt?.toString(),
@@ -253,7 +256,7 @@ export default function Summary() {
         }
     );
 
-    const LCCResourceTableColumns = useResultsAlternatives().map((alt) => {
+    const LCCResourceTableColumns: ColType[] = useResultsAlternatives().map((alt) => {
         return {
             title: ` Alt #${alt?.toString()}`,
             dataIndex: alt?.toString(),
