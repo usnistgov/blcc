@@ -97,7 +97,16 @@ const NPVComparisonData$ = combineLatest([AlternativeChange$, cashFlow$]).pipe(
             cols.push(subCols);
         }
         const columnData = cols.map((arr) => {
-            const obj = {};
+            const obj: {
+                key: string;
+                year: string | number;
+                alt: string;
+                [index: number]: string | number;
+            } = {
+                key: "",
+                year: "",
+                alt: ""
+            };
             obj["key"] = arr[0].toString();
             obj["year"] = arr[0];
             obj[alt] = arr[1];
@@ -190,6 +199,7 @@ export default function AlternativeResults() {
                         editable={false}
                         columns={useResultsColumns()}
                         scroll={{ x: 300, y: 350 }}
+                        // this will fix itself when we merge
                         title="NPV Cash Flow Comparison"
                     />
                 </div>
@@ -200,6 +210,7 @@ export default function AlternativeResults() {
                         editable={false}
                         columns={resourcesTableColumns}
                         scroll={{ x: 300, y: 350 }}
+                        // this will fix itself when we merge
                         title="Energy & Water Use, Emissions, & Social Cost of GHG"
                     />
                 </div>
