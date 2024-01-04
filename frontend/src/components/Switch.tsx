@@ -1,4 +1,4 @@
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 import React, { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Switch } from "antd";
@@ -21,7 +21,7 @@ export type SwitchComp = {
 /**
  * Creates a switch component and its associated change stream.
  */
-export default function switchComp(value$: Observable<boolean>): SwitchComp {
+export default function switchComp(value$: Observable<boolean> = of(false)): SwitchComp {
     const [onChange$, onChange] = createSignal<boolean>();
     const [value] = bind(value$, false);
 

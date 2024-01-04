@@ -16,7 +16,7 @@ type Column<T> = {
 export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
-    editable: boolean;
+    editable?: boolean;
     scroll?: { x?: number | string; y?: number | string };
     pagination?: false | TablePaginationConfig;
 };

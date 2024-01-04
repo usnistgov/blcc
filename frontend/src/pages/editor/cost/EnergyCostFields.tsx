@@ -3,6 +3,7 @@ import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
 import { cost$ } from "../../../model/Cost";
+import { phaseIn } from "../../../components/PhaseIn";
 
 const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
 
@@ -17,6 +18,8 @@ const { component: CustomerSectorDropdown } = dropdown(
 const { component: CostPerUnitInput } = numberInput();
 const { component: AnnualConsumption } = numberInput();
 const { component: UnitDropdown } = dropdown(Object.values(EnergyUnit));
+const { component: PhaseIn } = phaseIn();
+const { component: UseIndex } = phaseIn();
 
 export default function EnergyCostFields() {
     return (
@@ -31,6 +34,10 @@ export default function EnergyCostFields() {
             </div>
             <div>
                 <UnitDropdown label={"Unit"} />
+            </div>
+            <div className={"flex flex-row"}>
+                <PhaseIn />
+                <UseIndex />
             </div>
         </div>
     );

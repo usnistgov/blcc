@@ -59,8 +59,8 @@ const { component: DescriptionInput } = textArea(cost$.pipe(map((cost) => cost.d
 
 export default function Cost() {
     return (
-        <div className={"w-full h-full"}>
-            <div className="add-alternative flex flex-col">
+        <div className={"w-full h-full px-8"}>
+            <div className="add-alternative flex flex-col mt-2">
                 <div className="flex justify-end">
                     <AddCostButton type={ButtonType.LINK} icon={mdiPlus}>
                         Add Cost
@@ -73,10 +73,10 @@ export default function Cost() {
                     </RemoveCostButton>
                 </div>
 
-                <Divider className="p-0 m-0" />
+                <Divider className="p-0 mt-2" />
             </div>
 
-            <div className={"flex flex-row justify-between"}>
+            <div className={"flex flex-row justify-between py-8"}>
                 <div>
                     <NameInput type={TextInputType.PRIMARY} label={"Name"} />
                     <DescriptionInput label={"Description"} />
@@ -94,7 +94,7 @@ export default function Cost() {
                     </Checkbox.Group>
                 </div>
             </div>
-            <>{fieldComponent()}</>
+            {fieldComponent()}
         </div>
     );
 }
