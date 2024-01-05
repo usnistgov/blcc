@@ -46,7 +46,7 @@ export default function textInput(
             label
         }: PropsWithChildren & TextInputProps) => {
             return (
-                <>
+                <div>
                     <Title level={5}>{label}</Title>
                     <Input
                         className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
@@ -58,7 +58,7 @@ export default function textInput(
                     >
                         {children}
                     </Input>
-                </>
+                </div>
             );
         }
     };

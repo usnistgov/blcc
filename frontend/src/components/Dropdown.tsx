@@ -45,7 +45,7 @@ export default function dropdown<T extends string | number>(
             label
         }: PropsWithChildren & DropdownProps) => {
             return (
-                <>
+                <div>
                     <Title level={5}>{label}</Title>
                     <Select
                         className={(className ? className : "") + ""}
@@ -63,7 +63,7 @@ export default function dropdown<T extends string | number>(
                             </Select.Option>
                         ))}
                     </Select>
-                </>
+                </div>
             );
         }
     };
