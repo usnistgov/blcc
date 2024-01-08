@@ -4,9 +4,9 @@ import { bind } from "@react-rxjs/core";
 import { startWith } from "rxjs/operators";
 import numberInput from "./InputNumber";
 import { Observable, of } from "rxjs";
-import { Form, Input, InputRef, Table } from "antd";
+import { Form, FormInstance, Input, InputRef, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import type { TableProps } from "antd/es/table/InternalTable";
 
 export function phaseIn() {
@@ -25,7 +25,18 @@ export function phaseIn() {
                 one: 10,
                 two: 4
             }
-        ])
+        ]),
+        [
+            {
+                title: "Year",
+                dataIndex: "one"
+            },
+            {
+                title: "Usage Index",
+                dataIndex: "two",
+                editable: true
+            }
+        ]
     );
 
     return {
@@ -46,64 +57,89 @@ export function phaseIn() {
     };
 }
 
-type DataType = {
-    one: number;
-    two: number;
-};
+const EditableContext = React.createContext<FormInstance | null>(null);
 
-type Change = [number, keyof DataType, DataType[keyof DataType]];
-
-function createTable(data$: Observable<DataType[]>) {
+function createTable<T extends object>(
+    data$: Observable<T[]>,
+    columns: (ColumnsType<T>[number] & { editable?: boolean })[]
+) {
+    type Change = [number, keyof T, T[keyof T]];
     const [change$, change] = createSignal<Change>();
 
-    const columns: (ColumnsType<DataType>[number] & { editable?: boolean })[] = [
-        {
-            title: "One",
-            dataIndex: "one",
-            editable: true,
-            onCell: (record: DataType) => ({ record, editable: true, dataIndex: "one" })
-        },
-        {
-            title: "Two",
-            dataIndex: "two"
-        }
-    ];
+    change$.subscribe(console.log);
 
     const [useData] = bind(data$, []);
 
     type EditableCellProps = {
         title: React.ReactNode;
         editable: boolean;
-        dataIndex: keyof DataType;
-        record: DataType;
+        dataIndex: keyof T;
+        rowIndex: number;
+        record: T;
     };
 
-    let EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>>;
-    EditableCell = ({ title, editable, children, dataIndex, record, ...rest }) => {
-        console.log(dataIndex);
-        console.log(record);
-        console.log("-----");
+    type EditableRowProps = {
+        index: number;
+    };
 
+    const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
+        const [form] = Form.useForm();
+        return (
+            <Form form={form} component={false}>
+                <EditableContext.Provider value={form}>
+                    <tr {...props} />
+                </EditableContext.Provider>
+            </Form>
+        );
+    };
+
+    const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
+        title,
+        editable,
+        children,
+        dataIndex,
+        record,
+        rowIndex,
+        ...rest
+    }) => {
         const [editing, setEditing] = useState(false);
         const inputRef = useRef<InputRef>(null);
+        const form = useContext(EditableContext)!;
 
         useEffect(() => {
             if (editing) inputRef.current!.focus();
         }, [editing]);
 
-        const save = () => {};
+        const startEditing = () => {
+            setEditing(!editing);
+            form.setFieldsValue({ dataIndex: record[dataIndex] });
+        };
+
+        const save = async () => {
+            const data = await form.validateFields();
+            change([rowIndex, dataIndex, data[dataIndex]]);
+            setEditing(false);
+        };
 
         const editComponent = editing ? (
-            <Form.Item>
+            <Form.Item
+                name={dataIndex}
+                rules={[
+                    {
+                        required: true,
+                        message: `${title} is required.`
+                    }
+                ]}
+            >
                 <Input
                     ref={inputRef}
                     value={record !== undefined ? record[dataIndex] : ""}
-                    onBlur={() => setEditing(false)}
-                    onPressEnter={() => setEditing(false)}
+                    onBlur={save}
+                    onPressEnter={save}
                 />
             </Form.Item>
         ) : (
-            <div className={"hover:border-2"} onClick={() => setEditing(!editing)}>
+            <div className={"hover:border-2"} onClick={startEditing}>
                 {children}
             </div>
         );
@@ -111,15 +147,26 @@ function createTable(data$: Observable<DataType[]>) {
         return <td {...rest}>{(editable && editComponent) || children}</td>;
     };
 
+    const editableColumns: ColumnsType<T> = columns.map((column) => {
+        if (!column.editable) return column as ColumnsType<T>[number];
+
+        return {
+            ...column,
+            onCell: (record: T, rowIndex: number) => ({ record, editable: true, dataIndex: "one", rowIndex })
+        } as ColumnsType<T>[number];
+    });
+
     return {
-        component: ({ ...tableProps }: TableProps<DataType>) => (
+        change$,
+        component: ({ ...tableProps }: Omit<TableProps<T>, "components" | "columns" | "dataSource">) => (
             <Table
                 components={{
                     body: {
+                        row: EditableRow,
                         cell: EditableCell
                     }
                 }}
-                columns={columns}
+                columns={editableColumns}
                 dataSource={useData()}
                 {...tableProps}
             />

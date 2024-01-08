@@ -6,6 +6,7 @@ import { cost$ } from "../../../model/Cost";
 import { phaseIn } from "../../../components/PhaseIn";
 
 const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+const usageIndex$ = energyCost$.pipe(map((cost) => cost.useIndex));
 
 const { component: FuelTypeDropdown } = dropdown(
     Object.values(FuelType),
