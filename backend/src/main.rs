@@ -1,9 +1,12 @@
+use std::env;
 use std::path::PathBuf;
-use actix_cors::Cors;
 
+use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_web::{App, HttpServer, middleware, Result, web};
 use actix_web::middleware::Logger;
+use diesel::{Connection, PgConnection};
+use dotenvy::dotenv;
 use env_logger;
 
 async fn index() -> Result<NamedFile> {
@@ -12,7 +15,11 @@ async fn index() -> Result<NamedFile> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().expect("No .env file found!");
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
+    let pg_connection = PgConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
 
     HttpServer::new(|| {
         App::new()
