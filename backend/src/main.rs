@@ -1,5 +1,6 @@
 use std::env;
 use std::path::PathBuf;
+use std::sync::Mutex;
 
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
@@ -9,8 +10,18 @@ use diesel::{Connection, PgConnection};
 use dotenvy::dotenv;
 use env_logger;
 
+use crate::api::config_api;
+
+mod api;
+mod models;
+mod schema;
+
 async fn index() -> Result<NamedFile> {
     Ok(NamedFile::open(PathBuf::from("public/dist/index.html"))?)
+}
+
+struct AppState {
+    db_connection: PgConnection,
 }
 
 #[actix_web::main]
@@ -19,10 +30,11 @@ async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
-    let pg_connection = PgConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+    let db_connection = PgConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
+            .app_data(Mutex::new(AppState { db_connection }))
             .wrap(Cors::default()
                 .allowed_origin("https://blcctest.el.nist.gov")
                 .allowed_methods(vec!["GET"])
@@ -43,6 +55,7 @@ async fn main() -> std::io::Result<()> {
             )
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
+            .configure(config_api)
             .service(
                 Files::new("/", "./public/dist/")
                     .index_file("index.html")
