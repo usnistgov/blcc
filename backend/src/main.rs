@@ -5,6 +5,7 @@ use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_web::{App, HttpServer, middleware, Result, web};
 use actix_web::middleware::Logger;
+use actix_web::web::Data;
 use diesel::{PgConnection};
 use diesel::r2d2::ConnectionManager;
 use dotenvy::dotenv;
@@ -36,7 +37,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             .wrap(Cors::default()
                 .allowed_origin("https://blcctest.el.nist.gov")
                 .allowed_methods(vec!["GET"])
