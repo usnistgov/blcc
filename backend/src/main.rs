@@ -1,14 +1,15 @@
 use std::env;
 use std::path::PathBuf;
-use std::sync::Mutex;
 
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_web::{App, HttpServer, middleware, Result, web};
 use actix_web::middleware::Logger;
-use diesel::{Connection, PgConnection};
+use diesel::{PgConnection};
+use diesel::r2d2::ConnectionManager;
 use dotenvy::dotenv;
 use env_logger;
+use r2d2::Pool;
 
 use crate::api::config_api;
 
@@ -20,21 +21,22 @@ async fn index() -> Result<NamedFile> {
     Ok(NamedFile::open(PathBuf::from("public/dist/index.html"))?)
 }
 
-struct AppState {
-    db_connection: PgConnection,
-}
+type DbPool = Pool<ConnectionManager<PgConnection>>;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Get environment variable and logger
     dotenv().expect("No .env file found!");
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
+    // Setup database pool
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
-    let db_connection = PgConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    let pool = Pool::builder().build(manager).expect("Failed to create pool");
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Mutex::new(AppState { db_connection }))
+            .app_data(pool.clone())
             .wrap(Cors::default()
                 .allowed_origin("https://blcctest.el.nist.gov")
                 .allowed_methods(vec!["GET"])
