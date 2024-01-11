@@ -1,3 +1,6 @@
+extern crate openssl;
+#[macro_use] extern crate diesel;
+
 use std::env;
 use std::path::PathBuf;
 

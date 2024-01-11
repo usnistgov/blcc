@@ -6,6 +6,11 @@ services:
     hostname: blcc
     ports:
       - "8080:8080"
+    configs:
+      - source: server-config
+        target: /.env
+    networks:
+      - postgres
 
   postgres:
     image: postgres:16.1
@@ -16,6 +21,13 @@ services:
       POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
       POSTGRES_DB: BLCC
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5432:5432"
     networks:
-      - default
+      - postgres
+
+networks:
+  postgres:
+
+configs:
+  server-config:
+    file: ./.env-backend
