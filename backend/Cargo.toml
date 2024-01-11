@@ -20,3 +20,4 @@ diesel = { version = "2.1.4", features = ["postgres", "r2d2"] }
 dotenvy = "0.15.7"
 serde = { version = "1.0.192", features = ["derive"] }
 r2d2 = "0.8.10"
+openssl = "*"
