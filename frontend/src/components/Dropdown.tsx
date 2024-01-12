@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Select, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable } from "rxjs";
+import { EMPTY, Observable, of } from "rxjs";
 
 export type DropdownProps = {
     className?: string;
@@ -24,13 +24,14 @@ const { Title } = Typography;
 /**
  * Creates a dropdown component and its associated change stream.
  */
-export default function dropdown<T extends string>(
-    options: T[],
+export default function dropdown<T extends string | number>(
+    options$: Observable<T[]> | T[],
     value$: Observable<T | undefined> = EMPTY
 ): Dropdown<T> {
     const [change$, change] = createSignal<T>();
     const [selectSearch$, selectSearch] = createSignal<T>();
     const [useValue] = bind(value$, undefined);
+    const [useOptions] = bind(Array.isArray(options$) ? of(options$) : options$, []);
 
     return {
         change$,
@@ -56,7 +57,7 @@ export default function dropdown<T extends string>(
                         value={useValue()}
                     >
                         {children}
-                        {options.map((option) => (
+                        {useOptions().map((option) => (
                             <Select.Option key={option} value={option}>
                                 {option}
                             </Select.Option>
