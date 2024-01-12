@@ -1,5 +1,7 @@
+// Openssl declaration must be first
 extern crate openssl;
-#[macro_use] extern crate diesel;
+extern crate diesel;
+extern crate diesel_migrations;
 
 use std::env;
 use std::path::PathBuf;
@@ -9,8 +11,10 @@ use actix_files::{Files, NamedFile};
 use actix_web::{App, HttpServer, middleware, Result, web};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use diesel::{PgConnection};
+use diesel::pg::Pg;
+use diesel::PgConnection;
 use diesel::r2d2::ConnectionManager;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
 use env_logger;
 use r2d2::Pool;
@@ -27,6 +31,12 @@ async fn index() -> Result<NamedFile> {
 
 type DbPool = Pool<ConnectionManager<PgConnection>>;
 
+const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
+
+fn run_migrations(connection: &mut impl MigrationHarness<Pg>) {
+    connection.run_pending_migrations(MIGRATIONS).expect("Could not run migrations");
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Get environment variable and logger
@@ -37,6 +47,10 @@ async fn main() -> std::io::Result<()> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     let pool = Pool::builder().build(manager).expect("Failed to create pool");
+
+    // Check if migrations need to be run
+    let mut connection = pool.get().expect("Could not get postgres connection for migrations.");
+    run_migrations(&mut connection);
 
     HttpServer::new(move || {
         App::new()
