@@ -4,11 +4,18 @@ services:
     build: ./
     image: blcc:latest
     hostname: blcc
+    depends_on:
+      - postgres
     ports:
       - "8080:8080"
+    configs:
+      - source: server-config
+        target: /.env
+    networks:
+      - postgres
 
   postgres:
-    image: postgres:16.0
+    image: postgres:16.1
     restart: always
     hostname: postgres
     environment:
@@ -18,4 +25,11 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - default
+      - postgres
+
+networks:
+  postgres:
+
+configs:
+  server-config:
+    file: ./.env-backend
