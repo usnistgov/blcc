@@ -10,7 +10,7 @@ RUN pnpm install
 COPY ./frontend/ /app
 RUN pnpm run build
 
-FROM clux/muslrust:latest AS backend-builder
+FROM clux/muslrust:1.75.0 AS backend-builder
 
 WORKDIR /app
 COPY ./backend /app
