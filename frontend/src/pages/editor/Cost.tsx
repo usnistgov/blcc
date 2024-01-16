@@ -60,7 +60,7 @@ const { component: DescriptionInput } = textArea(cost$.pipe(map((cost) => cost.d
 export default function Cost() {
     return (
         <div className={"w-full h-full px-8"}>
-            <div className="add-alternative flex flex-col mt-2">
+            <div className="add-alternative flex flex-col mt-2 border-b border-base-lighter pb-2">
                 <div className="flex justify-end">
                     <AddCostButton type={ButtonType.LINK} icon={mdiPlus}>
                         Add Cost
@@ -72,12 +72,10 @@ export default function Cost() {
                         Remove
                     </RemoveCostButton>
                 </div>
-
-                <Divider className="p-0 mt-2" />
             </div>
 
             <div className={"flex flex-row justify-between py-8"}>
-                <div>
+                <div className={"w-3/4"}>
                     <NameInput type={TextInputType.PRIMARY} label={"Name"} />
                     <DescriptionInput label={"Description"} />
                 </div>

@@ -52,11 +52,15 @@ async fn main() -> std::io::Result<()> {
     let mut connection = pool.get().expect("Could not get postgres connection for migrations.");
     run_migrations(&mut connection);
 
+    let origin = env::var("ALLOWED_ORIGIN").unwrap_or_else(|_| {
+        "https://localhost:8080"
+    }.parse().unwrap());
+
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
             .wrap(Cors::default()
-                .allowed_origin("https://blcctest.el.nist.gov")
+                .allowed_origin(&*origin)
                 .allowed_methods(vec!["GET"])
             )
             .wrap(
