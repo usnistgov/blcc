@@ -45,9 +45,9 @@ export function phaseIn() {
             constantChange$.subscribe(setConstantOrEscalation);
 
             return (
-                <div>
-                    <div>Constant</div>
-                    <Switch checkedChildren={<>{"Yes"}</>} unCheckedChildren={<>{"No"}</>} />
+                <div className={"w-full"}>
+                    <div className={"my-2"}>Constant</div>
+                    <Switch className={"mb-4"} checkedChildren={<>{"Yes"}</>} unCheckedChildren={<>{"No"}</>} />
                     {(constantOrEscalation() && <ConstantInput after={"%"} controls />) || (
                         <PhaseInTable size={"small"} />
                     )}
