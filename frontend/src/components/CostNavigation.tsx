@@ -148,27 +148,23 @@ export default function CostNavigation() {
 
     return (
         <>
-            <Layout className="bg-primary">
-                <Sider
-                    style={{ background, color: "#fff" }}
-                    collapsible
-                    collapsed={collapsed}
-                    onCollapse={(value) => setCollapsed(value)}
-                >
-                    <Title style={{ textAlign: "center", color: "#fff", marginBottom: "0" }} level={4}>
-                        Cost
-                    </Title>
-                    <Menu
-                        className="bg-primary text-white"
-                        mode="inline"
-                        openKeys={openKeys}
-                        onOpenChange={onOpenChange}
-                        onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
-                        items={items}
-                    />
-                </Sider>
-            </Layout>
-            <Outlet />
+            <Sider
+                style={{ background, color: "#fff" }}
+                collapsed={collapsed}
+                onCollapse={(value) => setCollapsed(value)}
+            >
+                <Title style={{ textAlign: "center", color: "#fff", marginBottom: "0" }} level={4}>
+                    Cost
+                </Title>
+                <Menu
+                    className="bg-primary text-white"
+                    mode="inline"
+                    openKeys={openKeys}
+                    onOpenChange={onOpenChange}
+                    onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
+                    items={items}
+                />
+            </Sider>
         </>
     );
 }

@@ -5,8 +5,8 @@ import { Model } from "../model/Model";
 
 export default function Statistics() {
     return (
-        <AppBar className={"bg-base-lightest text-sm place-items-center"}>
-            <div className={"flex flex-row divide-x divide-base-light border-t"}>
+        <AppBar className={"bg-base-lightest text-sm place-items-center border-t border-base-light"}>
+            <div className={"flex flex-row divide-x divide-base-light"}>
                 <p className={"px-4"}>{`Alternatives ${Model.useAlternatives().length}`}</p>
                 <p className={"px-4"}>{`Costs ${Model.useCosts().length}`}</p>
             </div>

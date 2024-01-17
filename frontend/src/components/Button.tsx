@@ -40,7 +40,7 @@ export default function button(): Button {
             type,
             icon,
             disabled = false,
-            iconSide = "right"
+            iconSide = "left"
         }: PropsWithChildren & ButtonProps) => {
             return (
                 <button

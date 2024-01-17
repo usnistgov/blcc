@@ -21,6 +21,7 @@ import {
 } from "../../blcc-format/Format";
 import { Country, State } from "../../constants/LOCATION";
 import { Model } from "../../model/Model";
+import Title from "antd/es/typography/Title";
 
 /*
  * rxjs components
@@ -156,121 +157,93 @@ export {
 
 export default function GeneralInformation() {
     return (
-        <div className={"w-full h-full p-8 "}>
-            <div className="w-1/2 grid grid-cols-2">
-                <span className="pb-3">
-                    <NameInput label="Project Name" className="w-3/4" type={TextInputType.PRIMARY} />
-                </span>
-                <span>
-                    <AnalystInput label="Analyst" className="w-3/4" type={TextInputType.PRIMARY} />
-                </span>
-                <span className="pb-3">
-                    <AnalysisTypeDropdown label="Analysis Type" className={"w-3/4"} />
-                </span>
-                {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" ? (
-                    <span className="pb-3">
-                        <AnalysisPurposeDropdown label="Analysis Purpose" className="w-3/4" />
-                    </span>
-                ) : (
-                    ""
+        <div className={"max-w-screen-lg p-6"}>
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <NameInput label={"Project Name"} type={TextInputType.PRIMARY} />
+                <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
+                <AnalysisTypeDropdown label={"Analysis Type"} className={"w-full"} />
+                {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
+                    <AnalysisPurposeDropdown label={"Analysis Purpose"} className={"w-full"} />
                 )}
-                <span className="col-span-2 pb-3">
-                    <DescInput label="Description" className="w-full" />
+                <span className={"col-span-2"}>
+                    <DescInput label={"Description"} className={"w-full"} />
                 </span>
-                <span className="pb-3">
-                    <StudyPeriodInput
-                        label="Length of Study Period"
-                        after="years"
-                        defaultValue={0}
-                        max={40}
-                        min={0}
-                        controls={true}
-                    />
-                </span>
-                <span className="pb-3 pl-3">
-                    <ConstructionPeriodInput
-                        label="Construction Period"
-                        after="years"
-                        defaultValue={0}
-                        max={40}
-                        min={0}
-                        controls={true}
-                    />
-                </span>
+                <StudyPeriodInput
+                    label={"Length of Study Period"}
+                    after={"years"}
+                    defaultValue={0}
+                    max={40}
+                    min={0}
+                    controls={true}
+                />
+                <ConstructionPeriodInput
+                    label={"Construction Period"}
+                    after={"years"}
+                    defaultValue={0}
+                    max={40}
+                    min={0}
+                    controls={true}
+                />
             </div>
-            <span className="w-1/4 pb-3">
-                <Switch className="" checkedChildren="Consant" unCheckedChildren="Current" defaultChecked />
-            </span>
-            <div className="grid grid-cols-2">
-                <div className="grid grid-cols-2">
+            <div className={"pt-4"}>
+                <Title level={5}>Dollar Analysis</Title>
+                <Switch
+                    className={"bg-primary hover:bg-primary"}
+                    checkedChildren={"Constant"}
+                    unCheckedChildren={"Current"}
+                    defaultChecked
+                />
+            </div>
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <div className={"grid grid-cols-2"}>
                     <Divider
-                        className="col-span-2 pb-3"
+                        className={"col-span-2"}
                         style={{ fontSize: "20px" }}
-                        orientation="left"
-                        orientationMargin="0"
+                        orientation={"left"}
+                        orientationMargin={"0"}
                     >
                         Discounting
                     </Divider>
-                    <span className="pb-3">
-                        <DiscountingConvention label="Discounting Convention" className="w-3/4" />
-                    </span>
-                    <span className="pb-3">
-                        <GenInflationRate label="General Inflation Rate" className="w-3/4" controls={false} />
-                    </span>
-                    <span className="pb-3 w-full">
-                        <NominalDiscRate label="Nominal Discount Rate" className="w-3/4" controls={false} min={0.0} />
-                    </span>
-                    <span>
-                        <RealDiscRate label="Real Discount Rate" className="w-3/4" controls={false} min={0.0} />
-                    </span>
+                    <div className={"col-span-2"}>
+                        <DiscountingConvention label={"Discounting Convention"} />
+                    </div>
+                    <div className={"grid grid-cols-3 gap-x-16 gap-y-4 col-span-2"}>
+                        <GenInflationRate after={"%"} label={"General Inflation Rate"} controls={false} />
+                        <NominalDiscRate after={"%"} label={"Nominal Discount Rate"} controls={false} min={0.0} />
+                        <RealDiscRate after={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />
+                    </div>
                 </div>
-                <div className="grid grid-cols-2">
+                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <Divider
-                        className="col-span-2 pb-3"
+                        className={"col-span-2"}
                         style={{ fontSize: "20px" }}
-                        orientation="left"
-                        orientationMargin="0"
+                        orientation={"left"}
+                        orientationMargin={"0"}
                     >
                         Location
                     </Divider>
-                    <span className="pb-3">
-                        <CountryDropdown label="Country" className="w-3/4" value={Model.useCountry()} />
-                    </span>
-                    <span>
-                        <CityInput label="City" className="w-3/4" type={TextInputType.PRIMARY} />
-                    </span>
-                    <span className="pb-3">
-                        {Model.useCountry() === Country.USA ? (
-                            <StateDropdown label="State" className="w-3/4" />
-                        ) : (
-                            <StateInput label="State" className="w-3/4" type={TextInputType.PRIMARY} />
-                        )}
-                    </span>
+                    <CountryDropdown label={"Country"} className={"w-full"} value={Model.useCountry()} />
+                    <CityInput label={"City"} type={TextInputType.PRIMARY} />
                     {Model.useCountry() === Country.USA ? (
-                        <span>
-                            <ZipInput label="Zip" className="w-3/4" type={TextInputType.PRIMARY} />
-                        </span>
+                        <StateDropdown label={"State"} className={"w-full"} />
                     ) : (
-                        ""
+                        <StateInput label={"State"} type={TextInputType.PRIMARY} />
                     )}
+                    {Model.useCountry() === Country.USA && <ZipInput label={"Zip"} type={TextInputType.PRIMARY} />}
                 </div>
             </div>
 
-            <div className="grid grid-cols-2">
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <Divider
-                    className="col-span-2 pb-3"
+                    className={"col-span-2"}
                     style={{ fontSize: "20px" }}
-                    orientation="left"
-                    orientationMargin="0"
+                    orientation={"left"}
+                    orientationMargin={"0"}
                 >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
-                <span className="pb-3">
-                    <EmissionsRateDropdown label="Emissions Rate Scenario" className="w-1/2" />
-                </span>
-                <span className="pb-3">
-                    <SocialCostDropdown label="Social Cost of GHG Scenario" className="w-1/2" />
-                </span>
+                <EmissionsRateDropdown label={"Emissions Rate Scenario"} className={"w-full"} />
+                <SocialCostDropdown label={"Social Cost of GHG Scenario"} className={"w-full"} />
             </div>
         </div>
     );

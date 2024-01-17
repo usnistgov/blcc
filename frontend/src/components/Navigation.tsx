@@ -1,24 +1,21 @@
-import React, { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { Layout, Menu } from "antd";
-import { map, withLatestFrom } from "rxjs";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { map, sample } from "rxjs";
 import { Model } from "../model/Model";
 import { bind } from "@react-rxjs/core";
-import Icon from "@mdi/react";
-import { mdiPlus } from "@mdi/js";
 import { createSignal } from "@react-rxjs/utils";
 import { Alternative } from "../blcc-format/Format";
-
-const { Sider } = Layout;
-
-const background = "rgb(0 94 162)";
+import button, { ButtonType } from "./Button";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import collapse from "./Collapse";
+import { mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 
 // Stream of new alternatives to add to project. Will be replaced with a modal to get the name
 const [addAlternativeClick$, addAlternative] = createSignal();
-const addAlternative$ = addAlternativeClick$.pipe(
+const addAlternative$ = Model.alternatives$.pipe(
+    sample(addAlternativeClick$),
     //TODO open modal instead
-    withLatestFrom(Model.alternatives$),
-    map(([_, alternatives]) => {
+    map((alternatives) => {
         const nextID = getNewID(alternatives);
 
         return {
@@ -40,71 +37,55 @@ function getNewID(alternatives: Alternative[]) {
 
 export { addAlternative$ };
 
+function altButton(alt: Alternative) {
+    const { click$, component: Button } = button();
+
+    return {
+        component: function AltButton() {
+            const navigate = useNavigate();
+            useSubscribe(click$, () => navigate(`/editor/alternative/${alt.id}`));
+            return (
+                <Button key={alt.id} type={ButtonType.PRIMARY}>
+                    {alt.name}
+                </Button>
+            );
+        }
+    };
+}
+
 const [useMenuItems] = bind(
     Model.alternatives$.pipe(
         map((alternatives) =>
-            alternatives.map((alt) => ({
-                key: alt.id,
-                label: alt.name
-            }))
-        ),
-        map((alternativeMenuItems) => [
-            {
-                key: "gen-info",
-                label: "General Information"
-            },
-            {
-                key: "",
-                label: "Alternative Summary"
-            },
-            {
-                key: "alternatives",
-                label: "Alternatives",
-                children: [
-                    {
-                        key: "add-alt",
-                        label: "Add Alternative",
-                        icon: <Icon path={mdiPlus} size={0.8} />
-                    },
-                    ...alternativeMenuItems
-                ]
-            }
-        ])
+            alternatives.map((alt) => {
+                const button = altButton(alt);
+                return <button.component key={alt.id} />;
+            })
+        )
     ),
     []
 );
 
+const { click$: generalInformationClick$, component: GeneralInformationButton } = button();
+const { click$: alternativeSummaryClick$, component: AlternativeSummaryButton } = button();
+const { component: AlternativeSubMenu } = collapse();
+
 export default function Navigation() {
-    const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
+
+    useSubscribe(generalInformationClick$, () => navigate("/editor"));
+    useSubscribe(alternativeSummaryClick$, () => navigate("/editor/alternative"));
+
     return (
-        <>
-            <Layout>
-                <Sider
-                    style={{ background }}
-                    collapsible
-                    collapsed={collapsed}
-                    onCollapse={(value) => setCollapsed(value)}
-                >
-                    <div className="demo-logo-vertical" style={{ background }} />
-                    <Menu
-                        className={"bg-primary text-white"}
-                        mode="inline"
-                        defaultSelectedKeys={["gen-info"]}
-                        onClick={({ key }) => {
-                            if (key === "gen-info") {
-                                navigate(`/editor/`); // Call your click handler
-                            } else if (key === "add-alt") {
-                                addAlternative();
-                            } else {
-                                navigate(`/editor/alternative/${key}`);
-                            }
-                        }}
-                        items={useMenuItems()}
-                    />
-                </Sider>
-            </Layout>
-            <Outlet />
-        </>
+        <div className="flex flex-col gap-2 p-2 w-fit h-full bg-primary text-base-lightest">
+            <GeneralInformationButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiFileDocument}>
+                General Information
+            </GeneralInformationButton>
+            <AlternativeSummaryButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiViewList}>
+                Alternative Summary
+            </AlternativeSummaryButton>
+            <AlternativeSubMenu title={"Alternatives"} icon={mdiFileTree}>
+                {useMenuItems()}
+            </AlternativeSubMenu>
+        </div>
     );
 }

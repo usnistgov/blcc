@@ -29,14 +29,14 @@ export default function ResultsAppBar() {
     return (
         <AppBar className={"bg-primary"}>
             <ButtonBar className={"p-2"}>
-                <BackButton type={ButtonType.PRIMARY} icon={mdiArrowLeft} iconSide={"left"}>
+                <BackButton type={ButtonType.PRIMARY} icon={mdiArrowLeft}>
                     Back to Editor
                 </BackButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-white"}>{Model.useName()}</p>
                 <div className={"pl-4"}>
-                    <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
+                    <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
                         Run
                     </RunButton>
                 </div>

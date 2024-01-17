@@ -14,7 +14,6 @@ import { sample } from "rxjs";
 const { component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
 const { click$: saveClick$, component: SaveButton } = button();
-const { component: SaveAsButton } = button();
 
 const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
 
@@ -48,14 +47,11 @@ export default function EditorAppBar() {
                 <SaveButton type={ButtonType.PRIMARY} icon={mdiContentSave}>
                     Save
                 </SaveButton>
-                <SaveAsButton type={ButtonType.PRIMARY} icon={mdiContentSave}>
-                    Save As
-                </SaveAsButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-base-lightest"}>{Model.useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
-                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
+                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
                         Reports and Analysis
                     </RunAnalysisButton>
                 </div>

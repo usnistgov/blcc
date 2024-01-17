@@ -20,6 +20,7 @@ import Summary from "./pages/results/Summary";
 import { bar, line, pie, zoom } from "billboard.js";
 import "billboard.js/dist/billboard.css";
 import Index from "./pages/Index";
+import PageWrapper from "./components/PageWrapper";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
@@ -46,7 +47,7 @@ export default function App() {
                         <Route path={"/results/*"} element={<ResultsAppBar />} />
                     </Routes>
 
-                    <div className={"flex h-full"}>
+                    <div className={"flex h-full overflow-hidden"}>
                         {/* Navigation */}
                         <Routes>
                             <Route index element={<Index />} />
@@ -58,40 +59,42 @@ export default function App() {
 
                         {/* Pages */}
                         <Routes>
-                            <Route path={"/editor"}>
-                                <Route index element={<GeneralInformation />} />
-                                <Route path={"alternative"}>
-                                    <Route index element={<AlternativeSummary />} />
-                                    <Route
-                                        path={":alternativeID"}
-                                        element={
-                                            <UrlParameters>
-                                                <Alternatives />
-                                            </UrlParameters>
-                                        }
-                                    />
-                                    <Route
-                                        path={"cost/:costID"}
-                                        element={
-                                            <UrlParameters>
-                                                <Cost />
-                                            </UrlParameters>
-                                        }
-                                    />
+                            <Route element={<PageWrapper />}>
+                                <Route path={"/editor"}>
+                                    <Route index element={<GeneralInformation />} />
+                                    <Route path={"alternative"}>
+                                        <Route index element={<AlternativeSummary />} />
+                                        <Route
+                                            path={":alternativeID"}
+                                            element={
+                                                <UrlParameters>
+                                                    <Alternatives />
+                                                </UrlParameters>
+                                            }
+                                        />
+                                        <Route
+                                            path={"cost/:costID"}
+                                            element={
+                                                <UrlParameters>
+                                                    <Cost />
+                                                </UrlParameters>
+                                            }
+                                        />
+                                    </Route>
                                 </Route>
-                            </Route>
-                            <Route path={"/results"}>
-                                <Route index element={<Inputs />} />
-                                <Route path={"alternative"} element={<AlternativeResults />} />
-                                <Route path={"annual"} element={<AnnualResults />} />
-                                <Route path={"summary"} element={<Summary />} />
+                                <Route path={"/results"}>
+                                    <Route index element={<Inputs />} />
+                                    <Route path={"alternative"} element={<AlternativeResults />} />
+                                    <Route path={"annual"} element={<AnnualResults />} />
+                                    <Route path={"summary"} element={<Summary />} />
+                                </Route>
                             </Route>
                         </Routes>
                     </div>
 
                     <Routes>
                         <Route path={"/editor/*"} element={<Statistics />} />
-                        <Route path={"/results/*"} element={<></>} />
+                        <Route path={"/results/*"} element={<></>} /> {/* Gets rid of rout error */}
                     </Routes>
                 </div>
             </BrowserRouter>

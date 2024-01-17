@@ -8,9 +8,13 @@ import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
+import { createSignal } from "@react-rxjs/utils";
+import { useNavigate } from "react-router-dom";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { sample } from "rxjs";
 
 const { Title } = Typography;
-const { component: Button } = button();
+const { component: AddAlternativeButton } = button();
 
 const combinedCostObject$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
 
@@ -19,21 +23,25 @@ export { combinedCostObject$ };
 const [useCards] = bind(Model.alternatives$.pipe(map((alts) => alts.map((_a, i) => createAlternativeCard(i)))), []);
 
 export default function AlternativeSummary() {
+    const cards = useCards();
+
     return (
-        <div className={"w-full h-full"}>
-            <div className="add-alternative flex flex-col">
-                <div className="flex flex-row-reverse">
-                    <Button className="" type={ButtonType.LINK}>
+        <div className={"w-full h-full flex flex-col items-center"}>
+            <div className={"flex flex-col w-3/4 max-w-6xl"}>
+                <div className={"flex flex-row-reverse border-b border-base-lighter"}>
+                    <AddAlternativeButton className={"my-2"} type={ButtonType.PRIMARY_INVERTED}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
-                    </Button>
+                    </AddAlternativeButton>
                 </div>
-                <Divider className="p-0 m-0" />
             </div>
             <br />
-            {useCards().map((card, i) => (
-                <card.component key={i} />
-            ))}
+            {(cards.length !== 0 && cards.map((card, i) => <card.component key={i} />)) || (
+                <div className={"w-full text-center text-base-dark p-8"}>
+                    <p className={"text-2xl"}>No Alternatives</p>
+                    <p className={"text-lg"}>Create an alternative or load a saved file</p>
+                </div>
+            )}
         </div>
     );
 }
@@ -66,6 +74,8 @@ export function createAlternativeCard(index: number) {
     const [otherCosts, otherCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isOtherCost))), []);
     const [otherSubcategories] = bind(otherCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
 
+    const [cardClick$, click] = createSignal();
+
     // The categories with their associated hooks and subcategory hooks
     const categories = [
         {
@@ -95,32 +105,40 @@ export function createAlternativeCard(index: number) {
     ];
     return {
         component: function AltCard() {
-            return (
-                <div className="flex justify-center align-middle">
-                    <div className="bg-primary-light p-5 w-3/4 rounded mb-5">
-                        <Title level={4}>{alt()?.name}</Title>
-                        <p>{alt()?.description}</p>
-                        <br />
-                        <div className="costs flex justify-between" key={index}>
-                            {/* Render each category */}
-                            {categories.map((category) => (
-                                <div className="water-costs w-40" key={category.label}>
-                                    <div className=" flex justify-between">
-                                        <Title level={5}>{category.label}</Title>
-                                        <p>{category.hook().length}</p>
-                                    </div>
-                                    <Divider className="m-0" />
+            const navigate = useNavigate();
+            useSubscribe(alt$.pipe(sample(cardClick$)), (alt) => navigate(`/editor/alternative/${alt.id}`));
 
-                                    {/* Render each subcategory */}
-                                    {category.children?.().map(([type, count]) => (
-                                        <div className="flex justify-between" key={type}>
-                                            <p>{type}</p>
+            return (
+                <div
+                    className={
+                        "flex flex-col border border-base-lighter p-5 w-3/4 max-2-6xl rounded mb-5 shadow-lg cursor-pointer"
+                    }
+                    onClick={click}
+                >
+                    <Title level={4}>{alt()?.name}</Title>
+                    <p>{alt()?.description}</p>
+                    <br />
+                    <div className={"flex flex-row gap-6 justify-between"}>
+                        {/* Render each category */}
+                        {categories.map((category) => (
+                            <div className={"flex flex-col"}>
+                                <div className={"flex gap-6"}>
+                                    <Title level={5}>{category.label}</Title>
+                                    <p>{category.hook().length}</p>
+                                </div>
+                                <Divider className={"m-0"} />
+
+                                {/* Render each subcategory */}
+                                {category.children?.().map(([type, count]) => (
+                                    <div className={"flex gap-6"}>
+                                        <p className={"grow"}>{type}</p>
+                                        <div className={"w-fit"}>
                                             <p>{count}</p>
                                         </div>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
                     </div>
                 </div>
             );
