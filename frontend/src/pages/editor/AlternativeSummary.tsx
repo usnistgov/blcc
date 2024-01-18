@@ -26,8 +26,8 @@ export default function AlternativeSummary() {
     const cards = useCards();
 
     return (
-        <div className={"w-full h-full flex flex-col items-center"}>
-            <div className={"flex flex-col w-3/4 max-w-6xl"}>
+        <div className={"flex h-full w-full flex-col items-center"}>
+            <div className={"flex w-3/4 max-w-6xl flex-col"}>
                 <div className={"flex flex-row-reverse border-b border-base-lighter"}>
                     <AddAlternativeButton className={"my-2"} type={ButtonType.PRIMARY_INVERTED}>
                         <Icon path={mdiPlus} size={1} />
@@ -37,7 +37,7 @@ export default function AlternativeSummary() {
             </div>
             <br />
             {(cards.length !== 0 && cards.map((card, i) => <card.component key={i} />)) || (
-                <div className={"w-full text-center text-base-dark p-8"}>
+                <div className={"w-full p-8 text-center text-base-dark"}>
                     <p className={"text-2xl"}>No Alternatives</p>
                     <p className={"text-lg"}>Create an alternative or load a saved file</p>
                 </div>
@@ -111,14 +111,14 @@ export function createAlternativeCard(index: number) {
             return (
                 <div
                     className={
-                        "flex flex-col border border-base-lighter p-5 w-3/4 max-2-6xl rounded mb-5 shadow-lg cursor-pointer"
+                        "max-2-6xl mb-5 flex w-3/4 cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
                     }
                     onClick={click}
                 >
                     <Title level={4}>{alt()?.name}</Title>
                     <p>{alt()?.description}</p>
                     <br />
-                    <div className={"flex flex-row gap-6 justify-between"}>
+                    <div className={"flex flex-row justify-between gap-6"}>
                         {/* Render each category */}
                         {categories.map((category) => (
                             <div className={"flex flex-col"}>

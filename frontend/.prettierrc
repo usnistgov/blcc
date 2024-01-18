@@ -11,5 +11,6 @@
                 "parser": "css"
             }
         }
-    ]
+    ],
+    "plugins": ["prettier-plugin-tailwindcss"]
 }

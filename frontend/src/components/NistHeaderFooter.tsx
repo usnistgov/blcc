@@ -27,10 +27,10 @@ const [useFooter] = bind(
 export default function NistHeaderFooter({ children }: PropsWithChildren) {
     return (
         <>
-            <div className={"rounded-t-lg overflow-hidden"}>{Parser().parse(useHeader())}</div>
+            <div className={"overflow-hidden rounded-t-lg"}>{Parser().parse(useHeader())}</div>
             {children}
             <div className={"flex-grow"} />
-            <div className={"rounded-b-lg overflow-hidden"}>{Parser().parse(useFooter())}</div>
+            <div className={"overflow-hidden rounded-b-lg"}>{Parser().parse(useFooter())}</div>
         </>
     );
 }

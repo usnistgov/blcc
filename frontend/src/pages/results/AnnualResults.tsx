@@ -77,7 +77,7 @@ export default function AnnualResults() {
     console.log(data);
 
     return (
-        <div className={"w-full h-full p-5 "}>
+        <div className={"h-full w-full p-5 "}>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Title level={5}>NPV Cash Flow Comparison</Title>

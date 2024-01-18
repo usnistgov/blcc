@@ -27,12 +27,12 @@ export default function collapse() {
             return (
                 <>
                     <Button type={ButtonType.PRIMARY} icon={icon}>
-                        <div className={"w-full flex justify-between items-center"}>
+                        <div className={"flex w-full items-center justify-between"}>
                             {title}
                             <Icon path={open ? mdiChevronDown : mdiChevronLeft} size={0.8} />
                         </div>
                     </Button>
-                    <div className={"flex flex-col pl-8 gap2"}>{open && children}</div>
+                    <div className={"flex flex-col gap-2 pl-8"}>{open && children}</div>
                 </>
             );
         }

@@ -207,7 +207,7 @@ export default function GeneralInformation() {
                     <div className={"col-span-2"}>
                         <DiscountingConvention label={"Discounting Convention"} />
                     </div>
-                    <div className={"grid grid-cols-3 gap-x-16 gap-y-4 col-span-2"}>
+                    <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                         <GenInflationRate after={"%"} label={"General Inflation Rate"} controls={false} />
                         <NominalDiscRate after={"%"} label={"Nominal Discount Rate"} controls={false} min={0.0} />
                         <RealDiscRate after={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />

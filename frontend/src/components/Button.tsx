@@ -45,7 +45,7 @@ export default function button(): Button {
             return (
                 <button
                     className={
-                        (className ? className : "") + ` ${disabled ? ButtonType.DISABLED : type} py-1 px-2 rounded`
+                        (className ? className : "") + ` ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`
                     }
                     onClick={click}
                     disabled={disabled}

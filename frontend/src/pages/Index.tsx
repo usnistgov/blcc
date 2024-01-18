@@ -13,15 +13,15 @@ export default function Index() {
     useSubscribe(openEditorClick$, () => navigate("editor"));
 
     return (
-        <div className={"w-full bg-base-darker xl:py-10 flex justify-center overflow-y-auto"}>
+        <div className={"flex w-full justify-center overflow-y-auto bg-base-darker xl:py-10"}>
             <div
                 className={
-                    "bg-white flex flex-col flex-grow h-fit min-h-full " +
-                    "xl:rounded-2xl xl:max-w-[1440px] xl:shadow-[0_0_30px_4px_rgba(0,0,0,0.75)]"
+                    "flex h-fit min-h-full flex-grow flex-col bg-white " +
+                    "xl:max-w-[1440px] xl:rounded-2xl xl:shadow-[0_0_30px_4px_rgba(0,0,0,0.75)]"
                 }
             >
                 <NistHeaderFooter>
-                    <div className={"flex flex-col m-32 items-center"}>
+                    <div className={"m-32 flex flex-col items-center"}>
                         <img src={logoUrl} alt={"BLCC logo"} />
                         <a>Powered by E3</a>
                         <OpenEditorButton

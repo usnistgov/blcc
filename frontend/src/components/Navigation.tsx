@@ -76,7 +76,7 @@ export default function Navigation() {
     useSubscribe(alternativeSummaryClick$, () => navigate("/editor/alternative"));
 
     return (
-        <div className="flex flex-col gap-2 p-2 w-fit h-full bg-primary text-base-lightest">
+        <div className="flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest">
             <GeneralInformationButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiFileDocument}>
                 General Information
             </GeneralInformationButton>

@@ -127,7 +127,7 @@ export default function Alternatives() {
     ];
 
     return (
-        <div className="w-full h-full bg-white p-3">
+        <div className="h-full w-full bg-white p-3">
             <AddAlternativeModal />
             <AddCostModal />
 
@@ -180,13 +180,13 @@ export default function Alternatives() {
                         <Divider className="m-0" />
                         {Object.entries(category.children ?? {}).map(([name, costs]) => {
                             return (
-                                <div className="flex flex-col justify-between m-2 border">
+                                <div className="m-2 flex flex-col justify-between border">
                                     <div className="border bg-primary text-center text-white">{name || ""}</div>
                                     <ul className="hover:cursor-pointer">
                                         {(costs as unknown as Cost[]).map((item: Cost) => (
                                             <li
                                                 key={item.id}
-                                                className="overflow-hidden whitespace-nowrap text-ellipsis"
+                                                className="overflow-hidden text-ellipsis whitespace-nowrap"
                                                 onClick={() => navigate(`/editor/cost/${item.id}`)}
                                             >
                                                 {item?.name || "Unknown"}

@@ -8,8 +8,8 @@ export default function Inputs() {
     const e3Result = useE3Result();
 
     return (
-        <div className={"w-full h-full p-8"}>
-            <div className="w-1/2 grid grid-cols-2">
+        <div className={"h-full w-full p-8"}>
+            <div className="grid w-1/2 grid-cols-2">
                 <ResultsInput label="Project Name" dataVal={Model.useName()} />
                 <ResultsInput label="Analyst" dataVal={Model.useAnalyst()} />
                 <ResultsInput label="Analysis Type" dataVal={Model.useAnalysisType()} />
