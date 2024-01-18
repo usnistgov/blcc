@@ -127,11 +127,11 @@ export default function Alternatives() {
     ];
 
     return (
-        <div className="h-full w-full bg-white p-3">
+        <div className="h-full w-full bg-white">
             <AddAlternativeModal />
             <AddCostModal />
 
-            <div className={"float-right"}>
+            <div className={"flex flex-row-reverse border-b border-base-lightest py-2"}>
                 <AddAlternativeButton type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
@@ -143,62 +143,73 @@ export default function Alternatives() {
                     <Icon path={mdiMinus} size={1} /> Remove
                 </RemoveButton>
             </div>
-            <Divider />
-
-            <div className="flex">
-                <div className="w-1/2">
-                    <div className="w-1/2">
-                        <Title level={5}>Name</Title>
-                        <NameInput type={TextInputType.PRIMARY} />
-                    </div>
-                    <div className="w-1/2">
-                        <Title level={5}>Description</Title>
-                        <DescInput />
-                    </div>
-                </div>
-                <span className="w-1/2">
-                    <Title level={5}>Baseline Alternative</Title>
-                    <BaselineSwitch />
-                    <p>Only one alternative can be the baseline.</p>
-                </span>
-            </div>
-            <br />
-            <div className="flex justify-between">
-                <Title level={4}>Alternative Costs</Title>
-                <AddCostButton type={ButtonType.LINK}>
-                    <Icon path={mdiPlus} size={1} />
-                    Add Cost
-                </AddCostButton>
-            </div>
-            <Divider className="m-0 mb-4" />
-            <div className="flex justify-between" style={{ alignContent: "space-between" }}>
-                {categories.map((category) => (
-                    <div className="water-costs w-40" key={category.label}>
-                        <div className=" flex justify-between">
-                            <Title level={5}>{category.label}</Title>
+            <div className={"p-6"}>
+                <div className={"flex"}>
+                    <div className={"w-1/2"}>
+                        <div className={"w-1/2"}>
+                            <Title level={5}>Name</Title>
+                            <NameInput type={TextInputType.PRIMARY} />
                         </div>
-                        <Divider className="m-0" />
-                        {Object.entries(category.children ?? {}).map(([name, costs]) => {
-                            return (
-                                <div className="m-2 flex flex-col justify-between border">
-                                    <div className="border bg-primary text-center text-white">{name || ""}</div>
-                                    <ul className="hover:cursor-pointer">
-                                        {(costs as unknown as Cost[]).map((item: Cost) => (
-                                            <li
-                                                key={item.id}
-                                                className="overflow-hidden text-ellipsis whitespace-nowrap"
-                                                onClick={() => navigate(`/editor/cost/${item.id}`)}
-                                            >
-                                                {item?.name || "Unknown"}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            );
-                        })}
+                        <div className={"w-1/2"}>
+                            <Title level={5}>Description</Title>
+                            <DescInput />
+                        </div>
                     </div>
-                ))}
-                <div />
+                    <span className={"w-1/2"}>
+                        <Title level={5}>Baseline Alternative</Title>
+                        <BaselineSwitch />
+                        <p>Only one alternative can be the baseline.</p>
+                    </span>
+                </div>
+                <br />
+                <div className={"flex justify-between"}>
+                    <Title level={4}>Alternative Costs</Title>
+                    <AddCostButton type={ButtonType.LINK}>
+                        <Icon path={mdiPlus} size={1} />
+                        Add Cost
+                    </AddCostButton>
+                </div>
+                <Divider className={"m-0 mb-4"} />
+                <div className={"flex gap-16"}>
+                    {categories
+                        .filter((category) => Object.entries(category.children ?? {}).length > 0)
+                        .map((category) => (
+                            <div className={"min-w-[20rem] max-w-xl"} key={category.label}>
+                                <div className={"flex justify-between"}>
+                                    <Title level={5}>{category.label}</Title>
+                                </div>
+                                <div
+                                    className={
+                                        "flex flex-col overflow-hidden rounded-md border border-base-lightest shadow-md"
+                                    }
+                                >
+                                    {Object.entries(category.children ?? {}).map(([name, costs]) => {
+                                        return (
+                                            <>
+                                                <div className={"bg-primary px-2 py-1.5 text-center text-white"}>
+                                                    {name || ""}
+                                                </div>
+                                                <ul className={"divide-y divide-base-lightest hover:cursor-pointer"}>
+                                                    {(costs as unknown as Cost[]).map((item: Cost) => (
+                                                        <li
+                                                            key={item.id}
+                                                            className={
+                                                                "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary"
+                                                            }
+                                                            onClick={() => navigate(`/editor/cost/${item.id}`)}
+                                                        >
+                                                            {item?.name || "Unknown"}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    <div />
+                </div>
             </div>
         </div>
     );
