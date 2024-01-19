@@ -40,7 +40,7 @@ export default function App() {
     return (
         <Subscribe>
             <BrowserRouter>
-                <div className={"flex flex-col h-full"}>
+                <div className={"flex h-full flex-col"}>
                     {/* App bars */}
                     <Routes>
                         <Route path={"/editor/*"} element={<EditorAppBar />} />

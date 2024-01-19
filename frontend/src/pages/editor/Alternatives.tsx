@@ -1,4 +1,4 @@
-import { Alternative, Cost, CostTypes, FuelType } from "../../blcc-format/Format";
+import { Alternative, Cost, CostTypes, EnergyCost, FuelType } from "../../blcc-format/Format";
 import { Divider, Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
@@ -60,7 +60,7 @@ const [energyCategories] = bind(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>)
     ),
-    undefined
+    {} as Subcategories<FuelType>
 );
 
 // Count all water costs
@@ -73,7 +73,7 @@ const [capitalCategories] = bind(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
     ),
-    undefined
+    {} as Subcategories<CostTypes>
 );
 
 // Count all contract costs and its subcategories
@@ -83,7 +83,7 @@ const [contractCategories] = bind(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
     ),
-    undefined
+    {} as Subcategories<CostTypes>
 );
 
 // Count all other costs and its subcategories
@@ -93,7 +93,8 @@ const [otherCategories] = bind(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
     ),
-    undefined
+
+    {} as Subcategories<CostTypes>
 );
 
 export default function Alternatives() {
@@ -127,11 +128,11 @@ export default function Alternatives() {
     ];
 
     return (
-        <div className="h-full w-full bg-white">
+        <div className="h-full w-full">
             <AddAlternativeModal />
             <AddCostModal />
 
-            <div className={"flex flex-row-reverse border-b border-base-lightest py-2"}>
+            <div className={"flex flex-row-reverse border-b-2 border-base-lightest py-2"}>
                 <AddAlternativeButton type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
@@ -144,53 +145,51 @@ export default function Alternatives() {
                 </RemoveButton>
             </div>
             <div className={"p-6"}>
-                <div className={"flex"}>
-                    <div className={"w-1/2"}>
-                        <div className={"w-1/2"}>
-                            <Title level={5}>Name</Title>
-                            <NameInput type={TextInputType.PRIMARY} />
-                        </div>
-                        <div className={"w-1/2"}>
-                            <Title level={5}>Description</Title>
-                            <DescInput />
-                        </div>
+                <div className={"max-w-screen-lg"}>
+                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                        <NameInput className={"w-full"} type={TextInputType.PRIMARY} label={"Name"} />
+                        <span className={"w-1/2"}>
+                            <Title level={5}>Baseline Alternative</Title>
+                            <p>Only one alternative can be the baseline.</p>
+                            <BaselineSwitch />
+                        </span>
+
+                        <span className={"col-span-2"}>
+                            <DescInput className={"w-full"} label={"Description"} />
+                        </span>
                     </div>
-                    <span className={"w-1/2"}>
-                        <Title level={5}>Baseline Alternative</Title>
-                        <BaselineSwitch />
-                        <p>Only one alternative can be the baseline.</p>
-                    </span>
                 </div>
+
                 <br />
-                <div className={"flex justify-between"}>
+                <div className={"flex justify-between border-b-2 border-base-lightest"}>
                     <Title level={4}>Alternative Costs</Title>
                     <AddCostButton type={ButtonType.LINK}>
                         <Icon path={mdiPlus} size={1} />
                         Add Cost
                     </AddCostButton>
                 </div>
-                <Divider className={"m-0 mb-4"} />
-                <div className={"flex gap-16"}>
-                    {categories
-                        .filter((category) => Object.entries(category.children ?? {}).length > 0)
-                        .map((category) => (
+                <div className={"flex flex-wrap gap-16 py-6"}>
+                    {categories.map((category) => {
+                        const children: [string, Cost[]][] = Object.entries(category.children);
+
+                        return (
                             <div className={"min-w-[20rem] max-w-xl"} key={category.label}>
                                 <div className={"flex justify-between"}>
                                     <Title level={5}>{category.label}</Title>
                                 </div>
-                                <div
-                                    className={
-                                        "flex flex-col overflow-hidden rounded-md border border-base-lightest shadow-md"
-                                    }
-                                >
-                                    {Object.entries(category.children ?? {}).map(([name, costs]) => {
-                                        return (
+                                {children.length > 0 ? (
+                                    <div
+                                        className={
+                                            "flex flex-col overflow-hidden rounded-md border border-base-lightest shadow-md"
+                                        }
+                                    >
+                                        {children.map(([name, costs]) => (
                                             <>
                                                 <div className={"bg-primary px-2 py-1.5 text-center text-white"}>
-                                                    {name || ""}
+                                                    {name}
                                                 </div>
-                                                <ul className={"divide-y divide-base-lightest hover:cursor-pointer"}>
-                                                    {(costs as unknown as Cost[]).map((item: Cost) => (
+                                                <ul className={"hover:cursor-pointer"}>
+                                                    {costs.map((item: Cost) => (
                                                         <li
                                                             key={item.id}
                                                             className={
@@ -203,11 +202,14 @@ export default function Alternatives() {
                                                     ))}
                                                 </ul>
                                             </>
-                                        );
-                                    })}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className={"text-base-dark"}>No {category.label}</p>
+                                )}
                             </div>
-                        ))}
+                        );
+                    })}
                     <div />
                 </div>
             </div>
