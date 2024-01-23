@@ -31,6 +31,8 @@ import {
 } from "../pages/editor/GeneralInformation";
 import { connectProject } from "./Model";
 import { getNewID } from "../util/Util";
+import { map } from "rxjs/operators";
+import { rules } from "./rules/Rules";
 
 const project$ = mergeWithKey({
     imported$,
@@ -152,5 +154,13 @@ const project$ = mergeWithKey({
     shareLatest(),
     connectProject()
 );
+
+export const ruleErrors$ = project$.pipe(
+    map((project) => {
+        return rules.map((rule) => rule(project)).filter((result) => !result.value);
+    })
+);
+
+export const isProjectValid$ = ruleErrors$.pipe(map((results) => results.length <= 0));
 
 export { project$ };

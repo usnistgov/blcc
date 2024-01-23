@@ -8,7 +8,7 @@ import { Alternative } from "../blcc-format/Format";
 import button, { ButtonType } from "./Button";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import collapse from "./Collapse";
-import { mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
+import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 
 // Stream of new alternatives to add to project. Will be replaced with a modal to get the name
 const [addAlternativeClick$, addAlternative] = createSignal();
@@ -41,11 +41,11 @@ function altButton(alt: Alternative) {
     const { click$, component: Button } = button();
 
     return {
-        component: function AltButton() {
+        component: function AltButton({ icon }: { icon?: string }) {
             const navigate = useNavigate();
             useSubscribe(click$, () => navigate(`/editor/alternative/${alt.id}`));
             return (
-                <Button key={alt.id} type={ButtonType.PRIMARY}>
+                <Button key={alt.id} type={ButtonType.PRIMARY} icon={icon}>
                     {alt.name}
                 </Button>
             );
@@ -58,7 +58,7 @@ const [useMenuItems] = bind(
         map((alternatives) =>
             alternatives.map((alt) => {
                 const button = altButton(alt);
-                return <button.component key={alt.id} />;
+                return <button.component key={alt.id} icon={alt.baseline ? mdiAlphaBBox : undefined} />;
             })
         )
     ),

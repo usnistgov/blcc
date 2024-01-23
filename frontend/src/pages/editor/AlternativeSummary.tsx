@@ -1,4 +1,4 @@
-import { mdiPlus } from "@mdi/js";
+import { mdiAlphaBBox, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { Divider, Typography } from "antd";
@@ -115,7 +115,10 @@ export function createAlternativeCard(index: number) {
                     }
                     onClick={click}
                 >
-                    <Title level={4}>{alt()?.name}</Title>
+                    <div className={"flex flex-row gap-1"}>
+                        {alt()?.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
+                        <Title level={4}>{alt()?.name}</Title>
+                    </div>
                     <p>{alt()?.description}</p>
                     <br />
                     <div className={"flex flex-row justify-between gap-6"}>
