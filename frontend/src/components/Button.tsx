@@ -51,7 +51,7 @@ export default function button(): Button {
                     disabled={disabled}
                 >
                     <span className={"flex flex-row place-items-center"}>
-                        {icon && iconSide === "left" && <Icon className={"mr-1"} path={icon} size={0.8} />}
+                        {icon && iconSide === "left" && <Icon className={"mr-1 min-w-[24px]"} path={icon} size={0.8} />}
                         {children}
                         {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8} />}
                     </span>

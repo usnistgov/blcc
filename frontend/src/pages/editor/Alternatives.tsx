@@ -184,7 +184,7 @@ export default function Alternatives() {
                                         }
                                     >
                                         {children.map(([name, costs]) => (
-                                            <>
+                                            <span key={name}>
                                                 <div className={"bg-primary px-2 py-1.5 text-center text-white"}>
                                                     {name}
                                                 </div>
@@ -201,7 +201,7 @@ export default function Alternatives() {
                                                         </li>
                                                     ))}
                                                 </ul>
-                                            </>
+                                            </span>
                                         ))}
                                     </div>
                                 ) : (

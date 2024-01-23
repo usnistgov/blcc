@@ -23,3 +23,10 @@ export function countProperty<A, B extends string>(
         )
     );
 }
+
+/**
+ * Creates an operator that filters an array contained inside a stream.
+ */
+export function arrayFilter<A>(predicate: (a: A) => boolean): UnaryFunction<Observable<A[]>, Observable<A[]>> {
+    return pipe(map((array) => array.filter(predicate)));
+}
