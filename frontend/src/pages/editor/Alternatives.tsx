@@ -1,9 +1,8 @@
-import { Alternative, Cost, CostTypes, EnergyCost, FuelType } from "../../blcc-format/Format";
-import { Divider, Typography } from "antd";
+import { Cost, CostTypes, FuelType } from "../../blcc-format/Format";
+import { Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { urlParameters$ } from "../../components/UrlParameters";
 import addAlternativeModal from "../../components/AddAlternativeModal";
 import addCostModal from "../../components/AddCostModal";
 import switchComp from "../../components/Switch";
@@ -12,18 +11,19 @@ import textInput, { TextInputType } from "../../components/TextInput";
 import { Model } from "../../model/Model";
 import { useNavigate } from "react-router-dom";
 import { map, withLatestFrom } from "rxjs/operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
-import { combineLatest, filter, sample } from "rxjs";
+import { sample } from "rxjs";
 import { bind } from "@react-rxjs/core";
-import { combinedCostObject$ } from "./AlternativeSummary";
+import {
+    alt$,
+    alternativeID$,
+    capitalCosts$,
+    contractCosts$,
+    energyCosts$,
+    otherCosts$,
+    waterCosts$
+} from "../../model/AlternativeModel";
 
 const { Title } = Typography;
-
-const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)));
-const alt$ = combineLatest([alternativeID$, Model.alternatives$]).pipe(
-    map(([altId, alts]) => alts.find((a) => a.id === altId)),
-    filter((alt): alt is Alternative => alt !== undefined)
-);
 
 const { click$: cloneAlternativeClick$, component: CloneButton } = button();
 const { click$: removeAlternativeClick$, component: RemoveButton } = button();
@@ -43,20 +43,13 @@ export const cloneAlternative$ = alternativeID$.pipe(sample(cloneAlternativeClic
 const { component: AddAlternativeModal } = addAlternativeModal(openAltModal$.pipe(map(() => true)));
 const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
-// just the single alternative
-export const altCosts$ = alt$.pipe(
-    withLatestFrom(combinedCostObject$),
-    map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
-);
-
 type Subcategories<T> = {
     [key in keyof T]: Cost[];
 };
 
 // Count all energy costs, and the count of its subcategories
 const [energyCategories] = bind(
-    altCosts$.pipe(
-        map((costs) => costs.filter(isEnergyCost)),
+    energyCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>)
     ),
@@ -64,12 +57,11 @@ const [energyCategories] = bind(
 );
 
 // Count all water costs
-const [waterCosts] = bind(altCosts$.pipe(map((costs) => costs.filter(isWaterCost))), []);
+const [waterCosts] = bind(waterCosts$, []);
 
 // Count all capital costs and its subcategories
 const [capitalCategories] = bind(
-    altCosts$.pipe(
-        map((costs) => costs.filter(isCapitalCost)),
+    capitalCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
     ),
@@ -78,8 +70,7 @@ const [capitalCategories] = bind(
 
 // Count all contract costs and its subcategories
 const [contractCategories] = bind(
-    altCosts$.pipe(
-        map((costs) => costs.filter(isContractCost)),
+    contractCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
     ),
@@ -88,12 +79,10 @@ const [contractCategories] = bind(
 
 // Count all other costs and its subcategories
 const [otherCategories] = bind(
-    altCosts$.pipe(
-        map((costs) => costs.filter(isOtherCost)),
+    otherCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
     ),
-
     {} as Subcategories<CostTypes>
 );
 
@@ -197,6 +186,7 @@ export default function Alternatives() {
                                                             }
                                                             onClick={() => navigate(`/editor/cost/${item.id}`)}
                                                         >
+                                                            {/*FIXME switch to button so keyboard navigation works*/}
                                                             {item?.name || "Unknown"}
                                                         </li>
                                                     ))}

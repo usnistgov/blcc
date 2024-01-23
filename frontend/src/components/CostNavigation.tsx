@@ -3,54 +3,51 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Cost } from "../blcc-format/Format";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
-import { altCosts$ } from "../pages/editor/Alternatives";
-import { map } from "rxjs";
+import { map, Observable } from "rxjs";
 import button, { ButtonType } from "./Button";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import collapse from "./Collapse";
 import { bind } from "@react-rxjs/core";
-import { arrayFilter } from "../util/Operators";
+import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../model/AlternativeModel";
 
 type MenuItem = {
     title: string;
     icon: string;
-    predicate: (cost: Cost) => boolean;
+    costs$: Observable<Cost[]>;
 };
 
 const items: MenuItem[] = [
     {
         title: "Energy Costs",
         icon: mdiLightningBolt,
-        predicate: isEnergyCost
+        costs$: energyCosts$
     },
     {
         title: "Water Costs",
         icon: mdiWater,
-        predicate: isWaterCost
+        costs$: waterCosts$
     },
     {
         title: "Capital Costs",
         icon: mdiCurrencyUsd,
-        predicate: isCapitalCost
+        costs$: capitalCosts$
     },
     {
         title: "Contract Costs",
         icon: mdiFileSign,
-        predicate: isContractCost
+        costs$: contractCosts$
     },
     {
         title: "Other Costs",
         icon: mdiFormatListBulletedType,
-        predicate: isOtherCost
+        costs$: otherCosts$
     }
 ];
 
 function menuCollapse(item: MenuItem) {
     const { component: Collapse } = collapse();
     const [useButtons] = bind(
-        altCosts$.pipe(
-            arrayFilter(item.predicate),
+        item.costs$.pipe(
             map((costs) =>
                 costs.map((cost) => {
                     const button = costButton(cost);
