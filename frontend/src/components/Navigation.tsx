@@ -1,41 +1,13 @@
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { map, sample } from "rxjs";
+import { map } from "rxjs";
 import { Model } from "../model/Model";
 import { bind } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
 import { Alternative } from "../blcc-format/Format";
 import button, { ButtonType } from "./Button";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import collapse from "./Collapse";
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
-
-// Stream of new alternatives to add to project. Will be replaced with a modal to get the name
-const [addAlternativeClick$, addAlternative] = createSignal();
-const addAlternative$ = Model.alternatives$.pipe(
-    sample(addAlternativeClick$),
-    //TODO open modal instead
-    map((alternatives) => {
-        const nextID = getNewID(alternatives);
-
-        return {
-            id: nextID,
-            name: `New Alternative ${nextID}`,
-            costs: []
-        };
-    })
-);
-
-function getNewID(alternatives: Alternative[]) {
-    const ids = alternatives.map((alt) => alt.id);
-    const newID = Math.max(...ids) + 1;
-
-    if (newID < 0) return 0;
-
-    return newID;
-}
-
-export { addAlternative$ };
 
 function altButton(alt: Alternative) {
     const { click$, component: Button } = button();

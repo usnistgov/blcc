@@ -7,14 +7,28 @@ import { Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
+import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { sample } from "rxjs";
 
 const { Title } = Typography;
-const { component: AddAlternativeButton } = button();
+const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
+
+export const addAlternative$ = Model.alternatives$.pipe(
+    sample(addAlternativeClick$),
+    //TODO open modal instead
+    map((alternatives) => {
+        const nextID = getNewID(alternatives);
+
+        return {
+            id: nextID,
+            name: `New Alternative ${nextID}`,
+            costs: []
+        };
+    })
+);
 
 const combinedCostObject$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
 

@@ -5,7 +5,6 @@ import { Alternative, AnalysisType, Cost, DiscountingMethod, DollarMethod, Proje
 import { imported$ } from "../blcc-format/Import";
 import { Version } from "../blcc-format/Verison";
 import { newCost$ } from "../components/AddCostModal";
-import { addAlternative$ } from "../components/Navigation";
 import { Country } from "../constants/LOCATION";
 import {
     alternativeNameChange$,
@@ -33,6 +32,7 @@ import { connectProject } from "./Model";
 import { getNewID } from "../util/Util";
 import { map } from "rxjs/operators";
 import { rules } from "./rules/Rules";
+import { addAlternative$ } from "../components/AddAlternativeModal";
 
 const project$ = mergeWithKey({
     imported$,
@@ -54,7 +54,6 @@ const project$ = mergeWithKey({
     location: combinedLocation$,
     ghg: combinedGHG$,
     baselineChange$: modifiedBaselineChange$,
-    addAlternative2$: addAlternative$,
     removeAlternative$,
     cloneAlternative$,
     newCost$,
@@ -67,10 +66,6 @@ const project$ = mergeWithKey({
                     return operation.payload;
                 }
                 case "addAlternative$": {
-                    accumulator.alternatives.push(operation.payload);
-                    break;
-                }
-                case "addAlternative2$": {
                     accumulator.alternatives.push(operation.payload);
                     break;
                 }
