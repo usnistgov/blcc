@@ -132,7 +132,7 @@ export default function Alternatives() {
             <AddAlternativeModal />
             <AddCostModal />
 
-            <div className={"flex flex-row-reverse border-b-2 border-base-lightest py-2"}>
+            <div className={"flex-end flex justify-end border-b-2 border-base-lightest py-2"}>
                 <AddAlternativeButton type={ButtonType.LINK}>
                     <Icon path={mdiPlus} size={1} />
                     Add Alternative
