@@ -44,7 +44,7 @@ const { component: AddAlternativeModal } = addAlternativeModal(openAltModal$.pip
 const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
 // just the single alternative
-const altCosts$ = alt$.pipe(
+export const altCosts$ = alt$.pipe(
     withLatestFrom(combinedCostObject$),
     map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
 );

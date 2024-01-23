@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { map, sample } from "rxjs";
 import { Model } from "../model/Model";
 import { bind } from "@react-rxjs/core";
@@ -76,16 +76,23 @@ export default function Navigation() {
     useSubscribe(alternativeSummaryClick$, () => navigate("/editor/alternative"));
 
     return (
-        <div className="flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest">
-            <GeneralInformationButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiFileDocument}>
-                General Information
-            </GeneralInformationButton>
-            <AlternativeSummaryButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiViewList}>
-                Alternative Summary
-            </AlternativeSummaryButton>
-            <AlternativeSubMenu title={"Alternatives"} icon={mdiFileTree}>
-                {useMenuItems()}
-            </AlternativeSubMenu>
-        </div>
+        <>
+            <div className="flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest">
+                <GeneralInformationButton
+                    type={ButtonType.PRIMARY}
+                    className={"whitespace-nowrap"}
+                    icon={mdiFileDocument}
+                >
+                    General Information
+                </GeneralInformationButton>
+                <AlternativeSummaryButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiViewList}>
+                    Alternative Summary
+                </AlternativeSummaryButton>
+                <AlternativeSubMenu title={"Alternatives"} icon={mdiFileTree}>
+                    {useMenuItems()}
+                </AlternativeSubMenu>
+            </div>
+            <Outlet />
+        </>
     );
 }

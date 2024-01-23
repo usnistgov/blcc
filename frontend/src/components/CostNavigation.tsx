@@ -1,41 +1,100 @@
-import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiPlus, mdiWater } from "@mdi/js";
-import Icon from "@mdi/react";
-import { Layout, Menu, Typography } from "antd";
-import React, { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiWater } from "@mdi/js";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Cost } from "../blcc-format/Format";
 import { Model } from "../model/Model";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
+import { altCosts$ } from "../pages/editor/Alternatives";
+import { map } from "rxjs";
+import button, { ButtonType } from "./Button";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import collapse from "./Collapse";
+import { bind } from "@react-rxjs/core";
 
-const { Sider } = Layout;
-const { Title } = Typography;
+function costButton(cost: Cost) {
+    const { click$, component: Button } = button();
 
-type MenuItem = {
-    key: React.Key;
-    icon?: React.ReactNode;
-    label: React.ReactNode;
-    children?: MenuItem[];
-};
-
-const rootSubmenuKeys: string[] = ["energy-costs", "water-costs", "capital-costs", "contract-costs", "other"];
-
-const background = "rgb(0 94 162)";
-
-export default function CostNavigation() {
-    const [collapsed, setCollapsed] = useState(false);
-    const [openKeys, setOpenKeys] = useState(["energy-costs"]);
-    const navigate = useNavigate();
-    const costs = Model.useCosts();
-
-    const onOpenChange = (keys: string[]) => {
-        const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
-        if (latestOpenKey && rootSubmenuKeys.indexOf(latestOpenKey!) === -1) {
-            setOpenKeys(keys);
-        } else {
-            setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+    return {
+        component: function AltButton() {
+            const navigate = useNavigate();
+            useSubscribe(click$, () => navigate(`cost/${cost.id}`));
+            return (
+                <Button key={cost.id} type={ButtonType.PRIMARY}>
+                    {cost.name}
+                </Button>
+            );
         }
     };
+}
+
+const [useEnergyButtons] = bind(
+    altCosts$.pipe(
+        map((costs) =>
+            costs.map((cost) => {
+                const button = costButton(cost);
+                return <button.component key={cost.id} />;
+            })
+        )
+    ),
+    []
+);
+const [useWateryButtons] = bind(
+    altCosts$.pipe(
+        map((costs) =>
+            costs.map((cost) => {
+                const button = costButton(cost);
+                return <button.component key={cost.id} />;
+            })
+        )
+    ),
+    []
+);
+
+const [useCapitalButtons] = bind(
+    altCosts$.pipe(
+        map((costs) =>
+            costs.map((cost) => {
+                const button = costButton(cost);
+                return <button.component key={cost.id} />;
+            })
+        )
+    ),
+    []
+);
+
+const [useContractButtons] = bind(
+    altCosts$.pipe(
+        map((costs) =>
+            costs.map((cost) => {
+                const button = costButton(cost);
+                return <button.component key={cost.id} />;
+            })
+        )
+    ),
+    []
+);
+
+const [useOtherButtons] = bind(
+    altCosts$.pipe(
+        map((costs) =>
+            costs.map((cost) => {
+                const button = costButton(cost);
+                return <button.component key={cost.id} />;
+            })
+        )
+    ),
+    []
+);
+
+const { component: EnergyCollapse } = collapse();
+const { component: WaterCollapse } = collapse();
+const { component: CapitalCollapse } = collapse();
+const { component: ContractCollapse } = collapse();
+const { component: OtherCollapse } = collapse();
+
+export default function CostNavigation() {
+    const costs = Model.useCosts();
 
     const waterCosts = costs.filter(isWaterCost);
     const energyCosts = costs.filter(isEnergyCost);
@@ -43,128 +102,23 @@ export default function CostNavigation() {
     const contractCosts = costs.filter(isContractCost);
     const otherCosts = costs.filter(isOtherCost);
 
-    const retrieveSubMenu = (costs: Cost[], key: string, arr: MenuItem[]) => {
-        for (let i = 0; i < costs.length; i++) {
-            arr.push({
-                key: `cost/${costs[i]?.id}`,
-                label: costs[i]?.name ? (
-                    <React.Fragment>{costs[i]?.name}</React.Fragment>
-                ) : (
-                    <React.Fragment>{key} (No Name)</React.Fragment>
-                )
-            });
-        }
-    };
-
-    const addCostItem = (cost: string) => {
-        return (
-            <React.Fragment>
-                <span className="flex items-center">
-                    <Icon path={mdiPlus} size={1} />
-                    Add {cost} Cost
-                </span>
-            </React.Fragment>
-        );
-    };
-
-    const energy = [
-        {
-            key: "add-energy-cost",
-            icon: <Icon path={mdiPlus} size={1} />,
-            label: addCostItem("Energy")
-        }
-    ];
-
-    const water = [
-        {
-            key: "add-water-cost",
-            icon: <Icon path={mdiPlus} size={1} />,
-            label: addCostItem("Water")
-        }
-    ];
-
-    const capital = [
-        {
-            key: "add-capital-cost",
-            icon: <Icon path={mdiPlus} size={1} />,
-            label: addCostItem("Capital")
-        }
-    ];
-
-    const other = [
-        {
-            key: "add-other-cost",
-            icon: <Icon path={mdiPlus} size={1} />,
-            label: addCostItem("Other")
-        }
-    ];
-
-    const contract = [
-        {
-            key: "add-contract-cost",
-            icon: <Icon path={mdiPlus} size={1} />,
-            label: addCostItem("Contract")
-        }
-    ];
-
-    retrieveSubMenu(energyCosts, "energy", energy);
-    retrieveSubMenu(waterCosts, "water", water);
-    retrieveSubMenu(capitalCosts, "capital", capital);
-    retrieveSubMenu(contractCosts, "contract", contract);
-    retrieveSubMenu(otherCosts, "other", other);
-
-    const items: MenuItem["children"] = [
-        {
-            key: "energy-costs",
-            icon: <Icon path={mdiLightningBolt} size={1} />,
-            label: "Energy Costs",
-            children: energy
-        },
-        {
-            key: "water-costs",
-            icon: <Icon path={mdiWater} size={1} />,
-            label: "Water Costs",
-            children: water
-        },
-        {
-            key: "capital-costs",
-            icon: <Icon path={mdiCurrencyUsd} size={1} />,
-            label: "Capital Costs",
-            children: capital
-        },
-        {
-            key: "contract-costs",
-            icon: <Icon path={mdiFileSign} size={1} />,
-            label: "Contract Costs",
-            children: contract
-        },
-        {
-            key: "other",
-            icon: <Icon path={mdiFormatListBulletedType} size={1} />,
-            label: "Other",
-            children: other
-        }
-    ];
-
     return (
-        <>
-            <Sider
-                style={{ background, color: "#fff" }}
-                collapsed={collapsed}
-                onCollapse={(value) => setCollapsed(value)}
-            >
-                <Title style={{ textAlign: "center", color: "#fff", marginBottom: "0" }} level={4}>
-                    Cost
-                </Title>
-                <Menu
-                    className="bg-primary text-white"
-                    mode="inline"
-                    openKeys={openKeys}
-                    onOpenChange={onOpenChange}
-                    onClick={({ key }: { key: string }) => navigate(`/editor/alternative/${key}`)}
-                    items={items}
-                />
-            </Sider>
-        </>
+        <div className="flex h-full w-fit flex-col gap-2 whitespace-nowrap bg-primary p-2 text-base-lightest">
+            <EnergyCollapse title={"Energy Costs"} icon={mdiLightningBolt}>
+                {useEnergyButtons()}
+            </EnergyCollapse>
+            <WaterCollapse title={"Water Costs"} icon={mdiWater}>
+                {useWateryButtons()}
+            </WaterCollapse>
+            <CapitalCollapse title={"Capital Costs"} icon={mdiCurrencyUsd}>
+                {useCapitalButtons()}
+            </CapitalCollapse>
+            <ContractCollapse title={"Contract Costs"} icon={mdiFileSign}>
+                {useContractButtons()}
+            </ContractCollapse>
+            <OtherCollapse title={"Other Costs"} icon={mdiFormatListBulletedType}>
+                {useOtherButtons()}
+            </OtherCollapse>
+        </div>
     );
 }

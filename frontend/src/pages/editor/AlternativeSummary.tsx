@@ -29,7 +29,7 @@ export default function AlternativeSummary() {
         <div className={"flex h-full w-full flex-col items-center"}>
             <div className={"flex w-3/4 max-w-6xl flex-col"}>
                 <div className={"flex flex-row-reverse border-b border-base-lighter"}>
-                    <AddAlternativeButton className={"my-2"} type={ButtonType.PRIMARY_INVERTED}>
+                    <AddAlternativeButton className={"my-2"} type={ButtonType.LINK}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
                     </AddAlternativeButton>
