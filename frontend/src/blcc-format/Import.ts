@@ -2,6 +2,7 @@ import { createSignal } from "@react-rxjs/utils";
 import { iif, map, Observable, Subject, switchMap } from "rxjs";
 import { convert } from "./Converter";
 import { Project } from "./Format";
+import { shareLatest } from "@react-rxjs/core";
 
 const [uploadFile$, upload] = createSignal<FileList>();
 
@@ -21,9 +22,8 @@ const imported$: Observable<Project> = uploadFile$.pipe(
             result$.pipe(convert()), //TODO: add validation and an error message on failure
             result$.pipe(map((text) => JSON.parse(text) as Project))
         );
-    })
+    }),
+    shareLatest()
 );
-
-imported$.subscribe(console.log);
 
 export { imported$, upload };

@@ -40,6 +40,7 @@ export default function EditorAppBar() {
                     className={"hidden"}
                     type={"file"}
                     id={"open"}
+                    onClick={(event) => (event.currentTarget.value = "")}
                     onChange={(event) => {
                         if (event.currentTarget.files) upload(event.currentTarget.files);
                     }}
