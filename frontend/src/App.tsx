@@ -52,7 +52,9 @@ export default function App() {
                         <Routes>
                             <Route index element={<Index />} />
                             <Route path={"/editor"} element={<Navigation />}>
-                                <Route path={"alternative/*"} element={<CostNavigation />} />
+                                <Route path={"alternative"}>
+                                    <Route path={"*"} element={<CostNavigation />} />
+                                </Route>
                             </Route>
                             <Route path={"/results/*"} element={<ResultNavigation />} />
                         </Routes>
