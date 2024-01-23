@@ -38,6 +38,10 @@ import { Country, stateToAbbreviation } from "../constants/LOCATION";
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
 
+/**
+ * A RXJS operator to convert an XML string representing an old BLCC format file and converting it into the new
+ * JSON format.
+ */
 export function convert(): UnaryFunction<Observable<string>, Observable<Project>> {
     return pipe(
         map((xml) => parser.parse(xml)),

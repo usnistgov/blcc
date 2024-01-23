@@ -7,6 +7,9 @@ import { bind } from "@react-rxjs/core";
 
 const [isValid] = bind(isProjectValid$, true);
 
+/**
+ * A bar that displays some overview statistics and status of the current project.
+ */
 export default function Statistics() {
     const valid = isValid();
 
@@ -16,6 +19,11 @@ export default function Statistics() {
                 <p className={"px-4"}>{`Alternatives ${Model.useAlternatives().length}`}</p>
                 <p className={"px-4"}>{`Costs ${Model.useCosts().length}`}</p>
             </div>
+
+            {/*
+             * Displays whether the current project can be run by E3 or not.
+             * #TODO If not, display a tooltip with a link to where the error originates.
+             */}
             <div>
                 <Icon
                     className={"mx-2 " + (valid ? "text-success" : "text-error")}

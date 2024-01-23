@@ -28,6 +28,11 @@ export function isOtherCost(cost: Cost) {
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
 
+/**
+ * Returns a new ID that does not collide with any of the provided IDs.
+ *
+ * @param values The IDs that already exist.
+ */
 export function getNewID(values: { id: number }[]) {
     const ids = values.map((value) => value.id);
     const newID = Math.max(...ids) + 1;
@@ -37,6 +42,9 @@ export function getNewID(values: { id: number }[]) {
     return newID;
 }
 
+/**
+ * Default formatter for US currency values.
+ */
 export const dollarFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"

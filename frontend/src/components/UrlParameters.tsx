@@ -2,8 +2,14 @@ import { createSignal } from "@react-rxjs/utils";
 import { PropsWithChildren, useEffect } from "react";
 import { Params, useParams } from "react-router-dom";
 
+/**
+ * A stream that represents the URL parameters.
+ */
 export const [urlParameters$, setUrlParameters$] = createSignal<Params>();
 
+/**
+ * Creates a component that pushes the URL parameters into a stream.
+ */
 export default function UrlParameters({ children }: PropsWithChildren) {
     const params = useParams();
 

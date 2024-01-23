@@ -4,6 +4,7 @@ import "../nist-header-footer.sass";
 import { bind } from "@react-rxjs/core";
 import { from, mergeMap, shareReplay } from "rxjs";
 
+// Loads the header
 const [useHeader] = bind(
     from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-header.html")).pipe(
         mergeMap((result) => result.text()),
@@ -12,6 +13,7 @@ const [useHeader] = bind(
     ""
 );
 
+// Loads the footer
 const [useFooter] = bind(
     from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html")).pipe(
         mergeMap((result) => result.text()),
