@@ -9,9 +9,9 @@ const { component: RecurrenceSwitch } = switchComp();
 export default function OMRCostFields() {
     return (
         <div className={"flex flex-col"}>
-            <InitialCostInput label={"Initial Cost"} before={"$"} controls />
-            <InitialOccurrenceInput label={"Initial Occurrence"} after={"years"} controls />
-            <AnnualRateOfChangeInput label={"Annual Rate Of Change"} after={"%"} controls />
+            <InitialCostInput label={"Initial Cost"} addonBefore={"$"} controls />
+            <InitialOccurrenceInput label={"Initial Occurrence"} addonAfter={"years"} controls />
+            <AnnualRateOfChangeInput label={"Annual Rate Of Change"} addonAfter={"%"} controls />
             <div>
                 <RecurrenceSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
             </div>

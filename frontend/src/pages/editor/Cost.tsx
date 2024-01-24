@@ -97,7 +97,7 @@ export default function Cost() {
                     </span>
                 </div>
             </div>
-            <div className={"border-t border-base-lighter p-6"}>{fieldComponent()}</div>
+            <div className={"border-t border-base-lighter"}>{fieldComponent()}</div>
         </div>
     );
 }

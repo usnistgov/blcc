@@ -170,7 +170,7 @@ export default function GeneralInformation() {
                 </span>
                 <StudyPeriodInput
                     label={"Length of Study Period"}
-                    after={"years"}
+                    addonAfter={"years"}
                     defaultValue={0}
                     max={40}
                     min={0}
@@ -178,7 +178,7 @@ export default function GeneralInformation() {
                 />
                 <ConstructionPeriodInput
                     label={"Construction Period"}
-                    after={"years"}
+                    addonAfter={"years"}
                     defaultValue={0}
                     max={40}
                     min={0}
@@ -208,9 +208,9 @@ export default function GeneralInformation() {
                         <DiscountingConvention label={"Discounting Convention"} />
                     </div>
                     <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                        <GenInflationRate after={"%"} label={"General Inflation Rate"} controls={false} />
-                        <NominalDiscRate after={"%"} label={"Nominal Discount Rate"} controls={false} min={0.0} />
-                        <RealDiscRate after={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />
+                        <GenInflationRate addonAfter={"%"} label={"General Inflation Rate"} controls={false} />
+                        <NominalDiscRate addonAfter={"%"} label={"Nominal Discount Rate"} controls={false} min={0.0} />
+                        <RealDiscRate addonAfter={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>

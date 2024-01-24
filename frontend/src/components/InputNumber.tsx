@@ -3,17 +3,11 @@ import { createSignal } from "@react-rxjs/utils";
 import { InputNumber, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
 import { EMPTY, Observable } from "rxjs";
+import { InputNumberProps } from "antd/es/input-number";
 
 export type NumberInputProps = {
-    className?: string;
-    min?: number;
-    max?: number;
-    defaultValue?: number;
-    after?: JSX.Element | string;
-    before?: JSX.Element | string;
-    controls: boolean;
     label?: string;
-};
+} & InputNumberProps<number>;
 
 export type NumberInput = {
     onChange$: Observable<number>;
@@ -28,36 +22,27 @@ export default function numberInput(value$: Observable<number | undefined> = EMP
 
     return {
         onChange$,
-        component: ({
-            children,
-            className,
-            min,
-            max,
-            defaultValue,
-            after,
-            before,
-            controls,
-            label
-        }: PropsWithChildren & NumberInputProps) => {
+        component: ({ children, label, ...inputProps }: PropsWithChildren & NumberInputProps) => {
+            const input = (
+                <InputNumber
+                    onChange={(value) => {
+                        if (value !== null) onChange(value);
+                    }}
+                    value={useValue()}
+                    {...inputProps}
+                >
+                    {children}
+                </InputNumber>
+            );
+
             return (
-                <div>
-                    <Title level={5}>{label}</Title>
-                    <InputNumber
-                        className={className}
-                        onChange={(value) => {
-                            if (value !== null) onChange(value);
-                        }}
-                        value={useValue()}
-                        min={min}
-                        max={max}
-                        defaultValue={defaultValue}
-                        addonAfter={after}
-                        addonBefore={before}
-                        controls={controls}
-                    >
-                        {children}
-                    </InputNumber>
-                </div>
+                (label !== undefined && (
+                    <div>
+                        <Title level={5}>{label}</Title>
+                        {input}
+                    </div>
+                )) ||
+                input
             );
         }
     };

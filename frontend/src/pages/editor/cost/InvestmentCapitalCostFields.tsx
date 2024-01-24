@@ -9,12 +9,12 @@ export default function InvestmentCapitalCostFields() {
     return (
         <div className={"flex flex-col"}>
             <div className={"flex flex-row"}>
-                <InitialCostInput label={"Initial Cost (Base Year Dollars)"} before={"$"} controls />
-                <AnnualRateOfChangeInput label={"Annual Rate of Change"} after={"%"} controls />
-                <ExpectedLifeInput label={"Expected Lifetime"} after={"years"} controls />
+                <InitialCostInput label={"Initial Cost (Base Year Dollars)"} addonBefore={"$"} controls />
+                <AnnualRateOfChangeInput label={"Annual Rate of Change"} addonAfter={"%"} controls />
+                <ExpectedLifeInput label={"Expected Lifetime"} addonAfter={"years"} controls />
             </div>
             <div className={"flex flex-row"}>
-                <CostAdjustmentFactorInput label={"Cost Adjustment Factor"} after={"%"} controls />
+                <CostAdjustmentFactorInput label={"Cost Adjustment Factor"} addonAfter={"%"} controls />
             </div>
         </div>
     );

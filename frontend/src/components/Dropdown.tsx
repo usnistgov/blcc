@@ -44,26 +44,33 @@ export default function dropdown<T extends string | number>(
             showSearch = true,
             label
         }: PropsWithChildren & DropdownProps) => {
+            const select = (
+                <Select
+                    className={(className ? className : "") + ""}
+                    onChange={change}
+                    disabled={disabled}
+                    placeholder={placeholder}
+                    showSearch={showSearch}
+                    onSearch={(v) => selectSearch(v as T)}
+                    value={useValue()}
+                >
+                    {children}
+                    {useOptions().map((option) => (
+                        <Select.Option key={option} value={option}>
+                            {option}
+                        </Select.Option>
+                    ))}
+                </Select>
+            );
+
             return (
-                <div>
-                    <Title level={5}>{label}</Title>
-                    <Select
-                        className={(className ? className : "") + ""}
-                        onChange={change}
-                        disabled={disabled}
-                        placeholder={placeholder}
-                        showSearch={showSearch}
-                        onSearch={(v) => selectSearch(v as T)}
-                        value={useValue()}
-                    >
-                        {children}
-                        {useOptions().map((option) => (
-                            <Select.Option key={option} value={option}>
-                                {option}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </div>
+                (label !== undefined && (
+                    <div>
+                        <Title level={5}>{label}</Title>
+                        {select}
+                    </div>
+                )) ||
+                select
             );
         }
     };
