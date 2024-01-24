@@ -59,7 +59,7 @@ const { component: DescriptionInput } = textArea(cost$.pipe(map((cost) => cost.d
 
 export default function Cost() {
     return (
-        <div className={"h-full w-full px-8"}>
+        <div className={"w-full"}>
             <div className="add-alternative mt-2 flex flex-col border-b border-base-lighter pb-2">
                 <div className="flex justify-end">
                     <AddCostButton type={ButtonType.LINK} icon={mdiPlus}>
@@ -74,25 +74,30 @@ export default function Cost() {
                 </div>
             </div>
 
-            <div className={"flex flex-row justify-between py-8"}>
-                <div className={"w-3/4"}>
+            <div className={"max-w-screen-lg p-6"}>
+                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <NameInput type={TextInputType.PRIMARY} label={"Name"} />
-                    <DescriptionInput label={"Description"} />
-                </div>
-                <div>
-                    <Title level={5}>Alternatives applied to</Title>
-                    <Checkbox.Group style={{ width: "100%" }} onChange={(values) => setCheckedAlts(values as number[])}>
-                        <Row>
-                            {Model.useAlternatives().map((alt) => (
-                                <Col span={16} key={alt.id}>
-                                    <Checkbox value={alt.id}>{alt.name}</Checkbox>
-                                </Col>
-                            )) || "No Alternatives"}
-                        </Row>
-                    </Checkbox.Group>
+                    <div>
+                        <Title level={5}>Alternatives applied to</Title>
+                        <Checkbox.Group
+                            style={{ width: "100%" }}
+                            onChange={(values) => setCheckedAlts(values as number[])}
+                        >
+                            <Row>
+                                {Model.useAlternatives().map((alt) => (
+                                    <Col span={16} key={alt.id}>
+                                        <Checkbox value={alt.id}>{alt.name}</Checkbox>
+                                    </Col>
+                                )) || "No Alternatives"}
+                            </Row>
+                        </Checkbox.Group>
+                    </div>
+                    <span className={"col-span-2"}>
+                        <DescriptionInput label={"Description"} className={"w-full"} />
+                    </span>
                 </div>
             </div>
-            {fieldComponent()}
+            <div className={"border-t border-base-lighter p-6"}>{fieldComponent()}</div>
         </div>
     );
 }
