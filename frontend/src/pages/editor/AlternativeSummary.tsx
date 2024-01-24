@@ -7,28 +7,16 @@ import { Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
-import { getNewID, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { sample } from "rxjs";
+import addAlternativeModal from "../../components/AddAlternativeModal";
 
 const { Title } = Typography;
 const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
-
-export const addAlternative$ = Model.alternatives$.pipe(
-    sample(addAlternativeClick$),
-    //TODO open modal instead
-    map((alternatives) => {
-        const nextID = getNewID(alternatives);
-
-        return {
-            id: nextID,
-            name: `New Alternative ${nextID}`,
-            costs: []
-        };
-    })
-);
+const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
 
 const combinedCostObject$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
 
@@ -43,6 +31,7 @@ export default function AlternativeSummary() {
         <div className={"flex h-full w-full flex-col items-center"}>
             <div className={"flex w-3/4 max-w-6xl flex-col"}>
                 <div className={"flex flex-row-reverse border-b border-base-lighter"}>
+                    <AddAlternativeModal />
                     <AddAlternativeButton className={"my-2"} type={ButtonType.LINK}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
