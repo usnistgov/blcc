@@ -52,8 +52,8 @@ export default function App() {
                         <Routes>
                             <Route index element={<Index />} />
                             <Route path={"/editor"} element={<Navigation />}>
-                                <Route path={"alternative"}>
-                                    <Route path={"*"} element={<CostNavigation />} />
+                                <Route path={"alternative/:altID"}>
+                                    <Route index path={"*"} element={<CostNavigation />} />
                                 </Route>
                             </Route>
                             <Route path={"/results/*"} element={<ResultNavigation />} />
@@ -67,18 +67,18 @@ export default function App() {
                                     <Route path={"alternative"}>
                                         <Route index element={<AlternativeSummary />} />
                                         <Route
-                                            path={":alternativeID"}
+                                            path={":alternativeID/cost/:costID"}
                                             element={
                                                 <UrlParameters>
-                                                    <Alternatives />
+                                                    <Cost />
                                                 </UrlParameters>
                                             }
                                         />
                                         <Route
-                                            path={"cost/:costID"}
+                                            path={":alternativeID"}
                                             element={
                                                 <UrlParameters>
-                                                    <Cost />
+                                                    <Alternatives />
                                                 </UrlParameters>
                                             }
                                         />

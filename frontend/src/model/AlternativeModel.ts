@@ -6,6 +6,7 @@ import { Alternative, Cost } from "../blcc-format/Format";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
 import { combinedCostObject$ } from "../pages/editor/AlternativeSummary";
 import { arrayFilter } from "../util/Operators";
+import { bind } from "@react-rxjs/core";
 
 /**
  * The ID of the currently selected alternative as denoted in the URL.
@@ -27,6 +28,8 @@ export const altCosts$ = alt$.pipe(
     withLatestFrom(combinedCostObject$),
     map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
 );
+
+export const [useAltName] = bind(alt$.pipe(map((alt) => alt.name)), "");
 
 /**
  * The energy costs of the current alternative.

@@ -184,7 +184,7 @@ export default function Alternatives() {
                                                             className={
                                                                 "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary"
                                                             }
-                                                            onClick={() => navigate(`/editor/cost/${item.id}`)}
+                                                            onClick={() => navigate(`cost/${item.id}`)}
                                                         >
                                                             {/*FIXME switch to button so keyboard navigation works*/}
                                                             {item?.name || "Unknown"}

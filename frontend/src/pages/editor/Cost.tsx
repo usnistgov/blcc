@@ -1,8 +1,8 @@
 import { map } from "rxjs";
 import { CostTypes } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
-import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { Checkbox, Col, Divider, Row, Typography } from "antd";
+import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
+import { Checkbox, Col, Row, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
@@ -19,9 +19,13 @@ import ImplementationContractCostFields from "./cost/ImplementationContractCostF
 import RecurringContractCostFields from "./cost/RecurringContractCostFields";
 import OtherCostFields from "./cost/OtherCostFields";
 import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
+import { useAltName } from "../../model/AlternativeModel";
+import { useNavigate } from "react-router-dom";
+import { useSubscribe } from "../../hooks/UseSubscribe";
 
 const { Title } = Typography;
 const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
+const { component: BackButton, click$: backClick$ } = button();
 
 const [fieldComponent] = bind(
     costType$.pipe(
@@ -58,19 +62,31 @@ const { component: NameInput } = textInput(cost$.pipe(map((cost) => cost.name)))
 const { component: DescriptionInput } = textArea(cost$.pipe(map((cost) => cost.description)));
 
 export default function Cost() {
+    const alternativeName = useAltName();
+    const navigate = useNavigate();
+
+    useSubscribe(backClick$, () => navigate(-1));
+
     return (
         <div className={"w-full"}>
             <div className="add-alternative mt-2 flex flex-col border-b border-base-lighter pb-2">
-                <div className="flex justify-end">
-                    <AddCostButton type={ButtonType.LINK} icon={mdiPlus}>
-                        Add Cost
-                    </AddCostButton>
-                    <CloneCostButton type={ButtonType.LINK} icon={mdiContentCopy}>
-                        Clone
-                    </CloneCostButton>
-                    <RemoveCostButton type={ButtonType.LINKERROR} icon={mdiMinus}>
-                        Remove
-                    </RemoveCostButton>
+                <div className="flex justify-between">
+                    <div>
+                        <BackButton type={ButtonType.LINK} icon={mdiArrowLeft}>
+                            {alternativeName}
+                        </BackButton>
+                    </div>
+                    <div>
+                        <AddCostButton type={ButtonType.LINK} icon={mdiPlus}>
+                            Add Cost
+                        </AddCostButton>
+                        <CloneCostButton type={ButtonType.LINK} icon={mdiContentCopy}>
+                            Clone
+                        </CloneCostButton>
+                        <RemoveCostButton type={ButtonType.LINKERROR} icon={mdiMinus}>
+                            Remove
+                        </RemoveCostButton>
+                    </div>
                 </div>
             </div>
 
