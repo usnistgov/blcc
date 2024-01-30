@@ -4,9 +4,9 @@ import { combineLatest, filter } from "rxjs";
 import { Model } from "./Model";
 import { Alternative, Cost } from "../blcc-format/Format";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
-import { combinedCostObject$ } from "../pages/editor/AlternativeSummary";
 import { arrayFilter } from "../util/Operators";
 import { bind } from "@react-rxjs/core";
+import { costMap$ } from "./Cost";
 
 /**
  * The ID of the currently selected alternative as denoted in the URL.
@@ -25,7 +25,7 @@ export const alt$ = combineLatest([alternativeID$, Model.alternatives$]).pipe(
  * The list of costs associated with the current alternative.
  */
 export const altCosts$ = alt$.pipe(
-    withLatestFrom(combinedCostObject$),
+    withLatestFrom(costMap$),
     map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
 );
 

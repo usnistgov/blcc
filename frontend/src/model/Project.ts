@@ -42,6 +42,7 @@ import { getNewID } from "../util/Util";
 import { map } from "rxjs/operators";
 import { rules } from "./rules/Rules";
 import { addAlternative$ } from "../components/AddAlternativeModal";
+import { baseCostChange$ } from "../pages/editor/Cost";
 
 export const project$ = mergeWithKey({
     imported$,
@@ -66,7 +67,8 @@ export const project$ = mergeWithKey({
     removeAlternative$,
     cloneAlternative$,
     newCost$,
-    alternativeNameChange$
+    alternativeNameChange$,
+    baseCostChange$
 }).pipe(
     scan(
         (accumulator, operation) => {
@@ -85,6 +87,16 @@ export const project$ = mergeWithKey({
                     return changeBaseline(accumulator, operation.payload);
                 case "alternativeNameChange$":
                     return changeAlternativeName(accumulator, operation.payload);
+                case "baseCostChange$": {
+                    const x = operation.payload;
+
+                    switch (x.type) {
+                        case "alts": {
+                        }
+                    }
+
+                    return accumulator;
+                }
                 /*
                  * By default the operation type denotes the property in project object and is set to the payload.
                  */

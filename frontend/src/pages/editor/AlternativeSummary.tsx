@@ -13,14 +13,11 @@ import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { sample } from "rxjs";
 import addAlternativeModal from "../../components/AddAlternativeModal";
+import { costMap$ } from "../../model/Cost";
 
 const { Title } = Typography;
 const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
 const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
-
-const combinedCostObject$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
-
-export { combinedCostObject$ };
 
 const [useCards] = bind(Model.alternatives$.pipe(map((alts) => alts.map((_a, i) => createAlternativeCard(i)))), []);
 
@@ -54,7 +51,7 @@ export function createAlternativeCard(index: number) {
     const [alt] = bind(alt$, undefined);
 
     const altCosts$ = alt$.pipe(
-        withLatestFrom(combinedCostObject$),
+        withLatestFrom(costMap$),
         map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
     );
 

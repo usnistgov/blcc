@@ -1,9 +1,10 @@
-import { filter, from, map } from "rxjs";
+import { combineLatest, filter, from, map } from "rxjs";
 import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
 import { cost$ } from "../../../model/Cost";
 import { phaseIn } from "../../../components/PhaseIn";
+import { combineLatestWith } from "rxjs/operators";
 
 const escalationRates$ = from(
     fetch("http://localhost:8080/api/zip-state", {
@@ -30,11 +31,17 @@ const { component: CustomerSectorDropdown } = dropdown(
     Object.values(CustomerSector),
     energyCost$.pipe(map((cost) => cost.customerSector))
 );
-const { component: CostPerUnitInput } = numberInput();
-const { component: AnnualConsumption } = numberInput();
-const { component: UnitDropdown } = dropdown(Object.values(EnergyUnit));
+const { component: CostPerUnitInput, onChange$: costPerUnitChange$ } = numberInput();
+const { component: AnnualConsumption, onChange$: annualConsumptionChange$ } = numberInput();
+const { component: UnitDropdown, change$: unitChange$ } = dropdown(Object.values(EnergyUnit));
 const { component: PhaseIn } = phaseIn();
 const { component: UseIndex } = phaseIn();
+
+export const energyCostChange$ = combineLatest({
+    costPerUnit: costPerUnitChange$,
+    annualConsumption: annualConsumptionChange$,
+    unit: unitChange$
+});
 
 export default function EnergyCostFields() {
     return (
