@@ -2,7 +2,7 @@ import { map } from "rxjs";
 import { CostTypes, ID } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { Checkbox, Col, Row, Typography } from "antd";
+import { Checkbox, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
@@ -19,7 +19,7 @@ import ImplementationContractCostFields from "./cost/ImplementationContractCostF
 import RecurringContractCostFields from "./cost/RecurringContractCostFields";
 import OtherCostFields from "./cost/OtherCostFields";
 import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
-import { useAltCosts, useAltName } from "../../model/AlternativeModel";
+import { useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { combineLatestWith } from "rxjs/operators";
