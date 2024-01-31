@@ -51,7 +51,7 @@ export default function App() {
                         {/* Navigation */}
                         <Routes>
                             <Route index element={<Index />} />
-                            <Route path={"/editor"} element={<Navigation />}>
+                            <Route path={"/editor/*"} element={<Navigation />}>
                                 <Route path={"alternative/:altID"}>
                                     <Route index path={"*"} element={<CostNavigation />} />
                                 </Route>
