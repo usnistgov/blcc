@@ -63,7 +63,7 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                             onChange={(values) => setCheckedAlts(values as number[])}
                         >
                             <Row>
-                                {Model.useAlternatives().map((alt) => (
+                                {[...Model.useAlternatives().values()].map((alt) => (
                                     <Col span={16} key={alt.id}>
                                         <Checkbox value={alt.id}>{alt.name}</Checkbox>
                                     </Col>

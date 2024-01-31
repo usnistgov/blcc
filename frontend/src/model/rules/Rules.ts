@@ -13,7 +13,7 @@ export const rules: RuleList = [
      */
     function hasBaseline(project: Project) {
         return {
-            value: project.alternatives.find((alt) => alt.baseline) !== undefined,
+            value: [...project.alternatives.values()].find((alt) => alt.baseline) !== undefined,
             message: "The project must have a baseline alternative."
         };
     }

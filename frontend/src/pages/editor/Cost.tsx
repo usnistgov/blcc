@@ -1,4 +1,4 @@
-import { combineLatest, map, merge } from "rxjs";
+import { map } from "rxjs";
 import { CostTypes } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
@@ -8,7 +8,7 @@ import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
 import EnergyCostFields from "./cost/EnergyCostFields";
-import { cost$, costType$ } from "../../model/Cost";
+import { cost$, costID$, costType$ } from "../../model/CostModel";
 import { Model } from "../../model/Model";
 import { createSignal, mergeWithKey } from "@react-rxjs/utils";
 import WaterCostFields from "./cost/WaterCostFields";
@@ -22,6 +22,7 @@ import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
 import { useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
+import { combineLatestWith } from "rxjs/operators";
 
 const { Title } = Typography;
 const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
@@ -49,11 +50,15 @@ const { component: DescriptionInput, onChange$: descriptionChange$ } = textArea(
     cost$.pipe(map((cost) => cost.description))
 );
 
-export const baseCostChange$ = mergeWithKey({
-    name: nameChange$,
-    description: descriptionChange$,
-    alts: checkedAlts$
-});
+export const baseCostChange$ = costID$.pipe(
+    combineLatestWith(
+        mergeWithKey({
+            name: nameChange$,
+            description: descriptionChange$,
+            alts: checkedAlts$
+        })
+    )
+);
 
 baseCostChange$.subscribe(console.log);
 
@@ -96,7 +101,7 @@ export default function Cost() {
                             onChange={(values) => setCheckedAlts(values as number[])}
                         >
                             <Row>
-                                {Model.useAlternatives().map((alt) => (
+                                {[...Model.useAlternatives().values()].map((alt) => (
                                     <Col span={16} key={alt.id}>
                                         <Checkbox value={alt.id}>{alt.name}</Checkbox>
                                     </Col>

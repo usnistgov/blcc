@@ -1,5 +1,14 @@
 import { selfDependent } from "@react-rxjs/utils";
-import { AnalysisType, DiscountingMethod, DollarMethod, Project, USLocation } from "../blcc-format/Format";
+import {
+    Alternative,
+    AnalysisType,
+    Cost,
+    DiscountingMethod,
+    DollarMethod,
+    ID,
+    Project,
+    USLocation
+} from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { filter, map } from "rxjs";
@@ -61,8 +70,8 @@ const [useSocialCostRate, socialCostOfGhgScenario$] = bind(
 );
 const [useCombinedGHG, combinedGHG$] = bind(_project$.pipe(map((p) => p?.ghg)), undefined);
 
-const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
-const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
+const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), new Map<ID, Alternative>());
+const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), new Map<ID, Cost>());
 
 const Model = {
     project$: _project$,

@@ -88,10 +88,17 @@ export const project$ = mergeWithKey({
                 case "alternativeNameChange$":
                     return changeAlternativeName(accumulator, operation.payload);
                 case "baseCostChange$": {
-                    const x = operation.payload;
+                    const [id, x] = operation.payload;
+                    const cost = accumulator.costs.get(id);
+
+                    if (cost === undefined) return accumulator;
 
                     switch (x.type) {
                         case "alts": {
+                            break;
+                        }
+                        default: {
+                            cost[x.type] = x.payload as never;
                         }
                     }
 
@@ -116,8 +123,8 @@ export const project$ = mergeWithKey({
             studyPeriod: 25,
             constructionPeriod: 0,
             discountingMethod: DiscountingMethod.END_OF_YEAR,
-            alternatives: [] as Alternative[],
-            costs: [] as Cost[],
+            alternatives: new Map<ID, Alternative>(),
+            costs: new Map<ID, Cost>(),
             location: {
                 country: Country.USA
             },
@@ -146,7 +153,7 @@ export const ruleErrors$ = project$.pipe(
 export const isProjectValid$ = ruleErrors$.pipe(map((results) => results.length <= 0));
 
 function addAlternative(project: Project, newAlternative: Alternative): Project {
-    project.alternatives.push(newAlternative);
+    project.alternatives.set(newAlternative.id, newAlternative);
     return project;
 }
 
@@ -154,7 +161,7 @@ function addAlternative(project: Project, newAlternative: Alternative): Project 
  * Removes the specific alternative from the project.
  */
 function removeAlternative(project: Project, altToRemove: ID): Project {
-    project.alternatives = project.alternatives.filter((alt) => alt.id != altToRemove);
+    project.alternatives.delete(altToRemove);
     return project;
 }
 
@@ -162,13 +169,13 @@ function removeAlternative(project: Project, altToRemove: ID): Project {
  * Clones the specified alternative.
  */
 function cloneAlternative(project: Project, altToClone: ID): Project {
-    const alt = project.alternatives.find((alt) => alt.id == altToClone);
+    const alt = project.alternatives.get(altToClone);
     const clonedAlt = {
         ...alt,
-        id: getNewID(project.alternatives),
+        id: getNewID([...project.alternatives.keys()]),
         name: `Clone of ${alt?.name}`
     } as Alternative;
-    project.alternatives.push(clonedAlt);
+    project.alternatives.set(clonedAlt.id, clonedAlt);
 
     return project;
 }
@@ -178,8 +185,8 @@ function cloneAlternative(project: Project, altToClone: ID): Project {
  */
 function newCost(project: Project, [name, type, alts]: [string, CostTypes, ID[]]): Project {
     // Create new Cost
-    const id = getNewID(project.costs);
-    project.costs.push({ id, name, type } as Cost);
+    const id = getNewID([...project.costs.keys()]);
+    project.costs.set(id, { id, name, type } as Cost);
 
     // Add cost to checked alternatives
     const altSet = new Set(alts);
@@ -207,7 +214,7 @@ function changeBaseline(project: Project, [val, altID]: [boolean, ID]): Project 
  * Changes the name of the specified alternative.
  */
 function changeAlternativeName(project: Project, [newName, id]: [string, ID]): Project {
-    const alternative = project.alternatives.find((alt) => alt.id === id);
+    const alternative = project.alternatives.get(id);
 
     if (alternative === undefined) return project;
 

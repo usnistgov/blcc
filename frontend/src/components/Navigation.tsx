@@ -28,7 +28,7 @@ function altButton(alt: Alternative) {
 const [useMenuItems] = bind(
     Model.alternatives$.pipe(
         map((alternatives) =>
-            alternatives.map((alt) => {
+            [...alternatives.values()].map((alt) => {
                 const button = altButton(alt);
                 return <button.component key={alt.id} icon={alt.baseline ? mdiAlphaBBox : undefined} />;
             })

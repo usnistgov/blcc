@@ -11,16 +11,11 @@ import { Model } from "./Model";
 export const costID$ = urlParameters$.pipe(map(({ costID }) => parseInt(costID ?? "-1")));
 
 /**
- * A map of IDs to the corresponding costs
- */
-export const costMap$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
-
-/**
  * The currently selected cost object as specified by the URL parameter.
  */
 export const cost$ = costID$.pipe(
-    combineLatestWith(costMap$),
-    map(([costID, costMap]) => costMap.get(costID)),
+    combineLatestWith(Model.costs$),
+    map(([costID, costs]) => costs.get(costID)),
     filter((cost): cost is CostType => cost !== undefined),
     shareLatest()
 );

@@ -20,7 +20,7 @@ const { onChange$: name$, component: NewAltInput } = textInput();
 export const addAlternative$ = combineLatest([Model.alternatives$, name$]).pipe(
     sample(addClick$),
     map(([alts, name]) => ({
-        id: getNewID(alts),
+        id: getNewID([...alts.keys()]),
         name: name,
         costs: [],
         baseline: false

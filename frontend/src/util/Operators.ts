@@ -1,5 +1,5 @@
 import { count, from, groupBy, mergeMap, Observable, pipe, UnaryFunction } from "rxjs";
-import { map, toArray } from "rxjs/operators";
+import { filter, map, toArray } from "rxjs/operators";
 
 /**
  * Counts the number of occurrences of each unique property in type A. The property is obtained with the given property extractor function.
@@ -29,4 +29,8 @@ export function countProperty<A, B extends string>(
  */
 export function arrayFilter<A>(predicate: (a: A) => boolean): UnaryFunction<Observable<A[]>, Observable<A[]>> {
     return pipe(map((array) => array.filter(predicate)));
+}
+
+export function guard<A>(): UnaryFunction<Observable<A | undefined>, Observable<A>> {
+    return pipe(filter((a): a is A => a !== undefined));
 }

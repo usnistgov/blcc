@@ -6,7 +6,6 @@ import { Alternative, Cost } from "../blcc-format/Format";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
 import { arrayFilter } from "../util/Operators";
 import { bind } from "@react-rxjs/core";
-import { costMap$ } from "./Cost";
 
 /**
  * The ID of the currently selected alternative as denoted in the URL.
@@ -17,7 +16,7 @@ export const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (al
  * The current alternative object that relates to the currently selected ID.
  */
 export const alt$ = combineLatest([alternativeID$, Model.alternatives$]).pipe(
-    map(([altId, alts]) => alts.find((a) => a.id === altId)),
+    map(([altID, alts]) => alts.get(altID)),
     filter((alt): alt is Alternative => alt !== undefined)
 );
 
@@ -25,8 +24,8 @@ export const alt$ = combineLatest([alternativeID$, Model.alternatives$]).pipe(
  * The list of costs associated with the current alternative.
  */
 export const altCosts$ = alt$.pipe(
-    withLatestFrom(costMap$),
-    map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
+    withLatestFrom(Model.costs$),
+    map(([alt, costs]) => alt.costs.map((cost) => costs.get(cost) as Cost))
 );
 
 export const [useAltName] = bind(alt$.pipe(map((alt) => alt.name)), "");

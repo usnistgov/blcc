@@ -16,6 +16,7 @@ import {
     EnergyCost,
     EnergyUnit,
     FuelType,
+    ID,
     ImplementationContractCost,
     LiquidUnit,
     OMRCost,
@@ -186,7 +187,7 @@ type CostComponent =
     | "RecurringCost"
     | "NonRecurringCost";
 
-function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map<string, any>] {
+function parseAlternativesAndHashCosts(alternatives: any[]): [Map<ID, Alternative>, Map<string, any>] {
     const costCache = new Map<string, any>();
 
     const newAlternatives = alternatives.map((alternative, i) => {
@@ -225,7 +226,7 @@ function parseAlternativesAndHashCosts(alternatives: any[]): [Alternative[], Map
         };
     });
 
-    return [newAlternatives, costCache];
+    return [new Map(newAlternatives.map((alt) => [alt.id, alt])), costCache];
 }
 
 function renameSubComponent(name: string) {
@@ -235,8 +236,8 @@ function renameSubComponent(name: string) {
     };
 }
 
-function convertCosts(costCache: Map<string, any>, studyPeriod: number): Cost[] {
-    return Array.from(costCache.values()).map((oldCost, i) => convertCost(oldCost, studyPeriod, i));
+function convertCosts(costCache: Map<string, any>, studyPeriod: number): Map<ID, Cost> {
+    return new Map([...costCache.values()].map((oldCost, i) => [i, convertCost(oldCost, studyPeriod, i)]));
 }
 
 function convertCost(cost: any, studyPeriod: number, id: number) {

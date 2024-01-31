@@ -6,20 +6,22 @@ import { map, withLatestFrom } from "rxjs/operators";
 import { Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { Model } from "../../model/Model";
-import { countProperty } from "../../util/Operators";
+import { countProperty, guard } from "../../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { sample } from "rxjs";
 import addAlternativeModal from "../../components/AddAlternativeModal";
-import { costMap$ } from "../../model/Cost";
 
 const { Title } = Typography;
 const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
 const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
 
-const [useCards] = bind(Model.alternatives$.pipe(map((alts) => alts.map((_a, i) => createAlternativeCard(i)))), []);
+const [useCards] = bind(
+    Model.alternatives$.pipe(map((alts) => [...alts.values()].map((_a, i) => createAlternativeCard(i)))),
+    []
+);
 
 export default function AlternativeSummary() {
     const cards = useCards();
@@ -47,12 +49,15 @@ export default function AlternativeSummary() {
 }
 
 export function createAlternativeCard(index: number) {
-    const alt$ = Model.alternatives$.pipe(map((alts) => alts[index]));
+    const alt$ = Model.alternatives$.pipe(
+        map((alts) => alts.get(index)),
+        guard()
+    );
     const [alt] = bind(alt$, undefined);
 
     const altCosts$ = alt$.pipe(
-        withLatestFrom(costMap$),
-        map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
+        withLatestFrom(Model.costs$),
+        map(([alt, costs]) => alt.costs.map((cost) => costs.get(cost) as Cost))
     );
 
     // Count all energy costs, and the count of its subcategories

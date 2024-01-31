@@ -31,10 +31,9 @@ export function isOtherCost(cost: Cost) {
 /**
  * Returns a new ID that does not collide with any of the provided IDs.
  *
- * @param values The IDs that already exist.
+ * @param ids The IDs that already exist.
  */
-export function getNewID(values: { id: number }[]) {
-    const ids = values.map((value) => value.id);
+export function getNewID(ids: number[]) {
     const newID = Math.max(...ids) + 1;
 
     if (newID < 0) return 0;

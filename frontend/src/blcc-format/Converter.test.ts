@@ -286,7 +286,7 @@ test("FederalFinanced.xml alternatives are not undefined", async () => {
 });
 
 test("FederalFinanced.xml first alternative", async () => {
-    const alt = result.alternatives[0];
+    const alt = result.alternatives.get(0)!;
 
     expect(alt.id).toBe(0);
     expect(alt.name).toBe("Existing");
@@ -297,7 +297,7 @@ test("FederalFinanced.xml first alternative", async () => {
 });
 
 test("FederalFinanced.xml second alternative", async () => {
-    const alt = result.alternatives[1];
+    const alt = result.alternatives.get(1)!;
 
     expect(alt.id).toBe(1);
     expect(alt.name).toBe("Lighting Retrofit");
@@ -314,7 +314,7 @@ test("FederalFinanced.xml costs are not undefined", async () => {
 });
 
 test("FederalFinanced.xml existing system cost", async () => {
-    const cost = result.costs[0];
+    const cost = result.costs.get(0)!;
     expect(cost.id).toBe(0);
     expect(cost.name).toBe("Existing System");
     expect(cost.description).toBe("Keep existing system for the remaining\n15 years of its useful life.");
@@ -331,7 +331,7 @@ test("FederalFinanced.xml existing system cost", async () => {
 });
 
 test("FederalFinanced.xml existing system recurring cost", async () => {
-    const cost = result.costs[1];
+    const cost = result.costs.get(1)!;
     expect(cost.id).toBe(1);
     expect(cost.name).toBe("Existing System cost");
     expect(cost.description).toBeUndefined();
@@ -345,7 +345,7 @@ test("FederalFinanced.xml existing system recurring cost", async () => {
 });
 
 test("FederalFinanced.xml electricity cost", async () => {
-    const cost = result.costs[2];
+    const cost = result.costs.get(2)!;
     expect(cost.id).toBe(2);
     expect(cost.name).toBe("Electricity");
     expect(cost.description).toBeUndefined();
@@ -369,7 +369,7 @@ test("FederalFinanced.xml electricity cost", async () => {
 });
 
 test("FederalFinanced.xml new system cost", async () => {
-    const cost = result.costs[3];
+    const cost = result.costs.get(3)!;
     expect(cost.id).toBe(3);
     expect(cost.name).toBe("New System");
     expect(cost.description).toBe("Install new lighting/daylighting system\nfinanced through UC contract");
@@ -388,7 +388,7 @@ test("FederalFinanced.xml new system cost", async () => {
 });
 
 test("FederalFinanced.xml new system post-contract om costs", async () => {
-    const cost = result.costs[4];
+    const cost = result.costs.get(4)!;
     expect(cost.id).toBe(4);
     expect(cost.name).toBe("New System Post-Contract OM Costs");
     expect(cost.description).toBeUndefined();

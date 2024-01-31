@@ -16,8 +16,8 @@ export default function Statistics() {
     return (
         <AppBar className={"place-items-center border-t border-base-light bg-base-lightest text-sm"}>
             <div className={"flex flex-row divide-x divide-base-light"}>
-                <p className={"px-4"}>{`Alternatives ${Model.useAlternatives().length}`}</p>
-                <p className={"px-4"}>{`Costs ${Model.useCosts().length}`}</p>
+                <p className={"px-4"}>{`Alternatives ${Model.useAlternatives().size}`}</p>
+                <p className={"px-4"}>{`Costs ${Model.useCosts().size}`}</p>
             </div>
 
             {/*

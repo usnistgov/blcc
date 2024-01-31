@@ -2,7 +2,7 @@ import { combineLatest, filter, from, map } from "rxjs";
 import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
-import { cost$ } from "../../../model/Cost";
+import { cost$ } from "../../../model/CostModel";
 import { phaseIn } from "../../../components/PhaseIn";
 import { combineLatestWith } from "rxjs/operators";
 

@@ -1,10 +1,13 @@
 import { test } from "vitest";
 import {
+    Alternative,
     AnalysisType,
+    Cost,
     CostTypes,
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
+    ID,
     Project
 } from "../blcc-format/Format";
 import { Version } from "../blcc-format/Verison";
@@ -26,28 +29,34 @@ const project: Project = {
         city: undefined,
         zipcode: undefined
     },
-    alternatives: [
-        {
-            id: 0,
-            name: "Alternative 1",
-            costs: [0],
-            baseline: true
-        }
-    ],
-    costs: [
-        {
-            id: 0,
-            name: "Cost 1",
-            type: CostTypes.CAPITAL,
-            expectedLife: 25,
-            initialCost: 100,
-            phaseIn: [0.5, 0.3, 0.2],
-            residualValue: {
-                value: 0.1,
-                approach: DollarOrPercent.PERCENT
+    alternatives: new Map<ID, Alternative>([
+        [
+            0,
+            {
+                id: 0,
+                name: "Alternative 1",
+                costs: [0],
+                baseline: true
             }
-        }
-    ],
+        ]
+    ]),
+    costs: new Map<ID, Cost>([
+        [
+            0,
+            {
+                id: 0,
+                name: "Cost 1",
+                type: CostTypes.CAPITAL,
+                expectedLife: 25,
+                initialCost: 100,
+                phaseIn: [0.5, 0.3, 0.2],
+                residualValue: {
+                    value: 0.1,
+                    approach: DollarOrPercent.PERCENT
+                }
+            }
+        ]
+    ]),
     ghg: {
         emissionsRateScenario: undefined,
         socialCostOfGhgScenario: undefined

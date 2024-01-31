@@ -16,8 +16,8 @@ export type Project = {
     nominalDiscountRate?: number;
     inflationRate?: number;
     location: Location;
-    alternatives: Alternative[];
-    costs: Cost[];
+    alternatives: Map<ID, Alternative>;
+    costs: Map<ID, Cost>;
     ghg: GHG;
 };
 

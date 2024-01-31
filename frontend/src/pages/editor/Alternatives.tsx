@@ -91,7 +91,7 @@ export default function Alternatives() {
 
     // Navigate to general information page if there are no alternatives
     const alternatives = Model.useAlternatives();
-    if (alternatives.length <= 0) navigate("/editor");
+    if (alternatives.size <= 0) navigate("/editor");
 
     const categories = [
         {

@@ -61,10 +61,12 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
 
             // Create costs
-            const costs = new Map(project.costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)]));
+            const costs = new Map(
+                [...project.costs.values()].map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)])
+            );
 
             // Define alternatives
-            const alternativeBuilders = project.alternatives.map((alternative) => {
+            const alternativeBuilders = [...project.alternatives.values()].map((alternative) => {
                 const builder = new AlternativeBuilder()
                     .name(alternative.name)
                     .addBcn(
@@ -78,7 +80,7 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 return builder;
             });
 
-            const hasBaseline = !!project.alternatives.find((alt) => alt["baseline"]);
+            const hasBaseline = !![...project.alternatives.values()].find((alt) => alt["baseline"]);
             if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
             // Create complete Request Builder and return
