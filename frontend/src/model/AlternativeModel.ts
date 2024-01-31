@@ -27,6 +27,7 @@ export const altCosts$ = alt$.pipe(
     withLatestFrom(Model.costs$),
     map(([alt, costs]) => alt.costs.map((cost) => costs.get(cost) as Cost))
 );
+export const [useAltCosts] = bind(altCosts$, []);
 
 export const [useAltName] = bind(alt$.pipe(map((alt) => alt.name)), "");
 

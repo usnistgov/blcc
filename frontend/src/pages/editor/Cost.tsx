@@ -1,5 +1,5 @@
 import { map } from "rxjs";
-import { CostTypes } from "../../blcc-format/Format";
+import { CostTypes, ID } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { Checkbox, Col, Row, Typography } from "antd";
@@ -8,7 +8,7 @@ import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
 import EnergyCostFields from "./cost/EnergyCostFields";
-import { cost$, costID$, costType$ } from "../../model/CostModel";
+import { cost$, costID$, costType$, useCostID } from "../../model/CostModel";
 import { Model } from "../../model/Model";
 import { createSignal, mergeWithKey } from "@react-rxjs/utils";
 import WaterCostFields from "./cost/WaterCostFields";
@@ -19,13 +19,13 @@ import ImplementationContractCostFields from "./cost/ImplementationContractCostF
 import RecurringContractCostFields from "./cost/RecurringContractCostFields";
 import OtherCostFields from "./cost/OtherCostFields";
 import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
-import { useAltName } from "../../model/AlternativeModel";
+import { useAltCosts, useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { combineLatestWith } from "rxjs/operators";
 
 const { Title } = Typography;
-const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
+const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
 const { component: BackButton, click$: backClick$ } = button();
 
 const costFieldComponents = {
@@ -55,7 +55,7 @@ export const baseCostChange$ = costID$.pipe(
         mergeWithKey({
             name: nameChange$,
             description: descriptionChange$,
-            alts: checkedAlts$
+            alts: toggleAlt$
         })
     )
 );
@@ -63,8 +63,10 @@ export const baseCostChange$ = costID$.pipe(
 baseCostChange$.subscribe(console.log);
 
 export default function Cost() {
+    const id = useCostID();
     const alternativeName = useAltName();
     const navigate = useNavigate();
+    const alternatives = Model.useAlternatives();
 
     useSubscribe(backClick$, () => navigate(-1));
 
@@ -94,20 +96,16 @@ export default function Cost() {
             <div className={"max-w-screen-lg p-6"}>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <NameInput type={TextInputType.PRIMARY} label={"Name"} />
-                    <div>
+                    <div className={"flex flex-col"}>
                         <Title level={5}>Alternatives applied to</Title>
-                        <Checkbox.Group
-                            style={{ width: "100%" }}
-                            onChange={(values) => setCheckedAlts(values as number[])}
-                        >
-                            <Row>
-                                {[...Model.useAlternatives().values()].map((alt) => (
-                                    <Col span={16} key={alt.id}>
-                                        <Checkbox value={alt.id}>{alt.name}</Checkbox>
-                                    </Col>
-                                )) || "No Alternatives"}
-                            </Row>
-                        </Checkbox.Group>
+                        {[...alternatives.values()].map((alt) => (
+                            <Checkbox
+                                checked={alt.costs.includes(id)}
+                                onChange={(e) => toggleAlt([alt.id, e.target.checked])}
+                            >
+                                {alt.name}
+                            </Checkbox>
+                        )) || "No Alternatives"}
                     </div>
                     <span className={"col-span-2"}>
                         <DescriptionInput label={"Description"} className={"w-full"} />

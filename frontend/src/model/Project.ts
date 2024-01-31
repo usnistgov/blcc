@@ -88,17 +88,24 @@ export const project$ = mergeWithKey({
                 case "alternativeNameChange$":
                     return changeAlternativeName(accumulator, operation.payload);
                 case "baseCostChange$": {
-                    const [id, x] = operation.payload;
-                    const cost = accumulator.costs.get(id);
-
+                    const [costID, x] = operation.payload;
+                    const cost = accumulator.costs.get(costID);
                     if (cost === undefined) return accumulator;
 
                     switch (x.type) {
                         case "alts": {
+                            const [alternativeID, value] = x.payload;
+                            const alternative = accumulator.alternatives.get(alternativeID);
+                            if (alternative === undefined) break;
+
+                            if (value) alternative.costs.push(costID);
+                            else alternative.costs = alternative.costs.filter((cost) => cost !== costID);
+
                             break;
                         }
                         default: {
                             cost[x.type] = x.payload as never;
+                            break;
                         }
                     }
 
