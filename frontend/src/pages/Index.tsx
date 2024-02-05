@@ -4,7 +4,7 @@ import button, { ButtonType } from "../components/Button";
 import { mdiArrowRight } from "@mdi/js";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { useNavigate } from "react-router-dom";
-import logoUrl from "../images/logo.png";
+import logoUrl from "../images/logo.svg";
 
 const { click$: openEditorClick$, component: OpenEditorButton } = button();
 
@@ -21,17 +21,49 @@ export default function Index() {
                 }
             >
                 <NistHeaderFooter>
-                    <div className={"m-32 flex flex-col items-center"}>
-                        <img src={logoUrl} alt={"BLCC logo"} />
-                        <a>Powered by E3</a>
+                    <div className={"mt-32 flex flex-col items-center"}>
+                        <img className={"h-52"} src={logoUrl} alt={"BLCC logo"} />
                         <OpenEditorButton
-                            className={"mt-16"}
+                            className={"my-16"}
                             type={ButtonType.PRIMARY}
                             icon={mdiArrowRight}
                             iconSide={"right"}
                         >
-                            Open Editor
+                            <div className={"px-2 py-1"}>Open Editor</div>
                         </OpenEditorButton>
+                        <div className={"flex w-full flex-col items-center bg-primary-light py-16"}>
+                            <div className={"flex w-full max-w-4xl flex-col"}>
+                                <a className={"w-[40rem] self-end text-justify"}>
+                                    BLCC conducts economic analyses by evaluating the relative cost effectiveness of
+                                    capital investments in buildings and building-related systems or components.
+                                    Typically, BLCC is used to evaluate alternative designs that have higher initial
+                                    costs but lower operating costs over the project life than the lowest-initial-cost
+                                    design. It is especially useful for evaluating the costs and benefits of energy and
+                                    water conservation and renewable energy projects.
+                                </a>
+                            </div>
+                        </div>
+                        <div className={"flex w-full flex-col items-center py-16"}>
+                            <div className={"flex w-full max-w-4xl flex-col"}>
+                                <a className={"w-[40rem] self-start text-justify"}>
+                                    The life cycle cost (LCC) of two or more alternative designs are computed and
+                                    compared to determine which has the lowest LCC and is, therefore, more economical in
+                                    the long run. BLCC also calculates comparative economic measures for alternative
+                                    designs, including net savings, savings-to-investment ratio, adjusted internal rate
+                                    of return, and years to payback.
+                                </a>
+                            </div>
+                        </div>
+                        <div className={"flex w-full flex-col items-center bg-error-lighter py-16"}>
+                            <div className={"flex w-full max-w-4xl flex-col"}>
+                                <a className={"w-[40rem] self-end text-justify"}>
+                                    The National Institute of Standards and Technology (NIST) developed the Building
+                                    Life Cycle Cost (BLCC) Programs to provide computational support for the analysis of
+                                    capital investments in buildings. They include BLCC, the Energy Escalation Rate
+                                    Calculator, Handbook 135, and the Annual Supplement to Handbook 135.
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </NistHeaderFooter>
             </div>

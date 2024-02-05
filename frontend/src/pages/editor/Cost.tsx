@@ -100,6 +100,7 @@ export default function Cost() {
                         <Title level={5}>Alternatives applied to</Title>
                         {[...alternatives.values()].map((alt) => (
                             <Checkbox
+                                key={alt.id}
                                 checked={alt.costs.includes(id)}
                                 onChange={(e) => toggleAlt([alt.id, e.target.checked])}
                             >
