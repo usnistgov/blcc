@@ -2,6 +2,7 @@ import { Country, State } from "../constants/LOCATION";
 import { Version } from "./Verison";
 
 export type Project = {
+    id?: number;
     version: Version;
     name: string;
     description?: string;
@@ -16,8 +17,8 @@ export type Project = {
     nominalDiscountRate?: number;
     inflationRate?: number;
     location: Location;
-    alternatives: Map<ID, Alternative>;
-    costs: Map<ID, Cost>;
+    alternatives: ID[];
+    costs: ID[];
     ghg: GHG;
 };
 
@@ -80,7 +81,7 @@ export enum Purpose {
 export type ID = number;
 
 export type Alternative = {
-    id: ID;
+    id?: ID;
     name: string;
     description?: string;
     baseline?: boolean;
@@ -111,7 +112,7 @@ export type Cost =
     | OtherNonMonetary;
 
 export type BaseCost = {
-    id: ID;
+    id?: ID;
     name: string;
     description?: string;
     location?: Location;

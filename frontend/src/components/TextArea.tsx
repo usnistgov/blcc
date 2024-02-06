@@ -2,7 +2,8 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Input, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable } from "rxjs";
+import { EMPTY, Observable, switchMap } from "rxjs";
+import { startWith } from "rxjs/operators";
 
 export type TextAreaProps = {
     className?: string;
@@ -23,7 +24,15 @@ export type TextArea = {
 
 export default function textArea(value$: Observable<string | undefined> = EMPTY): TextArea {
     const [onChange$, onChange] = createSignal<string>();
-    const [useValue] = bind(value$, undefined);
+    const [focused$, focus] = createSignal<boolean>();
+
+    const [useValue] = bind(
+        focused$.pipe(
+            startWith(false),
+            switchMap((focused) => (focused ? onChange$ : value$))
+        ),
+        undefined
+    );
 
     return {
         onChange$,
@@ -40,6 +49,8 @@ export default function textArea(value$: Observable<string | undefined> = EMPTY)
                 <>
                     <Title level={5}>{label}</Title>
                     <TextArea
+                        onFocus={() => focus(true)}
+                        onBlur={() => focus(false)}
                         className={(className ?? "") + "w-44"}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder={placeholder}

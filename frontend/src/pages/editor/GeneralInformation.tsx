@@ -1,45 +1,20 @@
 import { Divider } from "antd";
-
-import dropdown from "../../components/Dropdown";
-import inputNumber from "../../components/InputNumber";
-import switchComp from "../../components/Switch";
-import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
-
-import { combineLatest, debounceTime, iif, merge, Observable, of } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
-import {
-    AnalysisType,
-    DiscountingMethod,
-    DollarMethod,
-    EmissionsRateScenario,
-    Location,
-    NonUSLocation,
-    Purpose,
-    SocialCostOfGhgScenario,
-    USLocation
-} from "../../blcc-format/Format";
-import { Country, State } from "../../constants/LOCATION";
-import { dbName$, Model } from "../../model/Model";
+import { analyst$, currentProject$, description$, name$ } from "../../model/Model";
 import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
-import { createSignal } from "@react-rxjs/utils";
+import { map } from "rxjs/operators";
+import { defaultValue } from "../../util/Operators";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import textArea from "../../components/TextArea";
 
 /*
  * rxjs components
  */
-const [currentName$, setCurrentName] = createSignal<string>();
-const { onChange$: nameChange$, component: NameInput } = textInput(currentName$, of("Untitled Project"));
-
-nameChange$.subscribe(setCurrentName);
-//dbName$.subscribe(setCurrentName);
-nameChange$.subscribe(async (value) => {
-    await db.projects.where("id").equals(1).modify({ name: value });
-});
-
-const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
-const { onChange$: descriptionChange$, component: DescInput } = textArea(Model.description$);
-const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
+const { onChange$: nameChange$, component: NameInput } = textInput(name$);
+const { onChange$: analystChange$, component: AnalystInput } = textInput(analyst$);
+const { onChange$: descriptionChange$, component: DescInput } = textArea(description$);
+/*const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
     Model.analysisType$
 );
@@ -88,7 +63,9 @@ const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = drop
 const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<SocialCostOfGhgScenario>(
     Object.values(SocialCostOfGhgScenario),
     Model.socialCostOfGhgScenario$
-);
+);*/
+
+/*
 
 const combinedLocation$: Observable<Location> = countryChange$.pipe(
     startWith(Country.USA),
@@ -163,20 +140,28 @@ export {
     realDiscChange$,
     studyPeriodChange$
 };
+*/
+
+const projectCollection$ = currentProject$.pipe(map((id) => db.projects.where("id").equals(id)));
 
 export default function GeneralInformation() {
+    useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
+    useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
+    useDbUpdate(descriptionChange$.pipe(defaultValue(undefined)), projectCollection$, "description");
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NameInput label={"Project Name"} type={TextInputType.PRIMARY} />
+                <NameInput label={"Project Name"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
                 <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
-                <AnalysisTypeDropdown label={"Analysis Type"} className={"w-full"} />
+                {/* <AnalysisTypeDropdown label={"Analysis Type"} className={"w-full"} />
                 {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
                     <AnalysisPurposeDropdown label={"Analysis Purpose"} className={"w-full"} />
-                )}
+                )}*/}
                 <span className={"col-span-2"}>
                     <DescInput label={"Description"} className={"w-full"} />
                 </span>
+                {/* 
                 <StudyPeriodInput
                     label={"Length of Study Period"}
                     addonAfter={"years"}
@@ -192,16 +177,16 @@ export default function GeneralInformation() {
                     max={40}
                     min={0}
                     controls={true}
-                />
+                />*/}
             </div>
             <div className={"pt-4"}>
                 <Title level={5}>Dollar Analysis</Title>
-                <Switch
+                {/* <Switch
                     className={"bg-primary hover:bg-primary"}
                     checkedChildren={"Constant"}
                     unCheckedChildren={"Current"}
                     defaultChecked
-                />
+                />*/}
             </div>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <div className={"grid grid-cols-2"}>
@@ -213,13 +198,11 @@ export default function GeneralInformation() {
                     >
                         Discounting
                     </Divider>
-                    <div className={"col-span-2"}>
-                        <DiscountingConvention label={"Discounting Convention"} />
-                    </div>
+                    <div className={"col-span-2"}>{/*<DiscountingConvention label={"Discounting Convention"} />*/}</div>
                     <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                        <GenInflationRate addonAfter={"%"} label={"General Inflation Rate"} controls={false} />
+                        {/*<GenInflationRate addonAfter={"%"} label={"General Inflation Rate"} controls={false} />
                         <NominalDiscRate addonAfter={"%"} label={"Nominal Discount Rate"} controls={false} min={0.0} />
-                        <RealDiscRate addonAfter={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />
+                        <RealDiscRate addonAfter={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />*/}
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -231,14 +214,14 @@ export default function GeneralInformation() {
                     >
                         Location
                     </Divider>
-                    <CountryDropdown label={"Country"} className={"w-full"} value={Model.useCountry()} />
+                    {/*<CountryDropdown label={"Country"} className={"w-full"} value={Model.useCountry()} />
                     <CityInput label={"City"} type={TextInputType.PRIMARY} />
                     {Model.useCountry() === Country.USA ? (
                         <StateDropdown label={"State"} className={"w-full"} />
                     ) : (
                         <StateInput label={"State"} type={TextInputType.PRIMARY} />
                     )}
-                    {Model.useCountry() === Country.USA && <ZipInput label={"Zip"} type={TextInputType.PRIMARY} />}
+                    {Model.useCountry() === Country.USA && <ZipInput label={"Zip"} type={TextInputType.PRIMARY} />}*/}
                 </div>
             </div>
 
@@ -251,8 +234,8 @@ export default function GeneralInformation() {
                 >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
-                <EmissionsRateDropdown label={"Emissions Rate Scenario"} className={"w-full"} />
-                <SocialCostDropdown label={"Social Cost of GHG Scenario"} className={"w-full"} />
+                {/*<EmissionsRateDropdown label={"Emissions Rate Scenario"} className={"w-full"} />
+                <SocialCostDropdown label={"Social Cost of GHG Scenario"} className={"w-full"} />*/}
             </div>
         </div>
     );

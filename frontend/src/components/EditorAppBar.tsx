@@ -6,10 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { upload } from "../blcc-format/Import";
-import { download } from "../util/DownloadFile";
-import { project$ } from "../model/Project";
-import { sample } from "rxjs";
-import { useDBName } from "../model/Model";
+import { useName } from "../model/Model";
 
 const { component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -23,7 +20,7 @@ const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
 export default function EditorAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, `${project.name}.blcc`));
+    //useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, `${project.name}.blcc`));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 
@@ -50,7 +47,7 @@ export default function EditorAppBar() {
                 </SaveButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"}>{useDBName() || "Untitled Project"}</p>
+                <p className={"text-base-lightest"}>{useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
                     <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
                         Reports and Analysis

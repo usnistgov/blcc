@@ -2,7 +2,8 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Input, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable } from "rxjs";
+import { EMPTY, Observable, switchMap } from "rxjs";
+import { startWith } from "rxjs/operators";
 
 export enum TextInputType {
     PRIMARY = " ",
@@ -27,13 +28,17 @@ export type TextInput = {
 
 const { Title } = Typography;
 
-export default function textInput(
-    value$: Observable<string | undefined> = EMPTY,
-    placeholder$: Observable<string> = EMPTY
-): TextInput {
+export default function textInput(value$: Observable<string | undefined> = EMPTY): TextInput {
     const [onChange$, onChange] = createSignal<string>();
-    const [usePlaceholder] = bind(placeholder$, undefined);
-    const [useValue] = bind(value$, undefined);
+    const [focused$, focus] = createSignal<boolean>();
+
+    const [useValue] = bind(
+        focused$.pipe(
+            startWith(false),
+            switchMap((focused) => (focused ? onChange$ : value$))
+        ),
+        undefined
+    );
 
     return {
         onChange$,
@@ -43,15 +48,18 @@ export default function textInput(
             type,
             disabled = false,
             bordered = true,
+            placeholder,
             label
         }: PropsWithChildren & TextInputProps) => {
             return (
                 <div>
                     <Title level={5}>{label}</Title>
                     <Input
+                        onFocus={() => focus(true)}
+                        onBlur={() => focus(false)}
                         className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
                         onChange={(event) => onChange(event.target.value)}
-                        placeholder={usePlaceholder()}
+                        placeholder={placeholder}
                         bordered={bordered}
                         disabled={disabled}
                         value={useValue()}

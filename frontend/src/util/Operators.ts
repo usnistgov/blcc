@@ -34,3 +34,7 @@ export function arrayFilter<A>(predicate: (a: A) => boolean): UnaryFunction<Obse
 export function guard<A>(): UnaryFunction<Observable<A | undefined>, Observable<A>> {
     return pipe(filter((a): a is A => a !== undefined));
 }
+
+export function defaultValue<A, B>(defaultValue: B): UnaryFunction<Observable<A>, Observable<A | B>> {
+    return pipe(map((a) => (a ? a : defaultValue)));
+}
