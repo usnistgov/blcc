@@ -1,10 +1,12 @@
+/// <reference types="vite-plugin-svgr/client" />
+
 import "../nist-header-footer.sass";
 import NistHeaderFooter from "../components/NistHeaderFooter";
 import button, { ButtonType } from "../components/Button";
 import { mdiArrowRight } from "@mdi/js";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { useNavigate } from "react-router-dom";
-import logoUrl from "../images/logo.svg";
+import Logo from "../images/logo.svg?react";
 
 const { click$: openEditorClick$, component: OpenEditorButton } = button();
 
@@ -22,7 +24,7 @@ export default function Index() {
             >
                 <NistHeaderFooter>
                     <div className={"mt-32 flex flex-col items-center"}>
-                        <img className={"h-52"} src={logoUrl} alt={"BLCC logo"} />
+                        <Logo className={"h-52 w-full"} />
                         <OpenEditorButton
                             className={"my-16"}
                             type={ButtonType.PRIMARY}
