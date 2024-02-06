@@ -6,7 +6,7 @@ import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
 
-import { Observable, combineLatest, iif, merge, of } from "rxjs";
+import { combineLatest, debounceTime, iif, merge, Observable, of } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import {
     AnalysisType,
@@ -20,14 +20,23 @@ import {
     USLocation
 } from "../../blcc-format/Format";
 import { Country, State } from "../../constants/LOCATION";
-import { Model } from "../../model/Model";
+import { dbName$, Model } from "../../model/Model";
 import Title from "antd/es/typography/Title";
+import { db } from "../../model/db";
+import { createSignal } from "@react-rxjs/utils";
 
 /*
  * rxjs components
  */
+const [currentName$, setCurrentName] = createSignal<string>();
+const { onChange$: nameChange$, component: NameInput } = textInput(currentName$, of("Untitled Project"));
 
-const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
+nameChange$.subscribe(setCurrentName);
+//dbName$.subscribe(setCurrentName);
+nameChange$.subscribe(async (value) => {
+    await db.projects.where("id").equals(1).modify({ name: value });
+});
+
 const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
 const { onChange$: descriptionChange$, component: DescInput } = textArea(Model.description$);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(

@@ -11,7 +11,10 @@ import {
 } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
 import { bind, shareLatest } from "@react-rxjs/core";
-import { filter, map } from "rxjs";
+import { filter, map, of, switchMap } from "rxjs";
+import { liveQuery } from "dexie";
+import { db } from "./db";
+import { guard } from "../util/Operators";
 
 const [_p$, connectProject] = selfDependent<Project>();
 
@@ -126,3 +129,12 @@ const Model = {
 };
 
 export { Model };
+
+const dbProject$ = of(1).pipe(
+    switchMap((currentID) => liveQuery(() => db.projects.where("id").equals(currentID).first())),
+    guard()
+);
+
+export const dbName$ = dbProject$.pipe(map((x) => x.name));
+
+export const [useDBName] = bind(dbName$, "");

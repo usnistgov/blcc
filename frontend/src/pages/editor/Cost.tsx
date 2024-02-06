@@ -1,4 +1,4 @@
-import { map } from "rxjs";
+import { map, of, switchMap } from "rxjs";
 import { CostTypes, ID } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
@@ -7,7 +7,7 @@ import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
-import EnergyCostFields from "./cost/EnergyCostFields";
+import EnergyCostFields, { energyCostChange$ } from "./cost/EnergyCostFields";
 import { cost$, costID$, costType$, useCostID } from "../../model/CostModel";
 import { Model } from "../../model/Model";
 import { createSignal, mergeWithKey } from "@react-rxjs/utils";
@@ -58,6 +58,18 @@ export const baseCostChange$ = costID$.pipe(
             alts: toggleAlt$
         })
     )
+);
+
+export const extendedChanges$ = costType$.pipe(
+    switchMap((type) => {
+        switch (type) {
+            case CostTypes.ENERGY: {
+                return energyCostChange$;
+            }
+        }
+
+        return of();
+    })
 );
 
 baseCostChange$.subscribe(console.log);

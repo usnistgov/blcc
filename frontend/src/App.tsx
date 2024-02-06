@@ -21,6 +21,9 @@ import { bar, line, pie, zoom } from "billboard.js";
 import "billboard.js/dist/billboard.css";
 import Index from "./pages/Index";
 import PageWrapper from "./components/PageWrapper";
+import { db } from "./model/db";
+import { liveQuery } from "dexie";
+import { Purpose } from "./blcc-format/Format";
 
 //FIXME: needed to force load the project stream
 project$.subscribe(console.log);
@@ -35,6 +38,17 @@ function initializeBillboardJS() {
     zoom();
 }
 initializeBillboardJS();
+
+const value = liveQuery(() => db.projects.toArray());
+value.subscribe((v) => {
+    console.log(v);
+
+    if (v.length <= 0)
+        db.projects.add({
+            name: "Test Project",
+            purpose: Purpose.COST_LEASE
+        });
+});
 
 export default function App() {
     return (
