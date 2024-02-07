@@ -2,9 +2,9 @@ import Dexie, { Table } from "dexie";
 import { Alternative, Cost, Project } from "../blcc-format/Format";
 
 export class BlccDexie extends Dexie {
-    projects!: Table<Project>;
-    costs!: Table<Cost>;
-    alternatives!: Table<Alternative>;
+    projects!: Table<Project, number>;
+    costs!: Table<Cost, number>;
+    alternatives!: Table<Alternative, number>;
 
     constructor() {
         super("BlccDatabase");

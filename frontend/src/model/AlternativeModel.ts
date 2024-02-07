@@ -12,10 +12,12 @@ import { liveQuery } from "dexie";
  */
 export const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)));
 
+export const alternativeCollection$ = alternativeID$.pipe(map((id) => db.alternatives.where("id").equals(id)));
+
 /**
  * The current alternative object that relates to the currently selected ID.
  */
-export const alt$ = alternativeID$.pipe(
+export const alternative$ = alternativeID$.pipe(
     switchMap((id) => liveQuery(() => db.alternatives.where("id").equals(id).first())),
     guard()
 );
@@ -23,12 +25,12 @@ export const alt$ = alternativeID$.pipe(
 /**
  * The list of costs associated with the current alternative.
  */
-export const altCosts$ = alt$.pipe(
+export const altCosts$ = alternative$.pipe(
     switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray()))
 );
 export const [useAltCosts] = bind(altCosts$, []);
 
-export const [useAltName] = bind(alt$.pipe(map((alt) => alt.name)), "");
+export const [useAltName] = bind(alternative$.pipe(map((alt) => alt.name)), "");
 
 /**
  * The energy costs of the current alternative.

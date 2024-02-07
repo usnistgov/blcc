@@ -40,24 +40,26 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
             const openModal = useOpen();
 
             useSubscribe(newCost$, async ([projectID, name, type, alts]) => {
-                // Add new cost to DB and get new ID
-                const newID = (await db.costs.add({ name, type } as Cost)) as number;
+                db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
+                    // Add new cost to DB and get new ID
+                    const newID = await db.costs.add({ name, type } as Cost);
 
-                // Add new cost ID to project
-                await db.projects
-                    .where("id")
-                    .equals(projectID)
-                    .modify((project) => {
-                        project.costs.push(newID);
-                    });
+                    // Add new cost ID to project
+                    await db.projects
+                        .where("id")
+                        .equals(projectID)
+                        .modify((project) => {
+                            project.costs.push(newID);
+                        });
 
-                // Add new cost ID to alternatives
-                await db.alternatives
-                    .where("id")
-                    .anyOf(alts)
-                    .modify((alt) => {
-                        alt.costs.push(newID);
-                    });
+                    // Add new cost ID to alternatives
+                    await db.alternatives
+                        .where("id")
+                        .anyOf(alts)
+                        .modify((alt) => {
+                            alt.costs.push(newID);
+                        });
+                });
             });
 
             return (

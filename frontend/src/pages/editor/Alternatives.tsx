@@ -1,4 +1,4 @@
-import { Cost, CostTypes, FuelType } from "../../blcc-format/Format";
+import { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
 import { Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
@@ -10,10 +10,11 @@ import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
 import { useNavigate } from "react-router-dom";
 import { map, withLatestFrom } from "rxjs/operators";
-import { sample } from "rxjs";
+import { combineLatest, sample, switchMap } from "rxjs";
 import { bind } from "@react-rxjs/core";
 import {
-    alt$,
+    alternative$,
+    alternativeCollection$,
     alternativeID$,
     capitalCosts$,
     contractCosts$,
@@ -21,8 +22,12 @@ import {
     otherCosts$,
     waterCosts$
 } from "../../model/AlternativeModel";
-import { useAlternativeIDs } from "../../model/Model";
+import { currentProject$, useAlternativeIDs } from "../../model/Model";
 import { useEffect } from "react";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { defaultValue } from "../../util/Operators";
+import { db } from "../../model/db";
+import { useSubscribe } from "../../hooks/UseSubscribe";
 
 const { Title } = Typography;
 
@@ -30,16 +35,14 @@ const { click$: cloneAlternativeClick$, component: CloneButton } = button();
 const { click$: removeAlternativeClick$, component: RemoveButton } = button();
 const { click$: openAltModal$, component: AddAlternativeButton } = button();
 const { click$: openCostModal$, component: AddCostButton } = button();
-const { onChange$: baselineChange$, component: BaselineSwitch } = switchComp(
-    alt$.pipe(map((alt) => alt?.baseline ?? false))
+const { onChange$: baseline$, component: BaselineSwitch } = switchComp(
+    alternative$.pipe(map((alt) => alt?.baseline ?? false))
 );
-const { onChange$: name$, component: NameInput } = textInput(alt$.pipe(map((alt) => alt.name)));
-const { component: DescInput } = textArea(alt$.pipe(map((alt) => alt.description)));
+const { onChange$: name$, component: NameInput } = textInput(alternative$.pipe(map((alt) => alt.name)));
+const { onChange$: description$, component: DescInput } = textArea(alternative$.pipe(map((alt) => alt.description)));
 
-export const alternativeNameChange$ = name$.pipe(withLatestFrom(alternativeID$));
-export const modifiedBaselineChange$ = baselineChange$.pipe(withLatestFrom(alternativeID$));
-export const removeAlternative$ = alternativeID$.pipe(sample(removeAlternativeClick$));
-export const cloneAlternative$ = alternativeID$.pipe(sample(cloneAlternativeClick$));
+const removeAlternative$ = combineLatest([alternativeID$, currentProject$]).pipe(sample(removeAlternativeClick$));
+const cloneAlternative$ = combineLatest([alternative$, currentProject$]).pipe(sample(cloneAlternativeClick$));
 
 const { component: AddAlternativeModal } = addAlternativeModal(openAltModal$.pipe(map(() => true)));
 const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
@@ -87,14 +90,78 @@ const [otherCategories] = bind(
     {} as Subcategories<CostTypes>
 );
 
-export default function Alternatives() {
-    const navigate = useNavigate();
+function setBaseline([baseline, id]: [boolean, ID]) {
+    db.transaction("rw", db.alternatives, async () => {
+        db.alternatives.where("id").equals(id).modify({ baseline });
 
+        // If we are setting the current alternatives baseline to true, set all other alternative baselines to false.
+        if (baseline) db.alternatives.where("id").notEqual(id).modify({ baseline: false });
+    });
+}
+
+function removeAlternative([alternativeID, projectID]: [number, number]) {
+    return db.transaction("rw", db.alternatives, db.projects, async () => {
+        // Remove alternative
+        db.alternatives.where("id").equals(alternativeID).delete();
+
+        // Remove alternative ID from project
+        db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                const index = project.alternatives.indexOf(alternativeID);
+                if (index > -1) {
+                    project.alternatives.splice(index, 1);
+                }
+            });
+
+        //TODO remove costs only associated with this alternative?
+    });
+}
+
+async function cloneAlternative([alternative, projectID]: [Alternative, number]): Promise<ID> {
+    // Clone copies everything besides the baseline value and the name is changed for differentiation
+    const newAlternative = {
+        ...alternative,
+        id: undefined,
+        baseline: false,
+        name: `${alternative.name} Copy`
+    } as Alternative;
+
+    return db.transaction("rw", db.alternatives, db.projects, async () => {
+        // Add cloned alternative
+        const newID = await db.alternatives.add(newAlternative);
+
+        // Add copy to project
+        db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                project.alternatives.push(newID);
+            });
+
+        return newID;
+    });
+}
+
+export default function Alternatives() {
     // Navigate to general information page if there are no alternatives
+    const navigate = useNavigate();
     const alternatives = useAlternativeIDs();
     useEffect(() => {
         if (alternatives.length <= 0) navigate("/editor");
     }, []);
+
+    useDbUpdate(name$.pipe(defaultValue("Unnamed Alternative")), alternativeCollection$, "name");
+    useDbUpdate(description$.pipe(defaultValue(undefined)), alternativeCollection$, "description");
+    useSubscribe(baseline$.pipe(withLatestFrom(alternativeID$)), setBaseline);
+    useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
+        // Navigate to last alternative after deletion of current one
+        const lastAlternative = await db.alternatives.reverse().first();
+        if (lastAlternative !== undefined) navigate(`/editor/alternative/${lastAlternative.id}`);
+        else navigate("/editor/alternative");
+    });
+    useSubscribe(cloneAlternative$.pipe(switchMap(cloneAlternative)), (id) => navigate(`/editor/alternative/${id}`));
 
     const categories = [
         {

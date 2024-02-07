@@ -39,13 +39,20 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
         component: () => {
             const navigate = useNavigate();
             useSubscribe(newAlternative$, async ([projectID, newAlternative]) => {
-                const newID = (await db.alternatives.add(newAlternative)) as number;
-                await db.projects
-                    .where("id")
-                    .equals(projectID)
-                    .modify((project) => {
-                        project.alternatives.push(newID);
-                    });
+                const newID = await db.transaction("rw", db.alternatives, db.projects, async () => {
+                    // Add new alternative and get its ID
+                    const newID = await db.alternatives.add(newAlternative);
+
+                    // Add alternative ID to current project
+                    await db.projects
+                        .where("id")
+                        .equals(projectID)
+                        .modify((project) => {
+                            project.alternatives.push(newID);
+                        });
+
+                    return newID;
+                });
 
                 navigate(`/editor/alternative/${newID}`);
             });
