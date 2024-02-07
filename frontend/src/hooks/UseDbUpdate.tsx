@@ -6,7 +6,7 @@ import { withLatestFrom } from "rxjs/operators";
 export function useDbUpdate<A, B extends keyof A>(
     stream$: Observable<A[B]>,
     dbObj$: Observable<Collection<A>>,
-    param: B
+    param: string
 ) {
     useEffect(() => {
         const subscription = stream$.pipe(withLatestFrom(dbObj$)).subscribe(([value, db]) => {

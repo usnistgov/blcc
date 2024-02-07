@@ -35,7 +35,7 @@ defaultProject$.subscribe((p) => {
             name: "Untitled Project",
             analysisType: AnalysisType.FEDERAL_FINANCED,
             dollarMethod: DollarMethod.CONSTANT,
-            studyPeriod: 40,
+            studyPeriod: 25,
             constructionPeriod: 0,
             discountingMethod: DiscountingMethod.END_OF_YEAR,
             location: {
