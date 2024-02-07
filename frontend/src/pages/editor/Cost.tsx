@@ -8,7 +8,7 @@ import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
 import EnergyCostFields from "./cost/EnergyCostFields";
-import { cost$, costCollection$, costID$, costType$, useCostID } from "../../model/CostModel";
+import { cost$, costCollection$, costID$, costType$, useCostID, useCostType } from "../../model/CostModel";
 import { createSignal } from "@react-rxjs/utils";
 import WaterCostFields from "./cost/WaterCostFields";
 import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
@@ -21,7 +21,7 @@ import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
 import { useAlternativeID, useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { currentProject$, useAlternatives } from "../../model/Model";
+import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import { defaultValue } from "../../util/Operators";
 import addCostModal from "../../components/AddCostModal";
@@ -43,8 +43,6 @@ const costFieldComponents = {
     [CostTypes.OTHER_NON_MONETARY]: () => <OtherNonMonetaryCostFields />
 };
 
-const [fieldComponent] = bind(costType$.pipe(map((type) => costFieldComponents[type]())), undefined);
-
 const { click$: openCostModal$, component: AddCostButton } = button();
 const { click$: cloneClick$, component: CloneCostButton } = button();
 const { click$: removeClick$, component: RemoveCostButton } = button();
@@ -55,6 +53,15 @@ const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => t
 
 const remove$ = combineLatest([costID$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
 const clone$ = combineLatest([cost$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
+
+// True if only one alternative contains this cost.
+// In which case we disable the user from removing the cost from all alternatives, so it does not become orphaned.
+const [onlyOneAlternativeIncludes] = bind(
+    combineLatest([alternatives$, costID$]).pipe(
+        map(([alternatives, id]) => alternatives.filter((alt) => alt.costs.includes(id)).length <= 1)
+    ),
+    true
+);
 
 function removeCost([costID, projectID]: [number, number]) {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
@@ -110,11 +117,27 @@ async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
     });
 }
 
+function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean]]) {
+    db.alternatives
+        .where("id")
+        .equals(alternativeID)
+        .modify((alternative) => {
+            if (applied) alternative.costs.push(id);
+            else {
+                const index = alternative.costs.indexOf(id);
+                if (index > -1) {
+                    alternative.costs.splice(index, 1);
+                }
+            }
+        });
+}
+
 export default function Cost() {
     const id = useCostID();
     const alternativeName = useAltName();
     const navigate = useNavigate();
     const alternatives = useAlternatives();
+    const onlyOne = onlyOneAlternativeIncludes();
 
     // Make back arrow go to the currently selected alternative
     const alternativeID = useAlternativeID();
@@ -126,6 +149,7 @@ export default function Cost() {
     useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
     useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
+    useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
 
     return (
         <div className={"w-full"}>
@@ -160,6 +184,7 @@ export default function Cost() {
                         {alternatives.map((alt) => (
                             <Checkbox
                                 key={alt.id}
+                                disabled={onlyOne && alt.costs.includes(id)}
                                 checked={alt.costs.includes(id)}
                                 onChange={(e) => toggleAlt([alt.id ?? 0, e.target.checked])}
                             >
@@ -172,7 +197,32 @@ export default function Cost() {
                     </span>
                 </div>
             </div>
-            <div className={"border-t border-base-lighter"}>{fieldComponent()}</div>
+            <div className={"border-t border-base-lighter"}>
+                <Fields costType={useCostType()} />
+            </div>
         </div>
     );
+}
+
+function Fields({ costType }: { costType: CostTypes }) {
+    switch (costType) {
+        case CostTypes.ENERGY:
+            return <EnergyCostFields />;
+        case CostTypes.WATER:
+            return <WaterCostFields />;
+        case CostTypes.CAPITAL:
+            return <InvestmentCapitalCostFields />;
+        case CostTypes.REPLACEMENT_CAPITAL:
+            return <ReplacementCapitalCostFields />;
+        case CostTypes.OMR:
+            return <OMRCostFields />;
+        case CostTypes.IMPLEMENTATION_CONTRACT:
+            return <ImplementationContractCostFields />;
+        case CostTypes.RECURRING_CONTRACT:
+            return <RecurringContractCostFields />;
+        case CostTypes.OTHER:
+            return <OtherCostFields />;
+        case CostTypes.OTHER_NON_MONETARY:
+            return <OtherNonMonetaryCostFields />;
+    }
 }

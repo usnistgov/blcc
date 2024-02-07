@@ -4,6 +4,7 @@ import { bind, shareLatest } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
+import { CostTypes } from "../blcc-format/Format";
 
 /**
  * The ID of the currently selected cost
@@ -27,3 +28,4 @@ export const cost$ = costID$.pipe(
  * The type of the currently selected cost.
  */
 export const costType$ = cost$.pipe(map((cost) => cost.type));
+export const [useCostType] = bind(costType$, CostTypes.OTHER);

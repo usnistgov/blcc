@@ -2,9 +2,13 @@ import { combineLatest, filter, from, map } from "rxjs";
 import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
-import { cost$ } from "../../../model/CostModel";
+import { cost$, costCollection$, costID$ } from "../../../model/CostModel";
 import { phaseIn } from "../../../components/PhaseIn";
-import { combineLatestWith } from "rxjs/operators";
+import { combineLatestWith, withLatestFrom } from "rxjs/operators";
+import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { useSubscribe } from "../../../hooks/UseSubscribe";
+import { db } from "../../../model/db";
+import { useEffect } from "react";
 
 const escalationRates$ = from(
     fetch("http://localhost:8080/api/zip-state", {
@@ -23,7 +27,7 @@ escalationRates$.subscribe(console.log);
 const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
 //const usageIndex$ = energyCost$.pipe(map((cost) => cost.useIndex));
 
-const { component: FuelTypeDropdown } = dropdown(
+const { change$: fuelType$, component: FuelTypeDropdown } = dropdown(
     Object.values(FuelType),
     energyCost$.pipe(map((cost) => cost.fuelType))
 );
@@ -44,6 +48,8 @@ export const energyCostChange$ = combineLatest({
 });
 
 export default function EnergyCostFields() {
+    useDbUpdate(fuelType$, costCollection$, "fuelType");
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
