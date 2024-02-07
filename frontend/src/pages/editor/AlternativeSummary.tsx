@@ -121,7 +121,7 @@ export function createAlternativeCard(alternative: Alternative) {
                     <div className={"flex flex-row justify-between gap-6"}>
                         {/* Render each category */}
                         {categories.map((category) => (
-                            <div className={"flex flex-col"}>
+                            <div className={"flex flex-col"} key={category.label}>
                                 <div className={"flex gap-6"}>
                                     <Title level={5}>{category.label}</Title>
                                     <p>{category.hook().length}</p>
@@ -129,8 +129,8 @@ export function createAlternativeCard(alternative: Alternative) {
                                 <Divider className={"m-0"} />
 
                                 {/* Render each subcategory */}
-                                {category.children?.().map(([type, count]) => (
-                                    <div className={"flex gap-6"}>
+                                {category.children?.().map(([type, count], i) => (
+                                    <div className={"flex gap-6"} key={i}>
                                         <p className={"grow"}>{type}</p>
                                         <div className={"w-fit"}>
                                             <p>{count}</p>
