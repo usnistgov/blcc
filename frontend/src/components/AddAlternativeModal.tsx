@@ -23,6 +23,8 @@ const newAlternative$ = combineLatest([
     name$.pipe(map((name) => ({ name: name, costs: [], baseline: false }) as Alternative))
 ]).pipe(sample(addClick$));
 
+//TODO make inputs clear when closing modal
+
 export default function addAlternativeModal(open$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
     const [useOpen] = bind(

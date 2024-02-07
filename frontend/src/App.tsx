@@ -18,6 +18,7 @@ import AlternativeSummary from "./pages/editor/AlternativeSummary";
 import Cost from "./pages/editor/Cost";
 import UrlParameters from "./components/UrlParameters";
 import Alternatives from "./pages/editor/Alternatives";
+import CostNavigation from "./components/CostNavigation";
 
 //FIXME: needed to force load the project stream
 //project$.subscribe(console.log);
@@ -68,12 +69,12 @@ export default function App() {
                         {/* Navigation */}
                         <Routes>
                             <Route index element={<Index />} />
-                            <Route path={"/editor/*"} element={<Navigation />} />
-                            {/*                                <Route path={"alternative/:altID"}>
+                            <Route path={"/editor/*"} element={<Navigation />}>
+                                <Route path={"alternative/:altID"}>
                                     <Route index path={"*"} element={<CostNavigation />} />
                                 </Route>
                             </Route>
-                            <Route path={"/results/*"} element={<ResultNavigation />} />*/}
+                            {/*<Route path={"/results/*"} element={<ResultNavigation />} />*/}
                         </Routes>
 
                         {/* Pages */}

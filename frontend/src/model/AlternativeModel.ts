@@ -12,6 +12,8 @@ import { liveQuery } from "dexie";
  */
 export const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)));
 
+export const [useAlternativeID, altID$] = bind(alternativeID$, 0);
+
 export const alternativeCollection$ = alternativeID$.pipe(map((id) => db.alternatives.where("id").equals(id)));
 
 /**

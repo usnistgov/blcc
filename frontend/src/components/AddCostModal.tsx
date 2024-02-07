@@ -24,6 +24,8 @@ const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
 
 const newCost$ = combineLatest([currentProject$, name$, type$, checkedAlts$]).pipe(sample(addCost$));
 
+//TODO make inputs clear when closing the modal
+
 export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
     const [useOpen] = bind(

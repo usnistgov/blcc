@@ -9,6 +9,9 @@ import { guard } from "../util/Operators";
  * The ID of the currently selected cost
  */
 export const costID$ = urlParameters$.pipe(map(({ costID }) => parseInt(costID ?? "-1")));
+
+export const costCollection$ = costID$.pipe(map((id) => db.costs.where("id").equals(id)));
+
 export const [useCostID] = bind(costID$, -1);
 
 /**

@@ -1,5 +1,5 @@
-import { map, of, switchMap } from "rxjs";
-import { CostTypes, ID } from "../../blcc-format/Format";
+import { combineLatest, map, sample, switchMap } from "rxjs";
+import { Cost as FormatCost, CostTypes, ID } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { Checkbox, Typography } from "antd";
@@ -7,9 +7,9 @@ import textInput, { TextInputType } from "../../components/TextInput";
 import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
-import EnergyCostFields, { energyCostChange$ } from "./cost/EnergyCostFields";
-import { cost$, costID$, costType$, useCostID } from "../../model/CostModel";
-import { createSignal, mergeWithKey } from "@react-rxjs/utils";
+import EnergyCostFields from "./cost/EnergyCostFields";
+import { cost$, costCollection$, costID$, costType$, useCostID } from "../../model/CostModel";
+import { createSignal } from "@react-rxjs/utils";
 import WaterCostFields from "./cost/WaterCostFields";
 import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
 import ReplacementCapitalCostFields from "./cost/ReplacementCapitalCostFields";
@@ -18,11 +18,14 @@ import ImplementationContractCostFields from "./cost/ImplementationContractCostF
 import RecurringContractCostFields from "./cost/RecurringContractCostFields";
 import OtherCostFields from "./cost/OtherCostFields";
 import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
-import { useAltName } from "../../model/AlternativeModel";
+import { useAlternativeID, useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { combineLatestWith } from "rxjs/operators";
-import { useAlternatives } from "../../model/Model";
+import { currentProject$, useAlternatives } from "../../model/Model";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { defaultValue } from "../../util/Operators";
+import addCostModal from "../../components/AddCostModal";
+import { db } from "../../model/db";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
@@ -42,37 +45,70 @@ const costFieldComponents = {
 
 const [fieldComponent] = bind(costType$.pipe(map((type) => costFieldComponents[type]())), undefined);
 
-const { component: AddCostButton } = button();
-const { component: CloneCostButton } = button();
-const { component: RemoveCostButton } = button();
-const { component: NameInput, onChange$: nameChange$ } = textInput(cost$.pipe(map((cost) => cost.name)));
-const { component: DescriptionInput, onChange$: descriptionChange$ } = textArea(
-    cost$.pipe(map((cost) => cost.description))
-);
+const { click$: openCostModal$, component: AddCostButton } = button();
+const { click$: cloneClick$, component: CloneCostButton } = button();
+const { click$: removeClick$, component: RemoveCostButton } = button();
+const { component: NameInput, onChange$: name$ } = textInput(cost$.pipe(map((cost) => cost.name)));
+const { component: DescriptionInput, onChange$: description$ } = textArea(cost$.pipe(map((cost) => cost.description)));
 
-export const baseCostChange$ = costID$.pipe(
-    combineLatestWith(
-        mergeWithKey({
-            name: nameChange$,
-            description: descriptionChange$,
-            alts: toggleAlt$
-        })
-    )
-);
+const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
-export const extendedChanges$ = costType$.pipe(
-    switchMap((type) => {
-        switch (type) {
-            case CostTypes.ENERGY: {
-                return energyCostChange$;
-            }
-        }
+const remove$ = combineLatest([costID$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
+const clone$ = combineLatest([cost$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
 
-        return of();
-    })
-);
+function removeCost([costID, projectID]: [number, number]) {
+    return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
+        // Delete cost
+        db.costs.where("id").equals(costID).delete();
 
-baseCostChange$.subscribe(console.log);
+        // Remove cost from all associated alternatives
+        db.alternatives
+            .filter((alternative) => alternative.costs.includes(costID))
+            .modify((alternative) => {
+                const index = alternative.costs.indexOf(costID);
+                if (index > -1) {
+                    alternative.costs.splice(index, 1);
+                }
+            });
+
+        // Remove cost from project
+        db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                const index = project.costs.indexOf(costID);
+                if (index > -1) {
+                    project.costs.splice(index, 1);
+                }
+            });
+    });
+}
+
+async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
+    return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
+        const newCost = { ...cost, id: undefined, name: `${cost.name} Copy` } as FormatCost;
+
+        // Create new clone cost
+        const newID = await db.costs.add(newCost);
+
+        // Add to current project
+        db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                project.costs.push(newID);
+            });
+
+        // Add to necessary alternatives
+        db.alternatives
+            .filter((alternative) => alternative.costs.includes(cost.id ?? 0))
+            .modify((alternative) => {
+                alternative.costs.push(newID);
+            });
+
+        return newID;
+    });
+}
 
 export default function Cost() {
     const id = useCostID();
@@ -80,11 +116,22 @@ export default function Cost() {
     const navigate = useNavigate();
     const alternatives = useAlternatives();
 
-    useSubscribe(backClick$, () => navigate(-1));
+    // Make back arrow go to the currently selected alternative
+    const alternativeID = useAlternativeID();
+    useSubscribe(backClick$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [
+        alternativeID
+    ]);
+
+    useDbUpdate(name$.pipe(defaultValue("Unnamed Cost")), costCollection$, "name");
+    useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
+    useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
+    useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
 
     return (
         <div className={"w-full"}>
-            <div className="add-alternative mt-2 flex flex-col border-b border-base-lighter pb-2">
+            <AddCostModal />
+
+            <div className="add-alternative mt-2 flex flex-col border-b border-base-lighter px-3 pb-2">
                 <div className="flex justify-between">
                     <div>
                         <BackButton type={ButtonType.LINK} icon={mdiArrowLeft}>
