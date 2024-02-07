@@ -36,7 +36,7 @@ export enum SocialCostOfGhgScenario {
     SCC = "SCC = $0 / ton",
     LOW = "2023 – 5% Discount Rate – Average (“Low”)",
     MEDIUM = "2023 – 3% Discount Rate – Average (“Medium”)",
-    HIGHT = "2023 – 3% Discount Rate – 95th Percentile (“High”)"
+    HIGH = "2023 – 3% Discount Rate – 95th Percentile (“High”)"
 }
 
 export type Location = USLocation | NonUSLocation;

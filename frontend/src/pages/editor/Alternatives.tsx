@@ -8,7 +8,6 @@ import addCostModal from "../../components/AddCostModal";
 import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
-import { Model } from "../../model/Model";
 import { useNavigate } from "react-router-dom";
 import { map, withLatestFrom } from "rxjs/operators";
 import { sample } from "rxjs";
@@ -22,6 +21,8 @@ import {
     otherCosts$,
     waterCosts$
 } from "../../model/AlternativeModel";
+import { useAlternativeIDs } from "../../model/Model";
+import { useEffect } from "react";
 
 const { Title } = Typography;
 
@@ -90,8 +91,10 @@ export default function Alternatives() {
     const navigate = useNavigate();
 
     // Navigate to general information page if there are no alternatives
-    const alternatives = Model.useAlternatives();
-    if (alternatives.size <= 0) navigate("/editor");
+    const alternatives = useAlternativeIDs();
+    useEffect(() => {
+        if (alternatives.length <= 0) navigate("/editor");
+    }, []);
 
     const categories = [
         {

@@ -70,3 +70,14 @@ export const zip$ = usLocation$.pipe(map((p) => p.zipcode));
 
 export const emissionsRate$ = dbProject$.pipe(map((p) => p.ghg.emissionsRateScenario));
 export const socialCostOfGhgScenario$ = dbProject$.pipe(map((p) => p.ghg.socialCostOfGhgScenario));
+
+export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
+export const [useAlternativeIDs] = bind(alternativeIDs$, []);
+
+export const alternatives$ = alternativeIDs$.pipe(
+    switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray()))
+);
+export const [useAlternatives] = bind(alternatives$, []);
+
+export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
+export const [useCostIDs] = bind(costIDs$, []);

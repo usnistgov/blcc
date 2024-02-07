@@ -12,6 +12,12 @@ import { db } from "./model/db";
 import { Version } from "./blcc-format/Verison";
 import { AnalysisType, DiscountingMethod, DollarMethod } from "./blcc-format/Format";
 import { Country } from "./constants/LOCATION";
+import Index from "./pages/Index";
+import Navigation from "./components/Navigation";
+import AlternativeSummary from "./pages/editor/AlternativeSummary";
+import Cost from "./pages/editor/Cost";
+import UrlParameters from "./components/UrlParameters";
+import Alternatives from "./pages/editor/Alternatives";
 
 //FIXME: needed to force load the project stream
 //project$.subscribe(console.log);
@@ -60,22 +66,22 @@ export default function App() {
 
                     <div className={"flex h-full overflow-hidden"}>
                         {/* Navigation */}
-                        {/*                       <Routes>
+                        <Routes>
                             <Route index element={<Index />} />
-                            <Route path={"/editor/*"} element={<Navigation />}>
-                                <Route path={"alternative/:altID"}>
+                            <Route path={"/editor/*"} element={<Navigation />} />
+                            {/*                                <Route path={"alternative/:altID"}>
                                     <Route index path={"*"} element={<CostNavigation />} />
                                 </Route>
                             </Route>
-                            <Route path={"/results/*"} element={<ResultNavigation />} />
-                        </Routes>*/}
+                            <Route path={"/results/*"} element={<ResultNavigation />} />*/}
+                        </Routes>
 
                         {/* Pages */}
                         <Routes>
                             <Route element={<PageWrapper />}>
                                 <Route path={"/editor"}>
                                     <Route index element={<GeneralInformation />} />
-                                    {/* <Route path={"alternative"}>
+                                    <Route path={"alternative"}>
                                         <Route index element={<AlternativeSummary />} />
                                         <Route
                                             path={":alternativeID/cost/:costID"}
@@ -93,7 +99,7 @@ export default function App() {
                                                 </UrlParameters>
                                             }
                                         />
-                                    </Route>*/}
+                                    </Route>
                                 </Route>
                                 {/*                                <Route path={"/results"}>
                                     <Route index element={<Inputs />} />

@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { map } from "rxjs";
-import { Model } from "../model/Model";
+import { alternatives$ } from "../model/Model";
 import { bind } from "@react-rxjs/core";
 import { Alternative } from "../blcc-format/Format";
 import button, { ButtonType } from "./Button";
@@ -26,7 +26,7 @@ function altButton(alt: Alternative) {
 }
 
 const [useMenuItems] = bind(
-    Model.alternatives$.pipe(
+    alternatives$.pipe(
         map((alternatives) =>
             [...alternatives.values()].map((alt) => {
                 const button = altButton(alt);

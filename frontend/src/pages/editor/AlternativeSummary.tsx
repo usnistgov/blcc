@@ -2,26 +2,25 @@ import { mdiAlphaBBox, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { Divider, Typography } from "antd";
-import { map, withLatestFrom } from "rxjs/operators";
-import { Cost, EnergyCost } from "../../blcc-format/Format";
+import { map } from "rxjs/operators";
+import { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
-import { Model } from "../../model/Model";
-import { countProperty, guard } from "../../util/Operators";
+import { alternatives$ } from "../../model/Model";
+import { countProperty } from "../../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { sample } from "rxjs";
+import { of, switchMap } from "rxjs";
 import addAlternativeModal from "../../components/AddAlternativeModal";
+import { db } from "../../model/db";
+import { liveQuery } from "dexie";
 
 const { Title } = Typography;
 const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
 const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
 
-const [useCards] = bind(
-    Model.alternatives$.pipe(map((alts) => [...alts.values()].map((_a, i) => createAlternativeCard(i)))),
-    []
-);
+const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
 
 export default function AlternativeSummary() {
     const cards = useCards();
@@ -48,16 +47,9 @@ export default function AlternativeSummary() {
     );
 }
 
-export function createAlternativeCard(index: number) {
-    const alt$ = Model.alternatives$.pipe(
-        map((alts) => alts.get(index)),
-        guard()
-    );
-    const [alt] = bind(alt$, undefined);
-
-    const altCosts$ = alt$.pipe(
-        withLatestFrom(Model.costs$),
-        map(([alt, costs]) => alt.costs.map((cost) => costs.get(cost) as Cost))
+export function createAlternativeCard(alternative: Alternative) {
+    const altCosts$ = of(alternative).pipe(
+        switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray()))
     );
 
     // Count all energy costs, and the count of its subcategories
@@ -111,7 +103,7 @@ export function createAlternativeCard(index: number) {
     return {
         component: function AltCard() {
             const navigate = useNavigate();
-            useSubscribe(alt$.pipe(sample(cardClick$)), (alt) => navigate(`/editor/alternative/${alt.id}`));
+            useSubscribe(cardClick$, () => navigate(`/editor/alternative/${alternative.id}`));
 
             return (
                 <div
@@ -121,10 +113,10 @@ export function createAlternativeCard(index: number) {
                     onClick={click}
                 >
                     <div className={"flex flex-row gap-1"}>
-                        {alt()?.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
-                        <Title level={4}>{alt()?.name}</Title>
+                        {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
+                        <Title level={4}>{alternative.name}</Title>
                     </div>
-                    <p>{alt()?.description}</p>
+                    <p>{alternative.description}</p>
                     <br />
                     <div className={"flex flex-row justify-between gap-6"}>
                         {/* Render each category */}

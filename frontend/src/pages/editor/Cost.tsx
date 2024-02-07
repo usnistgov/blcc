@@ -9,7 +9,6 @@ import { bind } from "@react-rxjs/core";
 import React from "react";
 import EnergyCostFields, { energyCostChange$ } from "./cost/EnergyCostFields";
 import { cost$, costID$, costType$, useCostID } from "../../model/CostModel";
-import { Model } from "../../model/Model";
 import { createSignal, mergeWithKey } from "@react-rxjs/utils";
 import WaterCostFields from "./cost/WaterCostFields";
 import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
@@ -23,6 +22,7 @@ import { useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { combineLatestWith } from "rxjs/operators";
+import { useAlternatives } from "../../model/Model";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
@@ -78,7 +78,7 @@ export default function Cost() {
     const id = useCostID();
     const alternativeName = useAltName();
     const navigate = useNavigate();
-    const alternatives = Model.useAlternatives();
+    const alternatives = useAlternatives();
 
     useSubscribe(backClick$, () => navigate(-1));
 
@@ -110,11 +110,11 @@ export default function Cost() {
                     <NameInput type={TextInputType.PRIMARY} label={"Name"} />
                     <div className={"flex flex-col"}>
                         <Title level={5}>Alternatives applied to</Title>
-                        {[...alternatives.values()].map((alt) => (
+                        {alternatives.map((alt) => (
                             <Checkbox
                                 key={alt.id}
                                 checked={alt.costs.includes(id)}
-                                onChange={(e) => toggleAlt([alt.id, e.target.checked])}
+                                onChange={(e) => toggleAlt([alt.id ?? 0, e.target.checked])}
                             >
                                 {alt.name}
                             </Checkbox>

@@ -1,11 +1,11 @@
 import { urlParameters$ } from "../components/UrlParameters";
-import { map, withLatestFrom } from "rxjs/operators";
-import { combineLatest, filter } from "rxjs";
-import { Model } from "./Model";
-import { Alternative, Cost } from "../blcc-format/Format";
+import { map } from "rxjs/operators";
+import { switchMap } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
-import { arrayFilter } from "../util/Operators";
+import { arrayFilter, guard } from "../util/Operators";
 import { bind } from "@react-rxjs/core";
+import { db } from "./db";
+import { liveQuery } from "dexie";
 
 /**
  * The ID of the currently selected alternative as denoted in the URL.
@@ -15,17 +15,16 @@ export const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (al
 /**
  * The current alternative object that relates to the currently selected ID.
  */
-export const alt$ = combineLatest([alternativeID$, Model.alternatives$]).pipe(
-    map(([altID, alts]) => alts.get(altID)),
-    filter((alt): alt is Alternative => alt !== undefined)
+export const alt$ = alternativeID$.pipe(
+    switchMap((id) => liveQuery(() => db.alternatives.where("id").equals(id).first())),
+    guard()
 );
 
 /**
  * The list of costs associated with the current alternative.
  */
 export const altCosts$ = alt$.pipe(
-    withLatestFrom(Model.costs$),
-    map(([alt, costs]) => alt.costs.map((cost) => costs.get(cost) as Cost))
+    switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray()))
 );
 export const [useAltCosts] = bind(altCosts$, []);
 

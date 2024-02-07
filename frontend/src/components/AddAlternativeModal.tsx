@@ -8,24 +8,20 @@ import { map } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
 import { useSubscribe } from "../hooks/UseSubscribe";
-import { Model } from "../model/Model";
-import { getNewID } from "../util/Util";
 import { mdiClose, mdiPlus } from "@mdi/js";
+import { currentProject$ } from "../model/Model";
+import { Alternative } from "../blcc-format/Format";
+import { db } from "../model/db";
 
 const { Title } = Typography;
 const { click$: addClick$, component: AddAlternativeBtn } = button();
 const { click$: cancelClick$, component: CancelBtn } = button();
 const { onChange$: name$, component: NewAltInput } = textInput();
 
-export const addAlternative$ = combineLatest([Model.alternatives$, name$]).pipe(
-    sample(addClick$),
-    map(([alts, name]) => ({
-        id: getNewID([...alts.keys()]),
-        name: name,
-        costs: [],
-        baseline: false
-    }))
-);
+const newAlternative$ = combineLatest([
+    currentProject$,
+    name$.pipe(map((name) => ({ name: name, costs: [], baseline: false }) as Alternative))
+]).pipe(sample(addClick$));
 
 export default function addAlternativeModal(open$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
@@ -33,7 +29,7 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
         merge(
             open$,
             cancelClick$.pipe(map(() => false)),
-            addAlternative$.pipe(map(() => false)),
+            newAlternative$.pipe(map(() => false)),
             modalCancel$.pipe(map(() => false))
         ),
         false
@@ -42,8 +38,16 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
     return {
         component: () => {
             const navigate = useNavigate();
-            useSubscribe(addAlternative$, (alt) => {
-                navigate(`/editor/alternative/${alt?.id - 1}`);
+            useSubscribe(newAlternative$, async ([projectID, newAlternative]) => {
+                const newID = (await db.alternatives.add(newAlternative)) as number;
+                await db.projects
+                    .where("id")
+                    .equals(projectID)
+                    .modify((project) => {
+                        project.alternatives.push(newID);
+                    });
+
+                navigate(`/editor/alternative/${newID}`);
             });
 
             return (

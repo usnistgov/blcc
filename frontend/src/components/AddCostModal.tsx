@@ -8,9 +8,11 @@ import button, { ButtonType } from "../components/Button";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
 
-import { Model } from "../model/Model";
-import { CostTypes } from "../blcc-format/Format";
+import { Cost, CostTypes } from "../blcc-format/Format";
 import { mdiClose, mdiPlus } from "@mdi/js";
+import { currentProject$, useAlternatives } from "../model/Model";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import { db } from "../model/db";
 
 const { Title } = Typography;
 const { click$: addCost$, component: AddCostBtn } = button();
@@ -20,7 +22,7 @@ const { change$: type$, component: CostCategoryDropdown } = dropdown(Object.valu
 
 const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
 
-export const newCost$ = combineLatest([name$, type$, checkedAlts$]).pipe(sample(addCost$));
+const newCost$ = combineLatest([currentProject$, name$, type$, checkedAlts$]).pipe(sample(addCost$));
 
 export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
@@ -36,6 +38,27 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
     return {
         component: () => {
             const openModal = useOpen();
+
+            useSubscribe(newCost$, async ([projectID, name, type, alts]) => {
+                // Add new cost to DB and get new ID
+                const newID = (await db.costs.add({ name, type } as Cost)) as number;
+
+                // Add new cost ID to project
+                await db.projects
+                    .where("id")
+                    .equals(projectID)
+                    .modify((project) => {
+                        project.costs.push(newID);
+                    });
+
+                // Add new cost ID to alternatives
+                await db.alternatives
+                    .where("id")
+                    .anyOf(alts)
+                    .modify((alt) => {
+                        alt.costs.push(newID);
+                    });
+            });
 
             return (
                 <Modal
@@ -63,7 +86,7 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                             onChange={(values) => setCheckedAlts(values as number[])}
                         >
                             <Row>
-                                {[...Model.useAlternatives().values()].map((alt) => (
+                                {useAlternatives().map((alt) => (
                                     <Col span={16} key={alt.id}>
                                         <Checkbox value={alt.id}>{alt.name}</Checkbox>
                                     </Col>
