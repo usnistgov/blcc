@@ -15,9 +15,9 @@ import { useSubscribe } from "../hooks/UseSubscribe";
 import { db } from "../model/db";
 
 const { Title } = Typography;
-const { click$: addCost$, component: AddCostBtn } = button();
+const { click$: addCost$, component: AddButton } = button();
 const { onChange$: name$, component: NewCostInput } = textInput();
-const { click$: cancel$, component: CancelBtn } = button();
+const { click$: cancel$, component: CancelButton } = button();
 const { change$: type$, component: CostCategoryDropdown } = dropdown(Object.values(CostTypes));
 
 const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
@@ -69,14 +69,16 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                     title="Add New Cost"
                     open={openModal}
                     onCancel={cancel}
-                    footer={[
-                        <CancelBtn type={ButtonType.ERROR} key="back" icon={mdiClose}>
-                            Cancel
-                        </CancelBtn>,
-                        <AddCostBtn type={ButtonType.PRIMARY} key="add-cost-btn" icon={mdiPlus}>
-                            Add
-                        </AddCostBtn>
-                    ]}
+                    footer={
+                        <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
+                            <CancelButton type={ButtonType.ERROR} icon={mdiClose}>
+                                Cancel
+                            </CancelButton>
+                            <AddButton type={ButtonType.PRIMARY} icon={mdiPlus}>
+                                Add
+                            </AddButton>
+                        </div>
+                    }
                 >
                     <div>
                         <Title level={5}>Name</Title>

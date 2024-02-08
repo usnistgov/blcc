@@ -14,8 +14,8 @@ import { Alternative } from "../blcc-format/Format";
 import { db } from "../model/db";
 
 const { Title } = Typography;
-const { click$: addClick$, component: AddAlternativeBtn } = button();
-const { click$: cancelClick$, component: CancelBtn } = button();
+const { click$: addClick$, component: AddButton } = button();
+const { click$: cancelClick$, component: CancelButton } = button();
 const { onChange$: name$, component: NewAltInput } = textInput();
 
 const newAlternative$ = combineLatest([
@@ -66,14 +66,16 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
                     onCancel={cancel}
                     okButtonProps={{ disabled: false }}
                     cancelButtonProps={{ disabled: false }}
-                    footer={[
-                        <CancelBtn key="back" type={ButtonType.ERROR} icon={mdiClose}>
-                            Cancel
-                        </CancelBtn>,
-                        <AddAlternativeBtn type={ButtonType.PRIMARY} key="add" icon={mdiPlus}>
-                            Add
-                        </AddAlternativeBtn>
-                    ]}
+                    footer={
+                        <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
+                            <CancelButton type={ButtonType.ERROR} icon={mdiClose}>
+                                Cancel
+                            </CancelButton>
+                            <AddButton type={ButtonType.PRIMARY} icon={mdiPlus}>
+                                Add
+                            </AddButton>
+                        </div>
+                    }
                 >
                     <div>
                         <Title level={5}>Name</Title>

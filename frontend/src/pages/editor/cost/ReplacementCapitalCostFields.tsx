@@ -1,23 +1,68 @@
 import numberInput from "../../../components/InputNumber";
 import switchComp from "../../../components/Switch";
 import { Typography } from "antd";
-import { createSignal } from "@react-rxjs/utils";
+import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
+import { filter, Observable } from "rxjs";
+import { CostTypes, DollarOrPercent, ReplacementCapitalCost, ResidualValue } from "../../../blcc-format/Format";
+import { map } from "rxjs/operators";
+import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { defaultValue } from "../../../util/Operators";
 import { bind } from "@react-rxjs/core";
+import checkbox from "../../../components/Checkbox";
+import { Collection } from "dexie";
 
 const { Title } = Typography;
 
-const [dollarOrPercent$, setDollarOrPercent] = createSignal<boolean>();
-const [useDollarOrPercent] = bind(dollarOrPercent$, false);
+// If we are on this page that means the cost collection can be narrowed to ReplacementCapitalCost.
+const costCollection$ = baseCostCollection$ as Observable<Collection<ReplacementCapitalCost, number>>;
+const replacementCapitalCost$ = cost$.pipe(
+    filter((cost): cost is ReplacementCapitalCost => cost.type === CostTypes.REPLACEMENT_CAPITAL)
+);
 
-const { component: InitialCostInput } = numberInput();
-const { component: AnnualRateOfChangeInput } = numberInput();
-const { component: ExpectedLifeInput } = numberInput();
-const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = switchComp(dollarOrPercent$);
-const { component: ResidualValue } = numberInput();
+const [useApproach, approach$] = bind(
+    replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.approach)),
+    undefined
+);
+
+const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
+    replacementCapitalCost$.pipe(map((cost) => cost.initialCost))
+);
+const { component: AnnualRateOfChangeInput, onChange$: annualRateOfChange$ } = numberInput(
+    replacementCapitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
+    true
+);
+const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
+    replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
+    true
+);
+const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = switchComp(
+    approach$.pipe(map((approach) => approach === DollarOrPercent.PERCENT))
+);
+const { component: ResidualValueInput, onChange$: residualValue$ } = numberInput(
+    replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.value)),
+    true
+);
+
+const { component: ResidualValueCheckbox, onChange$: residualValueCheck$ } = checkbox(
+    replacementCapitalCost$.pipe(map((cost) => cost.residualValue !== undefined))
+);
+const residualValueEnabled$ = residualValueCheck$.pipe(
+    map((value) => (value ? ({ approach: DollarOrPercent.DOLLAR, value: 0 } as ResidualValue) : undefined))
+);
 
 export default function ReplacementCapitalCostFields() {
-    const dollarOrPercent = useDollarOrPercent();
-    dollarOrPercentChange$.subscribe(setDollarOrPercent);
+    const approach = useApproach();
+
+    useDbUpdate(initialCost$.pipe(defaultValue(0)), costCollection$, "initialCost");
+    useDbUpdate(annualRateOfChange$, costCollection$, "annualRateOfChange");
+    useDbUpdate(expectedLife$, costCollection$, "expectedLife");
+    useDbUpdate(residualValue$, costCollection$, "residualValue.value");
+    useDbUpdate(
+        dollarOrPercentChange$.pipe(map((value) => (value ? DollarOrPercent.PERCENT : DollarOrPercent.DOLLAR))),
+        costCollection$,
+        "residualValue.approach"
+    );
+    useDbUpdate(residualValueEnabled$, costCollection$, "residualValue");
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -36,15 +81,25 @@ export default function ReplacementCapitalCostFields() {
                 />
                 <ExpectedLifeInput className={"w-full"} label={"Expected Lifetime"} addonAfter={"years"} controls />
                 <span className={"flex flex-col"}>
-                    <Title level={5}>Residual Value</Title>
-                    <span>
-                        <ResidualValueSwitch unCheckedChildren={"Dollar"} checkedChildren={"Percent"} />
-                    </span>
-                    <ResidualValue
-                        className={"py-4"}
-                        addonBefore={!dollarOrPercent ? "$" : undefined}
-                        addonAfter={dollarOrPercent ? "%" : undefined}
-                    />
+                    <div className={"flex flex-row gap-2"}>
+                        <ResidualValueCheckbox className={""} />
+                        <Title level={5} className={"mt-2"}>
+                            Residual Value
+                        </Title>
+                    </div>
+
+                    {approach !== undefined && (
+                        <>
+                            <span>
+                                <ResidualValueSwitch unCheckedChildren={"Dollar"} checkedChildren={"Percent"} />
+                            </span>
+                            <ResidualValueInput
+                                className={"py-4"}
+                                addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
+                                addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
+                            />
+                        </>
+                    )}
                 </span>
             </div>
         </div>

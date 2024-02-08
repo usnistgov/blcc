@@ -1,16 +1,14 @@
-import { combineLatest, filter, from, map } from "rxjs";
+import { filter, map, Observable } from "rxjs";
 import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
-import { cost$, costCollection$, costID$ } from "../../../model/CostModel";
+import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
 import { phaseIn } from "../../../components/PhaseIn";
-import { combineLatestWith, withLatestFrom } from "rxjs/operators";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { useSubscribe } from "../../../hooks/UseSubscribe";
-import { db } from "../../../model/db";
-import { useEffect } from "react";
+import { bind } from "@react-rxjs/core";
+import { Collection } from "dexie";
 
-const escalationRates$ = from(
+/*const escalationRates$ = from(
     fetch("http://localhost:8080/api/zip-state", {
         method: "POST",
         headers: {
@@ -22,33 +20,40 @@ const escalationRates$ = from(
     })
 );
 
-escalationRates$.subscribe(console.log);
+escalationRates$.subscribe(console.log);*/
 
+// If we are on this page that means the cost collection can be narrowed to EnergyCost.
+const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
 const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
-//const usageIndex$ = energyCost$.pipe(map((cost) => cost.useIndex));
+
+const [useUnit, unit$] = bind(energyCost$.pipe(map((cost) => cost.unit)), EnergyUnit.KWH);
 
 const { change$: fuelType$, component: FuelTypeDropdown } = dropdown(
     Object.values(FuelType),
     energyCost$.pipe(map((cost) => cost.fuelType))
 );
-const { component: CustomerSectorDropdown } = dropdown(
+const { component: CustomerSectorDropdown, change$: customerSector$ } = dropdown(
     Object.values(CustomerSector),
     energyCost$.pipe(map((cost) => cost.customerSector))
 );
-const { component: CostPerUnitInput, onChange$: costPerUnitChange$ } = numberInput();
-const { component: AnnualConsumption, onChange$: annualConsumptionChange$ } = numberInput();
-const { component: UnitDropdown, change$: unitChange$ } = dropdown(Object.values(EnergyUnit));
+const { component: CostPerUnitInput, onChange$: costPerUnitChange$ } = numberInput(
+    energyCost$.pipe(map((cost) => cost.costPerUnit))
+);
+const { component: AnnualConsumption, onChange$: annualConsumptionChange$ } = numberInput(
+    energyCost$.pipe(map((cost) => cost.annualConsumption))
+);
+const { component: UnitDropdown, change$: unitChange$ } = dropdown(Object.values(EnergyUnit), unit$);
 const { component: PhaseIn } = phaseIn();
 const { component: UseIndex } = phaseIn();
 
-export const energyCostChange$ = combineLatest({
-    costPerUnit: costPerUnitChange$,
-    annualConsumption: annualConsumptionChange$,
-    unit: unitChange$
-});
-
 export default function EnergyCostFields() {
+    useDbUpdate(customerSector$, costCollection$, "customerSector");
     useDbUpdate(fuelType$, costCollection$, "fuelType");
+    useDbUpdate(costPerUnitChange$, costCollection$, "costPerUnit");
+    useDbUpdate(annualConsumptionChange$, costCollection$, "annualConsumption");
+    useDbUpdate(unitChange$, costCollection$, "unit");
+
+    //TODO add other fields
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -61,7 +66,13 @@ export default function EnergyCostFields() {
                     label={"Annual Consumption"}
                     controls
                 />
-                <CostPerUnitInput className={"w-full"} label={"Cost per Unit"} controls prefix={"$"} />
+                <CostPerUnitInput
+                    className={"w-full"}
+                    label={"Cost per Unit"}
+                    controls
+                    addonAfter={`per ${useUnit()}`}
+                    prefix={"$"}
+                />
                 <PhaseIn />
                 <UseIndex />
             </div>

@@ -8,7 +8,7 @@ import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
 import React from "react";
 import EnergyCostFields from "./cost/EnergyCostFields";
-import { cost$, costCollection$, costID$, costType$, useCostID, useCostType } from "../../model/CostModel";
+import { cost$, costCollection$, costID$, useCostID, useCostType } from "../../model/CostModel";
 import { createSignal } from "@react-rxjs/utils";
 import WaterCostFields from "./cost/WaterCostFields";
 import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
@@ -30,18 +30,6 @@ import { db } from "../../model/db";
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
 const { component: BackButton, click$: backClick$ } = button();
-
-const costFieldComponents = {
-    [CostTypes.ENERGY]: () => <EnergyCostFields />,
-    [CostTypes.WATER]: () => <WaterCostFields />,
-    [CostTypes.CAPITAL]: () => <InvestmentCapitalCostFields />,
-    [CostTypes.REPLACEMENT_CAPITAL]: () => <ReplacementCapitalCostFields />,
-    [CostTypes.OMR]: () => <OMRCostFields />,
-    [CostTypes.IMPLEMENTATION_CONTRACT]: () => <ImplementationContractCostFields />,
-    [CostTypes.RECURRING_CONTRACT]: () => <RecurringContractCostFields />,
-    [CostTypes.OTHER]: () => <OtherCostFields />,
-    [CostTypes.OTHER_NON_MONETARY]: () => <OtherNonMonetaryCostFields />
-};
 
 const { click$: openCostModal$, component: AddCostButton } = button();
 const { click$: cloneClick$, component: CloneCostButton } = button();
@@ -198,31 +186,24 @@ export default function Cost() {
                 </div>
             </div>
             <div className={"border-t border-base-lighter"}>
-                <Fields costType={useCostType()} />
+                <Fields />
             </div>
         </div>
     );
 }
 
-function Fields({ costType }: { costType: CostTypes }) {
-    switch (costType) {
-        case CostTypes.ENERGY:
-            return <EnergyCostFields />;
-        case CostTypes.WATER:
-            return <WaterCostFields />;
-        case CostTypes.CAPITAL:
-            return <InvestmentCapitalCostFields />;
-        case CostTypes.REPLACEMENT_CAPITAL:
-            return <ReplacementCapitalCostFields />;
-        case CostTypes.OMR:
-            return <OMRCostFields />;
-        case CostTypes.IMPLEMENTATION_CONTRACT:
-            return <ImplementationContractCostFields />;
-        case CostTypes.RECURRING_CONTRACT:
-            return <RecurringContractCostFields />;
-        case CostTypes.OTHER:
-            return <OtherCostFields />;
-        case CostTypes.OTHER_NON_MONETARY:
-            return <OtherNonMonetaryCostFields />;
-    }
+const costFieldComponents = {
+    [CostTypes.ENERGY]: <EnergyCostFields />,
+    [CostTypes.WATER]: <WaterCostFields />,
+    [CostTypes.CAPITAL]: <InvestmentCapitalCostFields />,
+    [CostTypes.REPLACEMENT_CAPITAL]: <ReplacementCapitalCostFields />,
+    [CostTypes.OMR]: <OMRCostFields />,
+    [CostTypes.IMPLEMENTATION_CONTRACT]: <ImplementationContractCostFields />,
+    [CostTypes.RECURRING_CONTRACT]: <RecurringContractCostFields />,
+    [CostTypes.OTHER]: <OtherCostFields />,
+    [CostTypes.OTHER_NON_MONETARY]: <OtherNonMonetaryCostFields />
+};
+
+function Fields() {
+    return costFieldComponents[useCostType()];
 }

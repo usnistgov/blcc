@@ -9,7 +9,10 @@ import { CostTypes } from "../blcc-format/Format";
 /**
  * The ID of the currently selected cost
  */
-export const costID$ = urlParameters$.pipe(map(({ costID }) => parseInt(costID ?? "-1")));
+export const costID$ = urlParameters$.pipe(
+    map(({ costID }) => parseInt(costID ?? "-1")),
+    shareLatest()
+);
 
 export const costCollection$ = costID$.pipe(map((id) => db.costs.where("id").equals(id)));
 

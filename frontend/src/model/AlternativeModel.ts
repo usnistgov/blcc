@@ -3,14 +3,17 @@ import { map } from "rxjs/operators";
 import { switchMap } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
 import { arrayFilter, guard } from "../util/Operators";
-import { bind } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { db } from "./db";
 import { liveQuery } from "dexie";
 
 /**
  * The ID of the currently selected alternative as denoted in the URL.
  */
-export const alternativeID$ = urlParameters$.pipe(map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)));
+export const alternativeID$ = urlParameters$.pipe(
+    map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)),
+    shareLatest()
+);
 
 export const [useAlternativeID, altID$] = bind(alternativeID$, 0);
 

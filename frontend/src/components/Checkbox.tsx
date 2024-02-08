@@ -1,15 +1,14 @@
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox } from "antd";
 import React, { PropsWithChildren } from "react";
-import { Observable } from "rxjs";
+import { EMPTY, Observable } from "rxjs";
+import { bind } from "@react-rxjs/core";
 
 export type CheckboxProps = {
     className?: string;
     disabled?: boolean;
     defaultChecked?: boolean;
     checked?: boolean;
-    key: number | string;
-    value?: string;
 };
 
 export type CheckboxComp = {
@@ -20,8 +19,9 @@ export type CheckboxComp = {
 /**
  * Creates a checkbox component and its associated change stream.
  */
-export default function checkbox(): CheckboxComp {
+export default function checkbox(value$: Observable<boolean> = EMPTY): CheckboxComp {
     const [onChange$, onChange] = createSignal<boolean>();
+    const [useValue] = bind(value$, false);
 
     return {
         onChange$,
@@ -29,9 +29,7 @@ export default function checkbox(): CheckboxComp {
             children,
             className,
             disabled = false,
-            defaultChecked = false,
-            key,
-            value
+            defaultChecked = false
         }: PropsWithChildren & CheckboxProps) => {
             return (
                 <Checkbox
@@ -39,7 +37,7 @@ export default function checkbox(): CheckboxComp {
                     className={className}
                     disabled={disabled}
                     defaultChecked={defaultChecked}
-                    key={key}
+                    value={useValue()}
                 >
                     {children}
                 </Checkbox>
