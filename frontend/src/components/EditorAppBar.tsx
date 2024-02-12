@@ -5,10 +5,16 @@ import AppBar from "./AppBar";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
-import { upload } from "../blcc-format/Import";
 import { useName } from "../model/Model";
+import { db } from "../model/db";
+import { Version } from "../blcc-format/Verison";
+import { AnalysisType, DiscountingMethod, DollarMethod } from "../blcc-format/Format";
+import { Country } from "../constants/LOCATION";
+import "dexie-export-import";
+import { download } from "../util/DownloadFile";
+import { convert } from "../blcc-format/Converter";
 
-const { component: NewButton } = button();
+const { click$: newClick$, component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
 const { click$: saveClick$, component: SaveButton } = button();
 
@@ -20,7 +26,33 @@ const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
 export default function EditorAppBar() {
     const navigate = useNavigate();
 
-    //useSubscribe(project$.pipe(sample(saveClick$)), (project) => download(project, `${project.name}.blcc`));
+    useSubscribe(
+        newClick$,
+        async () => {
+            // TODO make a modal to make sure the user doesn't want to save
+            await db.delete();
+            await db.open();
+            db.projects.add({
+                version: Version.V1,
+                name: "Untitled Project",
+                analysisType: AnalysisType.FEDERAL_FINANCED,
+                dollarMethod: DollarMethod.CONSTANT,
+                studyPeriod: 25,
+                constructionPeriod: 0,
+                discountingMethod: DiscountingMethod.END_OF_YEAR,
+                location: {
+                    country: Country.USA
+                },
+                alternatives: [],
+                costs: [],
+                ghg: {}
+            });
+
+            navigate("/editor");
+        },
+        [navigate]
+    );
+    useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 
@@ -38,8 +70,16 @@ export default function EditorAppBar() {
                     type={"file"}
                     id={"open"}
                     onClick={(event) => (event.currentTarget.value = "")}
-                    onChange={(event) => {
-                        if (event.currentTarget.files) upload(event.currentTarget.files);
+                    onChange={async (event) => {
+                        if (event.currentTarget.files !== null) {
+                            const file = event.currentTarget.files[0];
+
+                            await db.delete();
+                            await db.open();
+
+                            if (file.type === "text/xml") convert(file);
+                            else await db.import(file);
+                        }
                     }}
                 />
                 <SaveButton type={ButtonType.PRIMARY} icon={mdiContentSave}>

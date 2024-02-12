@@ -1,23 +1,32 @@
-import { Typography } from "antd";
-import { createSignal } from "@react-rxjs/utils";
-import { bind } from "@react-rxjs/core";
-import switchComp from "../../../components/Switch";
 import numberInput from "../../../components/InputNumber";
+import Recurring from "../../../components/Recurring";
+import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { map, Observable } from "rxjs";
+import { Collection } from "dexie";
+import { CostTypes, RecurringContractCost } from "../../../blcc-format/Format";
+import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
+import { filter } from "rxjs/operators";
 
-const { Title } = Typography;
+// If we are on this page that means the cost collection can be narrowed to RecurringContractCost.
+const costCollection$ = baseCostCollection$ as Observable<Collection<RecurringContractCost, number>>;
+const contractCost$ = cost$.pipe(
+    filter((cost): cost is RecurringContractCost => cost.type === CostTypes.RECURRING_CONTRACT)
+);
 
-const [recurring$, setRecurring] = createSignal<boolean>();
-const [useRecurring] = bind(recurring$, false);
-
-const { component: InitialCost } = numberInput();
-const { component: InitialOccurrence } = numberInput();
-const { component: RateOfChange } = numberInput();
-const { component: RecurrenceSwitch, onChange$: recurringChange$ } = switchComp(recurring$);
-const { component: RateOfRecurrenceInput } = numberInput();
+const { component: InitialCost, onChange$: initialCost$ } = numberInput(
+    contractCost$.pipe(map((cost) => cost.initialCost))
+);
+const { component: InitialOccurrence, onChange$: initialOccurrence$ } = numberInput(
+    contractCost$.pipe(map((cost) => cost.initialOccurrence))
+);
+const { component: RateOfChange, onChange$: rateOfChange$ } = numberInput(
+    contractCost$.pipe(map((cost) => cost.annualRateOfChange))
+);
 
 export default function RecurringContractCostFields() {
-    const recurring = useRecurring();
-    recurringChange$.subscribe(setRecurring);
+    useDbUpdate(initialCost$, costCollection$, "initialCost");
+    useDbUpdate(initialOccurrence$, costCollection$, "initialOccurrence");
+    useDbUpdate(rateOfChange$, costCollection$, "annualRateOfChange");
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -25,14 +34,8 @@ export default function RecurringContractCostFields() {
                 <InitialCost className={"w-full"} label={"Initial Cost"} addonBefore={"$"} />
                 <InitialOccurrence className={"w-full"} label={"Initial Occurrence"} addonBefore={"year"} />
                 <RateOfChange className={"w-full"} label={"Rate of Change"} addonAfter={"%"} />
-                <div className={"flex flex-col"}>
-                    <Title level={5}>Recurring</Title>
-                    <span>
-                        <RecurrenceSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
-                    </span>
-                    {recurring && <RateOfRecurrenceInput className={"my-4"} addonAfter={"years"} />}
-                </div>
-            </div>{" "}
+                <Recurring />
+            </div>
         </div>
     );
 }

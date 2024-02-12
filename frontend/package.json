@@ -18,6 +18,7 @@
     "antd": "^5.12.2",
     "billboard.js": "^3.10.3",
     "dexie": "^3.2.4",
+    "dexie-export-import": "^4.1.1",
     "e3-sdk": "file:e3-sdk-1.0.10.tgz",
     "fast-xml-parser": "^4.3.2",
     "html-to-react": "^1.7.0",

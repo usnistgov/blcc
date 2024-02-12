@@ -26,6 +26,9 @@ dependencies:
   dexie:
     specifier: ^3.2.4
     version: 3.2.4
+  dexie-export-import:
+    specifier: ^4.1.1
+    version: 4.1.1(dexie@3.2.4)
   e3-sdk:
     specifier: file:e3-sdk-1.0.10.tgz
     version: file:e3-sdk-1.0.10.tgz
@@ -2019,6 +2022,14 @@ packages:
     resolution: {integrity: sha512-N+MeXYoqr3pOgn8xfyRPREN7gHakLYjhsHhWGT3fWAiL4IkAt0iDw14QiiEm2bE30c5XX5q0FtAA3CK5f9/BUg==}
     engines: {node: '>=12'}
     dev: true
+
+  /dexie-export-import@4.1.1(dexie@3.2.4):
+    resolution: {integrity: sha512-X6gm08h/HUM/b/iwAOtOTrtyz+maADKOUEODjfAMJDPQ31jwRGehRzycq0e67KL2Wh6xEaqeDmG00VFr2vIQNQ==}
+    peerDependencies:
+      dexie: ^2.0.4 || ^3.0.0 || ^4.0.1-alpha.5
+    dependencies:
+      dexie: 3.2.4
+    dev: false
 
   /dexie@3.2.4:
     resolution: {integrity: sha512-VKoTQRSv7+RnffpOJ3Dh6ozknBqzWw/F3iqMdsZg958R0AS8AnY9x9d1lbwENr0gzeGJHXKcGhAMRaqys6SxqA==}
