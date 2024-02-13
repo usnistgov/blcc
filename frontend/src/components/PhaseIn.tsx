@@ -83,6 +83,8 @@ function createTable<T extends object>(
     };
 
     const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
+        console.log(index);
+
         const [form] = Form.useForm();
         return (
             <Form form={form} component={false}>
@@ -123,7 +125,7 @@ function createTable<T extends object>(
 
         const editComponent = editing ? (
             <Form.Item
-                name={dataIndex}
+                name={dataIndex.toString()}
                 rules={[
                     {
                         required: true,
@@ -133,7 +135,7 @@ function createTable<T extends object>(
             >
                 <Input
                     ref={inputRef}
-                    value={record !== undefined ? record[dataIndex] : ""}
+                    value={(record === undefined ? "" : record[dataIndex]) as string | number}
                     onBlur={save}
                     onPressEnter={save}
                 />
