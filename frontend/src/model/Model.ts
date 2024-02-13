@@ -16,6 +16,8 @@ const dbProject$ = currentProject$.pipe(
     guard()
 );
 
+export const [useProject] = bind(dbProject$, undefined);
+
 export const name$ = dbProject$.pipe(map((p) => p.name));
 export const [useName] = bind(name$, "");
 

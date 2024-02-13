@@ -7,6 +7,7 @@ import {
     DiscountingMethod,
     DollarOrPercent,
     EnergyCost,
+    ID,
     ImplementationContractCost,
     OMRCost,
     OtherCost,
@@ -33,13 +34,18 @@ import {
     TimestepValue,
     VarRate
 } from "e3-sdk";
+import { db } from "./db";
 
 /**
  * RXJS operator to take the project and create an E3 reqeust.
  */
-export function toE3Object(): UnaryFunction<Observable<Project>, Observable<RequestBuilder>> {
+export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBuilder>> {
     return pipe(
-        map((project) => {
+        switchMap(async (projectID) => {
+            const project = await db.projects.get(projectID);
+
+            if (project === undefined) throw "No project in database";
+
             const builder = new RequestBuilder();
 
             // Setup base E3 options
@@ -61,17 +67,17 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
 
             // Create costs
-            const costs = new Map(
-                [...project.costs.values()].map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)])
-            );
+            const costs = await db.costs.where("id").anyOf(project.costs).toArray();
+            const costMap = new Map(costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)]));
 
             // Define alternatives
-            const alternativeBuilders = [...project.alternatives.values()].map((alternative) => {
+            const alternatives = await db.alternatives.where("id").anyOf(project.alternatives).toArray();
+            const alternativeBuilders = alternatives.map((alternative) => {
                 const builder = new AlternativeBuilder()
                     .name(alternative.name)
                     .addBcn(
                         ...alternative.costs
-                            .flatMap((id) => costs.get(id))
+                            .flatMap((id) => costMap.get(id))
                             .filter((x): x is BcnBuilder => x !== undefined)
                     );
 
@@ -80,7 +86,7 @@ export function toE3Object(): UnaryFunction<Observable<Project>, Observable<Requ
                 return builder;
             });
 
-            const hasBaseline = !![...project.alternatives.values()].find((alt) => alt["baseline"]);
+            const hasBaseline = !!alternatives.find((alt) => alt["baseline"]);
             if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
             // Create complete Request Builder and return

@@ -19,6 +19,12 @@ import Cost from "./pages/editor/Cost";
 import UrlParameters from "./components/UrlParameters";
 import Alternatives from "./pages/editor/Alternatives";
 import CostNavigation from "./components/CostNavigation";
+import ResultsAppBar from "./components/ResultsAppBar";
+import ResultNavigation from "./components/ResultNavigation";
+import Inputs from "./pages/results/Inputs";
+import AlternativeResults from "./pages/results/AlternativeResults";
+import AnnualResults from "./pages/results/AnnualResults";
+import Summary from "./pages/results/Summary";
 
 //FIXME: needed to force load the project stream
 //project$.subscribe(console.log);
@@ -62,7 +68,7 @@ export default function App() {
                     {/* App bars */}
                     <Routes>
                         <Route path={"/editor/*"} element={<EditorAppBar />} />
-                        {/*<Route path={"/results/*"} element={<ResultsAppBar />} />*/}
+                        <Route path={"/results/*"} element={<ResultsAppBar />} />
                     </Routes>
 
                     <div className={"flex h-full overflow-hidden"}>
@@ -74,7 +80,7 @@ export default function App() {
                                     <Route index path={"*"} element={<CostNavigation />} />
                                 </Route>
                             </Route>
-                            {/*<Route path={"/results/*"} element={<ResultNavigation />} />*/}
+                            <Route path={"/results/*"} element={<ResultNavigation />} />
                         </Routes>
 
                         {/* Pages */}
@@ -102,12 +108,12 @@ export default function App() {
                                         />
                                     </Route>
                                 </Route>
-                                {/*                                <Route path={"/results"}>
+                                <Route path={"/results"}>
                                     <Route index element={<Inputs />} />
                                     <Route path={"alternative"} element={<AlternativeResults />} />
                                     <Route path={"annual"} element={<AnnualResults />} />
                                     <Route path={"summary"} element={<Summary />} />
-                                </Route>*/}
+                                </Route>
                             </Route>
                         </Routes>
                     </div>
