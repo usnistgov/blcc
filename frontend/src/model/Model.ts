@@ -1,15 +1,15 @@
 import { bind } from "@react-rxjs/core";
-import { map, of, switchMap } from "rxjs";
+import { map, NEVER, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
 import { AnalysisType, DiscountingMethod, DollarMethod, NonUSLocation, USLocation } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
-import { filter } from "rxjs/operators";
+import { filter, startWith } from "rxjs/operators";
 
 // NEW
 
-export const currentProject$ = of(1);
+export const currentProject$ = NEVER.pipe(startWith(1));
 
 const dbProject$ = currentProject$.pipe(
     switchMap((currentID) => liveQuery(() => db.projects.where("id").equals(currentID).first())),

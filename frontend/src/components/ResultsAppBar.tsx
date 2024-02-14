@@ -13,7 +13,6 @@ import { currentProject$, useName } from "../model/Model";
 
 const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
-
 const e3Result$ = currentProject$.pipe(sample(runClick$), toE3Object(), E3Request(), shareLatest());
 const [useE3Result] = bind(e3Result$, undefined);
 
