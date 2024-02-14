@@ -10,7 +10,13 @@ import GeneralInformation from "./pages/editor/GeneralInformation";
 import { liveQuery } from "dexie";
 import { db } from "./model/db";
 import { Version } from "./blcc-format/Verison";
-import { AnalysisType, DiscountingMethod, DollarMethod } from "./blcc-format/Format";
+import {
+    AnalysisType,
+    DiscountingMethod,
+    DollarMethod,
+    EmissionsRateScenario,
+    SocialCostOfGhgScenario
+} from "./blcc-format/Format";
 import { Country } from "./constants/LOCATION";
 import Index from "./pages/Index";
 import Navigation from "./components/Navigation";
@@ -56,7 +62,10 @@ defaultProject$.subscribe((p) => {
             },
             alternatives: [],
             costs: [],
-            ghg: {}
+            ghg: {
+                socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+                emissionsRateScenario: EmissionsRateScenario.BASELINE
+            }
         });
 });
 

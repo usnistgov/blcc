@@ -8,7 +8,13 @@ import HelpButtons from "./HelpButtons";
 import { useName } from "../model/Model";
 import { db } from "../model/db";
 import { Version } from "../blcc-format/Verison";
-import { AnalysisType, DiscountingMethod, DollarMethod } from "../blcc-format/Format";
+import {
+    AnalysisType,
+    DiscountingMethod,
+    DollarMethod,
+    EmissionsRateScenario,
+    SocialCostOfGhgScenario
+} from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
 import "dexie-export-import";
 import { download } from "../util/DownloadFile";
@@ -45,7 +51,10 @@ export default function EditorAppBar() {
                 },
                 alternatives: [],
                 costs: [],
-                ghg: {}
+                ghg: {
+                    socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+                    emissionsRateScenario: EmissionsRateScenario.BASELINE
+                }
             });
 
             navigate("/editor");

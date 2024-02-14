@@ -11,6 +11,7 @@ import {
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
+    EmissionsRateScenario,
     EnergyCost,
     EnergyUnit,
     FuelType,
@@ -24,6 +25,7 @@ import {
     ResidualValue,
     Season,
     SeasonUsage,
+    SocialCostOfGhgScenario,
     Unit,
     USLocation,
     WaterCost,
@@ -92,8 +94,8 @@ converted$
             alternatives: newAlternatives,
             costs: newCosts,
             ghg: {
-                emissionsRateScenario: undefined,
-                socialCostOfGhgScenario: undefined
+                socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+                emissionsRateScenario: EmissionsRateScenario.BASELINE
             }
         });
     });
