@@ -2,8 +2,8 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Col, Modal, Row, Typography } from "antd";
 import React from "react";
-import { combineLatest, merge, Observable, sample } from "rxjs";
-import { map } from "rxjs/operators";
+import { combineLatest, merge, Observable, sample, switchMap } from "rxjs";
+import { map, startWith } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
@@ -13,6 +13,7 @@ import { mdiClose, mdiPlus } from "@mdi/js";
 import { currentProject$, useAlternatives } from "../model/Model";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { db } from "../model/db";
+import { alternativeID$ } from "../model/AlternativeModel";
 
 const { Title } = Typography;
 const { click$: addCost$, component: AddButton } = button();
@@ -20,9 +21,15 @@ const { onChange$: name$, component: NewCostInput } = textInput();
 const { click$: cancel$, component: CancelButton } = button();
 const { change$: type$, component: CostCategoryDropdown } = dropdown(Object.values(CostTypes));
 
-const [checkedAlts$, setCheckedAlts] = createSignal<number[]>();
+const [checkedAltsChange$, setCheckedAlts] = createSignal<number[]>();
+const [useChecked, checkedAlts$] = bind(
+    alternativeID$.pipe(switchMap((id) => checkedAltsChange$.pipe(startWith([id])))),
+    []
+);
 
-const newCost$ = combineLatest([currentProject$, name$, type$, checkedAlts$]).pipe(sample(addCost$));
+const newCost$ = combineLatest([currentProject$, name$, type$.pipe(startWith(CostTypes.ENERGY)), checkedAlts$]).pipe(
+    sample(addCost$)
+);
 
 //TODO make inputs clear when closing the modal
 
@@ -89,6 +96,7 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                         <Title level={5}>Add to Alternatives</Title>
                         <Checkbox.Group
                             style={{ width: "100%" }}
+                            value={useChecked()}
                             onChange={(values) => setCheckedAlts(values as number[])}
                         >
                             <Row>
@@ -103,7 +111,7 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                     <br />
                     <div>
                         <Title level={5}>Cost Category</Title>
-                        <CostCategoryDropdown className="w-full" />
+                        <CostCategoryDropdown className={"w-full"} placeholder={CostTypes.ENERGY} />
                     </div>
                 </Modal>
             );
