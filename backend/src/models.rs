@@ -13,6 +13,15 @@ pub struct ZipState {
 #[diesel(table_name = crate::schema::escalation_rates)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct EscalationRate {
+    pub release_year: i32,
     pub year: i32,
-    pub rate: Option<f64>
+    pub division: String,
+    pub sector: String,
+    pub case: String,
+    pub region: String,
+    pub propane: Option<f64>,
+    pub distillate_fuel_oil: Option<f64>,
+    pub residual_fuel_oil: Option<f64>,
+    pub natural_gas: Option<f64>,
+    pub electricity: Option<f64>
 }

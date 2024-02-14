@@ -70,7 +70,7 @@ async fn main() -> std::io::Result<()> {
                         "default-src 'self' https://*.nist.gov; \
                         script-src 'self'; \
                         style-src 'self' 'unsafe-inline'; \
-                        img-src 'self'; \
+                        img-src 'self' https://pages.nist.gov; \
                         connect-src 'self' https://*.nist.gov; \
                         object-src 'none'; \
                         frame-ancestors 'none';"
