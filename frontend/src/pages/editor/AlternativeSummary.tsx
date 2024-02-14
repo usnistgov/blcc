@@ -108,7 +108,7 @@ export function createAlternativeCard(alternative: Alternative) {
             return (
                 <div
                     className={
-                        "max-2-6xl mb-5 flex w-3/4 cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
+                        "mb-5 flex w-3/4 max-w-6xl cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
                     }
                     onClick={click}
                 >
