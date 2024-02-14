@@ -44,8 +44,8 @@ const { component: AlternativeSubMenu } = collapse();
 export default function Navigation() {
     const navigate = useNavigate();
 
-    useSubscribe(generalInformationClick$, () => navigate("/editor"));
-    useSubscribe(alternativeSummaryClick$, () => navigate("/editor/alternative"));
+    useSubscribe(generalInformationClick$, () => navigate("/editor"), [navigate]);
+    useSubscribe(alternativeSummaryClick$, () => navigate("/editor/alternative"), [navigate]);
 
     return (
         <>

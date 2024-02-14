@@ -75,7 +75,7 @@ function costButton(cost: Cost) {
     return {
         component: function AltButton() {
             const navigate = useNavigate();
-            useSubscribe(click$, () => navigate(`cost/${cost.id}`));
+            useSubscribe(click$, () => navigate(`cost/${cost.id}`), [navigate]);
             return (
                 <Button key={cost.id} type={ButtonType.PRIMARY}>
                     {cost.name}

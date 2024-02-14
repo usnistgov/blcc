@@ -15,7 +15,7 @@ export enum ButtonType {
 
 export type ButtonProps = {
     className?: string;
-    type: ButtonType;
+    type?: ButtonType;
     icon?: string;
     disabled?: boolean;
     iconSide?: "left" | "right";
@@ -37,7 +37,7 @@ export default function button(): Button {
         component: ({
             children,
             className,
-            type,
+            type = ButtonType.PRIMARY,
             icon,
             disabled = false,
             iconSide = "left"
