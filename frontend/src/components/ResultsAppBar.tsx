@@ -7,23 +7,50 @@ import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { E3Request, toE3Object } from "../model/E3Request";
-import { sample } from "rxjs";
+import { combineLatest, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
-import { currentProject$, useName } from "../model/Model";
+import { alternatives$, costs$, currentProject$, project$, useName } from "../model/Model";
+import { filter, map, withLatestFrom } from "rxjs/operators";
+import { db } from "../model/db";
+import objectHash from "object-hash";
+import { liveQuery } from "dexie";
 
 const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
-const e3Result$ = currentProject$.pipe(sample(runClick$), toE3Object(), E3Request(), shareLatest());
-const [useE3Result] = bind(e3Result$, undefined);
 
-export { e3Result$, useE3Result };
+// Creates a hash of the current project
+const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
+    map(([project, alternatives, costs]) => {
+        if (project === undefined) throw "Project is undefined";
 
-e3Result$.subscribe(console.log);
+        return objectHash({ project, alternatives, costs });
+    })
+);
+
+// Result stream that pulls from cache if available.
+const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
+const [useResult] = bind(result$, undefined);
+export { result$, useResult };
+
+// True if the project has been run before, if anything has changed since, false.
+const isCached$ = result$.pipe(map((result) => result !== undefined));
+
+// Only send E3 request if we don't have the results cached
+const e3Result$ = runClick$.pipe(
+    withLatestFrom(isCached$),
+    filter(([, cached]) => !cached),
+    withLatestFrom(currentProject$),
+    map(([, id]) => id),
+    toE3Object(),
+    E3Request(),
+    shareLatest()
+);
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
     useSubscribe(backClick$, () => navigate("/editor"), [navigate]);
+    useSubscribe(e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) => db.results.add({ hash, ...result }));
 
     return (
         <AppBar className={"bg-primary"}>

@@ -16,7 +16,7 @@ const dbProject$ = currentProject$.pipe(
     guard()
 );
 
-export const [useProject] = bind(dbProject$, undefined);
+export const [useProject, project$] = bind(dbProject$, undefined);
 
 export const name$ = dbProject$.pipe(map((p) => p.name));
 export const [useName] = bind(name$, "");
@@ -83,3 +83,5 @@ export const [useAlternatives] = bind(alternatives$, []);
 
 export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
+
+export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));

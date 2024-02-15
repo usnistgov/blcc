@@ -1,12 +1,12 @@
 import { Divider } from "antd";
 import ResultsInput from "../../components/ResultsInput";
 
-import { useE3Result } from "../../components/ResultsAppBar";
+import { useResult } from "../../components/ResultsAppBar";
 import { useProject } from "../../model/Model";
 import { USLocation } from "../../blcc-format/Format";
 
 export default function Inputs() {
-    const e3Result = useE3Result();
+    const e3Result = useResult();
     const project = useProject();
 
     if (project === undefined) return <>No project</>; //TODO make this error better

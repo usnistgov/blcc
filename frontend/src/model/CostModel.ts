@@ -1,5 +1,5 @@
 import { urlParameters$ } from "../components/UrlParameters";
-import { map, switchMap } from "rxjs";
+import { from, map, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
 import { db } from "./db";

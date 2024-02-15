@@ -4,13 +4,15 @@ import { map } from "rxjs/operators";
 import dropdown from "../../components/Dropdown";
 import table from "../../components/Table";
 import { dollarFormatter } from "../../util/Util";
-import { e3Result$ } from "../../components/ResultsAppBar";
+import { result$ } from "../../components/ResultsAppBar";
+import { guard } from "../../util/Operators";
 
 const { Title } = Typography;
 
 const alts = ["Alt 1", "Alt 2", "Alt 3"];
 
-const [useData] = bind(e3Result$, {
+const [useData] = bind(result$, {
+    hash: "",
     optional: [],
     measure: [],
     required: [],
@@ -19,7 +21,10 @@ const [useData] = bind(e3Result$, {
     sensitivity: []
 });
 
-const required$ = e3Result$.pipe(map((datas) => datas.required ?? []));
+const required$ = result$.pipe(
+    guard(),
+    map((datas) => datas.required ?? [])
+);
 const resultsCols$ = required$.pipe(
     map((alts) => {
         const cols = alts.map((alt) => {
