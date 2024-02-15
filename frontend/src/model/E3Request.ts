@@ -81,6 +81,7 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
                             .filter((x): x is BcnBuilder => x !== undefined)
                     );
 
+                if (alternative.id) builder.id(alternative.id);
                 if (alternative.baseline) return builder.baseline();
 
                 return builder;

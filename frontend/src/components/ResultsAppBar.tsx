@@ -2,7 +2,7 @@ import React from "react";
 import ButtonBar from "./ButtonBar";
 import button, { ButtonType } from "./Button";
 import AppBar from "./AppBar";
-import { mdiArrowLeft, mdiPlay } from "@mdi/js";
+import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
@@ -14,9 +14,12 @@ import { filter, map, withLatestFrom } from "rxjs/operators";
 import { db } from "../model/db";
 import objectHash from "object-hash";
 import { liveQuery } from "dexie";
+import { download } from "../util/DownloadFile";
 
 const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
+const { click$: pdfClick$, component: PdfButton } = button();
+const { click$: saveClick$, component: SaveButton } = button();
 
 // Creates a hash of the current project
 const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
@@ -51,13 +54,16 @@ export default function ResultsAppBar() {
 
     useSubscribe(backClick$, () => navigate("/editor"), [navigate]);
     useSubscribe(e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) => db.results.add({ hash, ...result }));
+    useSubscribe(pdfClick$, () => console.log("TODO: save pdf"));
+    useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
+    //TODO: change download filename
 
     return (
         <AppBar className={"bg-primary"}>
             <ButtonBar className={"p-2"}>
-                <BackButton type={ButtonType.PRIMARY} icon={mdiArrowLeft}>
-                    Back to Editor
-                </BackButton>
+                <BackButton icon={mdiArrowLeft}>Back to Editor</BackButton>
+                <SaveButton icon={mdiContentSave}>Save</SaveButton>
+                <PdfButton icon={mdiFileDownload}>Export PDF</PdfButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-white"}>{useName()}</p>
