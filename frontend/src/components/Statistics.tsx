@@ -11,7 +11,7 @@ export default function Statistics() {
     //const valid = isValid();
 
     return (
-        <AppBar className={"place-items-center border-t border-base-light bg-base-lightest text-sm"}>
+        <AppBar className={"h-fit place-items-center border-t border-base-light bg-base-lightest text-sm"}>
             <div className={"flex flex-row divide-x divide-base-light"}>
                 <p className={"px-4"}>{`Alternatives ${useAlternativeIDs().length}`}</p>
                 <p className={"px-4"}>{`Costs ${useCostIDs().length}`}</p>

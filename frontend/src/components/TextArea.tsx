@@ -54,7 +54,7 @@ export default function textArea(value$: Observable<string | undefined> = EMPTY)
                         className={(className ?? "") + "w-44"}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder={placeholder}
-                        bordered={bordered}
+                        variant={bordered ? "outlined" : "borderless"}
                         disabled={disabled}
                         rows={rows}
                         value={useValue()}

@@ -9,7 +9,7 @@ export type AppBarProps = {
  */
 export default function AppBar({ children, className }: PropsWithChildren & AppBarProps) {
     return (
-        <div className={(className ? className : "") + " min-h-12 flex h-fit w-full flex-row place-content-between"}>
+        <div className={(className ? className : "") + " flex h-fit w-full flex-row place-content-between"}>
             {children}
         </div>
     );

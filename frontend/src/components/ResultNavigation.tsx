@@ -18,7 +18,7 @@ export default function ResultNavigation() {
 
     return (
         <>
-            <div className="flex h-full w-56 flex-col gap-2 bg-primary p-2 text-base-lightest">
+            <div className="flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest">
                 <InputButton icon={mdiTextBoxEditOutline}>Inputs</InputButton>
                 <AnnualResultsButton icon={mdiListBoxOutline}>Annual Results</AnnualResultsButton>
                 <AlternativeResultsButton icon={mdiFormatListGroup}>Alternative Results</AlternativeResultsButton>

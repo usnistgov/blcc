@@ -60,7 +60,7 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
                         className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder={placeholder}
-                        bordered={bordered}
+                        variant={bordered ? "outlined" : "borderless"}
                         disabled={disabled}
                         value={useValue()}
                     >
