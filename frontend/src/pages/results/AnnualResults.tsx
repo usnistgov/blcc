@@ -7,6 +7,7 @@ import { alternatives$ } from "../../model/Model";
 import React from "react";
 import { bind } from "@react-rxjs/core";
 import AlternativeNpvCashFlowGraph from "../../components/graphs/AlternativeNpvCashFlowGraph";
+import AlternativeNpvCashFlowGrid from "../../components/grids/AlternativeNpvCashFlowGrid";
 
 const { Title } = Typography;
 
@@ -34,7 +35,9 @@ export default function AnnualResults() {
                     <div className={"mb-4 flex justify-between border-b-2 border-base-lightest"}>
                         <Title level={5}>NPV Cash Flows</Title>
                     </div>
-                    <NpvCashFlowGraph />
+                    <div className={"max-h-40"}>
+                        <NpvCashFlowGraph />
+                    </div>
                 </div>
             </div>
             <br />
@@ -48,8 +51,12 @@ export default function AnnualResults() {
                 />
             </div>
             <br />
-            <Title level={5}>NPV Cash Flow by Alternative</Title>
-            <Divider />
+            <div>
+                <div className={"mb-4 flex justify-between border-b-2 border-base-lightest"}>
+                    <Title level={5}>NPV Cash Flow by Alternative</Title>
+                </div>
+                <AlternativeNpvCashFlowGrid />
+            </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <div className={"mb-4 flex justify-between border-b-2 border-base-lightest"}>
