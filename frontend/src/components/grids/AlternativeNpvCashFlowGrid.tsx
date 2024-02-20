@@ -1,5 +1,4 @@
 import DataGrid from "react-data-grid";
-import "react-data-grid/lib/styles.css";
 
 type Row = {
     year: number;
@@ -17,38 +16,56 @@ type Row = {
 };
 
 const columns = [
-    { name: "Year", key: "year" },
-    { name: "Investment", key: "investment" },
+    { name: "Year", key: "year", headerCellClass: "bg-primary text-white" },
+    { name: "Investment", key: "investment", headerCellClass: "bg-primary text-white" },
     {
         name: "Energy",
+        headerCellClass: "bg-primary text-white",
         children: [
-            { name: "Consumption", key: "consumption" },
-            { name: "Demand", key: "demand" },
-            { name: "Rebates", key: "rebates" }
+            { name: "Consumption", key: "consumption", headerCellClass: "bg-primary text-white" },
+            { name: "Demand", key: "demand", headerCellClass: "bg-primary text-white" },
+            { name: "Rebates", key: "rebates", headerCellClass: "bg-primary text-white" }
         ]
     },
 
     {
         name: "Water",
+        headerCellClass: "bg-primary text-white",
         children: [
-            { name: "Use", key: "waterUse" },
-            { name: "Disposal", key: "waterDisposal" }
+            { name: "Use", key: "waterUse", headerCellClass: "bg-primary text-white" },
+            { name: "Disposal", key: "waterDisposal", headerCellClass: "bg-primary text-white" }
         ]
     },
-    { name: "Disposal", key: "waterDisposal" },
     {
         name: "OMR",
+        headerCellClass: "bg-primary text-white",
         children: [
-            { name: "Recurring", key: "recurring" },
-            { name: "Non-Recurring", key: "nonRecurring" }
+            { name: "Recurring", key: "recurring", headerCellClass: "bg-primary text-white" },
+            { name: "Non-Recurring", key: "nonRecurring", headerCellClass: "bg-primary text-white" }
         ]
     },
-    { name: "Non-Recurring", key: "nonRecurring" },
-    { name: "Replace", key: "replace" },
-    { name: "Residual Value", key: "residualValue" },
-    { name: "Total", key: "total" }
+    { name: "Replace", key: "replace", headerCellClass: "bg-primary text-white" },
+    { name: "Residual Value", key: "residualValue", headerCellClass: "bg-primary text-white" },
+    { name: "Total", key: "total", headerCellClass: "bg-primary text-white" }
 ];
 
 export default function AlternativeNpvCashFlowGrid() {
-    return <DataGrid rowKeyGetter={(row: Row) => row.year} rows={[]} columns={columns} />;
+    return (
+        <div className={"overflow-hidden rounded shadow-lg"}>
+            <DataGrid
+                rows={[]}
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                columns={columns}
+                style={{
+                    "--rdg-color-scheme": "light",
+                    "--rdg-background-color": "#565C65",
+                    "--rdg-row-hover-background-color": "#3D4551"
+                }}
+                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowGetter={[]}
+                rowsCount={[].length}
+            />
+        </div>
+    );
 }

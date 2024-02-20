@@ -35,9 +35,7 @@ export default function AnnualResults() {
                     <div className={"mb-4 flex justify-between border-b-2 border-base-lightest"}>
                         <Title level={5}>NPV Cash Flows</Title>
                     </div>
-                    <div className={"max-h-40"}>
-                        <NpvCashFlowGraph />
-                    </div>
+                    <NpvCashFlowGraph />
                 </div>
             </div>
             <br />

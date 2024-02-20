@@ -24,3 +24,5 @@ export const selectedRequired$ = combineLatest([required$, selection$]).pipe(
     map(([required, id]) => required.find((value) => value.altId === id)),
     guard()
 );
+
+export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
