@@ -55,5 +55,5 @@ export default function AlternativeNpvCashFlowGraph() {
         return () => chart.destroy();
     }, []);
 
-    return <div id={GRAPH_ID} className={"h-full w-full"} />;
+    return <div id={GRAPH_ID} className={"h-[23rem] w-full"} />;
 }

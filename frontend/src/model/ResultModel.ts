@@ -6,6 +6,7 @@ import { combineLatest, merge, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
+import { bind } from "@react-rxjs/core";
 
 export const required$ = result$.pipe(map((data) => data?.required ?? []));
 
@@ -24,5 +25,16 @@ export const selectedRequired$ = combineLatest([required$, selection$]).pipe(
     map(([required, id]) => required.find((value) => value.altId === id)),
     guard()
 );
+export const [useOptions] = bind(
+    alternatives$.pipe(
+        map((alternatives) =>
+            alternatives.map((alternative) => ({ value: alternative.id ?? 0, label: alternative.name }))
+        )
+    ),
+    []
+);
+export const [useSelection] = bind(selection$, 0);
+
+selection$.subscribe(console.log);
 
 export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
