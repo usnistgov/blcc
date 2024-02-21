@@ -1,13 +1,13 @@
 import DataGrid, { Column } from "react-data-grid";
 import { from, Observable, switchMap, zip } from "rxjs";
-import { db } from "../../model/db";
-import { dollarFormatter } from "../../util/Util";
 import { map, toArray } from "rxjs/operators";
-import { required$ } from "../../model/ResultModel";
 import { bind } from "@react-rxjs/core";
 import "react-data-grid/lib/styles.css";
-import { Alternative } from "../../blcc-format/Format";
 import { Required } from "e3-sdk";
+import { Alternative } from "../../../blcc-format/Format";
+import { required$ } from "../../../model/ResultModel";
+import { db } from "../../../model/db";
+import { dollarFormatter } from "../../../util/Util";
 
 type Row = {
     key: number;

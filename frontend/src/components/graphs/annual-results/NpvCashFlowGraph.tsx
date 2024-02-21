@@ -1,9 +1,9 @@
-import { useSubscribe } from "../../hooks/UseSubscribe";
+import { useSubscribe } from "../../../hooks/UseSubscribe";
 import { useEffect } from "react";
 import { bb, Chart } from "billboard.js";
-import { dollarFormatter } from "../../util/Util";
+import { dollarFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
-import { alternativeNames$, required$ } from "../../model/ResultModel";
+import { alternativeNames$, required$ } from "../../../model/ResultModel";
 import { combineLatestWith } from "rxjs/operators";
 
 const [chart$, setChart] = createSignal<Chart>();
