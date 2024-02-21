@@ -2,13 +2,13 @@ import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBol
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Cost } from "../blcc-format/Format";
+import { Cost } from "../../blcc-format/Format";
 import { map, Observable } from "rxjs";
-import button, { ButtonType } from "./Button";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import collapse from "./Collapse";
+import button, { ButtonType } from "./../Button";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import collapse from "./../Collapse";
 import { bind } from "@react-rxjs/core";
-import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../model/AlternativeModel";
+import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
 
 type MenuItem = {
     title: string;

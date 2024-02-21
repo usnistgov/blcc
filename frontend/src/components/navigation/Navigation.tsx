@@ -1,12 +1,12 @@
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { map } from "rxjs";
-import { alternatives$ } from "../model/Model";
+import { alternatives$ } from "../../model/Model";
 import { bind } from "@react-rxjs/core";
-import { Alternative } from "../blcc-format/Format";
-import button, { ButtonType } from "./Button";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import collapse from "./Collapse";
+import { Alternative } from "../../blcc-format/Format";
+import button, { ButtonType } from "./../Button";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import collapse from "./../Collapse";
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 
 function altButton(alt: Alternative) {

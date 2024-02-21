@@ -19,14 +19,14 @@ import {
 } from "./blcc-format/Format";
 import { Country } from "./constants/LOCATION";
 import Index from "./pages/Index";
-import Navigation from "./components/Navigation";
+import Navigation from "./components/navigation/Navigation";
 import AlternativeSummary from "./pages/editor/AlternativeSummary";
 import Cost from "./pages/editor/Cost";
 import UrlParameters from "./components/UrlParameters";
 import Alternatives from "./pages/editor/Alternatives";
-import CostNavigation from "./components/CostNavigation";
+import CostNavigation from "./components/navigation/CostNavigation";
 import ResultsAppBar from "./components/ResultsAppBar";
-import ResultNavigation from "./components/ResultNavigation";
+import ResultNavigation from "./components/navigation/ResultNavigation";
 import Inputs from "./pages/results/Inputs";
 import AlternativeResults from "./pages/results/AlternativeResults";
 import AnnualResults from "./pages/results/AnnualResults";
@@ -118,10 +118,10 @@ export default function App() {
                                     </Route>
                                 </Route>
                                 <Route path={"/results"}>
-                                    <Route index element={<Inputs />} />
+                                    <Route index element={<Summary />} />
                                     <Route path={"alternative"} element={<AlternativeResults />} />
                                     <Route path={"annual"} element={<AnnualResults />} />
-                                    <Route path={"summary"} element={<Summary />} />
+                                    <Route path={"inputs"} element={<Inputs />} />
                                 </Route>
                             </Route>
                         </Routes>
