@@ -35,6 +35,4 @@ export const [useOptions] = bind(
 );
 export const [useSelection] = bind(selection$, 0);
 
-selection$.subscribe(console.log);
-
 export const measures$ = result$.pipe(map((data) => data?.measure ?? []));

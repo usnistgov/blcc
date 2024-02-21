@@ -8,6 +8,7 @@ import { Alternative } from "../../../blcc-format/Format";
 import { required$ } from "../../../model/ResultModel";
 import { db } from "../../../model/db";
 import { dollarFormatter } from "../../../util/Util";
+import { alternatives$ } from "../../../model/Model";
 
 type Row = {
     key: number;
@@ -33,10 +34,10 @@ const requiredWithAlternative$: Observable<[Required, Alternative | undefined][]
 );
 
 const [useColumns] = bind(
-    requiredWithAlternative$.pipe(
+    alternatives$.pipe(
         map((values) => {
             const cols = values.map(
-                ([, alternative], i) =>
+                (alternative, i) =>
                     ({
                         name: alternative?.name,
                         key: i.toString(),

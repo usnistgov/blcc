@@ -2,7 +2,7 @@ import React from "react";
 import ButtonBar from "./ButtonBar";
 import button, { ButtonType } from "./Button";
 import AppBar from "./AppBar";
-import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay } from "@mdi/js";
+import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
@@ -20,6 +20,7 @@ const { click$: backClick$, component: BackButton } = button();
 const { click$: runClick$, component: RunButton } = button();
 const { click$: pdfClick$, component: PdfButton } = button();
 const { click$: saveClick$, component: SaveButton } = button();
+const { click$: csvClick$, component: CsvButton } = button();
 
 // Creates a hash of the current project
 const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
@@ -55,6 +56,7 @@ export default function ResultsAppBar() {
     useSubscribe(backClick$, () => navigate("/editor"), [navigate]);
     useSubscribe(e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) => db.results.add({ hash, ...result }));
     useSubscribe(pdfClick$, () => console.log("TODO: save pdf"));
+    useSubscribe(csvClick$, () => console.log("TODO: save csv"));
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     //TODO: change download filename
 
@@ -64,6 +66,7 @@ export default function ResultsAppBar() {
                 <BackButton icon={mdiArrowLeft}>Back to Editor</BackButton>
                 <SaveButton icon={mdiContentSave}>Save</SaveButton>
                 <PdfButton icon={mdiFileDownload}>Export PDF</PdfButton>
+                <CsvButton icon={mdiTableArrowDown}>Export CSV</CsvButton>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-white"}>{useName()}</p>

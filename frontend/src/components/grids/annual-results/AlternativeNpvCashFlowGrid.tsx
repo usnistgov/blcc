@@ -1,4 +1,7 @@
 import DataGrid from "react-data-grid";
+import { required$ } from "../../../model/ResultModel";
+import { bind } from "@react-rxjs/core";
+import { map } from "rxjs/operators";
 
 type Row = {
     year: number;
@@ -15,45 +18,61 @@ type Row = {
     total: number;
 };
 
+const cellClasses = {
+    headerCellClass: "bg-primary text-white",
+    cellClass: "text-ink"
+};
+
 const columns = [
-    { name: "Year", key: "year", headerCellClass: "bg-primary text-white" },
-    { name: "Investment", key: "investment", headerCellClass: "bg-primary text-white" },
+    { name: "Year", key: "year", ...cellClasses },
+    { name: "Investment", key: "investment", ...cellClasses },
     {
         name: "Energy",
-        headerCellClass: "bg-primary text-white",
+        ...cellClasses,
         children: [
-            { name: "Consumption", key: "consumption", headerCellClass: "bg-primary text-white" },
-            { name: "Demand", key: "demand", headerCellClass: "bg-primary text-white" },
-            { name: "Rebates", key: "rebates", headerCellClass: "bg-primary text-white" }
+            { name: "Consumption", key: "consumption", ...cellClasses },
+            { name: "Demand", key: "demand", ...cellClasses },
+            { name: "Rebates", key: "rebates", ...cellClasses }
         ]
     },
 
     {
         name: "Water",
-        headerCellClass: "bg-primary text-white",
+        ...cellClasses,
         children: [
-            { name: "Use", key: "waterUse", headerCellClass: "bg-primary text-white" },
-            { name: "Disposal", key: "waterDisposal", headerCellClass: "bg-primary text-white" }
+            { name: "Use", key: "waterUse", ...cellClasses },
+            { name: "Disposal", key: "waterDisposal", ...cellClasses }
         ]
     },
     {
         name: "OMR",
-        headerCellClass: "bg-primary text-white",
+        ...cellClasses,
         children: [
-            { name: "Recurring", key: "recurring", headerCellClass: "bg-primary text-white" },
-            { name: "Non-Recurring", key: "nonRecurring", headerCellClass: "bg-primary text-white" }
+            { name: "Recurring", key: "recurring", ...cellClasses },
+            { name: "Non-Recurring", key: "nonRecurring", ...cellClasses }
         ]
     },
-    { name: "Replace", key: "replace", headerCellClass: "bg-primary text-white" },
-    { name: "Residual Value", key: "residualValue", headerCellClass: "bg-primary text-white" },
-    { name: "Total", key: "total", headerCellClass: "bg-primary text-white" }
+    { name: "Replace", key: "replace", ...cellClasses },
+    { name: "Residual Value", key: "residualValue", ...cellClasses },
+    { name: "Total", key: "total", ...cellClasses }
 ];
 
+const [useRows] = bind(
+    required$.pipe(
+        map((required) => {
+            return required[0].totalCostsDiscounted.map((_, year) => ({ year }));
+        })
+    ),
+    []
+);
+
 export default function AlternativeNpvCashFlowGrid() {
+    const rows = useRows();
+
     return (
         <div className={"overflow-hidden rounded shadow-lg"}>
             <DataGrid
-                rows={[]}
+                rows={rows}
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error
                 columns={columns}
@@ -63,8 +82,8 @@ export default function AlternativeNpvCashFlowGrid() {
                     "--rdg-row-hover-background-color": "#3D4551"
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
-                rowGetter={[]}
-                rowsCount={[].length}
+                rowGetter={rows}
+                rowsCount={rows.length}
             />
         </div>
     );

@@ -3,17 +3,24 @@ import { useEffect } from "react";
 import { bb, Chart } from "billboard.js";
 import { dollarFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
-import { selectedAlternative$, selectedRequired$ } from "../../../model/ResultModel";
-import { combineLatestWith } from "rxjs/operators";
+import { required$, selection$ } from "../../../model/ResultModel";
+import { debounceTime } from "rxjs/operators";
+import { alternatives$ } from "../../../model/Model";
+import { combineLatest } from "rxjs";
 
 const [chart$, setChart] = createSignal<Chart>();
-const loadData$ = selectedAlternative$.pipe(combineLatestWith(selectedRequired$, chart$));
+const loadData$ = combineLatest([selection$, chart$, alternatives$, required$]).pipe(debounceTime(1));
 
 const GRAPH_ID = "alternative-npv-cash-flow-chart";
 
 export default function AlternativeNpvCashFlowGraph() {
-    useSubscribe(loadData$, ([alternative, required, chart]) => {
-        chart.load({ columns: [[alternative?.name ?? "", ...required.totalCostsDiscounted]] });
+    useSubscribe(loadData$, ([selection, chart, alternatives, allRequired]) => {
+        const alternative = alternatives.find((alt) => alt.id === selection);
+        const required = allRequired.find((req) => req.altId === selection);
+
+        chart.unload({
+            done: () => chart.load({ columns: [[alternative?.name ?? "", ...(required?.totalCostsDiscounted ?? [])]] })
+        });
     });
 
     useEffect(() => {
