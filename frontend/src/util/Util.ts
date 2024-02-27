@@ -1,4 +1,5 @@
 import { Cost, CostTypes } from "../blcc-format/Format";
+import { Measures } from "e3-sdk";
 
 // Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {
@@ -48,3 +49,12 @@ export const dollarFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"
 });
+
+export function getOptionalTag(measures: Measures[], tag: string) {
+    return measures.reduce((acc, next, i) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        acc[i.toString()] = next.totalTagFlows[tag];
+        return acc;
+    }, {});
+}

@@ -81,6 +81,10 @@ export const alternatives$ = alternativeIDs$.pipe(
 );
 export const [useAlternatives] = bind(alternatives$, []);
 
+export const baselineID$ = alternatives$.pipe(
+    map((alternatives) => alternatives.find((alternative) => alternative.baseline)?.id ?? -1)
+);
+
 export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
 

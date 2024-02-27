@@ -1,4 +1,4 @@
-import { map, Observable, pipe, switchMap, UnaryFunction } from "rxjs";
+import { Observable, pipe, switchMap, UnaryFunction } from "rxjs";
 import {
     CapitalCost,
     Cost,
@@ -12,7 +12,6 @@ import {
     OMRCost,
     OtherCost,
     OtherNonMonetary,
-    Project,
     RecurringContractCost,
     ReplacementCapitalCost,
     ResidualValue,
@@ -293,7 +292,11 @@ function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
         .quantityValue(cost.initialCost)
         .quantity(1);
 
-    if (cost.rateOfRecurrence) builder.recur(new RecurBuilder().interval(cost.rateOfRecurrence)); //TODO rate of change
+    if (cost.rateOfRecurrence) {
+        builder.addTag("OMR Recurring").recur(new RecurBuilder().interval(cost.rateOfRecurrence)); //TODO rate of change
+    } else {
+        builder.addTag("OMR Non-Recurring");
+    }
 
     return [builder];
 }

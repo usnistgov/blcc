@@ -3,6 +3,8 @@ import { bind } from "@react-rxjs/core";
 import { alternatives$ } from "../../../model/Model";
 import { map } from "rxjs/operators";
 import { FuelType } from "../../../blcc-format/Format";
+import { measures$ } from "../../../model/ResultModel";
+import { dollarFormatter, getOptionalTag } from "../../../util/Util";
 
 type Row = {
     category: string;
@@ -24,6 +26,9 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
+                        renderCell: ({ row }: { row: { [x: string]: number | bigint } }) => (
+                            <p className={"text-right"}>{dollarFormatter.format(row[i.toString()] ?? 0)}</p>
+                        ),
                         ...cellClasses
                     }) as Column<Row>
             );
@@ -50,33 +55,46 @@ const [useColumns] = bind(
     []
 );
 
-type CategoryAndSubcategory = {
-    category?: string;
-    subcategory: string;
-};
+const [useRows] = bind(
+    measures$.pipe(
+        map((measures) => {
+            const consumption = [
+                FuelType.ELECTRICITY,
+                FuelType.NATURAL_GAS,
+                FuelType.DISTILLATE_OIL,
+                FuelType.RESIDUAL_OIL,
+                FuelType.PROPANE,
+                "Energy"
+            ].map((fuelType) => getOptionalTag(measures, fuelType));
 
-const categoriesAndSubcategories: CategoryAndSubcategory[] = [
-    { category: "Consumption", subcategory: FuelType.ELECTRICITY },
-    { subcategory: FuelType.NATURAL_GAS },
-    { subcategory: FuelType.DISTILLATE_OIL },
-    { subcategory: FuelType.RESIDUAL_OIL },
-    { subcategory: FuelType.PROPANE },
-    { subcategory: "Total" },
-    { category: "Emissions", subcategory: FuelType.ELECTRICITY },
-    { subcategory: FuelType.NATURAL_GAS },
-    { subcategory: FuelType.DISTILLATE_OIL },
-    { subcategory: FuelType.RESIDUAL_OIL },
-    { subcategory: FuelType.PROPANE },
-    { subcategory: "Total" },
-    { category: "Water", subcategory: "Use" }
-];
+            return [
+                { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...consumption[0] },
+                { subcategory: FuelType.NATURAL_GAS, ...consumption[1] },
+                { subcategory: FuelType.DISTILLATE_OIL, ...consumption[2] },
+                { subcategory: FuelType.RESIDUAL_OIL, ...consumption[3] },
+                { subcategory: FuelType.PROPANE, ...consumption[4] },
+                { subcategory: "Total", ...consumption[5] },
+                { category: "Emissions", subcategory: FuelType.ELECTRICITY },
+                { subcategory: FuelType.NATURAL_GAS },
+                { subcategory: FuelType.DISTILLATE_OIL },
+                { subcategory: FuelType.RESIDUAL_OIL },
+                { subcategory: FuelType.PROPANE },
+                { subcategory: "Total" },
+                { category: "Water", subcategory: "Use" }
+            ];
+        })
+    ),
+    []
+);
 
 export default function LifeCycleResourceComparison() {
+    const rows = useRows();
+
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
                 className={"h-fit"}
-                rows={categoriesAndSubcategories}
+                rows={rows}
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error
                 columns={useColumns()}
@@ -86,8 +104,8 @@ export default function LifeCycleResourceComparison() {
                     "--rdg-row-hover-background-color": "#3D4551"
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
-                rowGetter={categoriesAndSubcategories}
-                rowsCount={categoriesAndSubcategories.length}
+                rowGetter={rows}
+                rowsCount={rows.length}
             />
         </div>
     );

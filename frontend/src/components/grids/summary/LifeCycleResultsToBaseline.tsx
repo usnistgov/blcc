@@ -1,10 +1,21 @@
 import DataGrid from "react-data-grid";
 import { bind } from "@react-rxjs/core";
-import { alternativeNames$ } from "../../../model/ResultModel";
+import { alternativeNames$, measures$ } from "../../../model/ResultModel";
 import { map } from "rxjs/operators";
+import { combineLatest } from "rxjs";
+import { dollarFormatter } from "../../../util/Util";
+import { baselineID$ } from "../../../model/Model";
+import Icon from "@mdi/react";
+import { mdiCheck } from "@mdi/js";
 
 type Row = {
     name: string;
+    baseline: boolean;
+    sir: number;
+    airr: number;
+    spp: number;
+    dpp: number;
+    initialCost: number;
 };
 
 const cellClasses = {
@@ -20,56 +31,82 @@ const columns = [
     },
     {
         name: "Base Case",
+        key: "baseline",
+        renderCell: ({ row }: { row: Row }) => {
+            if (row.baseline)
+                return (
+                    <div className={"flex h-full pl-6"}>
+                        <Icon className={"self-center"} path={mdiCheck} size={0.8} />
+                    </div>
+                );
+        },
         ...cellClasses
     },
     {
         name: "Initial Cost",
+        key: "initialCost",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["initialCost"] ?? 0)}</p>
+        ),
         ...cellClasses
     },
     {
         name: "SIR",
+        key: "sir",
         ...cellClasses
     },
     {
         name: "AIRR",
+        key: "airr",
         ...cellClasses
     },
     {
         name: "SPP",
+        key: "spp",
         ...cellClasses
     },
     {
         name: "DPP",
+        key: "dpp",
         ...cellClasses
     },
     {
-        name: "Change in Energy",
+        name: "ΔEnergy",
+        key: "deltaEnergy",
         ...cellClasses
     },
     {
-        name: "Change in GHG",
+        name: "ΔGHG",
+        key: "deltaGhg",
         ...cellClasses
     },
     {
-        name: "Change in SCC",
+        name: "ΔSCC",
+        key: "deltaScc",
         ...cellClasses
     },
     {
         name: "Net Savings and SCC Reductions",
+        key: "netSavings",
         ...cellClasses
     }
 ];
 
 const [useRows] = bind(
-    alternativeNames$.pipe(
-        map((names) =>
-            [...names.values()].map(
-                (name) =>
-                    ({
-                        name
-                    }) as Row
-            )
-        )
+    combineLatest([measures$, alternativeNames$, baselineID$]).pipe(
+        map(([measures, names, baselineID]) => {
+            return measures.map((measure) => {
+                return {
+                    name: names.get(measure.altId),
+                    baseline: measure.altId === baselineID,
+                    sir: measure.sir,
+                    airr: measure.airr,
+                    spp: measure.spp,
+                    dpp: measure.dpp,
+                    initialCost: measure.totalCosts
+                };
+            });
+        })
     ),
     []
 );
@@ -80,10 +117,10 @@ export default function LifecycleResultsToBaseline() {
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
-                rows={rows}
-                className={"h-fit"}
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error
+                className={"h-fit"}
+                rows={rows}
                 columns={columns}
                 style={{
                     "--rdg-color-scheme": "light",

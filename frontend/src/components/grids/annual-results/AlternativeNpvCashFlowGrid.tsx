@@ -1,7 +1,9 @@
 import DataGrid from "react-data-grid";
-import { required$ } from "../../../model/ResultModel";
+import { optionalsByTag$, required$, selection$ } from "../../../model/ResultModel";
 import { bind } from "@react-rxjs/core";
-import { map } from "rxjs/operators";
+import { map, toArray } from "rxjs/operators";
+import { combineLatest, from, switchMap, zip } from "rxjs";
+import { dollarFormatter } from "../../../util/Util";
 
 type Row = {
     year: number;
@@ -25,14 +27,40 @@ const cellClasses = {
 
 const columns = [
     { name: "Year", key: "year", ...cellClasses },
-    { name: "Investment", key: "investment", ...cellClasses },
+    {
+        name: "Investment",
+        key: "investment",
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row["total"])}</p>,
+        ...cellClasses
+    },
     {
         name: "Energy",
         ...cellClasses,
         children: [
-            { name: "Consumption", key: "consumption", ...cellClasses },
-            { name: "Demand", key: "demand", ...cellClasses },
-            { name: "Rebates", key: "rebates", ...cellClasses }
+            {
+                name: "Consumption",
+                key: "consumption",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["consumption"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            },
+            {
+                name: "Demand",
+                key: "demand",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["demand"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            },
+            {
+                name: "Rebates",
+                key: "rebates",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["rebates"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            }
         ]
     },
 
@@ -40,27 +68,97 @@ const columns = [
         name: "Water",
         ...cellClasses,
         children: [
-            { name: "Use", key: "waterUse", ...cellClasses },
-            { name: "Disposal", key: "waterDisposal", ...cellClasses }
+            {
+                name: "Use",
+                key: "waterUse",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["waterUse"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            },
+            {
+                name: "Disposal",
+                key: "waterDisposal",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["waterDisposal"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            }
         ]
     },
     {
         name: "OMR",
         ...cellClasses,
         children: [
-            { name: "Recurring", key: "recurring", ...cellClasses },
-            { name: "Non-Recurring", key: "nonRecurring", ...cellClasses }
+            {
+                name: "Recurring",
+                key: "recurring",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["recurring"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            },
+            {
+                name: "Non-Recurring",
+                key: "nonRecurring",
+                renderCell: ({ row }: { row: Row }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row["nonRecurring"] ?? 0)}</p>
+                ),
+                ...cellClasses
+            }
         ]
     },
-    { name: "Replace", key: "replace", ...cellClasses },
-    { name: "Residual Value", key: "residualValue", ...cellClasses },
-    { name: "Total", key: "total", ...cellClasses }
+    {
+        name: "Replace",
+        key: "replace",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["replace"] ?? 0)}</p>
+        ),
+        ...cellClasses
+    },
+    {
+        name: "Residual Value",
+        key: "residualValue",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["residualValue"] ?? 0)}</p>
+        ),
+        ...cellClasses
+    },
+    {
+        name: "Total",
+        key: "total",
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row["total"])}</p>,
+        ...cellClasses
+    }
 ];
 
 const [useRows] = bind(
-    required$.pipe(
-        map((required) => {
-            return required[0].totalCostsDiscounted.map((_, year) => ({ year }));
+    combineLatest([required$, optionalsByTag$, selection$]).pipe(
+        switchMap(([allRequired, optionals, selectedID]) => {
+            const required = allRequired.find((req) => req.altId === selectedID);
+
+            if (required === undefined) return [];
+
+            const id = required.altId;
+            const defaultArray = Array.apply(null, Array(required.totalCostsDiscounted.length)).map(() => 0);
+
+            return zip(
+                from(required.totalCostsDiscounted),
+                from(optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray),
+                from(optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray),
+                from(optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray),
+                from(optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray)
+            ).pipe(
+                map(([total, investment, consumption, recurring, nonRecurring], year) => ({
+                    year,
+                    investment,
+                    consumption,
+                    recurring,
+                    nonRecurring,
+                    total
+                })),
+                toArray()
+            );
         })
     ),
     []

@@ -2,6 +2,9 @@ import DataGrid, { Column } from "react-data-grid";
 import { map } from "rxjs/operators";
 import { alternatives$ } from "../../../model/Model";
 import { bind } from "@react-rxjs/core";
+import { dollarFormatter, getOptionalTag } from "../../../util/Util";
+import { alternativeNames$, measures$ } from "../../../model/ResultModel";
+import { combineLatest } from "rxjs";
 
 type Row = {
     category: string;
@@ -23,6 +26,9 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
+                        renderCell: ({ row }: { row: Row }) => (
+                            <p className={"text-right"}>{dollarFormatter.format(row[i.toString()] ?? 0)}</p>
+                        ),
                         ...cellClasses
                     }) as Column<Row>
             );
@@ -49,30 +55,34 @@ const [useColumns] = bind(
     []
 );
 
-type CategoryAndSubcategory = {
-    category?: string;
-    subcategory?: string;
-};
-
-const categoriesAndSubcategories: CategoryAndSubcategory[] = [
-    { category: "Investment" },
-    { category: "Energy", subcategory: "Consumption" },
-    { subcategory: "Demand" },
-    { subcategory: "Rebates" },
-    { category: "Water", subcategory: "Usage" },
-    { subcategory: "Disposal " },
-    { category: "OMR", subcategory: "Recurring" },
-    { subcategory: "Non-Recurring" },
-    { category: "Replacement" },
-    { category: "Residual Value" }
-];
+const [useRows] = bind(
+    combineLatest([measures$, alternativeNames$]).pipe(
+        map(([measures, names]) => {
+            return [
+                { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
+                { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
+                { subcategory: "Demand" },
+                { subcategory: "Rebates" },
+                { category: "Water", subcategory: "Usage" },
+                { subcategory: "Disposal " },
+                { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
+                { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
+                { category: "Replacement" },
+                { category: "Residual Value" }
+            ];
+        })
+    ),
+    []
+);
 
 export default function NpvCostsBySubcategory() {
+    const rows = useRows();
+
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
                 className={"h-fit"}
-                rows={categoriesAndSubcategories}
+                rows={rows}
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error
                 columns={useColumns()}
@@ -82,8 +92,8 @@ export default function NpvCostsBySubcategory() {
                     "--rdg-row-hover-background-color": "#3D4551"
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
-                rowGetter={categoriesAndSubcategories}
-                rowsCount={categoriesAndSubcategories.length}
+                rowGetter={rows}
+                rowsCount={rows.length}
             />
         </div>
     );

@@ -7,6 +7,7 @@ import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
 import { bind } from "@react-rxjs/core";
+import { Optional } from "e3-sdk";
 
 export const required$ = result$.pipe(map((data) => data?.required ?? []));
 
@@ -36,3 +37,16 @@ export const [useOptions] = bind(
 export const [useSelection] = bind(selection$, 0);
 
 export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
+
+export const selectedMeasure$ = combineLatest([measures$, selection$]).pipe(
+    map(([measures, selection]) => measures.find((measure) => measure.altId === selection)),
+    guard()
+);
+
+export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));
+export const optionalsByTag$ = optionals$.pipe(
+    map(
+        (optionals) =>
+            new Map<string, Optional>(optionals.map((optional) => [`${optional.altId} ${optional.tag}`, optional]))
+    )
+);
