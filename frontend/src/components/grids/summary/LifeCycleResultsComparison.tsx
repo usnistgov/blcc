@@ -66,8 +66,8 @@ const columns = [
         ...cellClasses
     },
     {
-        name: "SSC",
-        key: "ssc",
+        name: "SCC",
+        key: "scc",
         ...cellClasses
     },
     {
