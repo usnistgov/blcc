@@ -12,6 +12,7 @@ type Row = {
     name: string;
     baseline: boolean;
     initialCost: number;
+    lifeCycleCost: number;
     energy: number;
 };
 
@@ -42,7 +43,7 @@ const columns = [
     {
         name: "Initial Cost",
         key: "initialCost",
-        renderCell: ({ row }: { row: { [x: string]: number | bigint } }) => (
+        renderCell: ({ row }: { row: Row }) => (
             <p className={"text-right"}>{dollarFormatter.format(row["initialCost"])}</p>
         ),
         ...cellClasses
@@ -50,6 +51,9 @@ const columns = [
     {
         name: "Life Cycle Cost",
         key: "lifeCycleCost",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["lifeCycleCost"])}</p>
+        ),
         ...cellClasses
     },
     {
@@ -84,7 +88,8 @@ const [useRows] = bind(
                 return {
                     name: alternativeNames.get(measure.altId),
                     baseline: measure.altId === baselineID,
-                    initialCost: measure.totalCosts,
+                    lifeCycleCost: measure.totalCosts,
+                    initialCost: measure.totalTagFlows["Initial Investment"],
                     energy: measure.totalTagFlows["Energy"]
                 } as Row;
             });

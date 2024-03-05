@@ -71,17 +71,17 @@ const columns = [
         ...cellClasses
     },
     {
-        name: "ΔEnergy",
+        name: "Change in Energy",
         key: "deltaEnergy",
         ...cellClasses
     },
     {
-        name: "ΔGHG",
+        name: "Change in GHG",
         key: "deltaGhg",
         ...cellClasses
     },
     {
-        name: "ΔSCC",
+        name: "Change in SCC",
         key: "deltaScc",
         ...cellClasses
     },
