@@ -1,3 +1,4 @@
+
 // Openssl declaration must be first
 extern crate openssl;
 extern crate diesel;

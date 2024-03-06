@@ -1,6 +1,17 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    region_case_ba (release_year, year, case, rate, ba) {
+        release_year -> Int4,
+        year -> Int4,
+        ba -> Text,
+        case -> Text,
+        rate -> Text,
+        kg_co2_per_mwh -> Float8
+    }
+}
+
+diesel::table! {
     escalation_rates (release_year, year, division, sector) {
         release_year -> Int4,
         year -> Int4,
@@ -24,7 +35,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    escalation_rates,
-    zip_state,
-);
+diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_state,);

@@ -2,11 +2,15 @@ use diesel::prelude::*;
 use serde::Serialize;
 
 #[derive(Queryable, Selectable, Serialize)]
-#[diesel(table_name = crate::schema::zip_state)]
+#[diesel(table_name = crate::schema::region_case_ba)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct ZipState {
-    pub zipcode: i32,
-    pub state: String
+pub struct RegionCaseBA {
+    pub release_year: i32,
+    pub year: i32,
+    pub case: String,
+    pub rate: String,
+    pub ba: String,
+    pub kg_co2_per_mwh: f64,
 }
 
 #[derive(Queryable, Selectable, Serialize)]
@@ -23,5 +27,13 @@ pub struct EscalationRate {
     pub distillate_fuel_oil: Option<f64>,
     pub residual_fuel_oil: Option<f64>,
     pub natural_gas: Option<f64>,
-    pub electricity: Option<f64>
+    pub electricity: Option<f64>,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::zip_state)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct ZipState {
+    pub zipcode: i32,
+    pub state: String,
 }
