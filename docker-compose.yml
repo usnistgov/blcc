@@ -17,7 +17,7 @@ services:
   postgres:
     image: postgres:16.2
     restart: always
-    hostname: postgres
+    hostname: postgresget single colum
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"

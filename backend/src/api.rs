@@ -1,5 +1,6 @@
 use actix_web::web::{scope, Data, Json, ServiceConfig};
 use actix_web::{get, HttpResponse, Responder};
+use diesel::prelude::*;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use serde::{Deserialize, Serialize};
 
@@ -101,7 +102,7 @@ async fn get_region_case_ba(
 
     let mut db = data.get().expect("Failed to get a connection");
 
-    let query = region_case_ba
+    let query: QueryResult<Vec<f64>> = region_case_ba
         .filter(
             case.eq(request.case.clone())
                 .and(ba.eq(request.ba.clone()))
@@ -124,6 +125,7 @@ pub fn config_api(config: &mut ServiceConfig) {
     config.service(
         scope("/api")
             .service(get_state_from_zip)
-            .service(get_escalation_rates),
+            .service(get_escalation_rates)
+            .service(get_region_case_ba),
     );
 }
