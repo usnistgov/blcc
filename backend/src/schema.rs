@@ -1,5 +1,16 @@
 // @generated automatically by Diesel CLI.
 
+diesel::table!{
+    zip_info (zip, ba, gea, state, padd, technobasin) {
+        zip -> Int4,
+        ba -> Text,
+        gea -> Text,
+        state -> Text,
+        padd -> Text,
+        technobasin -> Text
+    }
+}
+
 diesel::table! {
     region_case_ba (release_year, year, case, rate, ba) {
         release_year -> Int4,
@@ -27,12 +38,4 @@ diesel::table! {
     }
 }
 
-diesel::table! {
-    zip_state (zipcode) {
-        zipcode -> Int4,
-        #[max_length = 2]
-        state -> Varchar,
-    }
-}
-
-diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_state,);
+diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_info,);

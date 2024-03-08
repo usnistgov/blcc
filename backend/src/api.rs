@@ -7,37 +7,11 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 use crate::models::*;
-use crate::schema::zip_state::dsl::*;
-use crate::schema::zip_state::zipcode;
 use crate::DbPool;
 
 #[derive(Serialize)]
 struct ErrorResponse {
     error: String,
-}
-
-#[derive(Deserialize)]
-struct ZipStateRequest {
-    zipcode: i32,
-}
-
-#[get("/zip-state")]
-async fn get_state_from_zip(request: Json<ZipStateRequest>, data: Data<DbPool>) -> impl Responder {
-    let zip = request.zipcode;
-    let mut db = data.get().expect("Failed to get a connection");
-
-    let query = zip_state
-        .filter(zipcode.eq(zip))
-        .limit(1)
-        .select(ZipState::as_select())
-        .first(&mut db);
-
-    match query {
-        Ok(result) => HttpResponse::Ok().json(result),
-        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not find state for zipcode {}", zip),
-        }),
-    }
 }
 
 #[derive(Deserialize)]
@@ -121,11 +95,38 @@ async fn get_region_case_ba(
     }
 }
 
+#[derive(Deserialize)]
+struct ZipInfoRequest {
+    zip: i32,
+}
+
+#[get("/zip_info")]
+async fn get_zip_info(request: Json<ZipInfoRequest>, data: Data<DbPool>) -> impl Responder {
+    use crate::schema::zip_info::dsl::*;
+    use crate::schema::zip_info::*;
+
+    let mut db = data.get().expect("Failed to get a connection");
+
+    let query = zip_info.filter(zip.eq(request.zip))
+        .select(ZipInfo::as_select())
+        .load(&mut db);
+
+    match query {
+        Ok(result) => HttpResponse::Ok().json(result),
+        Err(err) => {
+            println!("{}", err);
+            HttpResponse::BadRequest().json(ErrorResponse {
+                error: format!("Could not get region for zipcode {}", request.zip),
+            })
+        }
+    }
+}
+
 pub fn config_api(config: &mut ServiceConfig) {
     config.service(
         scope("/api")
-            .service(get_state_from_zip)
             .service(get_escalation_rates)
-            .service(get_region_case_ba),
+            .service(get_region_case_ba)
+            .service(get_zip_info)
     );
 }
