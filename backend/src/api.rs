@@ -122,11 +122,108 @@ async fn get_zip_info(request: Json<ZipInfoRequest>, data: Data<DbPool>) -> impl
     }
 }
 
+#[derive(Deserialize)]
+struct EmissionsRequest {
+    zip: i32,
+    from: i32,
+    to: i32,
+    release_year: i32,
+    case: String,
+    rate: String,
+}
+
+impl Display for EmissionsRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "key: {} {} {} release year {} for years {} to {}",
+            self.zip, self.case, self.rate, self.release_year, self.from, self.to
+        )
+    }
+}
+
+#[get("/emissions")]
+async fn get_emissions(request: Json<EmissionsRequest>, data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::zip_info::dsl::*;
+    use crate::schema::zip_info::*;
+
+    let info = zip_info.filter(zip.eq(request.zip))
+        .select(ZipInfo::as_select())
+        .first(&mut db)
+        .unwrap();
+
+    use crate::schema::region_case_ba::dsl::*;
+    use crate::schema::region_case_ba::*;
+    use crate::schema::region_case_ba;
+
+    let query: QueryResult<Vec<f64>> = region_case_ba
+        .filter(
+            case.eq(request.case.clone())
+                .and(region_case_ba::ba.eq(info.ba.clone()))
+                .and(release_year.eq(request.release_year))
+                .and(rate.eq(request.rate.clone()))
+                .and(year.between(request.from, request.to)),
+        )
+        .select(kg_co2_per_mwh)
+        .load(&mut db);
+
+    match query {
+        Ok(emissions) => HttpResponse::Ok().json(emissions),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get emissions information for {}", request),
+        }),
+    }
+}
+
+#[derive(Deserialize)]
+struct ReleaseYearRequest {
+    year: i32,
+}
+
+#[get("/release_year")]
+async fn get_release_year(request: Option<Json<ReleaseYearRequest>>, data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::region_case_ba::dsl::*;
+    use crate::schema::region_case_ba::*;
+
+    match request {
+        Some(req) => {
+            let query: QueryResult<i32> = region_case_ba
+                .filter(release_year.eq(req.year))
+                .select(release_year)
+                .first(&mut db);
+
+            match query {
+                Ok(_) => HttpResponse::Ok().json(true),
+                Err(_) => HttpResponse::Ok().json(false),
+            }
+        }
+        None => {
+            let query: QueryResult<Vec<i32>> = region_case_ba
+                .distinct()
+                .select(release_year)
+                .load(&mut db);
+
+            match query {
+                Ok(years) => HttpResponse::Ok().json(years),
+                Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+                    error: format!("Could not get release years"),
+                }),
+            }
+        }
+    }
+}
+
 pub fn config_api(config: &mut ServiceConfig) {
     config.service(
         scope("/api")
             .service(get_escalation_rates)
             .service(get_region_case_ba)
             .service(get_zip_info)
+            .service(get_emissions)
+            .service(get_release_year)
     );
 }

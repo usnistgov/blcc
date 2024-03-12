@@ -45,6 +45,9 @@ import { Collection } from "dexie";
 import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
+import { ajax } from "rxjs/internal/ajax/ajax";
+import { createSignal } from "@react-rxjs/utils";
+import { combineLatest, switchMap } from "rxjs";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -105,6 +108,31 @@ function dollarMethodForward(value: boolean): DollarMethod {
     return value ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
 }
 
+const [releaseYear$, setReleaseYear] = createSignal<number>();
+ajax.getJSON("/api/release_year").subscribe((response) => console.log(response));
+const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(
+    ajax.getJSON<number[]>("/api/release_year"),
+    releaseYear$
+);
+releaseYearChange$.subscribe(setReleaseYear);
+
+combineLatest([zip$, releaseYear$])
+    .pipe(
+        switchMap(([zip, year]) =>
+            ajax<number[]>({
+                url: "/api/emissions",
+                body: {
+                    from: 2020,
+                    to: 2025,
+                    release_year: year,
+                    zip: Number.parseInt(zip ?? "0"),
+                    case: "REF",
+                    rate: "Avg"
+                }
+            })
+        )
+    )
+    .subscribe(console.log);
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
     useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
@@ -145,22 +173,25 @@ export default function GeneralInformation() {
                 <span className={"col-span-2"}>
                     <DescInput label={"Description"} className={"w-full"} />
                 </span>
-                <StudyPeriodInput
-                    label={"Length of Study Period"}
-                    addonAfter={"years"}
-                    defaultValue={0}
-                    max={40}
-                    min={0}
-                    controls={true}
-                />
-                <ConstructionPeriodInput
-                    label={"Construction Period"}
-                    addonAfter={"years"}
-                    defaultValue={0}
-                    max={40}
-                    min={0}
-                    controls={true}
-                />
+                <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
+                    <StudyPeriodInput
+                        label={"Length of Study Period"}
+                        addonAfter={"years"}
+                        defaultValue={0}
+                        max={40}
+                        min={0}
+                        controls={true}
+                    />
+                    <ConstructionPeriodInput
+                        label={"Construction Period"}
+                        addonAfter={"years"}
+                        defaultValue={0}
+                        max={40}
+                        min={0}
+                        controls={true}
+                    />
+                    <ReleaseYearDropdown label={"Release Year"} className={"w-full"} />
+                </div>
             </div>
             <div className={"pt-4"}>
                 <Title level={5}>Dollar Analysis</Title>

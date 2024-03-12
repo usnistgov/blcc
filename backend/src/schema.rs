@@ -1,7 +1,7 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table!{
-    zip_info (zip, ba, gea, state, padd, technobasin) {
+    zip_info (zip) {
         zip -> Int4,
         ba -> Text,
         gea -> Text,
