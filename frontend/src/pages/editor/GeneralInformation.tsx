@@ -111,30 +111,7 @@ function dollarMethodForward(value: boolean): DollarMethod {
 
 // This should last us 100 years (from 2023).
 const releaseYears$ = ajax.getJSON<number[]>("/api/release_year");
-
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
-
-combineLatest([zip$, releaseYear$])
-    .pipe(
-        switchMap(([zip, year]) =>
-            ajax<number[]>({
-                url: "/api/emissions",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: {
-                    from: 2020,
-                    to: 2025,
-                    release_year: year,
-                    zip: Number.parseInt(zip ?? "0"),
-                    case: "REF",
-                    rate: "Avg"
-                }
-            })
-        )
-    )
-    .subscribe((response) => console.log(response.response));
 
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");

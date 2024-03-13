@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { map, NEVER, of, switchMap } from "rxjs";
+import { combineLatest, map, NEVER, of, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
@@ -97,3 +97,24 @@ export const [useCostIDs] = bind(costIDs$, []);
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
 
 export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
+
+// Get the emissions data from the database.
+export const emissions$ = combineLatest([zip$, releaseYear$]).pipe(
+    switchMap(([zip, year]) =>
+        ajax<number[]>({
+            url: "/api/emissions",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: {
+                from: 2020,
+                to: 2025,
+                release_year: year,
+                zip: Number.parseInt(zip ?? "0"),
+                case: "REF",
+                rate: "Avg"
+            }
+        })
+    )
+);
