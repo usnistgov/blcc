@@ -20,6 +20,7 @@ export type Project = {
     alternatives: ID[];
     costs: ID[];
     ghg: GHG;
+    releaseYear: number;
 };
 
 export type GHG = {

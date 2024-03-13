@@ -1,0 +1,18 @@
+meta {
+  name: Escalation Rates
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/escalation-rates
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "from": 2024,
+      "to": 2027
+  }
+}

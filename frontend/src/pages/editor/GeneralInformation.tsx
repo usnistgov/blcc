@@ -16,6 +16,7 @@ import {
     nominalDiscountRate$,
     purpose$,
     realDiscountRate$,
+    releaseYear$,
     socialCostOfGhgScenario$,
     state$,
     stateOrProvince$,
@@ -26,7 +27,7 @@ import {
 } from "../../model/Model";
 import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
-import { map, withLatestFrom } from "rxjs/operators";
+import { map, startWith, withLatestFrom } from "rxjs/operators";
 import { defaultValue } from "../../util/Operators";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import textArea from "../../components/TextArea";
@@ -108,19 +109,20 @@ function dollarMethodForward(value: boolean): DollarMethod {
     return value ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
 }
 
-const [releaseYear$, setReleaseYear] = createSignal<number>();
-ajax.getJSON("/api/release_year").subscribe((response) => console.log(response));
-const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(
-    ajax.getJSON<number[]>("/api/release_year"),
-    releaseYear$
-);
-releaseYearChange$.subscribe(setReleaseYear);
+// This should last us 100 years (from 2023).
+const releaseYears$ = ajax.getJSON<number[]>("/api/release_year");
+
+const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
 combineLatest([zip$, releaseYear$])
     .pipe(
         switchMap(([zip, year]) =>
             ajax<number[]>({
                 url: "/api/emissions",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: {
                     from: 2020,
                     to: 2025,
@@ -132,7 +134,8 @@ combineLatest([zip$, releaseYear$])
             })
         )
     )
-    .subscribe(console.log);
+    .subscribe((response) => console.log(response.response));
+
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
     useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
@@ -157,6 +160,7 @@ export default function GeneralInformation() {
     useDbUpdate(cityChange$.pipe(defaultValue(undefined)), projectCollection$, "location.city");
     useDbUpdate(emissionsRateChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.emissionsRateScenario");
     useDbUpdate(socialCostChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.socialCostOfGhgScenario");
+    useDbUpdate(releaseYearChange$, projectCollection$, "releaseYear");
 
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
@@ -190,7 +194,7 @@ export default function GeneralInformation() {
                         min={0}
                         controls={true}
                     />
-                    <ReleaseYearDropdown label={"Release Year"} className={"w-full"} />
+                    <ReleaseYearDropdown label={"Data Release Year"} className={"w-full"} />
                 </div>
             </div>
             <div className={"pt-4"}>

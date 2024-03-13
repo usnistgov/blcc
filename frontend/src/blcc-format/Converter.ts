@@ -36,6 +36,8 @@ import objectHash from "object-hash";
 import { Country, stateToAbbreviation } from "../constants/LOCATION";
 import { createSignal } from "@react-rxjs/utils";
 import { db } from "../model/db";
+import { withLatestFrom } from "rxjs/operators";
+import { defaultReleaseYear$ } from "../model/Model";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
@@ -62,9 +64,10 @@ converted$
 
             return result$;
         }),
-        map((xml) => parser.parse(xml))
+        map((xml) => parser.parse(xml)),
+        withLatestFrom(defaultReleaseYear$)
     )
-    .subscribe(async (obj) => {
+    .subscribe(async ([obj, releaseYear]) => {
         const project = obj["Project"];
 
         const alternativeObjectOrArray = project["Alternatives"]["Alternative"];
@@ -96,7 +99,8 @@ converted$
             ghg: {
                 socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
                 emissionsRateScenario: EmissionsRateScenario.BASELINE
-            }
+            },
+            releaseYear
         });
     });
 

@@ -5,7 +5,7 @@ import AppBar from "./AppBar";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
-import { useName } from "../model/Model";
+import { defaultReleaseYear$, useName } from "../model/Model";
 import { db } from "../model/db";
 import { Version } from "../blcc-format/Verison";
 import {
@@ -19,6 +19,8 @@ import { Country } from "../constants/LOCATION";
 import "dexie-export-import";
 import { download } from "../util/DownloadFile";
 import { convert } from "../blcc-format/Converter";
+import { sample } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 
 const { click$: newClick$, component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -33,8 +35,8 @@ export default function EditorAppBar() {
     const navigate = useNavigate();
 
     useSubscribe(
-        newClick$,
-        async () => {
+        newClick$.pipe(withLatestFrom(defaultReleaseYear$)),
+        async ([, releaseYear]) => {
             // TODO make a modal to make sure the user doesn't want to save
             await db.delete();
             await db.open();
@@ -54,7 +56,8 @@ export default function EditorAppBar() {
                 ghg: {
                     socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
                     emissionsRateScenario: EmissionsRateScenario.BASELINE
-                }
+                },
+                releaseYear
             });
 
             navigate("/editor");

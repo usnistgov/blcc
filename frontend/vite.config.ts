@@ -6,6 +6,7 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
     plugins: [react(), svgr()],
     build: {
-        assetsInlineLimit: 0
+        assetsInlineLimit: 0,
+        outDir: "../backend/public/dist"
     }
 });

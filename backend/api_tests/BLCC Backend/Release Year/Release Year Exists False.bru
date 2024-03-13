@@ -1,0 +1,17 @@
+meta {
+  name: Release Year Exists False
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/api/release_year
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "year": 2020
+  }
+}

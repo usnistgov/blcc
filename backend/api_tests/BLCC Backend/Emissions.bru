@@ -1,0 +1,22 @@
+meta {
+  name: Emissions
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/api/emissions
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "from": 2020,
+      "to": 2025,
+      "release_year": 2023,
+      "zip": 20877,
+      "case": "REF",
+      "rate": "Avg"
+  }
+}

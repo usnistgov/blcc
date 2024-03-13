@@ -31,6 +31,8 @@ import Inputs from "./pages/results/Inputs";
 import AlternativeResults from "./pages/results/AlternativeResults";
 import AnnualResults from "./pages/results/AnnualResults";
 import Summary from "./pages/results/Summary";
+import { combineLatest } from "rxjs";
+import { defaultReleaseYear$ } from "./model/Model";
 
 //FIXME: needed to force load the project stream
 //project$.subscribe(console.log);
@@ -47,26 +49,28 @@ function initializeBillboardJS() {
 initializeBillboardJS();
 
 const defaultProject$ = liveQuery(() => db.projects.where("id").equals(1).first());
-defaultProject$.subscribe((p) => {
-    if (p === undefined)
-        db.projects.add({
-            version: Version.V1,
-            name: "Untitled Project",
-            analysisType: AnalysisType.FEDERAL_FINANCED,
-            dollarMethod: DollarMethod.CONSTANT,
-            studyPeriod: 25,
-            constructionPeriod: 0,
-            discountingMethod: DiscountingMethod.END_OF_YEAR,
-            location: {
-                country: Country.USA
-            },
-            alternatives: [],
-            costs: [],
-            ghg: {
-                socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
-                emissionsRateScenario: EmissionsRateScenario.BASELINE
-            }
-        });
+combineLatest([defaultProject$, defaultReleaseYear$]).subscribe(([p, releaseYear]) => {
+    if (p !== undefined) return;
+
+    db.projects.add({
+        version: Version.V1,
+        name: "Untitled Project",
+        analysisType: AnalysisType.FEDERAL_FINANCED,
+        dollarMethod: DollarMethod.CONSTANT,
+        studyPeriod: 25,
+        constructionPeriod: 0,
+        discountingMethod: DiscountingMethod.END_OF_YEAR,
+        location: {
+            country: Country.USA
+        },
+        alternatives: [],
+        costs: [],
+        ghg: {
+            socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+            emissionsRateScenario: EmissionsRateScenario.BASELINE
+        },
+        releaseYear
+    });
 });
 
 export default function App() {

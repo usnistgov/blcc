@@ -1,13 +1,19 @@
 import { bind } from "@react-rxjs/core";
-import { map, NEVER, switchMap } from "rxjs";
+import { map, NEVER, of, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
 import { AnalysisType, DiscountingMethod, DollarMethod, NonUSLocation, USLocation } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
-import { filter, startWith } from "rxjs/operators";
+import { catchError, filter, startWith } from "rxjs/operators";
+import { ajax } from "rxjs/internal/ajax/ajax";
 
-// NEW
+export const defaultReleaseYear$ = ajax.getJSON<number[]>("/api/release_year").pipe(
+    map((years) => years[0]),
+    catchError(() => of(new Date().getFullYear()))
+);
+
+defaultReleaseYear$.subscribe(console.log);
 
 export const currentProject$ = NEVER.pipe(startWith(1));
 
@@ -89,3 +95,5 @@ export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
 
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
+
+export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
