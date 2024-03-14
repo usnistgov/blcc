@@ -8,7 +8,13 @@ import { Country } from "../constants/LOCATION";
 import { catchError, filter, startWith } from "rxjs/operators";
 import { ajax } from "rxjs/internal/ajax/ajax";
 
-export const defaultReleaseYear$ = ajax.getJSON<number[]>("/api/release_year").pipe(
+type ReleaseYearReponse = { year: number; max: number; min: number };
+
+export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearReponse[]>("/api/release_year");
+
+export const releaseYears$ = releaseYearsResponse$.pipe(map((result) => result.map((r) => r.year)));
+
+export const defaultReleaseYear$ = releaseYears$.pipe(
     map((years) => years[0]),
     catchError(() => of(new Date().getFullYear()))
 );

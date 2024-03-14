@@ -34,9 +34,10 @@ import {
     VarRate
 } from "e3-sdk";
 import { db } from "./db";
+import { toMWh } from "../util/UnitConversion";
 
 /**
- * RXJS operator to take the project and create an E3 reqeust.
+ * RXJS operator to take the project and create an E3 request.
  */
 export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBuilder>> {
     return pipe(
@@ -187,7 +188,6 @@ function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit)
-        .name(cost.name)
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
@@ -202,7 +202,22 @@ function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
 
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
-    return [builder];
+    // Emissions
+    const kwh = toMWh(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
+
+    if (kwh === undefined) return [builder];
+
+    const emissions = new BcnBuilder()
+        .name(`${cost.name} Emissions`)
+        .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
+        .real()
+        .type(BcnType.NON_MONETARY)
+        .recur(recurrence(cost))
+        .quantity(kwh)
+        .quantityValue(10)
+        .quantityUnit("kg co2");
+
+    return [builder, emissions];
 }
 
 function recurrence(cost: EnergyCost | WaterCost): RecurBuilder {

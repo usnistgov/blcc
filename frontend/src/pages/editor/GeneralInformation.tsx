@@ -1,4 +1,4 @@
-import { Divider } from "antd";
+import { Divider, Select } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import {
     analysisType$,
@@ -17,6 +17,7 @@ import {
     purpose$,
     realDiscountRate$,
     releaseYear$,
+    releaseYearsResponse$,
     socialCostOfGhgScenario$,
     state$,
     stateOrProvince$,
@@ -27,7 +28,7 @@ import {
 } from "../../model/Model";
 import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
-import { map, startWith, withLatestFrom } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { defaultValue } from "../../util/Operators";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import textArea from "../../components/TextArea";
@@ -46,9 +47,9 @@ import { Collection } from "dexie";
 import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
-import { ajax } from "rxjs/internal/ajax/ajax";
 import { createSignal } from "@react-rxjs/utils";
-import { combineLatest, switchMap } from "rxjs";
+import React from "react";
+import { bind } from "@react-rxjs/core";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -109,9 +110,14 @@ function dollarMethodForward(value: boolean): DollarMethod {
     return value ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
 }
 
-// This should last us 100 years (from 2023).
-const releaseYears$ = ajax.getJSON<number[]>("/api/release_year");
-const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
+const [useReleaseYear] = bind(releaseYear$, undefined);
+const [releaseYearChange$, changeReleaseYear] = createSignal<number>();
+const [useReleaseYearOptions] = bind(
+    releaseYearsResponse$.pipe(
+        map((response) => response.map((v) => ({ value: v.year, label: `${v.year} (${v.min} to ${v.max})` })))
+    ),
+    []
+);
 
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
@@ -171,7 +177,16 @@ export default function GeneralInformation() {
                         min={0}
                         controls={true}
                     />
-                    <ReleaseYearDropdown label={"Data Release Year"} className={"w-full"} />
+
+                    <div>
+                        <Title level={5}>{"Data Release Year"}</Title>
+                        <Select
+                            className={"w-full"}
+                            onChange={changeReleaseYear}
+                            value={useReleaseYear()}
+                            options={useReleaseYearOptions()}
+                        ></Select>
+                    </div>
                 </div>
             </div>
             <div className={"pt-4"}>

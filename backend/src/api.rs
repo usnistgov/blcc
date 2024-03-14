@@ -3,6 +3,7 @@ use actix_web::{get, HttpResponse, post, Responder};
 use diesel::prelude::*;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use serde::{Deserialize, Serialize};
+use diesel::dsl::{max, min};
 
 use std::fmt::Display;
 
@@ -175,7 +176,7 @@ async fn post_emissions(request: Json<EmissionsRequest>, data: Data<DbPool>) -> 
                     error: format!("Could not get emissions information for {}", request),
                 }),
             }
-        },
+        }
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
             error: format!("Could not get emissions zip information for {}", request),
         }),
@@ -205,6 +206,13 @@ async fn post_check_release_year_exists(request: Json<ReleaseYearRequest>, data:
     }
 }
 
+#[derive(Serialize)]
+struct ReleaseYearResponse {
+    pub year: i32,
+    pub max: Option<i32>,
+    pub min: Option<i32>,
+}
+
 #[get("/release_year")]
 async fn get_release_years(data: Data<DbPool>) -> impl Responder {
     let mut db = data.get().expect("Failed to get a connection");
@@ -212,17 +220,90 @@ async fn get_release_years(data: Data<DbPool>) -> impl Responder {
     use crate::schema::region_case_ba::dsl::*;
     use crate::schema::region_case_ba::*;
 
-    let query: QueryResult<Vec<i32>> = region_case_ba
-        .limit(100)
-        .order(release_year.desc())
-        .distinct()
-        .select(release_year)
+    let query: QueryResult<Vec<(i32, Option<i32>, Option<i32>)>> = region_case_ba
+        .group_by(release_year)
+        .select((release_year, max(year), min(year)))
         .load(&mut db);
 
     match query {
-        Ok(years) => HttpResponse::Ok().json(years),
+        Ok(years) => HttpResponse::Ok().json(
+            years.iter()
+                .map(|t| ReleaseYearResponse { year: t.0, max: t.1, min: t.2 })
+                .collect::<Vec<ReleaseYearResponse>>()
+        ),
+        Err(err) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get release years {}", err),
+        }),
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum SccOption {
+    ThreePercentNinetyFifthPercentile,
+    FivePercentAverage,
+    ThreePercentAverage,
+    TwoAndAHalfPercentAverage,
+}
+
+#[derive(Deserialize)]
+struct SccRequest {
+    from: i32,
+    to: i32,
+    release_year: i32,
+    option: SccOption,
+}
+
+#[post("/scc")]
+async fn post_scc(request: Json<SccRequest>, data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::scc::dsl::*;
+    use crate::schema::scc::*;
+
+    let query: QueryResult<Vec<f64>> = match request.option {
+        SccOption::ThreePercentNinetyFifthPercentile => {
+            scc
+                .filter(
+                    release_year.eq(request.release_year)
+                        .and(year.between(request.from, request.to))
+                )
+                .select(three_percent_ninety_fifth_percentile)
+                .load(&mut db)
+        }
+        SccOption::FivePercentAverage => {
+            scc
+                .filter(
+                    release_year.eq(request.release_year)
+                        .and(year.between(request.from, request.to))
+                )
+                .select(five_percent_average)
+                .load(&mut db)
+        }
+        SccOption::ThreePercentAverage => {
+            scc
+                .filter(
+                    release_year.eq(request.release_year)
+                        .and(year.between(request.from, request.to))
+                )
+                .select(three_percent_average)
+                .load(&mut db)
+        }
+        SccOption::TwoAndAHalfPercentAverage => {
+            scc
+                .filter(
+                    release_year.eq(request.release_year)
+                        .and(year.between(request.from, request.to))
+                )
+                .select(two_and_a_half_percent_average)
+                .load(&mut db)
+        }
+    };
+
+    match query {
+        Ok(values) => HttpResponse::Ok().json(values),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get release years"),
+            error: format!("Could not get scc"),
         }),
     }
 }
@@ -236,5 +317,6 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(post_emissions)
             .service(get_release_years)
             .service(post_check_release_year_exists)
+            .service(post_scc)
     );
 }

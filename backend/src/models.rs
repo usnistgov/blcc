@@ -2,6 +2,18 @@ use diesel::prelude::*;
 use serde::Serialize;
 
 #[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::scc)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Scc {
+    pub year: i32,
+    pub release_year: i32,
+    pub three_percent_ninety_fifth_percentile: f64,
+    pub five_percent_average: f64,
+    pub three_percent_average: f64,
+    pub two_and_a_half_percent_average: f64,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::zip_info)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ZipInfo {

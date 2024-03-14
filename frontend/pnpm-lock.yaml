@@ -26,6 +26,9 @@ dependencies:
   billboard.js:
     specifier: ^3.11.0
     version: 3.11.0
+  convert:
+    specifier: ^5.0.0
+    version: 5.0.0
   dexie:
     specifier: ^3.2.5
     version: 3.2.5(karma@6.4.2)
@@ -1891,6 +1894,10 @@ packages:
   /convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
     dev: true
+
+  /convert@5.0.0:
+    resolution: {integrity: sha512-29kAvWXhWpL2Lhhmseb0Y/sJnE4RA62TAwG9qTJP4dJvnABqFOLNLlwuYCiRYCeOfTD0GPkCJBlKDY50gDjVbg==}
+    dev: false
 
   /cookie@0.4.2:
     resolution: {integrity: sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==}

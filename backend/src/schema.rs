@@ -1,6 +1,17 @@
 // @generated automatically by Diesel CLI.
 
-diesel::table!{
+diesel::table! {
+    scc (year, release_year) {
+        year -> Int4,
+        release_year -> Int4,
+        three_percent_ninety_fifth_percentile -> Float8,
+        five_percent_average -> Float8,
+        three_percent_average -> Float8,
+        two_and_a_half_percent_average-> Float8
+    }
+}
+
+diesel::table! {
     zip_info (zip) {
         zip -> Int4,
         ba -> Text,
@@ -38,4 +49,5 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_info,);
+diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_info, scc,);
+diesel::allow_columns_to_appear_in_same_group_by_clause!(region_case_ba::year, region_case_ba::release_year);

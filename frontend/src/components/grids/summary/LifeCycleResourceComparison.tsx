@@ -67,6 +67,15 @@ const [useRows] = bind(
                 "Energy"
             ].map((fuelType) => getOptionalTag(measures, fuelType));
 
+            const emissions = [
+                FuelType.ELECTRICITY,
+                FuelType.NATURAL_GAS,
+                FuelType.DISTILLATE_OIL,
+                FuelType.RESIDUAL_OIL,
+                FuelType.PROPANE,
+                "Emissions"
+            ].map((fuelType) => getOptionalTag(measures, `${fuelType} Emissions`));
+
             return [
                 { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...consumption[0] },
                 { subcategory: FuelType.NATURAL_GAS, ...consumption[1] },
@@ -74,12 +83,12 @@ const [useRows] = bind(
                 { subcategory: FuelType.RESIDUAL_OIL, ...consumption[3] },
                 { subcategory: FuelType.PROPANE, ...consumption[4] },
                 { subcategory: "Total", ...consumption[5] },
-                { category: "Emissions", subcategory: FuelType.ELECTRICITY },
-                { subcategory: FuelType.NATURAL_GAS },
-                { subcategory: FuelType.DISTILLATE_OIL },
-                { subcategory: FuelType.RESIDUAL_OIL },
-                { subcategory: FuelType.PROPANE },
-                { subcategory: "Total" },
+                { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
+                { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
+                { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
+                { subcategory: FuelType.RESIDUAL_OIL, ...emissions[3] },
+                { subcategory: FuelType.PROPANE, ...emissions[4] },
+                { subcategory: "Total", ...emissions[5] },
                 { category: "Water", subcategory: "Use" }
             ];
         })
