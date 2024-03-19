@@ -2,10 +2,9 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
-import { EMPTY, iif, map, merge, Observable, of, sample, switchAll, switchMap } from "rxjs";
+import { EMPTY, map, Observable, sample, switchMap } from "rxjs";
 import { InputNumberProps } from "antd/es/input-number";
-import { combineLatestWith, filter, startWith, withLatestFrom } from "rxjs/operators";
-import { guard } from "../util/Operators";
+import { combineLatestWith, filter, startWith } from "rxjs/operators";
 
 export type NumberInputProps = {
     label?: string;
