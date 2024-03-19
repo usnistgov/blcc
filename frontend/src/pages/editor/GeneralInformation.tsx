@@ -49,7 +49,6 @@ import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
 import { createSignal } from "@react-rxjs/utils";
-import React from "react";
 import { bind } from "@react-rxjs/core";
 import dayjs from "dayjs";
 

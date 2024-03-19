@@ -1,5 +1,5 @@
 import DataGrid from "react-data-grid";
-import { alternativeNames$, measures$, optionalsByTag$ } from "../../../model/ResultModel";
+import { alternativeNames$, measures$ } from "../../../model/ResultModel";
 import { bind } from "@react-rxjs/core";
 import { map } from "rxjs/operators";
 import { combineLatest } from "rxjs";
@@ -94,8 +94,8 @@ const columns = [
 ];
 
 const [useRows] = bind(
-    combineLatest([measures$, alternativeNames$, optionalsByTag$, baselineID$]).pipe(
-        map(([measures, alternativeNames, optionalMap, baselineID]) => {
+    combineLatest([measures$, alternativeNames$, baselineID$]).pipe(
+        map(([measures, alternativeNames, baselineID]) => {
             return measures.map((measure) => {
                 return {
                     name: alternativeNames.get(measure.altId),

@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { combineLatest, map, NEVER, of, switchMap, tap } from "rxjs";
+import { combineLatest, map, NEVER, of, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
@@ -134,8 +134,6 @@ export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, analy
     map((response) => response.response)
 );
 
-emissions$.subscribe((v) => console.log("Emissions", v));
-
 const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
     switch (option) {
         case SocialCostOfGhgScenario.LOW:
@@ -173,5 +171,3 @@ export const scc$ = combineLatest([
     map((response) => response.response),
     map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000))
 );
-
-scc$.subscribe((v) => console.log("SCC", v));

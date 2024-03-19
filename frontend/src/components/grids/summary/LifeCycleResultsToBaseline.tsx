@@ -120,8 +120,6 @@ const columns = [
 const [useRows] = bind(
     combineLatest([measures$, alternativeNames$, baselineID$]).pipe(
         map(([measures, names, baselineID]) => {
-            console.log(measures);
-
             const baseline = measures.find((measure) => measure.altId === baselineID);
 
             return measures.map((measure) => {
