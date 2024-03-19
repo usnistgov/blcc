@@ -20,6 +20,7 @@
     "antd": "^5.14.1",
     "billboard.js": "^3.11.0",
     "convert": "^5.0.0",
+    "dayjs": "^1.11.10",
     "dexie": "^3.2.5",
     "dexie-export-import": "^4.1.1",
     "e3-sdk": "file:e3-sdk-1.0.10.tgz",

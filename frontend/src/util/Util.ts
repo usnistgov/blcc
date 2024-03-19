@@ -50,6 +50,8 @@ export const dollarFormatter = new Intl.NumberFormat("en-US", {
     currency: "USD"
 });
 
+export const numberFormatter = Intl.NumberFormat("en-US");
+
 export function getOptionalTag(measures: Measures[], tag: string) {
     return measures.reduce((acc, next, i) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

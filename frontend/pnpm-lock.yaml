@@ -29,6 +29,9 @@ dependencies:
   convert:
     specifier: ^5.0.0
     version: 5.0.0
+  dayjs:
+    specifier: ^1.11.10
+    version: 1.11.10
   dexie:
     specifier: ^3.2.5
     version: 3.2.5(karma@6.4.2)

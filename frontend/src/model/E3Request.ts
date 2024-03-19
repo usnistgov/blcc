@@ -35,13 +35,16 @@ import {
 } from "e3-sdk";
 import { db } from "./db";
 import { toMWh } from "../util/UnitConversion";
+import { withLatestFrom } from "rxjs/operators";
+import { emissions$, scc$ } from "./Model";
 
 /**
  * RXJS operator to take the project and create an E3 request.
  */
 export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBuilder>> {
     return pipe(
-        switchMap(async (projectID) => {
+        withLatestFrom(emissions$, scc$),
+        switchMap(async ([projectID, emissions, scc]) => {
             const project = await db.projects.get(projectID);
 
             if (project === undefined) throw "No project in database";
@@ -68,7 +71,9 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
 
             // Create costs
             const costs = await db.costs.where("id").anyOf(project.costs).toArray();
-            const costMap = new Map(costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod)]));
+            const costMap = new Map(
+                costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod, emissions, scc)])
+            );
 
             // Define alternatives
             const alternatives = await db.alternatives.where("id").anyOf(project.alternatives).toArray();
@@ -105,12 +110,12 @@ export function E3Request(): UnaryFunction<Observable<RequestBuilder>, Observabl
     );
 }
 
-function costToBuilders(cost: Cost, studyPeriod: number): BcnBuilder[] {
+function costToBuilders(cost: Cost, studyPeriod: number, emissions: number[], scc: number[]): BcnBuilder[] {
     switch (cost.type) {
         case CostTypes.CAPITAL:
             return capitalCostToBuilder(cost, studyPeriod);
         case CostTypes.ENERGY:
-            return energyCostToBuilder(cost);
+            return energyCostToBuilder(cost, emissions, scc);
         case CostTypes.WATER:
             return waterCostToBuilder(cost);
         case CostTypes.REPLACEMENT_CAPITAL:
@@ -146,7 +151,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                     .invest()
                     .initialOccurrence(0)
                     .life(cost.expectedLife)
-                    .addTag(tag)
+                    .addTag(tag, "LCC")
                     .quantity(1)
                     .quantityValue(adjusted * phaseIn)
             )
@@ -162,7 +167,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 .invest()
                 .initialOccurrence(0)
                 .life(cost.expectedLife)
-                .addTag(tag)
+                .addTag(tag, "LCC")
                 .quantity(1)
                 .quantityValue(cost.initialCost ?? 0)
         );
@@ -184,10 +189,10 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
     return result;
 }
 
-function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
+function energyCostToBuilder(cost: EnergyCost, emissions: number[], scc: number[]): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
-        .addTag("Energy", cost.fuelType, cost.unit)
+        .addTag("Energy", cost.fuelType, cost.unit, "LCC")
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
@@ -207,17 +212,33 @@ function energyCostToBuilder(cost: EnergyCost): BcnBuilder[] {
 
     if (kwh === undefined) return [builder];
 
-    const emissions = new BcnBuilder()
+    const emissionValues = emissions.map((value) => value * kwh);
+
+    const emissionsBuilder = new BcnBuilder()
         .name(`${cost.name} Emissions`)
         .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
         .real()
         .type(BcnType.NON_MONETARY)
         .recur(recurrence(cost))
-        .quantity(kwh)
-        .quantityValue(10)
+        .quantity(1)
+        .quantityValue(1)
+        .quantityVarRate(VarRate.YEAR_BY_YEAR)
+        .quantityVarValue(emissionValues)
         .quantityUnit("kg co2");
 
-    return [builder, emissions];
+    const sccBuilder = new BcnBuilder()
+        .name(`${cost.name} SCC`)
+        .addTag("SCC", `${cost.fuelType} SCC`, "$/kg")
+        .real()
+        .type(BcnType.COST)
+        .recur(recurrence(cost))
+        .quantity(1)
+        .quantityValue(1)
+        .quantityVarRate(VarRate.YEAR_BY_YEAR)
+        .quantityVarValue(scc.map((v, i) => v * emissionValues[i]))
+        .quantityUnit("$/kg co2");
+
+    return [builder, emissionsBuilder, sccBuilder];
 }
 
 function recurrence(cost: EnergyCost | WaterCost): RecurBuilder {
@@ -238,8 +259,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
         ...cost.usage.map((usage) => {
             const builder = new BcnBuilder()
                 .name(cost.name)
-                .addTag(cost.unit)
-                .addTag(`${cost.name} ${usage.season} Water Usage`)
+                .addTag(cost.unit, "LCC", `${cost.name} ${usage.season} Water Usage`)
                 .real()
                 .invest()
                 .recur(recurBuilder)
@@ -256,8 +276,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
         ...cost.disposal.map((disposal) => {
             const builder = new BcnBuilder()
                 .name(cost.name)
-                .addTag(cost.unit)
-                .addTag(`${cost.name} ${disposal.season} Water Disposal`)
+                .addTag(cost.unit, "LCC", `${cost.name} ${disposal.season} Water Disposal`)
                 .real()
                 .invest()
                 .recur(recurBuilder)
@@ -281,7 +300,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .invest()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .addTag("Replacement Capital")
+        .addTag("Replacement Capital", "LCC")
         .life(cost.expectedLife ?? 1)
         .quantity(1)
         .quantityValue(cost.initialCost)
@@ -299,7 +318,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
 function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
-        .addTag("OMR")
+        .addTag("OMR", "LCC")
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .initialOccurrence(cost.initialOccurrence)
@@ -322,7 +341,7 @@ function implementationContractCostToBuilder(cost: ImplementationContractCost): 
             .name(cost.name)
             .type(BcnType.COST)
             .subType(BcnSubType.DIRECT)
-            .addTag("Implementation Contract Cost")
+            .addTag("Implementation Contract Cost", "LCC")
             .real()
             .invest()
             .quantity(1)
@@ -337,7 +356,7 @@ function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder
             .name(cost.name)
             .type(BcnType.COST)
             .subType(BcnSubType.DIRECT)
-            .addTag("Recurring Contract Cost")
+            .addTag("Recurring Contract Cost", "LCC")
             .real()
             .invest()
             .recur(new RecurBuilder().interval(cost.rateOfRecurrence ?? 1))
@@ -355,7 +374,7 @@ function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
         .initialOccurrence(cost.initialOccurrence)
         .type(cost.costOrBenefit === CostBenefit.COST ? BcnType.COST : BcnType.BENEFIT)
         .subType(BcnSubType.DIRECT)
-        .addTag("Other")
+        .addTag("Other", "LCC")
         .addTag(cost.tag)
         .addTag(cost.unit)
         .quantityValue(cost.valuePerUnit)
@@ -418,6 +437,7 @@ function residualValueBcn(
         .type(BcnType.BENEFIT)
         .subType(BcnSubType.DIRECT)
         .addTag(...tags)
+        .addTag("LCC")
         .real()
         .initialOccurrence(studyPeriod + 1)
         .quantity(1)

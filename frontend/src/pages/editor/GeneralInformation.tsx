@@ -1,4 +1,4 @@
-import { Divider, Select } from "antd";
+import { DatePicker, Divider, Select } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import {
     analysisType$,
@@ -23,6 +23,7 @@ import {
     stateOrProvince$,
     studyPeriod$,
     useAnalysisType,
+    useAnalysisYear,
     useCountry,
     zip$
 } from "../../model/Model";
@@ -50,6 +51,7 @@ import { Country, State } from "../../constants/LOCATION";
 import { createSignal } from "@react-rxjs/utils";
 import React from "react";
 import { bind } from "@react-rxjs/core";
+import dayjs from "dayjs";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -119,6 +121,8 @@ const [useReleaseYearOptions] = bind(
     []
 );
 
+const [analysisYear$, setAnalysisYear] = createSignal<number>();
+
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
     useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
@@ -144,6 +148,7 @@ export default function GeneralInformation() {
     useDbUpdate(emissionsRateChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.emissionsRateScenario");
     useDbUpdate(socialCostChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.socialCostOfGhgScenario");
     useDbUpdate(releaseYearChange$, projectCollection$, "releaseYear");
+    useDbUpdate(analysisYear$, projectCollection$, "analysisYear");
 
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
@@ -151,12 +156,26 @@ export default function GeneralInformation() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NameInput label={"Project Name"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
-                <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
+                <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
+                    <NameInput label={"Project Name"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
+                    <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
+                    <div>
+                        <Title level={5}>{"Analysis Year"}</Title>
+                        <DatePicker
+                            className={"w-full"}
+                            allowClear={false}
+                            value={dayjs().set("year", useAnalysisYear())}
+                            onChange={(change) => setAnalysisYear(change.year())}
+                            picker="year"
+                        />
+                    </div>
+                </div>
+
                 <AnalysisTypeDropdown label={"Analysis Type"} className={"w-full"} />
                 {useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
                     <AnalysisPurposeDropdown label={"Analysis Purpose"} className={"w-full"} />
                 )}
+
                 <span className={"col-span-2"}>
                     <DescInput label={"Description"} className={"w-full"} />
                 </span>

@@ -56,6 +56,7 @@ combineLatest([defaultProject$, defaultReleaseYear$]).subscribe(([p, releaseYear
         version: Version.V1,
         name: "Untitled Project",
         analysisType: AnalysisType.FEDERAL_FINANCED,
+        analysisYear: releaseYear,
         dollarMethod: DollarMethod.CONSTANT,
         studyPeriod: 25,
         constructionPeriod: 0,

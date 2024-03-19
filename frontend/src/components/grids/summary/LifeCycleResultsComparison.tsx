@@ -3,7 +3,7 @@ import { alternativeNames$, measures$, optionalsByTag$ } from "../../../model/Re
 import { bind } from "@react-rxjs/core";
 import { map } from "rxjs/operators";
 import { combineLatest } from "rxjs";
-import { dollarFormatter } from "../../../util/Util";
+import { dollarFormatter, numberFormatter } from "../../../util/Util";
 import { baselineID$ } from "../../../model/Model";
 import Icon from "@mdi/react";
 import { mdiCheck } from "@mdi/js";
@@ -14,6 +14,9 @@ type Row = {
     initialCost: number;
     lifeCycleCost: number;
     energy: number;
+    ghgEmissions: number;
+    scc: number;
+    lccScc: number;
 };
 
 const cellClasses = {
@@ -65,18 +68,27 @@ const columns = [
         ...cellClasses
     },
     {
-        name: "GHG Emissions",
+        name: "GHG Emissions (kg co2)",
         key: "ghgEmissions",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{numberFormatter.format(row["ghgEmissions"] ?? 0)}</p>
+        ),
         ...cellClasses
     },
     {
         name: "SCC",
         key: "scc",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["scc"] ?? 0)}</p>
+        ),
         ...cellClasses
     },
     {
         name: "LCC + SCC",
         key: "lccScc",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["lccScc"] ?? 0)}</p>
+        ),
         ...cellClasses
     }
 ];
@@ -88,9 +100,12 @@ const [useRows] = bind(
                 return {
                     name: alternativeNames.get(measure.altId),
                     baseline: measure.altId === baselineID,
-                    lifeCycleCost: measure.totalCosts,
+                    lifeCycleCost: measure.totalTagFlows["LCC"],
                     initialCost: measure.totalTagFlows["Initial Investment"],
-                    energy: measure.totalTagFlows["Energy"]
+                    energy: measure.totalTagFlows["Energy"],
+                    ghgEmissions: measure.totalTagFlows["Emissions"],
+                    scc: measure.totalTagFlows["SCC"],
+                    lccScc: measure.totalCosts
                 } as Row;
             });
         })

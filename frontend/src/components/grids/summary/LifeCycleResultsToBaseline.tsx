@@ -3,7 +3,7 @@ import { bind } from "@react-rxjs/core";
 import { alternativeNames$, measures$ } from "../../../model/ResultModel";
 import { map } from "rxjs/operators";
 import { combineLatest } from "rxjs";
-import { dollarFormatter } from "../../../util/Util";
+import { dollarFormatter, numberFormatter } from "../../../util/Util";
 import { baselineID$ } from "../../../model/Model";
 import Icon from "@mdi/react";
 import { mdiCheck } from "@mdi/js";
@@ -16,6 +16,9 @@ type Row = {
     spp: number;
     dpp: number;
     initialCost: number;
+    deltaEnergy: number;
+    deltaGhg: number;
+    deltaScc: number;
 };
 
 const cellClasses = {
@@ -73,16 +76,34 @@ const columns = [
     {
         name: "Change in Energy",
         key: "deltaEnergy",
+        renderCell: ({ row }: { row: Row }) => {
+            const value = row["deltaEnergy"];
+            if (value === undefined || Number.isNaN(value)) return undefined;
+
+            return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
+        },
         ...cellClasses
     },
     {
-        name: "Change in GHG",
+        name: "Change in GHG (kg co2)",
         key: "deltaGhg",
+        renderCell: ({ row }: { row: Row }) => {
+            const value = row["deltaGhg"];
+            if (value === undefined || Number.isNaN(value)) return undefined;
+
+            return <p className={"text-right"}>{numberFormatter.format(value)}</p>;
+        },
         ...cellClasses
     },
     {
         name: "Change in SCC",
         key: "deltaScc",
+        renderCell: ({ row }: { row: Row }) => {
+            const value = row["deltaScc"];
+            if (value === undefined || Number.isNaN(value)) return undefined;
+
+            return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
+        },
         ...cellClasses
     },
     {
@@ -95,6 +116,10 @@ const columns = [
 const [useRows] = bind(
     combineLatest([measures$, alternativeNames$, baselineID$]).pipe(
         map(([measures, names, baselineID]) => {
+            console.log(measures);
+
+            const baseline = measures.find((measure) => measure.altId === baselineID);
+
             return measures.map((measure) => {
                 return {
                     name: names.get(measure.altId),
@@ -103,7 +128,10 @@ const [useRows] = bind(
                     airr: measure.airr,
                     spp: measure.spp,
                     dpp: measure.dpp,
-                    initialCost: measure.totalCosts
+                    initialCost: measure.totalCosts,
+                    deltaEnergy: measure.totalTagFlows["Energy"] - (baseline?.totalTagFlows["Energy"] ?? 0),
+                    deltaGhg: measure.totalTagFlows["Emissions"] - (baseline?.totalTagFlows["Emissions"] ?? 0),
+                    deltaScc: measure.totalTagFlows["SCC"] - (baseline?.totalTagFlows["SCC"] ?? 0)
                 };
             });
         })

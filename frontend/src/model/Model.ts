@@ -1,9 +1,16 @@
 import { bind } from "@react-rxjs/core";
-import { combineLatest, map, NEVER, of, switchMap } from "rxjs";
+import { combineLatest, map, NEVER, of, switchMap, tap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
-import { AnalysisType, DiscountingMethod, DollarMethod, NonUSLocation, USLocation } from "../blcc-format/Format";
+import {
+    AnalysisType,
+    DiscountingMethod,
+    DollarMethod,
+    NonUSLocation,
+    SocialCostOfGhgScenario,
+    USLocation
+} from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
 import { catchError, filter, startWith } from "rxjs/operators";
 import { ajax } from "rxjs/internal/ajax/ajax";
@@ -41,6 +48,9 @@ export const [useDescription] = bind(description$, undefined);
 
 export const analysisType$ = dbProject$.pipe(map((p) => p.analysisType));
 export const [useAnalysisType] = bind(analysisType$, AnalysisType.FEDERAL_FINANCED);
+
+export const analysisYear$ = dbProject$.pipe(map((p) => p?.analysisYear));
+export const [useAnalysisYear] = bind(analysisYear$, 1990);
 
 export const purpose$ = dbProject$.pipe(map((p) => p.purpose));
 export const [usePurpose] = bind(purpose$, undefined);
@@ -105,8 +115,8 @@ export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.
 export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
 
 // Get the emissions data from the database.
-export const emissions$ = combineLatest([zip$, releaseYear$]).pipe(
-    switchMap(([zip, year]) =>
+export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, analysisYear$, studyPeriod$]).pipe(
+    switchMap(([zip, releaseYear, analysisYear, studyPeriod]) =>
         ajax<number[]>({
             url: "/api/emissions",
             method: "POST",
@@ -114,13 +124,56 @@ export const emissions$ = combineLatest([zip$, releaseYear$]).pipe(
                 "Content-Type": "application/json"
             },
             body: {
-                from: 2020,
-                to: 2025,
-                release_year: year,
+                from: analysisYear,
+                to: analysisYear + studyPeriod,
+                release_year: releaseYear,
                 zip: Number.parseInt(zip ?? "0"),
                 case: "REF",
                 rate: "Avg"
             }
         })
-    )
+    ),
+    map((response) => response.response)
 );
+
+emissions$.subscribe((v) => console.log("Emissions", v));
+
+const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
+    switch (option) {
+        case SocialCostOfGhgScenario.LOW:
+            return "three_percent_average";
+        case SocialCostOfGhgScenario.MEDIUM:
+            return "five_percent_average";
+        case SocialCostOfGhgScenario.HIGH:
+            return "three_percent_ninety_fifth_percentile";
+        default:
+            return undefined;
+    }
+};
+
+export const scc$ = combineLatest([
+    releaseYear$,
+    analysisYear$,
+    studyPeriod$,
+    socialCostOfGhgScenario$.pipe(map(getSccOption), guard())
+]).pipe(
+    switchMap(([releaseYear, analysisYear, studyPeriod, option]) =>
+        ajax<number[]>({
+            url: "/api/scc",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: {
+                from: analysisYear,
+                to: analysisYear + studyPeriod,
+                release_year: releaseYear,
+                option
+            }
+        })
+    ),
+    map((response) => response.response),
+    map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000))
+);
+
+scc$.subscribe((v) => console.log("SCC", v));
