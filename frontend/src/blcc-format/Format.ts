@@ -118,6 +118,7 @@ export type BaseCost = {
     name: string;
     description?: string;
     location?: Location;
+    costSavings?: boolean;
 };
 
 export type CapitalCost = Type<CostTypes.CAPITAL> &

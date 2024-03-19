@@ -4,9 +4,9 @@ import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { Checkbox, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
+import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import { bind } from "@react-rxjs/core";
-import React from "react";
 import EnergyCostFields from "./cost/EnergyCostFields";
 import { cost$, costCollection$, costID$, useCostID, useCostType } from "../../model/CostModel";
 import { createSignal } from "@react-rxjs/utils";
@@ -36,6 +36,9 @@ const { click$: cloneClick$, component: CloneCostButton } = button();
 const { click$: removeClick$, component: RemoveCostButton } = button();
 const { component: NameInput, onChange$: name$ } = textInput(cost$.pipe(map((cost) => cost.name)));
 const { component: DescriptionInput, onChange$: description$ } = textArea(cost$.pipe(map((cost) => cost.description)));
+const { component: CostSavingSwitch, onChange$: costSavingsChange$ } = switchComp(
+    cost$.pipe(map((cost) => cost.costSavings ?? false))
+);
 
 const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
@@ -133,6 +136,7 @@ export default function Cost() {
         alternativeID
     ]);
 
+    useDbUpdate(costSavingsChange$, costCollection$, "costSavings");
     useDbUpdate(name$.pipe(defaultValue("Unnamed Cost")), costCollection$, "name");
     useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
     useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
@@ -182,6 +186,10 @@ export default function Cost() {
                     </div>
                     <span className={"col-span-2"}>
                         <DescriptionInput label={"Description"} className={"w-full"} />
+                    </span>
+                    <span>
+                        <Title level={5}>Cost or Savings</Title>
+                        <CostSavingSwitch checkedChildren={"Savings"} unCheckedChildren={"Cost"} />
                     </span>
                 </div>
             </div>

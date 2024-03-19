@@ -37,6 +37,8 @@ services:
       POSTGRES_DB: BLCC
     networks:
       - postgres
+    volumes:
+      - pg_data:/pg_data
 
 networks:
   postgres:
@@ -46,3 +48,10 @@ networks:
 configs:
   blcc-server:
     external: true
+
+volumes:
+  pg_data:
+    driver_opts:
+      type: none
+      device: /DATA/blcc/pg_data
+      o: bind

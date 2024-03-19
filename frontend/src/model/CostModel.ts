@@ -1,5 +1,5 @@
 import { urlParameters$ } from "../components/UrlParameters";
-import { from, map, switchMap } from "rxjs";
+import { map, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
 import { db } from "./db";
@@ -32,3 +32,9 @@ export const cost$ = costID$.pipe(
  */
 export const costType$ = cost$.pipe(map((cost) => cost.type));
 export const [useCostType] = bind(costType$, CostTypes.OTHER);
+
+/**
+ * Whether this cost is a cost or a savings.
+ */
+export const costOrSavings$ = cost$.pipe(map((cost) => cost.costSavings ?? false));
+export const [useCostOrSavings] = bind(costOrSavings$, false);
