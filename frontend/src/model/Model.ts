@@ -20,6 +20,7 @@ type ReleaseYearReponse = { year: number; max: number; min: number };
 export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearReponse[]>("/api/release_year");
 
 export const releaseYears$ = releaseYearsResponse$.pipe(map((result) => result.map((r) => r.year)));
+export const [useReleaseYears] = bind(releaseYears$, []);
 
 export const defaultReleaseYear$ = releaseYears$.pipe(
     map((years) => years[0]),
@@ -46,9 +47,6 @@ export const [useDescription] = bind(description$, undefined);
 
 export const analysisType$ = dbProject$.pipe(map((p) => p.analysisType));
 export const [useAnalysisType] = bind(analysisType$, AnalysisType.FEDERAL_FINANCED);
-
-export const analysisYear$ = dbProject$.pipe(map((p) => p?.analysisYear));
-export const [useAnalysisYear] = bind(analysisYear$, 1990);
 
 export const purpose$ = dbProject$.pipe(map((p) => p.purpose));
 export const [usePurpose] = bind(purpose$, undefined);
@@ -113,8 +111,8 @@ export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.
 export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
 
 // Get the emissions data from the database.
-export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, analysisYear$, studyPeriod$]).pipe(
-    switchMap(([zip, releaseYear, analysisYear, studyPeriod]) =>
+export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, studyPeriod$]).pipe(
+    switchMap(([zip, releaseYear, studyPeriod]) =>
         ajax<number[]>({
             url: "/api/emissions",
             method: "POST",
@@ -122,8 +120,8 @@ export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, analy
                 "Content-Type": "application/json"
             },
             body: {
-                from: analysisYear,
-                to: analysisYear + studyPeriod,
+                from: releaseYear,
+                to: releaseYear + studyPeriod,
                 release_year: releaseYear,
                 zip: Number.parseInt(zip ?? "0"),
                 case: "REF",
@@ -149,11 +147,10 @@ const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | und
 
 export const scc$ = combineLatest([
     releaseYear$,
-    analysisYear$,
     studyPeriod$,
     socialCostOfGhgScenario$.pipe(map(getSccOption), guard())
 ]).pipe(
-    switchMap(([releaseYear, analysisYear, studyPeriod, option]) =>
+    switchMap(([releaseYear, studyPeriod, option]) =>
         ajax<number[]>({
             url: "/api/scc",
             method: "POST",
@@ -161,8 +158,8 @@ export const scc$ = combineLatest([
                 "Content-Type": "application/json"
             },
             body: {
-                from: analysisYear,
-                to: analysisYear + studyPeriod,
+                from: releaseYear,
+                to: releaseYear + studyPeriod,
                 release_year: releaseYear,
                 option
             }

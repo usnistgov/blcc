@@ -1,4 +1,4 @@
-import { DatePicker, Divider, Select } from "antd";
+import { Divider, Select } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import {
     analysisType$,
@@ -17,14 +17,14 @@ import {
     purpose$,
     realDiscountRate$,
     releaseYear$,
-    releaseYearsResponse$,
+    releaseYears$,
     socialCostOfGhgScenario$,
     state$,
     stateOrProvince$,
     studyPeriod$,
     useAnalysisType,
-    useAnalysisYear,
     useCountry,
+    useReleaseYears,
     zip$
 } from "../../model/Model";
 import Title from "antd/es/typography/Title";
@@ -50,7 +50,6 @@ import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
 import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
-import dayjs from "dayjs";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -111,16 +110,7 @@ function dollarMethodForward(value: boolean): DollarMethod {
     return value ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
 }
 
-const [useReleaseYear] = bind(releaseYear$, undefined);
-const [releaseYearChange$, changeReleaseYear] = createSignal<number>();
-const [useReleaseYearOptions] = bind(
-    releaseYearsResponse$.pipe(
-        map((response) => response.map((v) => ({ value: v.year, label: `${v.year} (${v.min} to ${v.max})` })))
-    ),
-    []
-);
-
-const [analysisYear$, setAnalysisYear] = createSignal<number>();
+const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
@@ -147,7 +137,6 @@ export default function GeneralInformation() {
     useDbUpdate(emissionsRateChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.emissionsRateScenario");
     useDbUpdate(socialCostChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.socialCostOfGhgScenario");
     useDbUpdate(releaseYearChange$, projectCollection$, "releaseYear");
-    useDbUpdate(analysisYear$, projectCollection$, "analysisYear");
 
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
@@ -155,20 +144,8 @@ export default function GeneralInformation() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                    <NameInput label={"Project Name"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
-                    <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
-                    <div>
-                        <Title level={5}>{"Analysis Year"}</Title>
-                        <DatePicker
-                            className={"w-full"}
-                            allowClear={false}
-                            value={dayjs().set("year", useAnalysisYear())}
-                            onChange={(change) => setAnalysisYear(change.year())}
-                            picker="year"
-                        />
-                    </div>
-                </div>
+                <NameInput label={"Project Name"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
+                <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
 
                 <AnalysisTypeDropdown label={"Analysis Type"} className={"w-full"} />
                 {useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
@@ -196,15 +173,7 @@ export default function GeneralInformation() {
                         controls={true}
                     />
 
-                    <div>
-                        <Title level={5}>{"Data Release Year"}</Title>
-                        <Select
-                            className={"w-full"}
-                            onChange={changeReleaseYear}
-                            value={useReleaseYear()}
-                            options={useReleaseYearOptions()}
-                        ></Select>
-                    </div>
+                    <ReleaseYearDropdown className={"w-full"} label={"Data Release Year"} />
                 </div>
             </div>
             <div className={"pt-4"}>

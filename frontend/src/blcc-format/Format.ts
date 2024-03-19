@@ -5,7 +5,6 @@ export type Project = {
     id?: number;
     version: Version;
     name: string;
-    analysisYear: number;
     description?: string;
     analyst?: string;
     analysisType: AnalysisType;
