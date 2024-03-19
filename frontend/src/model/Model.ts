@@ -26,8 +26,6 @@ export const defaultReleaseYear$ = releaseYears$.pipe(
     catchError(() => of(new Date().getFullYear()))
 );
 
-defaultReleaseYear$.subscribe(console.log);
-
 export const currentProject$ = NEVER.pipe(startWith(1));
 
 const dbProject$ = currentProject$.pipe(

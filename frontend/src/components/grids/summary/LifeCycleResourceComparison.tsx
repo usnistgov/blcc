@@ -89,7 +89,7 @@ const [useRows] = bind(
                 { subcategory: FuelType.RESIDUAL_OIL, ...emissions[3] },
                 { subcategory: FuelType.PROPANE, ...emissions[4] },
                 { subcategory: "Total", ...emissions[5] },
-                { category: "Water", subcategory: "Use" }
+                { category: "Water", subcategory: "Use" } //TODO: Add in water usage category
             ];
         })
     ),

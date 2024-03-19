@@ -57,7 +57,7 @@ const [useColumns] = bind(
 
 const [useRows] = bind(
     combineLatest([measures$, alternativeNames$]).pipe(
-        map(([measures, names]) => {
+        map(([measures]) => {
             return [
                 { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
                 { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },

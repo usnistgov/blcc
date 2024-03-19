@@ -56,21 +56,25 @@ const columns = [
     {
         name: "SIR",
         key: "sir",
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["sir"])}</p>,
         ...cellClasses
     },
     {
         name: "AIRR",
         key: "airr",
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["airr"])}</p>,
         ...cellClasses
     },
     {
         name: "SPP",
         key: "spp",
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["spp"])}</p>,
         ...cellClasses
     },
     {
         name: "DPP",
         key: "dpp",
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["dpp"])}</p>,
         ...cellClasses
     },
     {

@@ -38,7 +38,7 @@ const items: MenuItem[] = [
         costs$: contractCosts$
     },
     {
-        title: "Other Costs",
+        title: "Other",
         icon: mdiFormatListBulletedType,
         costs$: otherCosts$
     }
