@@ -85,7 +85,6 @@ converted$
             description: project["Comment"],
             analyst: project["Analyst"],
             analysisType: convertAnalysisType(project["AnalysisType"]),
-            analysisYear: releaseYear,
             purpose: convertAnalysisPurpose(project["AnalysisPurpose"]),
             dollarMethod: convertDollarMethod(project["DollarMethod"]),
             studyPeriod,

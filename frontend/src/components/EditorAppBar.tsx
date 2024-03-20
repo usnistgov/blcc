@@ -19,7 +19,6 @@ import { Country } from "../constants/LOCATION";
 import "dexie-export-import";
 import { download } from "../util/DownloadFile";
 import { convert } from "../blcc-format/Converter";
-import { sample } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
 
 const { click$: newClick$, component: NewButton } = button();
@@ -44,7 +43,6 @@ export default function EditorAppBar() {
                 version: Version.V1,
                 name: "Untitled Project",
                 analysisType: AnalysisType.FEDERAL_FINANCED,
-                analysisYear: releaseYear,
                 dollarMethod: DollarMethod.CONSTANT,
                 studyPeriod: 25,
                 constructionPeriod: 0,

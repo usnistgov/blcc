@@ -7,6 +7,7 @@ import {
     AnalysisType,
     DiscountingMethod,
     DollarMethod,
+    EmissionsRateScenario,
     NonUSLocation,
     SocialCostOfGhgScenario,
     USLocation
@@ -110,9 +111,25 @@ export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.
 
 export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
 
+export const getEmissionsRateOption = (option: EmissionsRateScenario | undefined) => {
+    switch (option) {
+        case EmissionsRateScenario.BASELINE:
+            return "REF";
+        case EmissionsRateScenario.LOW_RENEWABLE:
+            return "LRC";
+        default:
+            return undefined;
+    }
+};
+
 // Get the emissions data from the database.
-export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, studyPeriod$]).pipe(
-    switchMap(([zip, releaseYear, studyPeriod]) =>
+export const emissions$ = combineLatest([
+    zip$.pipe(guard()),
+    releaseYear$,
+    studyPeriod$,
+    emissionsRate$.pipe(map(getEmissionsRateOption), guard())
+]).pipe(
+    switchMap(([zip, releaseYear, studyPeriod, emissionsRate]) =>
         ajax<number[]>({
             url: "/api/emissions",
             method: "POST",
@@ -124,12 +141,13 @@ export const emissions$ = combineLatest([zip$.pipe(guard()), releaseYear$, study
                 to: releaseYear + studyPeriod,
                 release_year: releaseYear,
                 zip: Number.parseInt(zip ?? "0"),
-                case: "REF",
+                case: emissionsRate,
                 rate: "Avg"
             }
         })
     ),
-    map((response) => response.response)
+    map((response) => response.response),
+    startWith(undefined)
 );
 
 const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
@@ -166,5 +184,6 @@ export const scc$ = combineLatest([
         })
     ),
     map((response) => response.response),
-    map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000))
+    map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
+    startWith(undefined)
 );

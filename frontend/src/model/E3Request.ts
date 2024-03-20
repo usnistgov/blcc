@@ -110,7 +110,12 @@ export function E3Request(): UnaryFunction<Observable<RequestBuilder>, Observabl
     );
 }
 
-function costToBuilders(cost: Cost, studyPeriod: number, emissions: number[], scc: number[]): BcnBuilder[] {
+function costToBuilders(
+    cost: Cost,
+    studyPeriod: number,
+    emissions: number[] | undefined,
+    scc: number[] | undefined
+): BcnBuilder[] {
     switch (cost.type) {
         case CostTypes.CAPITAL:
             return capitalCostToBuilder(cost, studyPeriod);
@@ -189,7 +194,11 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
     return result;
 }
 
-function energyCostToBuilder(cost: EnergyCost, emissions: number[], scc: number[]): BcnBuilder[] {
+function energyCostToBuilder(
+    cost: EnergyCost,
+    emissions: number[] | undefined,
+    scc: number[] | undefined
+): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit, "LCC")
@@ -210,7 +219,7 @@ function energyCostToBuilder(cost: EnergyCost, emissions: number[], scc: number[
     // Emissions
     const kwh = toMWh(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
 
-    if (kwh === undefined) return [builder];
+    if (kwh === undefined || emissions === undefined) return [builder];
 
     const emissionValues = emissions.map((value) => value * kwh);
 
@@ -225,6 +234,8 @@ function energyCostToBuilder(cost: EnergyCost, emissions: number[], scc: number[
         .quantityVarRate(VarRate.YEAR_BY_YEAR)
         .quantityVarValue(emissionValues)
         .quantityUnit("kg co2");
+
+    if (scc === undefined) return [builder, emissionsBuilder];
 
     const sccBuilder = new BcnBuilder()
         .name(`${cost.name} SCC`)
