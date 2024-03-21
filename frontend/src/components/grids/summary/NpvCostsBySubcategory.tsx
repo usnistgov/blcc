@@ -61,8 +61,8 @@ const [useRows] = bind(
             return [
                 { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
                 { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
-                { subcategory: "Demand" },
-                { subcategory: "Rebates" },
+                { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
+                { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
                 { category: "Water", subcategory: "Usage" },
                 { subcategory: "Disposal " },
                 { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },

@@ -47,6 +47,10 @@ const { component: RebateInput, onChange$: rebateChange$ } = numberInput(
     energyCost$.pipe(map((cost) => cost.rebate)),
     true
 );
+const { component: DemandChargeInput, onChange$: demandChargeChange$ } = numberInput(
+    energyCost$.pipe(map((cost) => cost.demandCharge)),
+    true
+);
 const { component: PhaseIn } = phaseIn();
 const { component: UseIndex } = phaseIn();
 
@@ -57,6 +61,7 @@ export default function EnergyCostFields() {
     useDbUpdate(annualConsumptionChange$, costCollection$, "annualConsumption");
     useDbUpdate(unitChange$, costCollection$, "unit");
     useDbUpdate(rebateChange$, costCollection$, "rebate");
+    useDbUpdate(demandChargeChange$, costCollection$, "demandCharge");
 
     //TODO add other fields
 
@@ -66,22 +71,22 @@ export default function EnergyCostFields() {
                 <FuelTypeDropdown className={"w-full"} label={"Fuel Type"} />
                 <CustomerSectorDropdown className={"w-full"} label={"Customer Sector"} />
 
-                <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                    <AnnualConsumption
-                        className={"w-full"}
-                        addonAfter={<UnitDropdown className={"min-w-[75px]"} placeholder={EnergyUnit.KWH} />}
-                        label={"Annual Consumption"}
-                        controls
-                    />
-                    <CostPerUnitInput
-                        className={"w-full"}
-                        label={"Cost per Unit"}
-                        controls
-                        addonAfter={`per ${useUnit()}`}
-                        prefix={"$"}
-                    />
-                    <RebateInput className={"w-full"} label={"Rebate"} addonBefore={"$"} />
-                </div>
+                <AnnualConsumption
+                    className={"w-full"}
+                    addonAfter={<UnitDropdown className={"min-w-[75px]"} placeholder={EnergyUnit.KWH} />}
+                    label={"Annual Consumption"}
+                    controls
+                />
+                <CostPerUnitInput
+                    className={"w-full"}
+                    label={"Cost per Unit"}
+                    controls
+                    addonAfter={`per ${useUnit()}`}
+                    prefix={"$"}
+                />
+
+                <RebateInput className={"w-full"} label={"Rebate"} addonBefore={"$"} />
+                <DemandChargeInput className={"w-full"} label={"Demand Charge"} addonBefore={"$"} />
 
                 <PhaseIn />
                 <UseIndex />
