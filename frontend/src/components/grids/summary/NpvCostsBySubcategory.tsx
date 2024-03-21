@@ -67,8 +67,8 @@ const [useRows] = bind(
                 { subcategory: "Disposal " },
                 { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
                 { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
-                { category: "Replacement" },
-                { category: "Residual Value" }
+                { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
+                { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") }
             ];
         })
     ),

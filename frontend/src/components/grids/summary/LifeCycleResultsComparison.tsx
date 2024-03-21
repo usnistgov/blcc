@@ -95,20 +95,21 @@ const columns = [
 
 const [useRows] = bind(
     combineLatest([measures$, alternativeNames$, baselineID$]).pipe(
-        map(([measures, alternativeNames, baselineID]) => {
-            return measures.map((measure) => {
-                return {
-                    name: alternativeNames.get(measure.altId),
-                    baseline: measure.altId === baselineID,
-                    lifeCycleCost: measure.totalTagFlows["LCC"],
-                    initialCost: measure.totalTagFlows["Initial Investment"],
-                    energy: measure.totalTagFlows["Energy"],
-                    ghgEmissions: measure.totalTagFlows["Emissions"],
-                    scc: measure.totalTagFlows["SCC"],
-                    lccScc: measure.totalCosts
-                } as Row;
-            });
-        })
+        map(([measures, alternativeNames, baselineID]) =>
+            measures.map(
+                (measure) =>
+                    ({
+                        name: alternativeNames.get(measure.altId),
+                        baseline: measure.altId === baselineID,
+                        lifeCycleCost: measure.totalTagFlows["LCC"],
+                        initialCost: measure.totalTagFlows["Initial Investment"],
+                        energy: measure.totalTagFlows["Energy"],
+                        ghgEmissions: measure.totalTagFlows["Emissions"],
+                        scc: measure.totalTagFlows["SCC"],
+                        lccScc: measure.totalCosts
+                    }) as Row
+            )
+        )
     ),
     []
 );

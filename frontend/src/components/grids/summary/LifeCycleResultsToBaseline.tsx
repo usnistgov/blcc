@@ -19,6 +19,7 @@ type Row = {
     deltaEnergy: number;
     deltaGhg: number;
     deltaScc: number;
+    netSavings: number;
 };
 
 const cellClasses = {
@@ -113,6 +114,9 @@ const columns = [
     {
         name: "Net Savings and SCC Reductions",
         key: "netSavings",
+        renderCell: ({ row }: { row: Row }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row["netSavings"])}</p>
+        ),
         ...cellClasses
     }
 ];
@@ -122,20 +126,21 @@ const [useRows] = bind(
         map(([measures, names, baselineID]) => {
             const baseline = measures.find((measure) => measure.altId === baselineID);
 
-            return measures.map((measure) => {
-                return {
-                    name: names.get(measure.altId),
-                    baseline: measure.altId === baselineID,
-                    sir: measure.sir,
-                    airr: measure.airr,
-                    spp: measure.spp,
-                    dpp: measure.dpp,
-                    initialCost: measure.totalCosts,
-                    deltaEnergy: measure.totalTagFlows["Energy"] - (baseline?.totalTagFlows["Energy"] ?? 0),
-                    deltaGhg: measure.totalTagFlows["Emissions"] - (baseline?.totalTagFlows["Emissions"] ?? 0),
-                    deltaScc: measure.totalTagFlows["SCC"] - (baseline?.totalTagFlows["SCC"] ?? 0)
-                };
-            });
+            console.log(measures);
+
+            return measures.map((measure) => ({
+                name: names.get(measure.altId),
+                baseline: measure.altId === baselineID,
+                sir: measure.sir,
+                airr: measure.airr,
+                spp: measure.spp,
+                dpp: measure.dpp,
+                initialCost: measure.totalCosts,
+                deltaEnergy: (baseline?.totalTagFlows["Energy"] ?? 0) - measure.totalTagFlows["Energy"],
+                deltaGhg: (baseline?.totalTagFlows["Emissions"] ?? 0) - measure.totalTagFlows["Emissions"],
+                deltaScc: (baseline?.totalTagFlows["SCC"] ?? 0) - measure.totalTagFlows["SCC"],
+                netSavings: measure.netSavings + measure.totalTagFlows["SCC"]
+            }));
         })
     ),
     []

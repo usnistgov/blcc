@@ -482,7 +482,7 @@ function residualValueBcn(
         .type(BcnType.BENEFIT)
         .subType(BcnSubType.DIRECT)
         .addTag(...tags)
-        .addTag("LCC")
+        .addTag("LCC", "Residual Value")
         .real()
         .initialOccurrence(studyPeriod + 1)
         .quantity(1)

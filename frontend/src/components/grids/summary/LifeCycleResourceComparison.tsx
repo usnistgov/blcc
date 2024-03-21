@@ -4,7 +4,7 @@ import { alternatives$ } from "../../../model/Model";
 import { map } from "rxjs/operators";
 import { FuelType } from "../../../blcc-format/Format";
 import { measures$ } from "../../../model/ResultModel";
-import { dollarFormatter, getOptionalTag } from "../../../util/Util";
+import { dollarFormatter, getOptionalTag, numberFormatter } from "../../../util/Util";
 
 type Row = {
     category: string;
@@ -26,9 +26,14 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
-                        renderCell: ({ row }: { row: { [x: string]: number | bigint } }) => (
-                            <p className={"text-right"}>{dollarFormatter.format(row[i.toString()] ?? 0)}</p>
-                        ),
+                        renderCell: ({ row, rowIdx }: { row: Row; rowIdx: number }) => {
+                            const formatter = rowIdx > 5 ? numberFormatter : dollarFormatter;
+                            return (
+                                <p className={"text-right"}>
+                                    {formatter.format(row[i.toString()] ?? 0)} {rowIdx > 5 && "kg co2"}
+                                </p>
+                            );
+                        },
                         ...cellClasses
                     }) as Column<Row>
             );
