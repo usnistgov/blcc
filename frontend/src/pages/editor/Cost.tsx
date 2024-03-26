@@ -26,6 +26,7 @@ import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import { defaultValue } from "../../util/Operators";
 import addCostModal from "../../components/AddCostModal";
 import { db } from "../../model/db";
+import SubHeader from "../../components/SubHeader";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
@@ -147,7 +148,7 @@ export default function Cost() {
         <div className={"w-full"}>
             <AddCostModal />
 
-            <div className="add-alternative mt-2 flex flex-col border-b border-base-lighter px-3 pb-2">
+            <SubHeader>
                 <div className="flex justify-between">
                     <div>
                         <BackButton type={ButtonType.LINK} icon={mdiArrowLeft}>
@@ -166,7 +167,7 @@ export default function Cost() {
                         </RemoveCostButton>
                     </div>
                 </div>
-            </div>
+            </SubHeader>
 
             <div className={"max-w-screen-lg p-6"}>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>

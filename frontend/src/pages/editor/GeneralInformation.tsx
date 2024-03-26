@@ -1,4 +1,4 @@
-import { Divider, Select } from "antd";
+import { Divider } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
 import {
     analysisType$,
@@ -24,13 +24,12 @@ import {
     studyPeriod$,
     useAnalysisType,
     useCountry,
-    useReleaseYears,
     zip$
 } from "../../model/Model";
 import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
-import { map, withLatestFrom } from "rxjs/operators";
-import { defaultValue } from "../../util/Operators";
+import { catchError, map, withLatestFrom } from "rxjs/operators";
+import { defaultValue, guard } from "../../util/Operators";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import textArea from "../../components/TextArea";
 import {
@@ -48,8 +47,7 @@ import { Collection } from "dexie";
 import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
-import { createSignal } from "@react-rxjs/utils";
-import { bind } from "@react-rxjs/core";
+import { max, validate } from "../../model/rules/Rules";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -67,7 +65,7 @@ const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdo
     analysisType$
 );
 const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
-const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(studyPeriod$);
+const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(studyPeriod$, true);
 const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(constructionPeriod$);
 const { onChange$: dollarMethodChange$, component: DollarMethodSwitch } = switchComp(
     dollarMethod$.pipe(map((method) => DollarMethodReverse[method]))
@@ -111,6 +109,10 @@ function dollarMethodForward(value: boolean): DollarMethod {
 }
 
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
+
+const validationTest$ = studyPeriodChange$.pipe(guard(), validate(max(40)));
+
+validationTest$.subscribe({ next: (x) => console.log(x), error: (err) => console.log("Err", err) });
 
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
@@ -157,10 +159,10 @@ export default function GeneralInformation() {
                 </span>
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                     <StudyPeriodInput
-                        label={"Length of Study Period"}
+                        label={"Study Period"}
                         addonAfter={"years"}
                         defaultValue={0}
-                        max={40}
+                        //max={40}
                         min={0}
                         controls={true}
                     />

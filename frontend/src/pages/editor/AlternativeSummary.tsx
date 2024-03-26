@@ -15,6 +15,7 @@ import { of, switchMap } from "rxjs";
 import addAlternativeModal from "../../components/AddAlternativeModal";
 import { db } from "../../model/db";
 import { liveQuery } from "dexie";
+import SubHeader from "../../components/SubHeader";
 
 const { Title } = Typography;
 const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
@@ -26,24 +27,26 @@ export default function AlternativeSummary() {
     const cards = useCards();
 
     return (
-        <div className={"flex h-full w-full flex-col items-center"}>
-            <div className={"flex w-3/4 max-w-6xl flex-col"}>
-                <div className={"flex flex-row-reverse border-b border-base-lighter"}>
+        <>
+            <SubHeader>
+                <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
                     <AddAlternativeModal />
-                    <AddAlternativeButton className={"my-2"} type={ButtonType.LINK}>
+                    <AddAlternativeButton className={"self-end"} type={ButtonType.LINK}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
                     </AddAlternativeButton>
                 </div>
+            </SubHeader>
+            <div className={"flex h-full w-full flex-col items-center"}>
+                <br />
+                {(cards.length !== 0 && cards.map((card, i) => <card.component key={i} />)) || (
+                    <div className={"w-full p-8 text-center text-base-dark"}>
+                        <p className={"text-2xl"}>No Alternatives</p>
+                        <p className={"text-lg"}>Create an alternative or load a saved file</p>
+                    </div>
+                )}
             </div>
-            <br />
-            {(cards.length !== 0 && cards.map((card, i) => <card.component key={i} />)) || (
-                <div className={"w-full p-8 text-center text-base-dark"}>
-                    <p className={"text-2xl"}>No Alternatives</p>
-                    <p className={"text-lg"}>Create an alternative or load a saved file</p>
-                </div>
-            )}
-        </div>
+        </>
     );
 }
 

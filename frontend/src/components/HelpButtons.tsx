@@ -1,16 +1,22 @@
 import ButtonBar from "./ButtonBar";
 import button, { ButtonType } from "./Button";
-import { mdiFileDocument } from "@mdi/js";
+import { mdiFileDocument, mdiHelp } from "@mdi/js";
+import { Link } from "react-router-dom";
 
 const { component: UserGuideButton } = button();
+const { component: FaqButton } = button();
 
-//TODO: add links to external resources
 export default function HelpButtons() {
     return (
         <ButtonBar className={"p-2"}>
-            <UserGuideButton type={ButtonType.PRIMARY} icon={mdiFileDocument}>
-                User Guide
-            </UserGuideButton>
+            <Link to={"/docs/Placeholder.pdf"} target="_blank">
+                <UserGuideButton type={ButtonType.PRIMARY} icon={mdiFileDocument}>
+                    User Guide
+                </UserGuideButton>
+            </Link>
+            <Link to={"/docs/Placeholder.pdf"} target="_blank">
+                <FaqButton icon={mdiHelp}>FAQ</FaqButton>
+            </Link>
         </ButtonBar>
     );
 }

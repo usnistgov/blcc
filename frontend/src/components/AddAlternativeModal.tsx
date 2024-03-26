@@ -78,7 +78,7 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
                     }
                 >
                     <div>
-                        <Title level={5}>Name</Title>
+                        <Title level={5}>Alternative Name</Title>
                         <NewAltInput type={TextInputType.PRIMARY} />
                     </div>
                     <p>Further changes can be made in the associated alternative page.</p>

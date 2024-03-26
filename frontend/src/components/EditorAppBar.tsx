@@ -42,11 +42,8 @@ export default function EditorAppBar() {
             db.projects.add({
                 version: Version.V1,
                 name: "Untitled Project",
-                analysisType: AnalysisType.FEDERAL_FINANCED,
                 dollarMethod: DollarMethod.CONSTANT,
-                studyPeriod: 25,
                 constructionPeriod: 0,
-                discountingMethod: DiscountingMethod.END_OF_YEAR,
                 location: {
                     country: Country.USA
                 },

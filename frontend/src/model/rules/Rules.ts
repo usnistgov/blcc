@@ -1,20 +1,31 @@
-import { Project } from "../../blcc-format/Format";
+import { Observable, UnaryFunction, filter, from, map, pipe, switchMap, toArray } from "rxjs";
 
-export type RuleResult = {
-    value: boolean; // The result of the rule
-    message: string; // A description of why the rule failed
+export type Rule<T> = {
+    name?: string;
+    message: (t: T) => string;
+    test: (t: T) => boolean;
 };
 
-export type RuleList = ((project: Project) => RuleResult)[];
+export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, Observable<T>> {
+    return pipe(
+        switchMap((t: T) =>
+            from(rules).pipe(
+                filter((rule) => !rule.test(t)),
+                map((rule) => rule.message(t)),
+                toArray(),
+                map((errors) => {
+                    if (errors.length > 0) throw errors;
+                    return t;
+                })
+            )
+        )
+    );
+}
 
-export const rules: RuleList = [
-    /**
-     * Returns true if the project has a baseline alternative, otherwise false.
-     */
-    /*    function hasBaseline(project: Project) {
-        return {
-            value: [...project.alternatives.values()].find((alt) => alt.baseline) !== undefined,
-            message: "The project must have a baseline alternative."
-        };
-    }*/
-];
+export function max(maxValue: number): Rule<number> {
+    return {
+        name: "Max value rule",
+        message: (x: number) => `${x} is larger than the maximum allowed value ${maxValue}`,
+        test: (x: number) => x <= maxValue
+    };
+}

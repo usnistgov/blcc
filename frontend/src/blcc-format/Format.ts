@@ -7,12 +7,12 @@ export type Project = {
     name: string;
     description?: string;
     analyst?: string;
-    analysisType: AnalysisType;
+    analysisType?: AnalysisType;
     purpose?: Purpose; // For use with OMB_NON_ENERGY
     dollarMethod: DollarMethod;
-    studyPeriod: number;
+    studyPeriod?: number;
     constructionPeriod: number;
-    discountingMethod: DiscountingMethod;
+    discountingMethod?: DiscountingMethod;
     realDiscountRate?: number;
     nominalDiscountRate?: number;
     inflationRate?: number;
@@ -71,7 +71,7 @@ export enum AnalysisType {
     OMB_NON_ENERGY = "OMB Analysis, Non-Energy Project",
     MILCON_ENERGY = "MILCON Analysis, Energy Project",
     MILCON_NON_ENERGY = "MILCON Analysis, Non-Energy Project",
-    MILCON_ECIP = "MILCON Analysis, ECIP Project"
+    MILCON_ECIP = "MILCON Analysis, ERCIP (formerly ECIP) Project"
 }
 
 export enum Purpose {

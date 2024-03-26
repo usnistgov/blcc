@@ -31,7 +31,7 @@ export default function Index() {
                             icon={mdiArrowRight}
                             iconSide={"right"}
                         >
-                            <div className={"px-2 py-1"}>Open Editor</div>
+                            <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
                         </OpenEditorButton>
                         <div className={"flex w-full flex-col items-center bg-primary-light py-16"}>
                             <div className={"flex w-full max-w-4xl flex-col"}>

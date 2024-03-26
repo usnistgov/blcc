@@ -28,6 +28,7 @@ import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import { defaultValue } from "../../util/Operators";
 import { db } from "../../model/db";
 import { useSubscribe } from "../../hooks/UseSubscribe";
+import SubHeader from "../../components/SubHeader";
 
 const { Title } = Typography;
 
@@ -191,18 +192,20 @@ export default function Alternatives() {
             <AddAlternativeModal />
             <AddCostModal />
 
-            <div className={"flex-end flex justify-end border-b-2 border-base-lightest py-2"}>
-                <AddAlternativeButton type={ButtonType.LINK}>
-                    <Icon path={mdiPlus} size={1} />
-                    Add Alternative
-                </AddAlternativeButton>
-                <CloneButton type={ButtonType.LINK}>
-                    <Icon path={mdiContentCopy} size={1} /> Clone
-                </CloneButton>
-                <RemoveButton type={ButtonType.LINKERROR}>
-                    <Icon path={mdiMinus} size={1} /> Remove
-                </RemoveButton>
-            </div>
+            <SubHeader>
+                <div className={"self-end"}>
+                    <AddAlternativeButton type={ButtonType.LINK}>
+                        <Icon path={mdiPlus} size={1} />
+                        Add Alternative
+                    </AddAlternativeButton>
+                    <CloneButton type={ButtonType.LINK}>
+                        <Icon path={mdiContentCopy} size={1} /> Clone
+                    </CloneButton>
+                    <RemoveButton type={ButtonType.LINKERROR}>
+                        <Icon path={mdiMinus} size={1} /> Remove
+                    </RemoveButton>
+                </div>
+            </SubHeader>
             <div className={"p-6"}>
                 <div className={"max-w-screen-lg"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
