@@ -5,6 +5,7 @@ import React, { PropsWithChildren } from "react";
 import { EMPTY, map, Observable, sample, switchMap } from "rxjs";
 import { InputNumberProps } from "antd/es/input-number";
 import { combineLatestWith, filter, startWith } from "rxjs/operators";
+import { Rule, validate } from "../model/rules/Rules";
 
 export type NumberInputProps = {
     label?: string;
@@ -19,12 +20,15 @@ const { Title } = Typography;
 
 export default function numberInput<T extends true | false = false>(
     value$: Observable<T extends true ? number | undefined : number> = EMPTY,
-    allowEmpty: T | false = false
+    allowEmpty: T | false = false,
+    validation: Rule<number>[] = []
 ): NumberInput<T extends true ? number | undefined : number> {
     type Conditional = T extends true ? number | undefined : number;
 
     const [onChange$, onChange] = createSignal<number | undefined>();
     const [focused$, focus] = createSignal<boolean>();
+
+    const [useValidated, validated$] = onChange$.pipe(validate(validation));
 
     // If allowEmpty is false, reset to a snapshot of the value when first focused
     const focusInitiated$ = focused$.pipe(filter((focused) => focused));

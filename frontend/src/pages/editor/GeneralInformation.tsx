@@ -28,7 +28,7 @@ import {
 } from "../../model/Model";
 import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
-import { catchError, map, withLatestFrom } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { defaultValue, guard } from "../../util/Operators";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import textArea from "../../components/TextArea";
@@ -48,6 +48,7 @@ import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
 import { max, validate } from "../../model/rules/Rules";
+import { bind } from "@react-rxjs/core";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -110,9 +111,13 @@ function dollarMethodForward(value: boolean): DollarMethod {
 
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
-const validationTest$ = studyPeriodChange$.pipe(guard(), validate(max(40)));
-
-validationTest$.subscribe({ next: (x) => console.log(x), error: (err) => console.log("Err", err) });
+const validationTest$ = studyPeriodChange$.pipe(
+    guard(),
+    validate(max(40)),
+    map((result) => (result.valid ? undefined : result.messages))
+);
+validationTest$.subscribe(console.log);
+const [useValidationMessage] = bind(validationTest$, undefined);
 
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
@@ -143,6 +148,8 @@ export default function GeneralInformation() {
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
 
+    const messages = useValidationMessage();
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -166,6 +173,7 @@ export default function GeneralInformation() {
                         min={0}
                         controls={true}
                     />
+                    {messages && <p>{messages}</p>}
                     <ConstructionPeriodInput
                         label={"Construction Period"}
                         addonAfter={"years"}

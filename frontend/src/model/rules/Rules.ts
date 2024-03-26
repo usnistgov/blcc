@@ -1,4 +1,4 @@
-import { Observable, UnaryFunction, filter, from, map, pipe, switchMap, toArray } from "rxjs";
+import { Observable, UnaryFunction, map, pipe } from "rxjs";
 
 export type Rule<T> = {
     name?: string;
@@ -6,19 +6,28 @@ export type Rule<T> = {
     test: (t: T) => boolean;
 };
 
-export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, Observable<T>> {
+export type ValidationResult<T> = {
+    valid: boolean;
+    messages?: string[];
+    value?: T;
+};
+
+export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, Observable<ValidationResult<T>>> {
     return pipe(
-        switchMap((t: T) =>
-            from(rules).pipe(
-                filter((rule) => !rule.test(t)),
-                map((rule) => rule.message(t)),
-                toArray(),
-                map((errors) => {
-                    if (errors.length > 0) throw errors;
-                    return t;
-                })
-            )
-        )
+        map((t: T) => {
+            const messages = rules.filter((rule) => !rule.test(t)).map((rule) => rule.message(t));
+
+            if (messages.length > 0)
+                return {
+                    valid: false,
+                    messages
+                };
+
+            return {
+                valid: true,
+                value: t
+            };
+        })
     );
 }
 
