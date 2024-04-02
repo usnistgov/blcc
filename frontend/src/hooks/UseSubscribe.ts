@@ -1,5 +1,5 @@
-import {useEffect} from "react";
-import {Observable} from "rxjs";
+import { useEffect } from "react";
+import { Observable } from "rxjs";
 
 /**
  * Attaches the given action to the given stream with the useEffect hook that unsubscribes when the component

@@ -24,6 +24,8 @@ const [useRecurring, recurring$] = bind(recurringCost$.pipe(map((cost) => cost.r
 
 const { component: RecurrenceSwitch, onChange$: recurringChange$ } = switchComp(recurring$);
 const { component: RateOfRecurrenceInput, onChange$: rateOfRecurrence$ } = numberInput(
+    "Recurring",
+    `${window.location.pathname}#Recurring`,
     recurringCost$.pipe(map((cost) => cost.rateOfRecurrence)),
     true
 );
@@ -41,7 +43,7 @@ export default function Recurring() {
             <span>
                 <RecurrenceSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
             </span>
-            {useRecurring() && <RateOfRecurrenceInput className={"my-4"} addonAfter={"years"} />}
+            {useRecurring() && <RateOfRecurrenceInput className={"my-4"} label={false} addonAfter={"years"} />}
         </div>
     );
 }

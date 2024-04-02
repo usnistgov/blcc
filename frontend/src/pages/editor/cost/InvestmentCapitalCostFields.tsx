@@ -12,22 +12,32 @@ const costCollection$ = baseCostCollection$ as Observable<Collection<CapitalCost
 const capitalCost$ = cost$.pipe(filter((cost): cost is CapitalCost => cost.type === CostTypes.CAPITAL));
 
 const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
+    "Initial Cost (Base Year Dollars)",
+    "/",
     capitalCost$.pipe(map((cost) => cost.initialCost)),
     true
 );
 const { component: AnnualRateOfChangeInput, onChange$: rateOfChange$ } = numberInput(
+    "Annual Rate of Change",
+    "/",
     capitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
     true
 );
 const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
+    "Expected Lifetime",
+    "/",
     capitalCost$.pipe(map((cost) => cost.expectedLife)),
     true
 );
 const { component: CostAdjustmentFactorInput, onChange$: costAdjustment$ } = numberInput(
+    "Cost Adjustment Factor",
+    "/",
     capitalCost$.pipe(map((cost) => cost.costAdjustment)),
     true
 );
 const { component: AmountFinancedInput, onChange$: amountFinanced$ } = numberInput(
+    "Amount Financed",
+    "/",
     capitalCost$.pipe(map((cost) => cost.amountFinanced)),
     true
 );
@@ -44,28 +54,13 @@ export default function InvestmentCapitalCostFields() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <InitialCostInput
-                    className={"w-full"}
-                    label={"Initial Cost (Base Year Dollars)"}
-                    addonBefore={"$"}
-                    controls
-                />
-                <AmountFinancedInput className={"w-full"} label={"Amount Financed"} addonBefore={"$"} controls />
+                <InitialCostInput className={"w-full"} addonBefore={"$"} controls />
+                <AmountFinancedInput className={"w-full"} addonBefore={"$"} controls />
 
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                    <ExpectedLifeInput className={"w-full"} label={"Expected Lifetime"} addonAfter={"years"} controls />
-                    <AnnualRateOfChangeInput
-                        className={"w-full"}
-                        label={"Annual Rate of Change"}
-                        addonAfter={"%"}
-                        controls
-                    />
-                    <CostAdjustmentFactorInput
-                        className={"w-full"}
-                        label={"Cost Adjustment Factor"}
-                        addonAfter={"%"}
-                        controls
-                    />
+                    <ExpectedLifeInput className={"w-full"} addonAfter={"years"} controls />
+                    <AnnualRateOfChangeInput className={"w-full"} addonAfter={"%"} controls />
+                    <CostAdjustmentFactorInput className={"w-full"} addonAfter={"%"} controls />
                 </div>
 
                 <PhaseIn />

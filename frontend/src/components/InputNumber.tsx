@@ -2,14 +2,17 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber, Typography } from "antd";
 import React, { PropsWithChildren } from "react";
-import { EMPTY, map, Observable, sample, switchMap } from "rxjs";
+import { combineLatest, EMPTY, from, map, Observable, sample, switchMap } from "rxjs";
 import { InputNumberProps } from "antd/es/input-number";
-import { combineLatestWith, filter, startWith } from "rxjs/operators";
+import { combineLatestWith, filter, startWith, withLatestFrom } from "rxjs/operators";
 import { Rule, validate } from "../model/rules/Rules";
 import { guard } from "../util/Operators";
+import { db } from "../model/db";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import { liveQuery } from "dexie";
 
 export type NumberInputProps = {
-    label?: string;
+    label?: boolean;
 } & InputNumberProps<number>;
 
 export type NumberInput<T> = {
@@ -20,6 +23,8 @@ export type NumberInput<T> = {
 const { Title } = Typography;
 
 export default function numberInput<T extends true | false = false>(
+    id: string,
+    url: string,
     value$: Observable<T extends true ? number | undefined : number> = EMPTY,
     allowEmpty: T | false = false,
     validation: Rule<number>[] = []
@@ -29,7 +34,8 @@ export default function numberInput<T extends true | false = false>(
     const [onChange$, onChange] = createSignal<number | undefined>();
     const [focused$, focus] = createSignal<boolean>();
 
-    const [useValidated, validated$] = bind(onChange$.pipe(guard(), validate(...validation)), undefined);
+    const validated$ = onChange$.pipe(guard(), validate(...validation));
+    const [hasError] = bind(from(liveQuery(() => db.errors.where("id").equals(id).first())), undefined);
 
     // If allowEmpty is false, reset to a snapshot of the value when first focused
     const focusInitiated$ = focused$.pipe(filter((focused) => focused));
@@ -49,17 +55,35 @@ export default function numberInput<T extends true | false = false>(
 
     return {
         onChange$: allowEmpty ? (onChange$ as Observable<Conditional>) : (resetIfUndefined$ as Observable<Conditional>),
-        component: ({ children, label, ...inputProps }: PropsWithChildren & NumberInputProps) => {
-            useSubscribe(validated$, (result) => )
+        component: ({ children, label = true, ...inputProps }: PropsWithChildren & NumberInputProps) => {
+            useSubscribe(
+                validated$.pipe(withLatestFrom(from(liveQuery(() => db.errors.where("id").equals(id).toArray())))),
+                ([result, dbValue]) => {
+                    if (result === undefined) return;
 
-            const validated = useValidated();
+                    const collection = db.errors.where("id").equals(id);
+
+                    // If the validation succeeded, remove error from db
+                    if (result.valid) collection.delete();
+
+                    // If an entry does not exist for this input, add it to the db
+                    if (dbValue.length <= 0) db.errors.add({ id, url, messages: result.messages ?? [] });
+
+                    // If an entry exists but the error message has changed, update it
+                    collection.modify({ messages: result.messages ?? [] });
+                }
+            );
+
+            const error = hasError();
 
             const input = (
                 <InputNumber
+                    id={id.replaceAll(" ", "-")}
                     onFocus={() => focus(true)}
                     onBlur={() => focus(false)}
                     onChange={(value) => onChange(value === null ? undefined : value)}
                     value={useValue()}
+                    status={error === undefined ? "" : "error"}
                     {...inputProps}
                 >
                     {children}
@@ -67,16 +91,16 @@ export default function numberInput<T extends true | false = false>(
             );
 
             return (
-                (label !== undefined && (
-                    <div>
-                        <Title level={5}>{label}</Title>
-                        {input}
-                        <div className={"pt-2 text-xs text-error"}>
-                            {validated !== undefined && !validated?.valid && validated.messages}
-                        </div>
-                    </div>
-                )) ||
-                input
+                <div>
+                    {(label && (
+                        <>
+                            <Title level={5}>{label}</Title>
+                            {input}
+                        </>
+                    )) ||
+                        input}
+                    <div className={"pt-2 text-xs text-error"}>{error !== undefined && error.messages}</div>
+                </div>
             );
         }
     };

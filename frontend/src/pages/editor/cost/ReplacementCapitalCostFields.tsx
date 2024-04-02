@@ -25,13 +25,19 @@ const [useApproach, approach$] = bind(
 );
 
 const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
+    "Inital Cost (Base Year Dollars)",
+    "/",
     replacementCapitalCost$.pipe(map((cost) => cost.initialCost))
 );
 const { component: AnnualRateOfChangeInput, onChange$: annualRateOfChange$ } = numberInput(
+    "Annual Rate of Change",
+    "/",
     replacementCapitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
     true
 );
 const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
+    "Expected Lifetime",
+    "/",
     replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
     true
 );
@@ -39,6 +45,8 @@ const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = sw
     approach$.pipe(map((approach) => approach === DollarOrPercent.PERCENT))
 );
 const { component: ResidualValueInput, onChange$: residualValue$ } = numberInput(
+    "Residual Value",
+    "/",
     replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.value)),
     true
 );
@@ -67,19 +75,9 @@ export default function ReplacementCapitalCostFields() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
-                <InitialCostInput
-                    className={"w-full"}
-                    label={"Initial Cost (Base Year Dollars)"}
-                    addonBefore={"$"}
-                    controls
-                />
-                <AnnualRateOfChangeInput
-                    className={"w-full"}
-                    label={"Annual Rate of Change"}
-                    addonAfter={"%"}
-                    controls
-                />
-                <ExpectedLifeInput className={"w-full"} label={"Expected Lifetime"} addonAfter={"years"} controls />
+                <InitialCostInput className={"w-full"} addonBefore={"$"} controls />
+                <AnnualRateOfChangeInput className={"w-full"} addonAfter={"%"} controls />
+                <ExpectedLifeInput className={"w-full"} addonAfter={"years"} controls />
                 <span className={"flex flex-col"}>
                     <div className={"flex flex-row gap-2"}>
                         <ResidualValueCheckbox className={""} />
@@ -95,6 +93,7 @@ export default function ReplacementCapitalCostFields() {
                             </span>
                             <ResidualValueInput
                                 className={"py-4"}
+                                label={false}
                                 addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
                                 addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
                             />

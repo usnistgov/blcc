@@ -12,9 +12,13 @@ const costCollection$ = baseCostCollection$ as Observable<Collection<OMRCost, nu
 const omrCost$ = cost$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
 
 const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
+    "Initial Cost",
+    "/",
     omrCost$.pipe(map((cost) => cost.initialCost))
 );
 const { component: InitialOccurrenceInput, onChange$: initialOccurrence$ } = numberInput(
+    "Initial Occurrence",
+    "/",
     omrCost$.pipe(map((cost) => cost.initialOccurrence))
 );
 export default function OMRCostFields() {
@@ -24,13 +28,8 @@ export default function OMRCostFields() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <InitialCostInput className={"w-full"} label={"Initial Cost"} addonBefore={"$"} controls />
-                <InitialOccurrenceInput
-                    className={"w-full"}
-                    label={"Initial Occurrence"}
-                    addonAfter={"years"}
-                    controls
-                />
+                <InitialCostInput className={"w-full"} addonBefore={"$"} controls />
+                <InitialOccurrenceInput className={"w-full"} addonAfter={"years"} controls />
                 <Recurring />
             </div>
         </div>

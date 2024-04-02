@@ -38,3 +38,11 @@ export function max(maxValue: number): Rule<number> {
         test: (x: number) => x <= maxValue
     };
 }
+
+export function min(minValue: number): Rule<number> {
+    return {
+        name: "Min value rule",
+        message: (x: number) => `${x} is lower than the minium allowed value ${minValue}`,
+        test: (x: number) => x >= minValue
+    };
+}

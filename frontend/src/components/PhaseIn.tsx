@@ -14,7 +14,7 @@ export function phaseIn() {
     const [constantOrEscalation] = bind(constantOrEscalation$, true);
 
     const { onChange$: constantChange$, component: Switch } = switchComp(constantOrEscalation$.pipe(startWith(true)));
-    const { component: ConstantInput } = numberInput();
+    const { component: ConstantInput } = numberInput("Value", "");
     const { component: PhaseInTable } = createTable(
         of([
             {
@@ -48,7 +48,7 @@ export function phaseIn() {
                 <div className={"flex w-full flex-col"}>
                     <div className={"my-2"}>Constant</div>
                     <Switch className={"mb-4 w-fit"} checkedChildren={<>{"Yes"}</>} unCheckedChildren={<>{"No"}</>} />
-                    {(constantOrEscalation() && <ConstantInput label={"Value"} addonAfter={"%"} controls />) || (
+                    {(constantOrEscalation() && <ConstantInput addonAfter={"%"} controls />) || (
                         <PhaseInTable size={"small"} />
                     )}
                 </div>

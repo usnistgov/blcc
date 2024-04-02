@@ -14,12 +14,18 @@ const contractCost$ = cost$.pipe(
 );
 
 const { component: InitialCost, onChange$: initialCost$ } = numberInput(
+    "Initial Cost",
+    "/",
     contractCost$.pipe(map((cost) => cost.initialCost))
 );
 const { component: InitialOccurrence, onChange$: initialOccurrence$ } = numberInput(
+    "Initial Occurrence",
+    "/",
     contractCost$.pipe(map((cost) => cost.initialOccurrence))
 );
 const { component: RateOfChange, onChange$: rateOfChange$ } = numberInput(
+    "Rate of Change",
+    "/",
     contractCost$.pipe(map((cost) => cost.annualRateOfChange))
 );
 
@@ -31,9 +37,9 @@ export default function RecurringContractCostFields() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
-                <InitialCost className={"w-full"} label={"Initial Cost"} addonBefore={"$"} />
-                <InitialOccurrence className={"w-full"} label={"Initial Occurrence"} addonBefore={"year"} />
-                <RateOfChange className={"w-full"} label={"Rate of Change"} addonAfter={"%"} />
+                <InitialCost className={"w-full"} addonBefore={"$"} />
+                <InitialOccurrence className={"w-full"} addonBefore={"year"} />
+                <RateOfChange className={"w-full"} addonAfter={"%"} />
                 <Recurring />
             </div>
         </div>

@@ -12,8 +12,14 @@ const contractCost$ = cost$.pipe(
     filter((cost): cost is ImplementationContractCost => cost.type === CostTypes.IMPLEMENTATION_CONTRACT)
 );
 
-const { component: CostInput, onChange$: costInput$ } = numberInput(contractCost$.pipe(map((cost) => cost.cost)));
+const { component: CostInput, onChange$: costInput$ } = numberInput(
+    "Cost",
+    "/",
+    contractCost$.pipe(map((cost) => cost.cost))
+);
 const { component: OccurrenceInput, onChange$: occurrence$ } = numberInput(
+    "Occurrence",
+    "/",
     contractCost$.pipe(map((cost) => cost.occurrence))
 );
 
@@ -24,8 +30,8 @@ export default function ImplementationContractCostFields() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <OccurrenceInput className={"w-full"} label={"Occurrence"} addonBefore={"year"} />
-                <CostInput className={"w-full"} label={"Cost"} addonBefore={"$"} />
+                <OccurrenceInput className={"w-full"} addonBefore={"year"} />
+                <CostInput className={"w-full"} addonBefore={"$"} />
             </div>
         </div>
     );

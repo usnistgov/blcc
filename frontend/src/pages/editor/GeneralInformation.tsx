@@ -29,7 +29,7 @@ import {
 import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
 import { map, withLatestFrom } from "rxjs/operators";
-import { defaultValue, guard } from "../../util/Operators";
+import { defaultValue } from "../../util/Operators";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import textArea from "../../components/TextArea";
 import {
@@ -47,8 +47,7 @@ import { Collection } from "dexie";
 import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
-import { max, validate } from "../../model/rules/Rules";
-import { bind } from "@react-rxjs/core";
+import { max } from "../../model/rules/Rules";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -66,14 +65,39 @@ const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdo
     analysisType$
 );
 const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
-const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(studyPeriod$, true, [max(40)]);
-const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(constructionPeriod$);
+const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(
+    "Study Period",
+    "/editor#Study-Period",
+    studyPeriod$,
+    true,
+    [max(40)]
+);
+const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(
+    "Construction Period",
+    "/editor#Construction-Period",
+    constructionPeriod$
+);
 const { onChange$: dollarMethodChange$, component: DollarMethodSwitch } = switchComp(
     dollarMethod$.pipe(map((method) => DollarMethodReverse[method]))
 );
-const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(inflationRate$, true);
-const { onChange$: nomDiscChange$, component: NominalDiscRate } = numberInput(nominalDiscountRate$, true);
-const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(realDiscountRate$, true);
+const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(
+    "Inflation Rate",
+    "/editor#Inflation-Rate",
+    inflationRate$,
+    true
+);
+const { onChange$: nomDiscChange$, component: NominalDiscRate } = numberInput(
+    "Nominal Discount Rate",
+    "/editor#Nominal-Discount-Rate",
+    nominalDiscountRate$,
+    true
+);
+const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(
+    "Real Discount Rate",
+    "/editor#Real-Discount-Rate",
+    realDiscountRate$,
+    true
+);
 const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown(
     Object.values(DiscountingMethod),
     discountingMethod$
@@ -111,13 +135,6 @@ function dollarMethodForward(value: boolean): DollarMethod {
 
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
-const validationTest$ = studyPeriodChange$.pipe(
-    guard(),
-    validate(max(40)),
-    map((result) => (result.valid ? undefined : result.messages))
-);
-const [useValidationMessage] = bind(validationTest$, undefined);
-
 export default function GeneralInformation() {
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
     useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
@@ -147,8 +164,6 @@ export default function GeneralInformation() {
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
 
-    const messages = useValidationMessage();
-
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -165,22 +180,13 @@ export default function GeneralInformation() {
                 </span>
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                     <StudyPeriodInput
-                        label={"Study Period"}
                         addonAfter={"years"}
                         defaultValue={0}
                         //max={40}
                         min={0}
                         controls={true}
                     />
-                    {/*messages && <p>{messages}</p>*/}
-                    <ConstructionPeriodInput
-                        label={"Construction Period"}
-                        addonAfter={"years"}
-                        defaultValue={0}
-                        max={40}
-                        min={0}
-                        controls={true}
-                    />
+                    <ConstructionPeriodInput addonAfter={"years"} defaultValue={0} max={40} min={0} controls={true} />
 
                     <ReleaseYearDropdown className={"w-full"} label={"Data Release Year"} />
                 </div>
@@ -206,9 +212,9 @@ export default function GeneralInformation() {
                     </Divider>
                     <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention"} />}</div>
                     <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                        <GenInflationRate addonAfter={"%"} label={"General Inflation Rate"} controls={false} />
-                        <NominalDiscRate addonAfter={"%"} label={"Nominal Discount Rate"} controls={false} min={0.0} />
-                        <RealDiscRate addonAfter={"%"} label={"Real Discount Rate"} controls={false} min={0.0} />
+                        <GenInflationRate addonAfter={"%"} controls={false} />
+                        <NominalDiscRate addonAfter={"%"} controls={false} min={0.0} />
+                        <RealDiscRate addonAfter={"%"} controls={false} min={0.0} />
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>

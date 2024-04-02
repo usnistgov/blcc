@@ -7,7 +7,7 @@ export class BlccDexie extends Dexie {
     costs!: Table<Cost, number>;
     alternatives!: Table<Alternative, number>;
     results!: Table<Output & { hash: string }, string>;
-    errors!: Table<{ id: string }>;
+    errors!: Table<{ id: string; url: string; messages: string[] }, string>;
 
     constructor() {
         super("BlccDatabase");
