@@ -66,7 +66,7 @@ const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdo
     analysisType$
 );
 const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
-const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(studyPeriod$, true);
+const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(studyPeriod$, true, [max(40)]);
 const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(constructionPeriod$);
 const { onChange$: dollarMethodChange$, component: DollarMethodSwitch } = switchComp(
     dollarMethod$.pipe(map((method) => DollarMethodReverse[method]))
@@ -116,7 +116,6 @@ const validationTest$ = studyPeriodChange$.pipe(
     validate(max(40)),
     map((result) => (result.valid ? undefined : result.messages))
 );
-validationTest$.subscribe(console.log);
 const [useValidationMessage] = bind(validationTest$, undefined);
 
 export default function GeneralInformation() {
@@ -173,7 +172,7 @@ export default function GeneralInformation() {
                         min={0}
                         controls={true}
                     />
-                    {messages && <p>{messages}</p>}
+                    {/*messages && <p>{messages}</p>*/}
                     <ConstructionPeriodInput
                         label={"Construction Period"}
                         addonAfter={"years"}

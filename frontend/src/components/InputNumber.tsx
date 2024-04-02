@@ -6,6 +6,7 @@ import { EMPTY, map, Observable, sample, switchMap } from "rxjs";
 import { InputNumberProps } from "antd/es/input-number";
 import { combineLatestWith, filter, startWith } from "rxjs/operators";
 import { Rule, validate } from "../model/rules/Rules";
+import { guard } from "../util/Operators";
 
 export type NumberInputProps = {
     label?: string;
@@ -28,7 +29,7 @@ export default function numberInput<T extends true | false = false>(
     const [onChange$, onChange] = createSignal<number | undefined>();
     const [focused$, focus] = createSignal<boolean>();
 
-    const [useValidated, validated$] = onChange$.pipe(validate(validation));
+    const [useValidated, validated$] = bind(onChange$.pipe(guard(), validate(...validation)), undefined);
 
     // If allowEmpty is false, reset to a snapshot of the value when first focused
     const focusInitiated$ = focused$.pipe(filter((focused) => focused));
@@ -49,6 +50,10 @@ export default function numberInput<T extends true | false = false>(
     return {
         onChange$: allowEmpty ? (onChange$ as Observable<Conditional>) : (resetIfUndefined$ as Observable<Conditional>),
         component: ({ children, label, ...inputProps }: PropsWithChildren & NumberInputProps) => {
+            useSubscribe(validated$, (result) => )
+
+            const validated = useValidated();
+
             const input = (
                 <InputNumber
                     onFocus={() => focus(true)}
@@ -66,6 +71,9 @@ export default function numberInput<T extends true | false = false>(
                     <div>
                         <Title level={5}>{label}</Title>
                         {input}
+                        <div className={"pt-2 text-xs text-error"}>
+                            {validated !== undefined && !validated?.valid && validated.messages}
+                        </div>
                     </div>
                 )) ||
                 input
