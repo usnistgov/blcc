@@ -57,7 +57,7 @@ converted$
 
             // Read file
             const reader = new FileReader();
-            reader.onload = function () {
+            reader.onload = function() {
                 result$.next(this.result as string);
             };
             reader.readAsText(file);
@@ -239,12 +239,10 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
                 if (!costCache.has(hash)) costCache.set(hash, costID);
             }
 
-            const costArray = Array.from(costCache.keys());
-
             return db.alternatives.add({
                 name: alternative["Name"],
                 description: alternative["Comment"],
-                costs: costs.map((cost) => objectHash(cost)).map((hash) => costArray.indexOf(hash))
+                costs: costs.map((cost) => costCache.get(objectHash(cost)) ?? -1)
             });
         })
     );
@@ -307,9 +305,9 @@ async function convertCost(cost: any, studyPeriod: number) {
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost["ResaleValueFactor"]
                     ? ({
-                          approach: DollarOrPercent.PERCENT,
-                          value: cost["ResaleValueFactor"] as number
-                      } as ResidualValue)
+                        approach: DollarOrPercent.PERCENT,
+                        value: cost["ResaleValueFactor"] as number
+                    } as ResidualValue)
                     : undefined
             } as CapitalCost);
         case "EnergyUsage":
