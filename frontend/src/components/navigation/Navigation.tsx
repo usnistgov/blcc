@@ -56,7 +56,7 @@ export default function Navigation() {
 
     return (
         <>
-            <div className="flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest">
+            <div className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 <GeneralInformationButton
                     type={ButtonType.PRIMARY}
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}

@@ -6,6 +6,7 @@ import Icon from "@mdi/react";
 export enum ButtonType {
     PRIMARY = " bg-primary hover:bg-primary-light active:bg-primary-dark text-base-lightest ",
     PRIMARY_INVERTED = " bg-base-lightest hover:bg-base-lighter active:bg-base-light text-primary ",
+    PRIMARY_DARK = " bg-primary-dark hover:bg-primary-light active:bg-primary-dark text-base-lightest ",
     ERROR = " bg-error hover:bg-error-light active:bg-error-dark text-base-lightest ",
     SUCCESS = " bg-success hover:bg-success-light active:bg-success-dark text-base-lightest ",
     DISABLED = " bg-base-lighter text-base-light ",

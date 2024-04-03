@@ -8,13 +8,7 @@ import HelpButtons from "./HelpButtons";
 import { defaultReleaseYear$, useName } from "../model/Model";
 import { db } from "../model/db";
 import { Version } from "../blcc-format/Verison";
-import {
-    AnalysisType,
-    DiscountingMethod,
-    DollarMethod,
-    EmissionsRateScenario,
-    SocialCostOfGhgScenario
-} from "../blcc-format/Format";
+import { DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
 import "dexie-export-import";
 import { download } from "../util/DownloadFile";
@@ -65,7 +59,7 @@ export default function EditorAppBar() {
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 
     return (
-        <AppBar className={"bg-primary"}>
+        <AppBar className={"z-50 bg-primary shadow-lg"}>
             <ButtonBar className={"p-2"}>
                 <NewButton type={ButtonType.PRIMARY} icon={mdiFileDocumentPlus}>
                     New

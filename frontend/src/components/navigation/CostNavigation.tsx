@@ -61,7 +61,7 @@ function menuCollapse(item: MenuItem) {
     return {
         component: function MenuCollapse() {
             return (
-                <Collapse title={item.title} icon={item.icon}>
+                <Collapse buttonType={ButtonType.PRIMARY_DARK} title={item.title} icon={item.icon}>
                     {useButtons()}
                 </Collapse>
             );
@@ -80,7 +80,7 @@ function costButton(cost: Cost) {
                 <Button
                     key={cost.id}
                     className={useActiveLink(`/editor/alternative/:alternativeID/cost/${cost.id}`)}
-                    type={ButtonType.PRIMARY}
+                    type={ButtonType.PRIMARY_DARK}
                 >
                     {cost.name}
                 </Button>
@@ -91,7 +91,7 @@ function costButton(cost: Cost) {
 
 export default function CostNavigation() {
     return (
-        <div className="flex h-full w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary p-2 text-base-lightest">
+        <div className="flex h-full w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary-dark p-2 text-base-lightest">
             {items.map((item) => {
                 const { component: MenuCollapse } = menuCollapse(item);
                 return <MenuCollapse key={item.title} />;
