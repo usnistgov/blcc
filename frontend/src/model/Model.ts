@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { combineLatest, map, NEVER, of, switchMap } from "rxjs";
+import { combineLatest, from, map, NEVER, of, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
@@ -13,8 +13,9 @@ import {
     USLocation
 } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
-import { catchError, filter, startWith } from "rxjs/operators";
+import { catchError, filter, startWith, withLatestFrom } from "rxjs/operators";
 import { ajax } from "rxjs/internal/ajax/ajax";
+import { validate } from "./rules/Rules";
 
 type ReleaseYearReponse = { year: number; max: number; min: number };
 
@@ -187,3 +188,28 @@ export const scc$ = combineLatest([
     map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
     startWith(undefined)
 );
+
+alternatives$
+    .pipe(
+        validate({
+            name: "At least one baseline alternative",
+            test: (alts) => alts.find((alt) => alt.baseline) !== undefined,
+            message: () => "Must have at least one baseline alternative"
+        }),
+        withLatestFrom(from(liveQuery(() => db.errors.where("id").equals("Has Baseline").toArray())))
+    )
+    .subscribe(([result, dbValue]) => {
+        if (result === undefined) return;
+
+        const collection = db.errors.where("id").equals("Has Baseline");
+
+        // If the validation succeeded, remove error from db
+        if (result.valid) collection.delete();
+
+        // If an entry does not exist for this input, add it to the db
+        if (dbValue.length <= 0)
+            db.errors.add({ id: "Has Baseline", url: "/editor/alternative", messages: result.messages ?? [] });
+
+        // If an entry exists but the error message has changed, update it
+        collection.modify({ messages: result.messages ?? [] });
+    });
