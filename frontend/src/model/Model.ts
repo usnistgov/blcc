@@ -139,7 +139,7 @@ export const emissions$ = combineLatest([
             },
             body: {
                 from: releaseYear,
-                to: releaseYear + studyPeriod,
+                to: releaseYear + (studyPeriod ?? 0),
                 release_year: releaseYear,
                 zip: Number.parseInt(zip ?? "0"),
                 case: emissionsRate,
@@ -178,7 +178,7 @@ export const scc$ = combineLatest([
             },
             body: {
                 from: releaseYear,
-                to: releaseYear + studyPeriod,
+                to: releaseYear + (studyPeriod ?? 0),
                 release_year: releaseYear,
                 option
             }

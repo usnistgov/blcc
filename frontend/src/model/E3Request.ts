@@ -56,7 +56,7 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
                 .type(AnalysisType.LCCA)
                 .projectType(ProjectType.OTHER)
                 .addOutputType("measure", "optional", "required")
-                .studyPeriod(project.studyPeriod)
+                .studyPeriod(project.studyPeriod ?? 0)
                 .timestepValue(TimestepValue.YEAR)
                 .timestepComp(
                     project.discountingMethod === DiscountingMethod.END_OF_YEAR
@@ -72,7 +72,7 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
             // Create costs
             const costs = await db.costs.where("id").anyOf(project.costs).toArray();
             const costMap = new Map(
-                costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod, emissions, scc)])
+                costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod ?? 0, emissions, scc)])
             );
 
             // Define alternatives
