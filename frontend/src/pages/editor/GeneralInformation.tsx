@@ -211,7 +211,7 @@ export default function GeneralInformation() {
                         Discounting
                     </Divider>
                     <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention"} />}</div>
-                    <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
+                    <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
                         <GenInflationRate addonAfter={"%"} controls={false} />
                         <NominalDiscRate addonAfter={"%"} controls={false} min={0.0} />
                         <RealDiscRate addonAfter={"%"} controls={false} min={0.0} />
