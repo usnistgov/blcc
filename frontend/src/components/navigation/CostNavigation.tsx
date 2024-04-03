@@ -1,5 +1,4 @@
 import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiWater } from "@mdi/js";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Cost } from "../../blcc-format/Format";
@@ -9,6 +8,7 @@ import { useSubscribe } from "../../hooks/UseSubscribe";
 import collapse from "./../Collapse";
 import { bind } from "@react-rxjs/core";
 import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
+import { useActiveLink } from "../../hooks/UseActiveLink";
 
 type MenuItem = {
     title: string;
@@ -77,7 +77,11 @@ function costButton(cost: Cost) {
             const navigate = useNavigate();
             useSubscribe(click$, () => navigate(`cost/${cost.id}`), [navigate]);
             return (
-                <Button key={cost.id} type={ButtonType.PRIMARY}>
+                <Button
+                    key={cost.id}
+                    className={useActiveLink(`/editor/alternative/:alternativeID/cost/${cost.id}`)}
+                    type={ButtonType.PRIMARY}
+                >
                     {cost.name}
                 </Button>
             );

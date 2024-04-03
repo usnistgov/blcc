@@ -1,4 +1,3 @@
-import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { map } from "rxjs";
 import { alternatives$ } from "../../model/Model";
@@ -8,6 +7,7 @@ import button, { ButtonType } from "./../Button";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import collapse from "./../Collapse";
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
+import { useActiveLink } from "../../hooks/UseActiveLink";
 
 function altButton(alt: Alternative) {
     const { click$, component: Button } = button();
@@ -15,9 +15,16 @@ function altButton(alt: Alternative) {
     return {
         component: function AltButton({ icon }: { icon?: string }) {
             const navigate = useNavigate();
+
             useSubscribe(click$, () => navigate(`/editor/alternative/${alt.id}`));
+
             return (
-                <Button key={alt.id} type={ButtonType.PRIMARY} icon={icon}>
+                <Button
+                    key={alt.id}
+                    className={useActiveLink(`/editor/alternative/${alt.id}/*`)}
+                    type={ButtonType.PRIMARY}
+                    icon={icon}
+                >
                     {alt.name}
                 </Button>
             );
@@ -52,12 +59,16 @@ export default function Navigation() {
             <div className="flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest">
                 <GeneralInformationButton
                     type={ButtonType.PRIMARY}
-                    className={"whitespace-nowrap"}
+                    className={`whitespace-nowrap ${useActiveLink("/editor")}`}
                     icon={mdiFileDocument}
                 >
                     General Information
                 </GeneralInformationButton>
-                <AlternativeSummaryButton type={ButtonType.PRIMARY} className={"whitespace-nowrap"} icon={mdiViewList}>
+                <AlternativeSummaryButton
+                    type={ButtonType.PRIMARY}
+                    className={`whitespace-nowrap ${useActiveLink("/editor/alternative")}`}
+                    icon={mdiViewList}
+                >
                     Alternative Summary
                 </AlternativeSummaryButton>
                 <AlternativeSubMenu title={"Alternatives"} icon={mdiFileTree}>
