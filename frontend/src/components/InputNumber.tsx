@@ -94,7 +94,7 @@ export default function numberInput<T extends true | false = false>(
                 <div>
                     {(label && (
                         <>
-                            <Title level={5}>{label}</Title>
+                            <Title level={5}>{id}</Title>
                             {input}
                         </>
                     )) ||
