@@ -9,7 +9,8 @@
    id="svg1"
    xml:space="preserve"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"><defs
      id="defs1" /><g
      id="layer1"
      transform="translate(-28.243153,-69.434996)"><text
@@ -40,7 +41,7 @@
          id="tspan3"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:Sans;-inkscape-font-specification:'Sans, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke:none;stroke-width:0.165"
          x="105.22614"
-         y="105.13669">Powered by E3</tspan></text><g
+         y="105.13669"><a xlink:href="https://e3.nist.gov/">Powered by E3</a></tspan></text><g
        id="g9"
        transform="matrix(1.1214875,0,0,1.1214875,-3.1947282,-12.099086)"><g
          style="fill:#0825aa;fill-opacity:1"
