@@ -2,18 +2,18 @@ import { PropsWithChildren, useEffect } from "react";
 import { Parser } from "html-to-react";
 import "../nist-header-footer.sass";
 import { bind } from "@react-rxjs/core";
-import { from, mergeMap, shareReplay, switchMap } from "rxjs";
+import { from, switchMap } from "rxjs";
 import { createSignal } from "@react-rxjs/utils";
+import { parseHtml } from "../util/Operators";
 
 const [getHeader$, getHeader] = createSignal();
 const [getFooter$, getFooter] = createSignal();
 
 // Loads the header
-const [useHeader, header$] = bind(
+const [useHeader] = bind(
     getHeader$.pipe(
         switchMap(() => from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-header.html"))),
-        mergeMap((result) => result.text()),
-        shareReplay(1)
+        parseHtml()
     ),
     ""
 );
@@ -22,8 +22,7 @@ const [useHeader, header$] = bind(
 const [useFooter] = bind(
     getFooter$.pipe(
         switchMap(() => from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html"))),
-        mergeMap((result) => result.text()),
-        shareReplay(1)
+        parseHtml()
     ),
     ""
 );
