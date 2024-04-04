@@ -1,12 +1,17 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { Parser } from "html-to-react";
 import "../nist-header-footer.sass";
 import { bind } from "@react-rxjs/core";
-import { from, mergeMap, shareReplay } from "rxjs";
+import { from, mergeMap, shareReplay, switchMap } from "rxjs";
+import { createSignal } from "@react-rxjs/utils";
+
+const [getHeader$, getHeader] = createSignal();
+const [getFooter$, getFooter] = createSignal();
 
 // Loads the header
-const [useHeader] = bind(
-    from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-header.html")).pipe(
+const [useHeader, header$] = bind(
+    getHeader$.pipe(
+        switchMap(() => from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-header.html"))),
         mergeMap((result) => result.text()),
         shareReplay(1)
     ),
@@ -15,7 +20,8 @@ const [useHeader] = bind(
 
 // Loads the footer
 const [useFooter] = bind(
-    from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html")).pipe(
+    getFooter$.pipe(
+        switchMap(() => from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html"))),
         mergeMap((result) => result.text()),
         shareReplay(1)
     ),
@@ -27,12 +33,20 @@ const [useFooter] = bind(
  * @param children
  */
 export default function NistHeaderFooter({ children }: PropsWithChildren) {
+    const header = useHeader();
+    const footer = useFooter();
+
+    useEffect(() => {
+        getHeader();
+        getFooter();
+    }, []);
+
     return (
         <>
-            <div className={"overflow-hidden rounded-t-lg"}>{Parser().parse(useHeader())}</div>
+            <div className={"overflow-hidden rounded-t-lg"}>{Parser().parse(header)}</div>
             {children}
             <div className={"flex-grow"} />
-            <div className={"overflow-hidden rounded-b-lg"}>{Parser().parse(useFooter())}</div>
+            <div className={"overflow-hidden rounded-b-lg"}>{Parser().parse(footer)}</div>
         </>
     );
 }

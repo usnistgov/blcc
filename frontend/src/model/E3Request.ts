@@ -47,6 +47,8 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
         switchMap(async ([projectID, emissions, scc]) => {
             const project = await db.projects.get(projectID);
 
+            console.log(project);
+
             if (project === undefined) throw "No project in database";
 
             const builder = new RequestBuilder();

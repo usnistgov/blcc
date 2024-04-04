@@ -40,7 +40,10 @@ export default function Statistics() {
     const extraErrorCount = useExtraErrorCount();
 
     return (
-        <AppBar className={"h-fit place-items-center border-t border-base-light bg-base-lightest text-sm"}>
+        <AppBar
+            type={"footer"}
+            className={"h-fit place-items-center border-t border-base-light bg-base-lightest text-sm"}
+        >
             {/* Some general statistics about the project */}
             <div className={"flex flex-row divide-x divide-base-light"}>
                 <p className={"px-4"}>{`Alternatives ${useAlternativeIDs().length}`}</p>

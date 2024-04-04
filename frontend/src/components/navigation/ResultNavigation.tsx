@@ -19,7 +19,7 @@ export default function ResultNavigation() {
 
     return (
         <>
-            <div className="flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest">
+            <nav className="flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest">
                 <SummaryButton className={useActiveLink("/results")} icon={mdiFormatListText}>
                     Summary
                 </SummaryButton>
@@ -32,7 +32,7 @@ export default function ResultNavigation() {
                 <InputButton className={useActiveLink("/results/inputs")} icon={mdiTextBoxEditOutline}>
                     Inputs
                 </InputButton>
-            </div>
+            </nav>
             <Outlet />
         </>
     );

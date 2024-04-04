@@ -1,16 +1,21 @@
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 
 export type AppBarProps = {
     className?: string;
+    type?: "header" | "footer";
 };
 
 /**
  * Groups components for an app bar.
  */
-export default function AppBar({ children, className }: PropsWithChildren & AppBarProps) {
-    return (
-        <div className={(className ? className : "") + " flex h-fit w-full flex-row place-content-between"}>
+export default function AppBar({ children, className, type = "header" }: PropsWithChildren & AppBarProps) {
+    return type === "header" ? (
+        <header className={(className ? className : "") + " flex h-fit w-full flex-row place-content-between"}>
             {children}
-        </div>
+        </header>
+    ) : (
+        <footer className={(className ? className : "") + " flex h-fit w-full flex-row place-content-between"}>
+            {children}
+        </footer>
     );
 }

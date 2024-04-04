@@ -56,7 +56,7 @@ export default function Navigation() {
 
     return (
         <>
-            <div className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
+            <nav className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 <GeneralInformationButton
                     type={ButtonType.PRIMARY}
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}
@@ -74,7 +74,7 @@ export default function Navigation() {
                 <AlternativeSubMenu title={"Alternatives"} icon={mdiFileTree}>
                     {useMenuItems()}
                 </AlternativeSubMenu>
-            </div>
+            </nav>
             <Outlet />
         </>
     );

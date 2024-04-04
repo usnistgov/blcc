@@ -10,7 +10,7 @@ import { E3Request, toE3Object } from "../model/E3Request";
 import { combineLatest, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { alternatives$, costs$, currentProject$, project$, useName } from "../model/Model";
-import { filter, map, withLatestFrom } from "rxjs/operators";
+import { filter, map, tap, withLatestFrom } from "rxjs/operators";
 import { db } from "../model/db";
 import objectHash from "object-hash";
 import { liveQuery } from "dexie";
@@ -46,7 +46,9 @@ const e3Result$ = runClick$.pipe(
     withLatestFrom(currentProject$),
     map(([, id]) => id),
     toE3Object(),
+    tap(console.log),
     E3Request(),
+    tap(console.log),
     shareLatest()
 );
 
@@ -61,7 +63,7 @@ export default function ResultsAppBar() {
     //TODO: change download filename
 
     return (
-        <AppBar className={"bg-primary"}>
+        <AppBar className={"z-50 bg-primary shadow-lg"}>
             <ButtonBar className={"p-2"}>
                 <BackButton icon={mdiArrowLeft}>Back to Editor</BackButton>
                 <SaveButton icon={mdiContentSave}>Save</SaveButton>
