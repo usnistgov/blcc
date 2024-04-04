@@ -33,37 +33,85 @@ export default function Index() {
                         >
                             <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
                         </OpenEditorButton>
-                        <div className={"flex w-full flex-col items-center bg-primary-light py-16"}>
+                        <div className={"flex w-full flex-col items-center bg-primary-light py-8"}>
                             <div className={"flex w-full max-w-4xl flex-col"}>
-                                <a className={"w-[40rem] self-end text-justify"}>
+                                <span className={"w-[40rem] self-end text-justify"}>
                                     BLCC conducts economic analyses by evaluating the relative cost effectiveness of
                                     capital investments in buildings and building-related systems or components.
                                     Typically, BLCC is used to evaluate alternative designs that have higher initial
                                     costs but lower operating costs over the project life than the lowest-initial-cost
                                     design. It is especially useful for evaluating the costs and benefits of energy and
                                     water conservation and renewable energy projects.
-                                </a>
+                                </span>
                             </div>
                         </div>
-                        <div className={"flex w-full flex-col items-center py-16"}>
+                        <div className={"flex w-full flex-col items-center py-8"}>
                             <div className={"flex w-full max-w-4xl flex-col"}>
-                                <a className={"w-[40rem] self-start text-justify"}>
+                                <span className={"w-[40rem] self-start text-justify"}>
                                     The life cycle cost (LCC) of two or more alternative designs are computed and
                                     compared to determine which has the lowest LCC and is, therefore, more economical in
                                     the long run. BLCC also calculates comparative economic measures for alternative
                                     designs, including net savings, savings-to-investment ratio, adjusted internal rate
                                     of return, and years to payback.
-                                </a>
+                                </span>
                             </div>
                         </div>
-                        <div className={"flex w-full flex-col items-center bg-error-lighter py-16"}>
+                        <div className={"flex w-full flex-col items-center bg-error-lighter py-8"}>
                             <div className={"flex w-full max-w-4xl flex-col"}>
-                                <a className={"w-[40rem] self-end text-justify"}>
-                                    The National Institute of Standards and Technology (NIST) developed the Building
-                                    Life Cycle Cost (BLCC) Programs to provide computational support for the analysis of
-                                    capital investments in buildings. They include BLCC, the Energy Escalation Rate
-                                    Calculator, Handbook 135, and the Annual Supplement to Handbook 135.
-                                </a>
+                                <span className={"w-[40rem] self-end text-justify"}>
+                                    Through support from the Department of Energy (DOE) Federal Energy Management
+                                    Program (FEMP), the National Institute of Standards and Technology (NIST) developed
+                                    life cycle cost analysis support resources to provide computational support for the
+                                    analysis of capital investments in buildings, including:
+                                    <ul className={"p-4"}>
+                                        <li>• Building Life Cycle Cost (BLCC)</li>
+                                        <li>
+                                            • Energy Escalation Rate Calculator (
+                                            <a
+                                                className={"visited:text-visited text-primary-dark underline"}
+                                                href={"https://pages.nist.gov/eerc/"}
+                                            >
+                                                EERC
+                                            </a>
+                                            )
+                                        </li>
+                                        <li>
+                                            •{" "}
+                                            <a
+                                                className={"visited:text-visited text-primary-dark underline"}
+                                                href={"https://doi.org/10.6028/NIST.HB.135e2022-upd1"}
+                                            >
+                                                Handbook 135
+                                            </a>
+                                        </li>
+                                        <li>
+                                            •{" "}
+                                            <a
+                                                className={"visited:text-visited text-primary-dark underline"}
+                                                href={"https://doi.org/10.6028/NIST.IR.85-3273-39"}
+                                            >
+                                                Annual Supplement to Handbook 135
+                                            </a>
+                                        </li>
+                                        <li>
+                                            •{" "}
+                                            <a
+                                                className={"visited:text-visited text-primary-dark underline"}
+                                                href={"https://doi.org/10.18434/mds2-3194"}
+                                            >
+                                                Data Tables for Annual Supplement
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    All these resources can be found at the DOE FEMP{" "}
+                                    <a
+                                        className={"visited:text-visited text-primary-dark underline"}
+                                        href={"https://www.energy.gov/femp/building-life-cycle-cost-programs"}
+                                    >
+                                        BLCC Program Page
+                                    </a>
+                                    .
+                                </span>
                             </div>
                         </div>
                         <div className={"bg-primary-dark p-10 text-center text-xs text-white"}>

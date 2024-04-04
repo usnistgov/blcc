@@ -24,7 +24,8 @@ export default {
                 "error-light": "#F39268",
                 error: "#D54309",
                 "error-dark": "#B50909",
-                "error-darker": "#6F3331"
+                "error-darker": "#6F3331",
+                visited: "#551A8B"
             }
         }
     },
