@@ -1,6 +1,6 @@
 import ButtonBar from "./ButtonBar";
 import button, { ButtonType } from "./Button";
-import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
+import { mdiContentSave, mdiDownload, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
 import AppBar from "./AppBar";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
@@ -14,12 +14,15 @@ import "dexie-export-import";
 import { download } from "../util/DownloadFile";
 import { convert } from "../blcc-format/Converter";
 import { withLatestFrom } from "rxjs/operators";
+import confirmationModal from "./modal/ConfirmationModal";
 
 const { click$: newClick$, component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
 const { click$: saveClick$, component: SaveButton } = button();
 
 const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
+
+const { component: ConfirmNewModal } = confirmationModal(newClick$);
 
 /**
  * The app bar for the editor context.
@@ -60,6 +63,14 @@ export default function EditorAppBar() {
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
+            <ConfirmNewModal
+                title={"Delete Existing Project Without Saving?"}
+                message={"There are unsaved changes to the current project. Would you like to save or ignore changes?"}
+                confirmLabel={"Save"}
+                confirmIcon={mdiDownload}
+                cancelLabel={"Ignore"}
+                cancelIcon={mdiFileDocumentPlus}
+            />
             <ButtonBar className={"p-2"}>
                 <NewButton type={ButtonType.PRIMARY} icon={mdiFileDocumentPlus}>
                     New

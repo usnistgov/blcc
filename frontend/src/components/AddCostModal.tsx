@@ -38,9 +38,7 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
     const [useOpen] = bind(
         merge(
             modifiedOpenModal$,
-            cancel$.pipe(map(() => false)),
-            newCost$.pipe(map(() => false)),
-            modalCancel$.pipe(map(() => false))
+            merge(cancel$, newCost$, modalCancel$).pipe(map(() => false)),
         ),
         false
     );

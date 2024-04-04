@@ -59,4 +59,9 @@ describe("General Information page", () => {
         cy.visit("http://localhost:8080/editor");
         cy.contains("Study Period").next().find("input").type("20");
     });
+
+    it("New button opens confirmation modal", () => {
+        cy.visit("http://localhost:8080/editor");
+        cy.contains("New").click();
+    });
 });
