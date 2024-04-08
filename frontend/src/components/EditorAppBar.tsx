@@ -5,7 +5,7 @@ import AppBar from "./AppBar";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
-import { defaultReleaseYear$, useName } from "../model/Model";
+import { defaultReleaseYear$, isDirty$, useName } from "../model/Model";
 import { db } from "../model/db";
 import { Version } from "../blcc-format/Verison";
 import { DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "../blcc-format/Format";
@@ -13,8 +13,9 @@ import { Country } from "../constants/LOCATION";
 import "dexie-export-import";
 import { download } from "../util/DownloadFile";
 import { convert } from "../blcc-format/Converter";
-import { withLatestFrom } from "rxjs/operators";
+import { filter, map, sample, withLatestFrom } from "rxjs/operators";
 import confirmationModal from "./modal/ConfirmationModal";
+import { merge } from "antd/es/theme/util/statistic";
 
 const { click$: newClick$, component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -22,7 +23,26 @@ const { click$: saveClick$, component: SaveButton } = button();
 
 const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
 
-const { component: ConfirmNewModal } = confirmationModal(newClick$);
+const {
+    component: ConfirmSaveDiscardModal,
+    confirmClick$: confirmSaveClick$,
+    cancelClick$: discardClick$
+} = confirmationModal(
+    isDirty$.pipe(
+        sample(merge(newClick$, openClick$)),
+        filter((dirty) => dirty),
+        map(() => { })
+    )
+);
+const {
+    component: ConfirmOpenModal,
+} = confirmationModal(
+    isDirty$.pipe(
+        sample(saveClick$),
+        filter((dirty) => dirty),
+        map(() => { })
+    )
+);
 
 /**
  * The app bar for the editor context.
@@ -57,18 +77,18 @@ export default function EditorAppBar() {
         },
         [navigate]
     );
-    useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
+    useSubscribe(merge(saveClick$, confirmSaveClick$), async () => download(await db.export(), "download.blcc"));
     useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(openClick$, () => document.getElementById("open")?.click());
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
-            <ConfirmNewModal
+            <ConfirmSaveDiscardModal
                 title={"Delete Existing Project Without Saving?"}
-                message={"There are unsaved changes to the current project. Would you like to save or ignore changes?"}
+                message={"There are unsaved changes to the current project. Would you like to save or discard changes?"}
                 confirmLabel={"Save"}
                 confirmIcon={mdiDownload}
-                cancelLabel={"Ignore"}
+                cancelLabel={"Discard"}
                 cancelIcon={mdiFileDocumentPlus}
             />
             <ButtonBar className={"p-2"}>

@@ -14,10 +14,10 @@ type ConfirmationModalProps = {
     cancelIcon?: string;
 }
 
-const { component: ConfirmButton, click$: confirmClick$ } = button();
-const { component: CancelButton, click$: cancelClick$ } = button();
-
 export default function confirmationModal(open$: Observable<void>) {
+    const { component: ConfirmButton, click$: confirmClick$ } = button();
+    const { component: CancelButton, click$: cancelClick$ } = button();
+
     const [cancel$, cancel] = createSignal();
     const [useOpen] = bind(
         merge(merge(cancel$, cancelClick$, confirmClick$).pipe(map(() => false)), open$.pipe(map(() => true))),
@@ -25,6 +25,8 @@ export default function confirmationModal(open$: Observable<void>) {
     )
 
     return {
+        confirmClick$,
+        cancelClick$,
         component: function ConfirmationModal({ confirmLabel = "Confirm", confirmIcon = mdiCheck, cancelLabel = "Cancel", cancelIcon = mdiClose, title = "", message = "" }: ConfirmationModalProps) {
             return <Modal
                 title={title}

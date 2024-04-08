@@ -7,12 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { E3Request, toE3Object } from "../model/E3Request";
-import { combineLatest, switchMap } from "rxjs";
+import { switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
-import { alternatives$, costs$, currentProject$, project$, useName } from "../model/Model";
+import { currentProject$, hash$, useName } from "../model/Model";
 import { filter, map, tap, withLatestFrom } from "rxjs/operators";
 import { db } from "../model/db";
-import objectHash from "object-hash";
 import { liveQuery } from "dexie";
 import { download } from "../util/DownloadFile";
 
@@ -21,15 +20,6 @@ const { click$: runClick$, component: RunButton } = button();
 const { click$: pdfClick$, component: PdfButton } = button();
 const { click$: saveClick$, component: SaveButton } = button();
 const { click$: csvClick$, component: CsvButton } = button();
-
-// Creates a hash of the current project
-const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
-    map(([project, alternatives, costs]) => {
-        if (project === undefined) throw "Project is undefined";
-
-        return objectHash({ project, alternatives, costs });
-    })
-);
 
 // Result stream that pulls from cache if available.
 const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));

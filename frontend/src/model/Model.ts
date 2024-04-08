@@ -8,14 +8,15 @@ import {
     DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
-    NonUSLocation,
+    type NonUSLocation,
     SocialCostOfGhgScenario,
-    USLocation
+    type USLocation
 } from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
 import { catchError, filter, startWith, withLatestFrom } from "rxjs/operators";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { validate } from "./rules/Rules";
+import objectHash from "object-hash";
 
 type ReleaseYearReponse = { year: number; max: number; min: number };
 
@@ -188,6 +189,22 @@ export const scc$ = combineLatest([
     map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
     startWith(undefined)
 );
+
+// Creates a hash of the current project
+export const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
+    map(([project, alternatives, costs]) => {
+        if (project === undefined) throw "Project is undefined";
+
+        return objectHash({ project, alternatives, costs });
+    })
+);
+
+export const isDirty$ = hash$.pipe(
+    switchMap((hash) => from(liveQuery(() => db.dirty.get(hash)))),
+    map((result) => result === undefined)
+);
+
+isDirty$.subscribe(console.log);
 
 alternatives$
     .pipe(
