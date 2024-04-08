@@ -30,6 +30,8 @@ import AnnualResults from "./pages/results/AnnualResults";
 import Summary from "./pages/results/Summary";
 import { combineLatest } from "rxjs";
 import { defaultReleaseYear$ } from "./model/Model";
+import { createSignal } from "@react-rxjs/utils";
+import messageModal, { type Message } from "./components/modal/MessageModal";
 
 //FIXME: needed to force load the project stream
 //project$.subscribe(console.log);
@@ -67,11 +69,18 @@ combineLatest([defaultProject$, defaultReleaseYear$]).subscribe(([p, releaseYear
     });
 });
 
+const [message$, showMessage] = createSignal<Message>();
+const { component: MessageModal } = messageModal(message$);
+
+export { showMessage };
+
 export default function App() {
     return (
         <Subscribe>
             <BrowserRouter>
                 <div className={"flex h-full flex-col"}>
+                    <MessageModal />
+
                     {/* App bars */}
                     <Routes>
                         <Route path={"/editor/*"} element={<EditorAppBar />} />
@@ -127,7 +136,7 @@ export default function App() {
 
                     <Routes>
                         <Route path={"/editor/*"} element={<Statistics />} />
-                        <Route path={"/results/*"} element={<></>} /> Gets rid of rout error
+                        <Route path={"/results/*"} />Gets rid of rout error
                     </Routes>
                 </div>
             </BrowserRouter>

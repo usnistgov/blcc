@@ -37,13 +37,13 @@ import {
     DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
-    Project,
+    type Project,
     Purpose,
     SocialCostOfGhgScenario
 } from "../../blcc-format/Format";
 import dropdown from "../../components/Dropdown";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { Collection } from "dexie";
+import type { Collection } from "dexie";
 import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
@@ -167,10 +167,10 @@ export default function GeneralInformation() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NameInput label={"Project Name"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
+                <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
                 <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
 
-                <AnalysisTypeDropdown label={"Analysis Type"} className={"w-full"} />
+                <AnalysisTypeDropdown label={"Analysis Type *"} className={"w-full"} />
                 {useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
                     <AnalysisPurposeDropdown label={"Analysis Purpose"} className={"w-full"} />
                 )}

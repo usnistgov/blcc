@@ -25,11 +25,12 @@ export default function saveDiscardModal<T>(open$: Observable<T>) {
         component: function SaveDiscardModal() {
             return <Modal
                 title={"Delete Existing Project Without Saving?"}
+                closable={false}
                 onCancel={cancel}
                 open={useOpen()}
                 footer={
                     <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                        <CancelButton type={ButtonType.ERROR} icon={mdiClose}>
+                        <CancelButton type={ButtonType.LINKERROR} icon={mdiClose}>
                             Cancel
                         </CancelButton>
                         <DiscardButton type={ButtonType.ERROR} icon={mdiFileDocumentPlus}>

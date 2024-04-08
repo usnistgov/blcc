@@ -204,8 +204,6 @@ export const isDirty$ = hash$.pipe(
     map((result) => result === undefined)
 );
 
-isDirty$.subscribe(console.log);
-
 alternatives$
     .pipe(
         validate({
