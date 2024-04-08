@@ -22,7 +22,7 @@ type ReleaseYearReponse = { year: number; max: number; min: number };
 
 export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearReponse[]>("/api/release_year");
 
-export const releaseYears$ = releaseYearsResponse$.pipe(map((result) => result.map((r) => r.year)));
+export const releaseYears$ = releaseYearsResponse$.pipe(map((result) => result === null ? [2023] : result.map((r) => r.year)));
 export const [useReleaseYears] = bind(releaseYears$, []);
 
 export const defaultReleaseYear$ = releaseYears$.pipe(
