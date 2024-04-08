@@ -1,5 +1,4 @@
 import { Subscribe } from "@react-rxjs/core";
-import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import EditorAppBar from "./components/EditorAppBar";
 import Statistics from "./components/Statistics";
@@ -11,8 +10,6 @@ import { liveQuery } from "dexie";
 import { db } from "./model/db";
 import { Version } from "./blcc-format/Verison";
 import {
-    AnalysisType,
-    DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
     SocialCostOfGhgScenario

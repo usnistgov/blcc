@@ -16,6 +16,7 @@ import { convert } from "../blcc-format/Converter";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { merge } from "rxjs";
 import saveDiscardModal from "./modal/SaveDiscardModal";
+import objectHash from "object-hash";
 
 const { click$: newClick$, component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -93,10 +94,7 @@ export default function EditorAppBar() {
     useSubscribe(
         new$.pipe(withLatestFrom(defaultReleaseYear$)),
         async ([, releaseYear]) => {
-            // TODO make a modal to make sure the user doesn't want to save
-            await db.delete();
-            await db.open();
-            db.projects.add({
+            const defaultProject = {
                 version: Version.V1,
                 name: "Untitled Project",
                 dollarMethod: DollarMethod.CONSTANT,
@@ -111,7 +109,16 @@ export default function EditorAppBar() {
                     emissionsRateScenario: EmissionsRateScenario.BASELINE
                 },
                 releaseYear
-            });
+            }
+
+            // Add default project to db.
+            await db.delete();
+            await db.open();
+            await db.projects.add(defaultProject);
+
+            // Save hash so we can overwrite a project that has not changed defaults.
+            await db.dirty.clear();
+            await db.dirty.add({ hash: objectHash({ project: defaultProject, alternatives: [], costs: [] }) });
 
             navigate("/editor");
         },
