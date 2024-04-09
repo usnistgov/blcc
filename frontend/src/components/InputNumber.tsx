@@ -1,11 +1,11 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber, Typography } from "antd";
-import React, { PropsWithChildren } from "react";
-import { combineLatest, EMPTY, from, map, Observable, sample, switchMap } from "rxjs";
-import { InputNumberProps } from "antd/es/input-number";
+import type { PropsWithChildren } from "react";
+import { EMPTY, from, map, type Observable, sample, switchMap } from "rxjs";
+import type { InputNumberProps } from "antd/es/input-number";
 import { combineLatestWith, filter, startWith, withLatestFrom } from "rxjs/operators";
-import { Rule, validate } from "../model/rules/Rules";
+import { type Rule, validate } from "../model/rules/Rules";
 import { guard } from "../util/Operators";
 import { db } from "../model/db";
 import { useSubscribe } from "../hooks/UseSubscribe";

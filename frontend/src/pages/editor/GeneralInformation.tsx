@@ -24,6 +24,7 @@ import {
     studyPeriod$,
     useAnalysisType,
     useCountry,
+    useDollarMethod,
     zip$
 } from "../../model/Model";
 import Title from "antd/es/typography/Title";
@@ -66,35 +67,35 @@ const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdo
 );
 const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
 const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(
-    "Study Period",
-    "/editor#Study-Period",
+    "Study Period *",
+    "/editor#Study-Period-*",
     studyPeriod$,
     true,
     [max(40)]
 );
 const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(
-    "Construction Period",
-    "/editor#Construction-Period",
+    "Construction Period *",
+    "/editor#Construction-Period-*",
     constructionPeriod$
 );
 const { onChange$: dollarMethodChange$, component: DollarMethodSwitch } = switchComp(
     dollarMethod$.pipe(map((method) => DollarMethodReverse[method]))
 );
 const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(
-    "Inflation Rate",
-    "/editor#Inflation-Rate",
+    "Inflation Rate *",
+    "/editor#Inflation-Rate-*",
     inflationRate$,
     true
 );
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = numberInput(
-    "Nominal Discount Rate",
-    "/editor#Nominal-Discount-Rate",
+    "Nominal Discount Rate *",
+    "/editor#Nominal-Discount-Rate-*",
     nominalDiscountRate$,
     true
 );
 const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(
-    "Real Discount Rate",
-    "/editor#Real-Discount-Rate",
+    "Real Discount Rate *",
+    "/editor#Real-Discount-Rate-*",
     realDiscountRate$,
     true
 );
@@ -136,6 +137,8 @@ function dollarMethodForward(value: boolean): DollarMethod {
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
 export default function GeneralInformation() {
+    const dollarMethod = useDollarMethod();
+
     useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
     useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
     useDbUpdate(descriptionChange$.pipe(defaultValue(undefined)), projectCollection$, "description");
@@ -188,7 +191,7 @@ export default function GeneralInformation() {
                     />
                     <ConstructionPeriodInput addonAfter={"years"} defaultValue={0} max={40} min={0} controls={true} />
 
-                    <ReleaseYearDropdown className={"w-full"} label={"Data Release Year"} />
+                    <ReleaseYearDropdown className={"w-full"} label={"Data Release Year *"} />
                 </div>
             </div>
             <div className={"pt-4"}>
@@ -210,11 +213,11 @@ export default function GeneralInformation() {
                     >
                         Discounting
                     </Divider>
-                    <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention"} />}</div>
+                    <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention *"} />}</div>
                     <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
-                        <GenInflationRate addonAfter={"%"} controls={false} />
-                        <NominalDiscRate addonAfter={"%"} controls={false} min={0.0} />
-                        <RealDiscRate addonAfter={"%"} controls={false} min={0.0} />
+                        <GenInflationRate disabled={dollarMethod !== DollarMethod.CURRENT} addonAfter={"%"} controls={false} />
+                        <NominalDiscRate disabled={dollarMethod !== DollarMethod.CURRENT} addonAfter={"%"} controls={false} min={0.0} />
+                        <RealDiscRate disabled={dollarMethod !== DollarMethod.CONSTANT} addonAfter={"%"} controls={false} min={0.0} />
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -233,7 +236,7 @@ export default function GeneralInformation() {
                     ) : (
                         <StateInput label={"State"} type={TextInputType.PRIMARY} />
                     )}
-                    {useCountry() === Country.USA && <ZipInput label={"Zip"} type={TextInputType.PRIMARY} />}
+                    {useCountry() === Country.USA && <ZipInput label={"Zip *"} type={TextInputType.PRIMARY} />}
                 </div>
             </div>
 
@@ -246,8 +249,8 @@ export default function GeneralInformation() {
                 >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
-                <EmissionsRateDropdown label={"Emissions Rate Scenario"} className={"w-full"} />
-                <SocialCostDropdown label={"Social Cost of GHG Scenario"} className={"w-full"} />
+                <EmissionsRateDropdown label={"Emissions Rate Scenario *"} className={"w-full"} />
+                <SocialCostDropdown label={"Social Cost of GHG Scenario *"} className={"w-full"} />
             </div>
         </div>
     );
