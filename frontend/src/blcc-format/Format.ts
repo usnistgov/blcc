@@ -1,5 +1,5 @@
-import { Country, State } from "../constants/LOCATION";
-import { Version } from "./Verison";
+import type { Country, State } from "../constants/LOCATION";
+import type { Version } from "./Verison";
 
 export type Project = {
     id?: number;

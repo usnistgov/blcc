@@ -1,5 +1,5 @@
 import { combineLatest, map, sample, switchMap } from "rxjs";
-import { Cost as FormatCost, CostTypes, ID } from "../../blcc-format/Format";
+import { type Cost as FormatCost, CostTypes, type ID } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { Checkbox, Typography } from "antd";

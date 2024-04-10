@@ -1,6 +1,6 @@
 import { createSignal } from "@react-rxjs/utils";
-import { PropsWithChildren, useEffect } from "react";
-import { Params, useParams } from "react-router-dom";
+import { type PropsWithChildren, useEffect } from "react";
+import { type Params, useParams } from "react-router-dom";
 
 /**
  * A stream that represents the URL parameters.

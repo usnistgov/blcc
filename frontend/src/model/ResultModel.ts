@@ -7,7 +7,18 @@ import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
 import { bind } from "@react-rxjs/core";
-import { Optional } from "e3-sdk";
+import type { Optional } from "e3-sdk";
+import { bar, pie } from "billboard.js";
+import "billboard.js/dist/billboard.css";
+
+/**
+ * Initializes all Billboard.js elements.
+ */
+function initializeBillboardJS() {
+    bar();
+    pie();
+}
+initializeBillboardJS();
 
 export const required$ = result$.pipe(map((data) => data?.required ?? []));
 

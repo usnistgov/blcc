@@ -1,6 +1,5 @@
 import { Select } from "antd";
 import { selectAlternative, useOptions, useSelection } from "../model/ResultModel";
-import React from "react";
 import Title from "antd/es/typography/Title";
 
 export default function ResultAlternativeSelect() {

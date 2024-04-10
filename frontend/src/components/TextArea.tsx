@@ -1,8 +1,8 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Input, Typography } from "antd";
-import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable, switchMap } from "rxjs";
+import type { PropsWithChildren } from "react";
+import { EMPTY, type Observable, switchMap } from "rxjs";
 import { startWith } from "rxjs/operators";
 
 export type TextAreaProps = {

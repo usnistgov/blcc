@@ -1,4 +1,4 @@
-import { Observable, UnaryFunction, map, pipe } from "rxjs";
+import { type Observable, type UnaryFunction, map, pipe } from "rxjs";
 
 export type Rule<T> = {
     name?: string;

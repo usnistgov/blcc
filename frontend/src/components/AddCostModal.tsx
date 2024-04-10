@@ -1,14 +1,13 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Col, Modal, Row, Typography } from "antd";
-import React from "react";
-import { combineLatest, merge, Observable, sample, switchMap } from "rxjs";
+import { combineLatest, merge, type Observable, sample, switchMap } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
 
-import { Cost, CostTypes } from "../blcc-format/Format";
+import { type Cost, CostTypes } from "../blcc-format/Format";
 import { mdiClose, mdiPlus } from "@mdi/js";
 import { currentProject$, useAlternatives } from "../model/Model";
 import { useSubscribe } from "../hooks/UseSubscribe";

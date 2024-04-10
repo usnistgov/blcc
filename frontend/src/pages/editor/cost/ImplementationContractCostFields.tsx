@@ -1,7 +1,7 @@
 import numberInput from "../../../components/InputNumber";
-import { Observable } from "rxjs";
-import { Collection } from "dexie";
-import { CostTypes, ImplementationContractCost } from "../../../blcc-format/Format";
+import type { Observable } from "rxjs";
+import type { Collection } from "dexie";
+import { CostTypes, type ImplementationContractCost } from "../../../blcc-format/Format";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
 import { filter, map } from "rxjs/operators";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";

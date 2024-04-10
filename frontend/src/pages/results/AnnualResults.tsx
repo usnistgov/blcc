@@ -1,4 +1,3 @@
-import React from "react";
 import ResultAlternativeSelect from "../../components/ResultAlternativeSelect";
 import Header from "../../components/Header";
 import NpvCashFlowComparison from "../../components/grids/annual-results/NpvCashFlowComparison";

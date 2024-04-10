@@ -1,16 +1,15 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { combineLatest, merge, Observable, sample } from "rxjs";
+import { combineLatest, merge, type Observable, sample } from "rxjs";
 import { map } from "rxjs/operators";
 import button, { ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { mdiClose, mdiPlus } from "@mdi/js";
 import { currentProject$ } from "../model/Model";
-import { Alternative } from "../blcc-format/Format";
+import type { Alternative } from "../blcc-format/Format";
 import { db } from "../model/db";
 
 const { Title } = Typography;

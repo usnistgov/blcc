@@ -1,5 +1,5 @@
-import {useParams} from "react-router-dom";
-import {useEffect} from "react";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 /**
  * Watches the react-router URL and pushes URL parameters to the provided callback.
@@ -10,7 +10,7 @@ import {useEffect} from "react";
 export default function useModelParam(param: string, setValue: (value: string) => void) {
     const paramValue = useParams()[param];
     useEffect(() => {
-        if(paramValue !== undefined)
+        if (paramValue !== undefined)
             setValue(paramValue)
-    }, [paramValue]);
+    }, [paramValue, setValue]);
 }

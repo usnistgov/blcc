@@ -1,9 +1,9 @@
 import numberInput from "../../../components/InputNumber";
 import Recurring from "../../../components/Recurring";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { map, Observable } from "rxjs";
-import { Collection } from "dexie";
-import { CostTypes, RecurringContractCost } from "../../../blcc-format/Format";
+import { map, type Observable } from "rxjs";
+import type { Collection } from "dexie";
+import { CostTypes, type RecurringContractCost } from "../../../blcc-format/Format";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
 import { filter } from "rxjs/operators";
 

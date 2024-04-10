@@ -1,5 +1,5 @@
 import button, { ButtonType } from "./Button";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { startWith } from "rxjs/operators";
 import Icon from "@mdi/react";
 import { mdiChevronDown, mdiChevronLeft } from "@mdi/js";

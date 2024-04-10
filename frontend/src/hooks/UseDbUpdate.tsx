@@ -1,5 +1,5 @@
-import { Observable } from "rxjs";
-import { Collection } from "dexie";
+import type { Observable } from "rxjs";
+import type { Collection } from "dexie";
 import { useEffect } from "react";
 import { withLatestFrom } from "rxjs/operators";
 
@@ -23,5 +23,5 @@ export function useDbUpdate<A, B extends keyof A>(
             db.modify({ [param]: value });
         });
         return () => subscription.unsubscribe();
-    }, []);
+    }, [stream$, dbObj$, param]);
 }

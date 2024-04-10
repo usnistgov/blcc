@@ -1,10 +1,10 @@
-import DataGrid, { Column } from "react-data-grid";
-import { from, Observable, switchMap, zip } from "rxjs";
+import DataGrid, { type Column } from "react-data-grid";
+import { from, type Observable, switchMap, zip } from "rxjs";
 import { map, toArray } from "rxjs/operators";
 import { bind } from "@react-rxjs/core";
 import "react-data-grid/lib/styles.css";
-import { Required } from "e3-sdk";
-import { Alternative } from "../../../blcc-format/Format";
+import type { Required } from "e3-sdk";
+import type { Alternative } from "../../../blcc-format/Format";
 import { required$ } from "../../../model/ResultModel";
 import { db } from "../../../model/db";
 import { dollarFormatter } from "../../../util/Util";

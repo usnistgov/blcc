@@ -1,7 +1,7 @@
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox } from "antd";
-import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable } from "rxjs";
+import type { PropsWithChildren } from "react";
+import { EMPTY, type Observable } from "rxjs";
 import { bind } from "@react-rxjs/core";
 
 export type CheckboxProps = {

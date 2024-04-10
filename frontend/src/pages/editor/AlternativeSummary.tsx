@@ -3,7 +3,7 @@ import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { Divider, Typography } from "antd";
 import { map } from "rxjs/operators";
-import { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
+import type { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
 import button, { ButtonType } from "../../components/Button";
 import { alternatives$ } from "../../model/Model";
 import { countProperty } from "../../util/Operators";

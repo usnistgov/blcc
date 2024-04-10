@@ -1,21 +1,21 @@
-import { Observable, pipe, switchMap, UnaryFunction } from "rxjs";
+import { type Observable, pipe, switchMap, type UnaryFunction } from "rxjs";
 import {
-    CapitalCost,
-    Cost,
+    type CapitalCost,
+    type Cost,
     CostBenefit,
     CostTypes,
     DiscountingMethod,
     DollarOrPercent,
-    EnergyCost,
-    ID,
-    ImplementationContractCost,
-    OMRCost,
-    OtherCost,
-    OtherNonMonetary,
-    RecurringContractCost,
-    ReplacementCapitalCost,
-    ResidualValue,
-    WaterCost
+    type EnergyCost,
+    type ID,
+    type ImplementationContractCost,
+    type OMRCost,
+    type OtherCost,
+    type OtherNonMonetary,
+    type RecurringContractCost,
+    type ReplacementCapitalCost,
+    type ResidualValue,
+    type WaterCost
 } from "../blcc-format/Format";
 import {
     AlternativeBuilder,
@@ -25,7 +25,7 @@ import {
     BcnSubType,
     BcnType,
     E3,
-    Output,
+    type Output,
     ProjectType,
     RecurBuilder,
     RequestBuilder,
@@ -94,7 +94,7 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
                 return builder;
             });
 
-            const hasBaseline = !!alternatives.find((alt) => alt["baseline"]);
+            const hasBaseline = !!alternatives.find((alt) => alt.baseline);
             if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
             // Create complete Request Builder and return
@@ -146,7 +146,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
 
     if (cost.phaseIn) {
         // Create multiple phase in BCNs
-        const adjusted = (cost.initialCost ?? 0) * Math.pow(1 + (cost.costAdjustment ?? 0), cost.phaseIn.length);
+        const adjusted = (cost.initialCost ?? 0) * ((1 + (cost.costAdjustment ?? 0)) ** cost.phaseIn.length);
 
         result.push(
             ...cost.phaseIn.map((phaseIn, i) =>
@@ -476,7 +476,7 @@ function residualValueBcn(
     value: number,
     obj: ResidualValue,
     studyPeriod: number,
-    rateOfChange: number = 0,
+    rateOfChange: number,
     tags: string[] = []
 ): BcnBuilder {
     return new BcnBuilder()
@@ -490,7 +490,7 @@ function residualValueBcn(
         .quantity(1)
         .quantityValue(
             obj.approach === DollarOrPercent.PERCENT
-                ? value * Math.pow(1 + rateOfChange, studyPeriod) * -obj.value
+                ? value * ((1 + rateOfChange) ** studyPeriod) * -obj.value
                 : -obj.value
         );
 }

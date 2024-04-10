@@ -1,5 +1,5 @@
 import Title from "antd/es/typography/Title";
-import React, { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 export default function Header({ children }: PropsWithChildren) {
     return (

@@ -1,4 +1,4 @@
-import { count, from, groupBy, mergeMap, Observable, of, pipe, UnaryFunction } from "rxjs";
+import { count, from, groupBy, mergeMap, type Observable, of, pipe, type UnaryFunction } from "rxjs";
 import { catchError, filter, map, shareReplay, toArray } from "rxjs/operators";
 
 /**

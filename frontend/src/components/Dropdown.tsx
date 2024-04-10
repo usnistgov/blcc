@@ -1,8 +1,8 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Select, Typography } from "antd";
-import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable, of } from "rxjs";
+import type { PropsWithChildren } from "react";
+import { EMPTY, type Observable, of } from "rxjs";
 
 export type DropdownProps = {
     className?: string;

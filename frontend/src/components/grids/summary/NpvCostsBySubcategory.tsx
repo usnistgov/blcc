@@ -1,4 +1,4 @@
-import DataGrid, { Column } from "react-data-grid";
+import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
 import { alternatives$ } from "../../../model/Model";
 import { bind } from "@react-rxjs/core";

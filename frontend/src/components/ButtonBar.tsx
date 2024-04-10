@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 export type ButtonBarProps = {
     className?: string;
@@ -8,5 +8,5 @@ export type ButtonBarProps = {
  * Groups elements into a horizontal bar
  */
 export default function ButtonBar({ children, className }: PropsWithChildren & ButtonBarProps) {
-    return <div className={(className ? className : "") + " flex flex-row gap-1"}>{children}</div>;
+    return <div className={`${(className ? className : "")} flex flex-row gap-1`}>{children}</div>;
 }

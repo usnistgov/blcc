@@ -3,9 +3,9 @@ import switchComp from "./Switch";
 import numberInput from "./InputNumber";
 import { filter, map } from "rxjs/operators";
 import { cost$, costCollection$ as baseCostCollection$ } from "../model/CostModel";
-import { CostTypes, OMRCost, RecurringContractCost } from "../blcc-format/Format";
-import { merge, Observable } from "rxjs";
-import { Collection } from "dexie";
+import { CostTypes, type OMRCost, type RecurringContractCost } from "../blcc-format/Format";
+import { merge, type Observable } from "rxjs";
+import type { Collection } from "dexie";
 import { bind } from "@react-rxjs/core";
 import { useDbUpdate } from "../hooks/UseDbUpdate";
 

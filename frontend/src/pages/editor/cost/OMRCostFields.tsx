@@ -1,8 +1,8 @@
 import numberInput from "../../../components/InputNumber";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { filter, Observable } from "rxjs";
-import { Collection } from "dexie";
-import { CostTypes, OMRCost } from "../../../blcc-format/Format";
+import { filter, type Observable } from "rxjs";
+import type { Collection } from "dexie";
+import { CostTypes, type OMRCost } from "../../../blcc-format/Format";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { map } from "rxjs/operators";
 import Recurring from "../../../components/Recurring";

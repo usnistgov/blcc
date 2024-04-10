@@ -1,8 +1,8 @@
 import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiWater } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 
-import { Cost } from "../../blcc-format/Format";
-import { map, Observable } from "rxjs";
+import type { Cost } from "../../blcc-format/Format";
+import { map, type Observable } from "rxjs";
 import button, { ButtonType } from "./../Button";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import collapse from "./../Collapse";

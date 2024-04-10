@@ -1,4 +1,4 @@
-import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, Unit } from "../blcc-format/Format";
+import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, type Unit } from "../blcc-format/Format";
 import convert from "convert";
 
 export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => number } => {

@@ -2,14 +2,14 @@ import numberInput from "../../../components/InputNumber";
 import switchComp from "../../../components/Switch";
 import { Typography } from "antd";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { filter, Observable } from "rxjs";
-import { CostTypes, DollarOrPercent, ReplacementCapitalCost, ResidualValue } from "../../../blcc-format/Format";
+import { filter, type Observable } from "rxjs";
+import { CostTypes, DollarOrPercent, type ReplacementCapitalCost, type ResidualValue } from "../../../blcc-format/Format";
 import { map } from "rxjs/operators";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { defaultValue } from "../../../util/Operators";
 import { bind } from "@react-rxjs/core";
 import checkbox from "../../../components/Checkbox";
-import { Collection } from "dexie";
+import type { Collection } from "dexie";
 
 const { Title } = Typography;
 

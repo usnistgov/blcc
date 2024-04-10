@@ -1,5 +1,5 @@
-import { Observable } from "rxjs";
-import React, { PropsWithChildren } from "react";
+import type { Observable } from "rxjs";
+import type { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import Icon from "@mdi/react";
 
@@ -20,7 +20,7 @@ export type ButtonProps = {
     icon?: string;
     disabled?: boolean;
     iconSide?: "left" | "right";
-};
+} & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, "type">;
 
 export type Button = {
     click$: Observable<void>;
@@ -41,15 +41,18 @@ export default function button(): Button {
             type = ButtonType.PRIMARY,
             icon,
             disabled = false,
-            iconSide = "left"
+            iconSide = "left",
+            ...buttonProps
         }: PropsWithChildren & ButtonProps) => {
             return (
                 <button
+                    type={"button"}
                     className={
-                        (className ? className : "") + ` ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`
+                        `${(className ? className : "")} ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`
                     }
                     onClick={click}
                     disabled={disabled}
+                    {...buttonProps}
                 >
                     <span className={"flex flex-row place-items-center"}>
                         {icon && iconSide === "left" && <Icon className={"mr-1 min-w-[24px]"} path={icon} size={0.8} />}

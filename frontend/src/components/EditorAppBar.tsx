@@ -17,6 +17,7 @@ import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { merge } from "rxjs";
 import saveDiscardModal from "./modal/SaveDiscardModal";
 import objectHash from "object-hash";
+import { Results } from "../App";
 
 const { click$: newClick$, component: NewButton } = button();
 const { click$: openClick$, component: OpenButton } = button();
@@ -164,7 +165,7 @@ export default function EditorAppBar() {
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-base-lightest"}>{useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
-                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
+                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onMouseOver={() => Results.preload()}>
                         Reports and Analysis
                     </RunAnalysisButton>
                 </div>

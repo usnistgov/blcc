@@ -1,4 +1,3 @@
-import React from "react";
 import Header from "../../components/Header";
 import LifecycleResultsComparison from "../../components/grids/summary/LifeCycleResultsComparison";
 import LifecycleResultsToBaseline from "../../components/grids/summary/LifeCycleResultsToBaseline";

@@ -1,12 +1,12 @@
-import { filter, map, Observable } from "rxjs";
-import { CostTypes, CustomerSector, EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
+import { filter, map, type Observable } from "rxjs";
+import { CostTypes, CustomerSector, type EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
 import { phaseIn } from "../../../components/PhaseIn";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { bind } from "@react-rxjs/core";
-import { Collection } from "dexie";
+import type { Collection } from "dexie";
 import { min } from "../../../model/rules/Rules";
 
 /*const escalationRates$ = from(

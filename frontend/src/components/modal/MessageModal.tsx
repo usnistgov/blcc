@@ -1,6 +1,6 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Modal, message } from "antd";
+import { Modal } from "antd";
 import { map, merge, type Observable } from "rxjs";
 import button, { ButtonType } from "../Button";
 import { mdiCheck } from "@mdi/js";

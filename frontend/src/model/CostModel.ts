@@ -10,7 +10,7 @@ import { CostTypes } from "../blcc-format/Format";
  * The ID of the currently selected cost
  */
 export const costID$ = urlParameters$.pipe(
-    map(({ costID }) => parseInt(costID ?? "-1")),
+    map(({ costID }) => Number.parseInt(costID ?? "-1")),
     shareLatest()
 );
 

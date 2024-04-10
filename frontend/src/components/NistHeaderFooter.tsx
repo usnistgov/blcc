@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect } from "react";
+import { type PropsWithChildren, useEffect } from "react";
 import { Parser } from "html-to-react";
 import "../nist-header-footer.sass";
 import { bind } from "@react-rxjs/core";

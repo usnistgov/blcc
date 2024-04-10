@@ -1,11 +1,11 @@
 import numberInput from "../../../components/InputNumber";
 import { phaseIn } from "../../../components/PhaseIn";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { filter, Observable } from "rxjs";
-import { CapitalCost, CostTypes } from "../../../blcc-format/Format";
+import { filter, type Observable } from "rxjs";
+import { type CapitalCost, CostTypes } from "../../../blcc-format/Format";
 import { map } from "rxjs/operators";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { Collection } from "dexie";
+import type { Collection } from "dexie";
 
 // If we are on this page that means the cost collection can be narrowed to CapitalCost.
 const costCollection$ = baseCostCollection$ as Observable<Collection<CapitalCost, number>>;

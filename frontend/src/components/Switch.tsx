@@ -1,5 +1,5 @@
-import { Observable, of } from "rxjs";
-import React, { PropsWithChildren } from "react";
+import { type Observable, of } from "rxjs";
+import type { PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Switch } from "antd";
 import { bind } from "@react-rxjs/core";

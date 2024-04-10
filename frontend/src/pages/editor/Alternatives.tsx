@@ -1,4 +1,4 @@
-import { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
+import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
 import { Typography } from "antd";
 import button, { ButtonType } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";

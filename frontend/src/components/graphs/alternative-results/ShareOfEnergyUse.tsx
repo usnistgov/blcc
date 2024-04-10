@@ -1,6 +1,6 @@
 import { useSubscribe } from "../../../hooks/UseSubscribe";
 import { useEffect } from "react";
-import { bb, Chart } from "billboard.js";
+import { bb, type Chart } from "billboard.js";
 import { createSignal } from "@react-rxjs/utils";
 import { combineLatest } from "rxjs";
 import { selectedMeasure$ } from "../../../model/ResultModel";

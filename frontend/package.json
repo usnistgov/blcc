@@ -16,8 +16,7 @@
         "@mdi/react": "^1.6.1",
         "@react-rxjs/core": "^0.10.7",
         "@react-rxjs/utils": "^0.9.7",
-        "@types/react-data-grid": "^4.0.12",
-        "antd": "^5.16.0",
+        "antd": "^5.16.1",
         "billboard.js": "^3.11.3",
         "convert": "^5.0.0",
         "dexie": "^3.2.7",
@@ -34,7 +33,8 @@
     },
     "devDependencies": {
         "@types/object-hash": "^3.0.6",
-        "@types/react": "^18.2.74",
+        "@types/react": "^18.2.75",
+        "@types/react-data-grid": "^4.0.12",
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.2.1",
         "autoprefixer": "^10.4.19",
@@ -43,7 +43,7 @@
         "postcss-import": "^16.1.0",
         "sass": "^1.74.1",
         "tailwindcss": "^3.4.3",
-        "typescript": "^5.4.3",
+        "typescript": "^5.4.5",
         "vite": "^5.2.8",
         "vite-plugin-svgr": "^4.2.0",
         "vitest": "^0.34.6"

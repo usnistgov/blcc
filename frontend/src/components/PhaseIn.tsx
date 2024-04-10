@@ -3,9 +3,9 @@ import { createSignal } from "@react-rxjs/utils";
 import { bind } from "@react-rxjs/core";
 import { startWith } from "rxjs/operators";
 import numberInput from "./InputNumber";
-import { Observable, of } from "rxjs";
-import { Form, FormInstance, Input, InputRef, Table } from "antd";
-import { ColumnsType } from "antd/es/table";
+import { type Observable, of } from "rxjs";
+import { Form, type FormInstance, Input, type InputRef, Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { TableProps } from "antd/es/table/InternalTable";
 
@@ -47,7 +47,7 @@ export function phaseIn() {
             return (
                 <div className={"flex w-full flex-col"}>
                     <div className={"my-2"}>Constant</div>
-                    <Switch className={"mb-4 w-fit"} checkedChildren={<>{"Yes"}</>} unCheckedChildren={<>{"No"}</>} />
+                    <Switch className={"mb-4 w-fit"} checkedChildren={"Yes"} unCheckedChildren={"No"} />
                     {(constantOrEscalation() && <ConstantInput addonAfter={"%"} controls />) || (
                         <PhaseInTable size={"small"} />
                     )}

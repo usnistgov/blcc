@@ -1,5 +1,5 @@
-import { Cost, CostTypes } from "../blcc-format/Format";
-import { Measures } from "e3-sdk";
+import { type Cost, CostTypes } from "../blcc-format/Format";
+import type { Measures } from "e3-sdk";
 
 // Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {

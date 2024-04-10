@@ -1,5 +1,5 @@
 import { createSignal } from "@react-rxjs/utils";
-import { bb, Chart } from "billboard.js";
+import { bb, type Chart } from "billboard.js";
 import { combineLatest } from "rxjs";
 import { selectedMeasure$ } from "../../../model/ResultModel";
 import { debounceTime } from "rxjs/operators";
@@ -18,10 +18,10 @@ export default function ShareOfLcc() {
                 chart.load({
                     columns: [
                         ["Investment", measure.totalTagFlows["Initial Investment"] ?? 0],
-                        ["Energy", measure.totalTagFlows["Energy"] ?? 0],
-                        ["Water", measure.totalTagFlows["Water"] ?? 0],
-                        ["OMR", measure.totalTagFlows["OMR"] ?? 0],
-                        ["Replacement", measure.totalTagFlows["Replacement"] ?? 0],
+                        ["Energy", measure.totalTagFlows.Energy ?? 0],
+                        ["Water", measure.totalTagFlows.Water ?? 0],
+                        ["OMR", measure.totalTagFlows.OMR ?? 0],
+                        ["Replacement", measure.totalTagFlows.Replacement ?? 0],
                         ["Residual Value", measure.totalTagFlows["Residual Value"] ?? 0]
                     ]
                 })
