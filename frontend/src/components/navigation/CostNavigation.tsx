@@ -48,12 +48,12 @@ function menuCollapse(item: MenuItem) {
     const { component: Collapse } = collapse();
     const [useButtons] = bind(
         item.costs$.pipe(
-            map((costs) =>
-                costs.map((cost) => {
+            map((costs) => (
+                costs?.map((cost) => {
                     const button = costButton(cost);
                     return <button.component key={cost.id} />;
                 })
-            )
+            ))
         ),
         []
     );

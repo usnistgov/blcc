@@ -16,8 +16,8 @@ export default function Editor() {
 
         <div className={"flex h-full overflow-hidden"}>
             <Routes>
-                <Route element={<Navigation />} >
-                    <Route index element={<></>} />
+                <Route path={"*"} element={<Navigation />} >
+                    <Route index />
                     <Route path={"alternative/:altID"}>
                         <Route index path={"*"} element={<CostNavigation />} />
                     </Route>

@@ -62,7 +62,7 @@ const [energyCategories] = bind(
 );
 
 // Count all water costs
-const [waterCosts] = bind(waterCosts$, []);
+const [waterCosts] = bind(waterCosts$.pipe(map(costs => ({ "Water Costs": costs }))), {});
 
 // Count all capital costs and its subcategories
 const [capitalCategories] = bind(
@@ -151,7 +151,7 @@ export default function Alternatives() {
     const alternatives = useAlternativeIDs();
     useEffect(() => {
         if (alternatives.length <= 0) navigate("/editor");
-    }, []);
+    }, [navigate, alternatives]);
 
     useDbUpdate(name$.pipe(defaultValue("Unnamed Alternative")), alternativeCollection$, "name");
     useDbUpdate(description$.pipe(defaultValue(undefined)), alternativeCollection$, "description");
@@ -245,8 +245,9 @@ export default function Alternatives() {
                                             "flex flex-col overflow-hidden rounded-md border border-base-lightest shadow-md"
                                         }
                                     >
-                                        {children.map(([name, costs]) => (
-                                            <span key={name}>
+                                        {children.map(([name, costs]) => {
+                                            console.log(costs);
+                                            return <span key={name}>
                                                 <div className={"bg-primary px-2 py-1.5 text-center text-white"}>
                                                     {name}
                                                 </div>
@@ -265,7 +266,7 @@ export default function Alternatives() {
                                                     ))}
                                                 </ul>
                                             </span>
-                                        ))}
+                                        })}
                                     </div>
                                 ) : (
                                     <p className={"text-base-dark"}>No {category.label}</p>

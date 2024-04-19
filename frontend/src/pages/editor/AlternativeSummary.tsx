@@ -39,7 +39,7 @@ export default function AlternativeSummary() {
             </SubHeader>
             <div className={"flex h-full w-full flex-col items-center"}>
                 <br />
-                {(cards.length !== 0 && cards.map((card, i) => <card.component key={i} />)) || (
+                {(cards.length !== 0 && cards.map((card) => <card.component key={card.component.name} />)) || (
                     <div className={"w-full p-8 text-center text-base-dark"}>
                         <p className={"text-2xl"}>No Alternatives</p>
                         <p className={"text-lg"}>Create an alternative or load a saved file</p>
@@ -114,6 +114,7 @@ export function createAlternativeCard(alternative: Alternative) {
                         "mb-5 flex w-3/4 max-w-6xl cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
                     }
                     onClick={click}
+                    onKeyDown={click}
                 >
                     <div className={"flex flex-row gap-1"}>
                         {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
@@ -132,8 +133,8 @@ export function createAlternativeCard(alternative: Alternative) {
                                 <Divider className={"m-0"} />
 
                                 {/* Render each subcategory */}
-                                {category.children?.().map(([type, count], i) => (
-                                    <div className={"flex gap-6"} key={i}>
+                                {category.children?.().map(([type, count]) => (
+                                    <div className={"flex gap-6"} key={type}>
                                         <p className={"grow"}>{type}</p>
                                         <div className={"w-fit"}>
                                             <p>{count}</p>

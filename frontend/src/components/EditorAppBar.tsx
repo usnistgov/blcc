@@ -165,7 +165,7 @@ export default function EditorAppBar() {
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-base-lightest"}>{useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
-                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onMouseOver={() => Results.preload()}>
+                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
                         Reports and Analysis
                     </RunAnalysisButton>
                 </div>
