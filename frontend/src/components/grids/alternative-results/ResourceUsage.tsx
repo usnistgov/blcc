@@ -33,7 +33,7 @@ const columns = [
         name: "Consumption",
         key: "consumption",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["consumption"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.consumption ?? 0)}</p>
         ),
         ...cellClasses
     },
@@ -41,7 +41,7 @@ const columns = [
         name: "Emissions",
         key: "emissions",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["emissions"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.emissions ?? 0)}</p>
         ),
         ...cellClasses
     }
@@ -93,8 +93,6 @@ export default function ResourceUsage() {
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
                 className={"h-full"}
                 rows={rows}
                 columns={columns}
@@ -104,8 +102,6 @@ export default function ResourceUsage() {
                     "--rdg-row-hover-background-color": "#3D4551"
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
-                rowGetter={rows}
-                rowsCount={rows.length}
             />
         </div>
     );

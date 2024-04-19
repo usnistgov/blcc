@@ -1,4 +1,4 @@
-import { filter, map, type Observable } from "rxjs";
+import { combineLatest, filter, map, of, switchMap, type Observable } from "rxjs";
 import { CostTypes, CustomerSector, type EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
@@ -8,20 +8,31 @@ import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { bind } from "@react-rxjs/core";
 import type { Collection } from "dexie";
 import { min } from "../../../model/rules/Rules";
+import DataGrid from "react-data-grid";
+import phaseInDataGrid, { editorGrid } from "../../../components/PhaseInDataGrid";
+import { releaseYear$, studyPeriod$ } from "../../../model/Model";
+import { ajax } from "rxjs/internal/ajax/ajax";
 
-/*const escalationRates$ = from(
-    fetch("http://localhost:8080/api/zip-state", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            zip: 17860
-        })
-    })
-);
+const [useEscalationRates, escalationRates$] = bind(
+    combineLatest([releaseYear$, studyPeriod$]).pipe(
+        switchMap(([releaseYear, studyPeriod]) =>
+            ajax<number[]>({
+                url: "/api/escalation-rates",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: {
+                    from: releaseYear,
+                    to: releaseYear + (studyPeriod ?? 0)
+                }
+            })
+        ),
+        map((response) => response.response)
+    ),
+    []);
 
-escalationRates$.subscribe(console.log);*/
+escalationRates$.subscribe(console.log)
 
 // If we are on this page that means the cost collection can be narrowed to EnergyCost.
 const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
@@ -62,8 +73,6 @@ const { component: DemandChargeInput, onChange$: demandChargeChange$ } = numberI
     energyCost$.pipe(map((cost) => cost.demandCharge)),
     true
 );
-const { component: PhaseIn } = phaseIn();
-const { component: UseIndex } = phaseIn();
 
 export default function EnergyCostFields() {
     useDbUpdate(customerSector$, costCollection$, "customerSector");
@@ -75,6 +84,8 @@ export default function EnergyCostFields() {
     useDbUpdate(demandChargeChange$, costCollection$, "demandCharge");
 
     //TODO add other fields
+
+    const escalationRates = useEscalationRates();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -92,8 +103,22 @@ export default function EnergyCostFields() {
                 <RebateInput className={"w-full"} addonBefore={"$"} />
                 <DemandChargeInput className={"w-full"} addonBefore={"$"} />
 
-                <PhaseIn />
-                <UseIndex />
+                <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                    <DataGrid
+                        className={"h-full"}
+                        rows={escalationRates}
+                        columns={[
+                            {
+                                name: "Year",
+                                key: "year"
+                            },
+                            {
+                                name: "Escalation Rate (%)",
+                                key: "escalationRate"
+                            }
+                        ]}
+                    />
+                </div>
             </div>
         </div>
     );

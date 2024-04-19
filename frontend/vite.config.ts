@@ -4,9 +4,14 @@ import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [react(), svgr()],
+    server: {
+        proxy: {
+            "/api": "http://localhost:8080"
+        }
+    },
     build: {
         assetsInlineLimit: 0,
         outDir: "../backend/public/dist"
-    }
+    },
+    plugins: [react(), svgr()],
 });

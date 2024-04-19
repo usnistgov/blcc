@@ -62,7 +62,7 @@ const [energyCategories] = bind(
 );
 
 // Count all water costs
-const [waterCosts] = bind(waterCosts$.pipe(map(costs => ({ "Water Costs": costs }))), {});
+const [waterCosts] = bind(waterCosts$.pipe(map(costs => costs.length > 0 ? { "Water Costs": costs } : {})), {});
 
 // Count all capital costs and its subcategories
 const [capitalCategories] = bind(
@@ -245,28 +245,29 @@ export default function Alternatives() {
                                             "flex flex-col overflow-hidden rounded-md border border-base-lightest shadow-md"
                                         }
                                     >
-                                        {children.map(([name, costs]) => {
-                                            console.log(costs);
-                                            return <span key={name}>
+                                        {children.map(([name, costs]) => (
+                                            <span key={name}>
                                                 <div className={"bg-primary px-2 py-1.5 text-center text-white"}>
                                                     {name}
                                                 </div>
                                                 <ul className={"hover:cursor-pointer"}>
-                                                    {costs.map((item: Cost) => (
-                                                        <li
+                                                    {costs.map((item: Cost) => {
+                                                        const navigateToItem = () => navigate(`cost/${item.id}`)
+                                                        return <li
                                                             key={item.id}
                                                             className={
                                                                 "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary"
                                                             }
-                                                            onClick={() => navigate(`cost/${item.id}`)}
+                                                            onClick={navigateToItem}
+                                                            onKeyDown={navigateToItem}
                                                         >
                                                             {/*FIXME switch to button so keyboard navigation works*/}
                                                             {item?.name || "Unknown"}
                                                         </li>
-                                                    ))}
+                                                    })}
                                                 </ul>
                                             </span>
-                                        })}
+                                        ))}
                                     </div>
                                 ) : (
                                     <p className={"text-base-dark"}>No {category.label}</p>

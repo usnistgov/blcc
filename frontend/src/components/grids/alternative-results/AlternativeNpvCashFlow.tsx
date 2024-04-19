@@ -34,7 +34,7 @@ const [useColumns] = bind(
                 name: alternative.name,
                 key: "alternative",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["alternative"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.alternative ?? 0)}</p>
                 ),
                 ...cellClasses
             }
@@ -48,7 +48,7 @@ const [useRows] = bind(
         map(([measure]) => {
             return [
                 { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
-                { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows["Energy"] },
+                { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
                 { subcategory: "Demand" },
                 { subcategory: "Rebates" },
                 { category: "Water", subcategory: "Usage" },
@@ -69,8 +69,6 @@ export default function AlternativeNpvCashFlow() {
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
                 className={"h-full"}
                 rows={rows}
                 columns={useColumns()}
@@ -80,8 +78,6 @@ export default function AlternativeNpvCashFlow() {
                     "--rdg-row-hover-background-color": "#3D4551"
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
-                rowGetter={rows}
-                rowsCount={rows.length}
             />
         </div>
     );

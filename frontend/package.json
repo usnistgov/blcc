@@ -3,7 +3,6 @@
     "private": true,
     "version": "0.0.0",
     "type": "module",
-    "proxy": "http://localhost",
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
@@ -27,7 +26,7 @@
         "html-to-react": "^1.7.0",
         "object-hash": "^3.0.0",
         "react": "^18.2.0",
-        "react-data-grid": "7.0.0-beta.42",
+        "react-data-grid": "7.0.0-beta.43",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.22.3",
         "rxjs": "^7.8.1"
@@ -35,7 +34,6 @@
     "devDependencies": {
         "@types/object-hash": "^3.0.6",
         "@types/react": "^18.2.75",
-        "@types/react-data-grid": "^4.0.12",
         "@types/react-dom": "^18.2.24",
         "@vitejs/plugin-react": "^4.2.1",
         "autoprefixer": "^10.4.19",

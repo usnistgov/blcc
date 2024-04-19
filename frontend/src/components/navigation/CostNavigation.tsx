@@ -91,7 +91,7 @@ function costButton(cost: Cost) {
 
 export default function CostNavigation() {
     return (
-        <nav className="flex h-full w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary-dark p-2 text-base-lightest">
+        <nav className="flex h-full max-w-32 w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary-dark p-2 text-base-lightest">
             {items.map((item) => {
                 const { component: MenuCollapse } = menuCollapse(item);
                 return <MenuCollapse key={item.title} />;
