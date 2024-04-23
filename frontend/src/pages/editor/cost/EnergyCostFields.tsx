@@ -1,4 +1,4 @@
-import { combineLatest, filter, map, of, switchMap, type Observable } from "rxjs";
+import { catchError, combineLatest, filter, map, of, switchMap, tap, type Observable } from "rxjs";
 import { CostTypes, CustomerSector, type EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
@@ -8,12 +8,12 @@ import { bind } from "@react-rxjs/core";
 import type { Collection } from "dexie";
 import { min } from "../../../model/rules/Rules";
 import DataGrid from "react-data-grid";
-import { releaseYear$, studyPeriod$ } from "../../../model/Model";
+import { releaseYear$, studyPeriod$, zip$ } from "../../../model/Model";
 import { ajax } from "rxjs/internal/ajax/ajax";
 
 const [useEscalationRates, escalationRates$] = bind(
-    combineLatest([releaseYear$, studyPeriod$]).pipe(
-        switchMap(([releaseYear, studyPeriod]) =>
+    combineLatest([releaseYear$, studyPeriod$, zip$]).pipe(
+        switchMap(([releaseYear, studyPeriod, zip]) =>
             ajax<number[]>({
                 url: "/api/escalation-rates",
                 method: "POST",
@@ -22,12 +22,16 @@ const [useEscalationRates, escalationRates$] = bind(
                 },
                 body: {
                     from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0)
+                    to: releaseYear + (studyPeriod ?? 0),
+                    zip,
+                    sector: "Residential"
                 }
             })
         ),
         map((response) => response.response),
-        map((response) => ({ year: response.year, escalationRate: response.electricty }))
+        tap(console.log),
+        map((response) => ({ year: response.year, escalationRate: response.electricty })),
+        catchError(() => of([]))
     ),
     []);
 

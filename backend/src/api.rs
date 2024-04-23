@@ -1,14 +1,14 @@
-use actix_web::web::{scope, Data, Json, ServiceConfig};
-use actix_web::{get, HttpResponse, post, Responder};
-use diesel::prelude::*;
-use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
-use diesel::dsl::{max, min};
-
 use std::fmt::Display;
 
-use crate::models::*;
+use actix_web::{get, HttpResponse, post, Responder};
+use actix_web::web::{Data, Json, scope, ServiceConfig};
+use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::dsl::{max, min};
+use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
+
 use crate::DbPool;
+use crate::models::*;
 
 #[derive(Serialize)]
 struct ErrorResponse {
@@ -28,17 +28,24 @@ async fn post_escalation_rates(
     request: Json<EscalationRateRequest>,
     data: Data<DbPool>,
 ) -> impl Responder {
-    use crate::schema::escalation_rates::dsl::*;
-    use crate::schema::escalation_rates::*;
+    use crate::schema::escalation_rates::dsl::escalation_rates;
+    use crate::schema::escalation_rates::{year, sector, division};
+    use crate::schema::state_division_region::dsl::state_division_region;
+    use crate::schema::zip_info::dsl::zip_info;
+    use crate::schema::zip_info::{zip, state};
 
     let from = request.from;
     let to = request.to;
     let mut db = data.get().expect("Failed to get a connection");
 
     let query = escalation_rates
+        .inner_join(
+            state_division_region.on(crate::schema::state_division_region::division.eq(division))
+                .inner_join(zip_info.on(state.eq(crate::schema::state_division_region::state)))
+        )
         .filter(
             year.between(from, to)
-                .and(division.eq(get_division(request.zip)))
+                .and(zip.eq(request.zip))
                 .and(sector.eq(request.sector.clone()))
         )
         .limit(80)
@@ -51,20 +58,6 @@ async fn post_escalation_rates(
             error: format!("Could not get escalation rates from {} to {}", from, to),
         }),
     }
-}
-
-fn get_division(zipcode: i32) {
-    use crate::schema::state_division_region::dsl::*;
-    use crate::schema::state_division_region::*;
-
-    state_division_region.filter(state.eq(get_state_from_zip(zipcode))).select(division)
-}
-
-fn get_state_from_zip(zipcode: i32) {
-    use crate::schema::zip_info::dsl::*;
-    use crate::schema::zip_info::*;
-
-    zip_info.filter(zip.eq(zipcode)).select(state)
 }
 
 #[derive(Deserialize)]
