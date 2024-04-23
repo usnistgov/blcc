@@ -2,6 +2,15 @@ use diesel::prelude::*;
 use serde::Serialize;
 
 #[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::state_division_region)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Division {
+    pub state: String,
+    pub division: String,
+    pub region: String
+}
+
+#[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::scc)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Scc {

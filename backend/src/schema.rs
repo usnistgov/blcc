@@ -1,6 +1,14 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    state_division_region (state) {
+        state -> Text,
+        division -> Text,
+        region -> Text
+    }
+}
+
+diesel::table! {
     scc (year, release_year) {
         year -> Int4,
         release_year -> Int4,
@@ -49,5 +57,5 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_info, scc,);
+diesel::allow_tables_to_appear_in_same_query!(region_case_ba, escalation_rates, zip_info, scc, state_division_region,);
 diesel::allow_columns_to_appear_in_same_group_by_clause!(region_case_ba::year, region_case_ba::release_year);

@@ -1,5 +1,4 @@
 import numberInput from "../../../components/InputNumber";
-import { phaseIn } from "../../../components/PhaseIn";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
 import { filter, type Observable } from "rxjs";
 import { type CapitalCost, CostTypes } from "../../../blcc-format/Format";
@@ -41,8 +40,6 @@ const { component: AmountFinancedInput, onChange$: amountFinanced$ } = numberInp
     capitalCost$.pipe(map((cost) => cost.amountFinanced)),
     true
 );
-const { component: PhaseIn } = phaseIn();
-const { component: EscalationRate } = phaseIn();
 
 export default function InvestmentCapitalCostFields() {
     useDbUpdate(initialCost$, costCollection$, "initialCost");
@@ -63,8 +60,8 @@ export default function InvestmentCapitalCostFields() {
                     <CostAdjustmentFactorInput className={"w-full"} addonAfter={"%"} controls />
                 </div>
 
-                <PhaseIn />
-                <EscalationRate />
+                {/*<PhaseIn /> // TODO replace with new grids
+                <EscalationRate />*/}
             </div>
         </div>
     );

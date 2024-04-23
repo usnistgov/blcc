@@ -3,13 +3,11 @@ import { CostTypes, CustomerSector, type EnergyCost, EnergyUnit, FuelType } from
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
 import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { phaseIn } from "../../../components/PhaseIn";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { bind } from "@react-rxjs/core";
 import type { Collection } from "dexie";
 import { min } from "../../../model/rules/Rules";
 import DataGrid from "react-data-grid";
-import phaseInDataGrid, { editorGrid } from "../../../components/PhaseInDataGrid";
 import { releaseYear$, studyPeriod$ } from "../../../model/Model";
 import { ajax } from "rxjs/internal/ajax/ajax";
 
@@ -28,7 +26,8 @@ const [useEscalationRates, escalationRates$] = bind(
                 }
             })
         ),
-        map((response) => response.response)
+        map((response) => response.response),
+        map((response) => ({ year: response.year, escalationRate: response.electricty }))
     ),
     []);
 

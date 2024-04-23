@@ -19,6 +19,8 @@ struct ErrorResponse {
 struct EscalationRateRequest {
     from: i32,
     to: i32,
+    zip: i32,
+    sector: String,
 }
 
 #[post("/escalation-rates")]
@@ -34,7 +36,11 @@ async fn post_escalation_rates(
     let mut db = data.get().expect("Failed to get a connection");
 
     let query = escalation_rates
-        .filter(year.between(from, to))
+        .filter(
+            year.between(from, to)
+                .and(division.eq(get_division(request.zip)))
+                .and(sector.eq(request.sector.clone()))
+        )
         .limit(80)
         .select(EscalationRate::as_select())
         .load(&mut db);
@@ -45,6 +51,20 @@ async fn post_escalation_rates(
             error: format!("Could not get escalation rates from {} to {}", from, to),
         }),
     }
+}
+
+fn get_division(zipcode: i32) {
+    use crate::schema::state_division_region::dsl::*;
+    use crate::schema::state_division_region::*;
+
+    state_division_region.filter(state.eq(get_state_from_zip(zipcode))).select(division)
+}
+
+fn get_state_from_zip(zipcode: i32) {
+    use crate::schema::zip_info::dsl::*;
+    use crate::schema::zip_info::*;
+
+    zip_info.filter(zip.eq(zipcode)).select(state)
 }
 
 #[derive(Deserialize)]
