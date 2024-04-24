@@ -52,6 +52,11 @@ export const dollarFormatter = new Intl.NumberFormat("en-US", {
 
 export const numberFormatter = Intl.NumberFormat("en-US");
 
+export const percentFormatter = Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: 2
+});
+
 export function getOptionalTag(measures: Measures[], tag: string) {
     return measures.reduce((acc, next, i) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -10,10 +10,18 @@ import { min } from "../../../model/rules/Rules";
 import DataGrid from "react-data-grid";
 import { releaseYear$, studyPeriod$, zip$ } from "../../../model/Model";
 import { ajax } from "rxjs/internal/ajax/ajax";
+import { percentFormatter } from "../../../util/Util";
+
+// If we are on this page that means the cost collection can be narrowed to EnergyCost.
+const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
+const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+
+const sector$ = energyCost$.pipe(map((cost) => cost?.customerSector ?? CustomerSector.RESIDENTIAL));
 
 const [useEscalationRates, escalationRates$] = bind(
-    combineLatest([releaseYear$, studyPeriod$, zip$]).pipe(
-        switchMap(([releaseYear, studyPeriod, zip]) =>
+    combineLatest([releaseYear$, studyPeriod$, zip$, sector$]).pipe(
+        tap(console.log),
+        switchMap(([releaseYear, studyPeriod, zip, sector]) =>
             ajax<number[]>({
                 url: "/api/escalation-rates",
                 method: "POST",
@@ -23,23 +31,20 @@ const [useEscalationRates, escalationRates$] = bind(
                 body: {
                     from: releaseYear,
                     to: releaseYear + (studyPeriod ?? 0),
-                    zip,
-                    sector: "Residential"
+                    zip: Number.parseInt(zip),
+                    sector
                 }
+
             })
         ),
         map((response) => response.response),
         tap(console.log),
-        map((response) => ({ year: response.year, escalationRate: response.electricty })),
+        map((response) => response.map((value) => ({ year: value.year, escalationRate: value.electricity }))),
         catchError(() => of([]))
     ),
     []);
 
 escalationRates$.subscribe(console.log)
-
-// If we are on this page that means the cost collection can be narrowed to EnergyCost.
-const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
-const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
 
 const [useUnit, unit$] = bind(energyCost$.pipe(map((cost) => cost.unit)), EnergyUnit.KWH);
 
@@ -49,7 +54,7 @@ const { change$: fuelType$, component: FuelTypeDropdown } = dropdown(
 );
 const { component: CustomerSectorDropdown, change$: customerSector$ } = dropdown(
     Object.values(CustomerSector),
-    energyCost$.pipe(map((cost) => cost.customerSector))
+    sector$
 );
 const { component: CostPerUnitInput, onChange$: costPerUnitChange$ } = numberInput(
     "Cost per Unit",
@@ -117,7 +122,12 @@ export default function EnergyCostFields() {
                             },
                             {
                                 name: "Escalation Rate (%)",
-                                key: "escalationRate"
+                                key: "escalationRate",
+                                editable: true,
+                                renderCell: (info: any) => {
+                                    console.log(info);
+                                    return percentFormatter.format(info.row.escalationRate);
+                                }
                             }
                         ]}
                     />
