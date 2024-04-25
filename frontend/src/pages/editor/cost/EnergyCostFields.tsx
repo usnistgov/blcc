@@ -7,10 +7,23 @@ import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { bind } from "@react-rxjs/core";
 import type { Collection } from "dexie";
 import { min } from "../../../model/rules/Rules";
-import DataGrid from "react-data-grid";
+import DataGrid, { RenderCellProps } from "react-data-grid";
 import { releaseYear$, studyPeriod$, zip$ } from "../../../model/Model";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { percentFormatter } from "../../../util/Util";
+
+type EscalationRateRespone = {
+    case: string;
+    release_year: number;
+    year: number;
+    divison: string;
+    electricity: number;
+    natural_gas: number;
+    propane: number;
+    region: string;
+    residual_fuel_oil: number;
+    sector: string;
+}
 
 // If we are on this page that means the cost collection can be narrowed to EnergyCost.
 const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
@@ -22,7 +35,7 @@ const [useEscalationRates, escalationRates$] = bind(
     combineLatest([releaseYear$, studyPeriod$, zip$, sector$]).pipe(
         tap(console.log),
         switchMap(([releaseYear, studyPeriod, zip, sector]) =>
-            ajax<number[]>({
+            ajax<EscalationRateRespone[]>({
                 url: "/api/escalation-rates",
                 method: "POST",
                 headers: {
@@ -38,8 +51,6 @@ const [useEscalationRates, escalationRates$] = bind(
             })
         ),
         map((response) => response.response),
-        tap(console.log),
-        map((response) => response.map((value) => ({ year: value.year, escalationRate: value.electricity }))),
         catchError(() => of([]))
     ),
     []);
@@ -124,9 +135,9 @@ export default function EnergyCostFields() {
                                 name: "Escalation Rate (%)",
                                 key: "escalationRate",
                                 editable: true,
-                                renderCell: (info: any) => {
+                                renderCell: (info: RenderCellProps<EscalationRateRespone, unknown>) => {
                                     console.log(info);
-                                    return percentFormatter.format(info.row.escalationRate);
+                                    return percentFormatter.format(info.row.electricity);
                                 }
                             }
                         ]}
