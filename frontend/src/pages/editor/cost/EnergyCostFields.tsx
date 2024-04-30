@@ -7,12 +7,14 @@ import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { bind } from "@react-rxjs/core";
 import type { Collection } from "dexie";
 import { min } from "../../../model/rules/Rules";
-import DataGrid, { RenderEditCellProps, textEditor, type RenderCellProps } from "react-data-grid";
+import DataGrid, { type RenderEditCellProps, textEditor, type RenderCellProps } from "react-data-grid";
 import { releaseYear$, studyPeriod$, zip$ } from "../../../model/Model";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { percentFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
+import { guard } from "../../../util/Operators";
+import switchComp from "../../../components/Switch";
 
 type EscalationRateRespone = {
     case: string;
@@ -33,13 +35,32 @@ type EscalationRateInfo = {
     escalationRate: number;
 }
 
+
 // If we are on this page that means the cost collection can be narrowed to EnergyCost.
 const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
 const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
 
 const fuelType$ = energyCost$.pipe(map((cost) => cost.fuelType));
 const sector$ = energyCost$.pipe(map((cost) => cost?.customerSector ?? CustomerSector.RESIDENTIAL));
-const escalation$ = energyCost$.pipe(map((cost) => cost?.escalation));
+const escalation$ = energyCost$.pipe(map((cost) => cost?.escalation), guard());
+
+const [isConstant, isConstant$] = bind(
+    energyCost$.pipe(map((cost) => !Array.isArray(cost?.escalation ?? 0))),
+    true
+);
+
+const [useEscalation] = bind(combineLatest([releaseYear$, escalation$]).pipe(
+    map(([releaseYear, escalation]) => {
+        if (Array.isArray(escalation)) {
+            return escalation.map((rate, i) => ({
+                year: releaseYear + i,
+                escalationRate: rate
+            }))
+        }
+
+        return [];
+    })
+), []);
 
 const [useEscalationRates, escalationRates$] = bind(
     combineLatest([releaseYear$, studyPeriod$, zip$, sector$]).pipe(
@@ -89,6 +110,8 @@ const [useEscalationRates, escalationRates$] = bind(
     []
 );
 
+const { component: ConstantSwitch } = switchComp(isConstant$);
+
 const [useUnit, unit$] = bind(energyCost$.pipe(map((cost) => cost.unit)), EnergyUnit.KWH);
 
 const { change$: fuelTypeChange$, component: FuelTypeDropdown } = dropdown(
@@ -127,6 +150,8 @@ const { component: DemandChargeInput, onChange$: demandChargeChange$ } = numberI
 
 const [escalationRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
 
+escalationRatesChange$.subscribe(console.log)
+
 export default function EnergyCostFields() {
     useDbUpdate(customerSector$, costCollection$, "customerSector");
     useDbUpdate(fuelTypeChange$, costCollection$, "fuelType");
@@ -145,7 +170,7 @@ export default function EnergyCostFields() {
 
     //TODO add other fields
 
-    const escalationRates = useEscalationRates();
+    const escalationRates = useEscalation();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -165,6 +190,10 @@ export default function EnergyCostFields() {
 
                 <div>
                     <Title level={5}>Escalation Rates</Title>
+                    <span className={"flex flex-row items-center gap-2 pb-2"}>
+                        <p className={"text-md pb-1"}>Constant</p>
+                        <ConstantSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
+                    </span>
                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
                         <DataGrid
                             className={"h-full"}
@@ -177,8 +206,16 @@ export default function EnergyCostFields() {
                                 {
                                     name: "Escalation Rate (%)",
                                     key: "escalationRate",
-                                    renderEditCell: (info: RenderEditCellProps<EscalationRateInfo, unknown>) => {
-                                        return <input className={"w-full pl-4"} type={"number"} />
+                                    renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo, unknown>) => {
+                                        return <input
+                                            className={"w-full pl-4"}
+                                            type={"number"}
+                                            defaultValue={row.escalationRate * 100}
+                                            onChange={(event) => onRowChange({
+                                                ...row,
+                                                [column.key]: Number.parseFloat(event.currentTarget.value) / 100
+                                            })}
+                                        />
                                     },
                                     editable: true,
                                     renderCell: (info: RenderCellProps<EscalationRateInfo, unknown>) => {
