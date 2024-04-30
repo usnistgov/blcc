@@ -46,3 +46,7 @@ export function parseHtml(): UnaryFunction<Observable<Response>, Observable<stri
         catchError(() => of(""))
     );
 }
+
+export function isTrue(): UnaryFunction<Observable<boolean>, Observable<boolean>> {
+    return pipe(filter((bool) => bool))
+}

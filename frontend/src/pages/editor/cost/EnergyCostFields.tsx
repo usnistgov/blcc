@@ -1,4 +1,4 @@
-import { catchError, combineLatest, combineLatestWith, filter, map, of, switchMap, tap, type Observable } from "rxjs";
+import { catchError, combineLatest, combineLatestWith, filter, map, merge, of, switchMap, tap, type Observable } from "rxjs";
 import { CostTypes, CustomerSector, type EnergyCost, EnergyUnit, FuelType } from "../../../blcc-format/Format";
 import dropdown from "../../../components/Dropdown";
 import numberInput from "../../../components/InputNumber";
@@ -13,8 +13,9 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { percentFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
-import { guard } from "../../../util/Operators";
+import { guard, isTrue } from "../../../util/Operators";
 import switchComp from "../../../components/Switch";
+import constantOrTable from "../../../components/ConstantOrTable";
 
 type EscalationRateRespone = {
     case: string;
@@ -152,6 +153,29 @@ const [escalationRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
 
 escalationRatesChange$.subscribe(console.log)
 
+const {
+    component: EscalationRateComponent,
+    toggleConstant$
+} = constantOrTable(
+    escalationRates$,
+    isConstant$,
+    ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo, unknown>) => {
+        return <input
+            className={"w-full pl-4"}
+            type={"number"}
+            defaultValue={row.escalationRate * 100}
+            onChange={(event) => onRowChange({
+                ...row,
+                [column.key]: Number.parseFloat(event.currentTarget.value) / 100
+            })}
+        />
+    },
+    (info: RenderCellProps<EscalationRateInfo, unknown>) => {
+        return percentFormatter.format(info.row.escalationRate);
+    }
+);
+
+
 export default function EnergyCostFields() {
     useDbUpdate(customerSector$, costCollection$, "customerSector");
     useDbUpdate(fuelTypeChange$, costCollection$, "fuelType");
@@ -161,8 +185,13 @@ export default function EnergyCostFields() {
     useDbUpdate(rebateChange$, costCollection$, "rebate");
     useDbUpdate(demandChargeChange$, costCollection$, "demandCharge");
     useDbUpdate(
-        escalationRatesChange$.pipe(
-            map((newRates) => newRates.map((rate) => rate.escalationRate)),
+        merge(
+            escalationRatesChange$.pipe(
+                map((newRates) => newRates.map((rate) => rate.escalationRate)),
+            ),
+            toggleConstant$.pipe(
+                map((isConstant) => isConstant ? 0.0 : [])
+            )
         ),
         costCollection$,
         "escalation"
@@ -187,6 +216,12 @@ export default function EnergyCostFields() {
 
                 <RebateInput className={"w-full"} addonBefore={"$"} />
                 <DemandChargeInput className={"w-full"} addonBefore={"$"} />
+
+                <EscalationRateComponent
+                    title={"Escalation Rates"}
+                    tableHeader={"Escalation Rate (%)"}
+                    key={"escalationRate"}
+                />
 
                 <div>
                     <Title level={5}>Escalation Rates</Title>

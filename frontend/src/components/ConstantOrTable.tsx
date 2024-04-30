@@ -1,61 +1,77 @@
 import Title from "antd/es/typography/Title"
 import switchComp from "./Switch";
 import { type Observable, of } from "rxjs";
-import DataGrid, { type RenderEditCellProps, textEditor, type RenderCellProps } from "react-data-grid";
+import DataGrid, { type RenderEditCellProps, type RenderCellProps } from "react-data-grid";
 import { bind } from "@react-rxjs/core";
-import { percentFormatter } from "../util/Util";
 import numberInput from "./InputNumber";
+import type { ReactNode } from "react";
+import { createSignal } from "@react-rxjs/utils";
 
-export default function constantOrTable<T>(values$: Observable<T[]>, isConstant$: Observable<boolean>) {
-    const { component: ConstantSwitch, onChange$: switchChange$ } = switchComp(of(false));
-    const { component: ConstantInput } = numberInput();
+export type RateInfo<T> = {
+    year: number;
+    value: T;
+};
 
+export type ConstantOrTableProps = {
+    title: string;
+    tableHeader: string;
+    key: string;
+};
+
+export default function constantOrTable<A>(
+    values$: Observable<A[]>,
+    isConstant$: Observable<boolean>,
+    renderEditCell: (props: RenderEditCellProps<A, unknown>) => ReactNode,
+    renderCell: (props: RenderCellProps<A, unknown>) => ReactNode
+) {
+    const { component: ConstantSwitch, onChange$: switchChange$ } = switchComp(isConstant$);
+    const { component: ConstantInput } = numberInput("", "");
+
+    const [rowChange$, changeRows] = createSignal<A[]>();
     const [useValues] = bind(values$, []);
     const [isConstant] = bind(isConstant$, true);
 
     return {
-        component: function ConstantOrTable() {
-            return <>
-                <Title level={5}>Escalation Rates</Title>
+        onChange$: rowChange$,
+        toggleConstant$: switchChange$,
+        component: function ConstantOrTable({
+            title,
+            tableHeader,
+            key
+        }: ConstantOrTableProps) {
+            const values = useValues();
+
+            return <div>
+                <Title level={5}>{title}</Title>
                 <span className={"flex flex-row items-center gap-2 pb-2"}>
                     <p className={"text-md pb-1"}>Constant</p>
                     <ConstantSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
                 </span>
 
 
-                {isConstant() && <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                    <DataGrid
-                        className={"h-full"}
-                        rows={useValues()}
-                        columns={[
-                            {
-                                name: "Year",
-                                key: "year"
-                            },
-                            {
-                                name: "Escalation Rate (%)",
-                                key: "escalationRate",
-                                renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<T, unknown>) => {
-                                    return <input
-                                        className={"w-full pl-4"}
-                                        type={"number"}
-                                        defaultValue={row.escalationRate * 100}
-                                        onChange={(event) => onRowChange({
-                                            ...row,
-                                            [column.key]: Number.parseFloat(event.currentTarget.value) / 100
-                                        })}
-                                    />
+                {isConstant() &&
+                    <ConstantInput className={"w-1/2"} /> ||
+                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                        <DataGrid
+                            className={"h-full"}
+                            rows={values}
+                            columns={[
+                                {
+                                    name: "Year",
+                                    key: "year"
                                 },
-                                editable: true,
-                                renderCell: (info: RenderCellProps<EscalationRateInfo, unknown>) => {
-                                    return percentFormatter.format(info.row.escalationRate);
+                                {
+                                    name: tableHeader,
+                                    key,
+                                    renderEditCell,
+                                    editable: true,
+                                    renderCell
                                 }
-                            }
-                        ]}
-                        onRowsChange={newRates}
-                    />
-                </div>}
-            </>
+                            ]}
+                            onRowsChange={changeRows}
+                        />
+                    </div>}
+            </div>
         }
     }
 }
