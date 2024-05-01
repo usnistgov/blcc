@@ -29,7 +29,8 @@
         "react-data-grid": "7.0.0-beta.43",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.22.3",
-        "rxjs": "^7.8.1"
+        "rxjs": "^7.8.1",
+        "ts-pattern": "^5.1.1"
     },
     "devDependencies": {
         "@types/object-hash": "^3.0.6",

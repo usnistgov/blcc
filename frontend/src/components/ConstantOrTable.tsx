@@ -1,46 +1,36 @@
 import Title from "antd/es/typography/Title"
 import switchComp from "./Switch";
-import { type Observable, of } from "rxjs";
-import DataGrid, { type RenderEditCellProps, type RenderCellProps } from "react-data-grid";
+import { map, type Observable } from "rxjs";
 import { bind } from "@react-rxjs/core";
 import numberInput from "./InputNumber";
-import type { ReactNode } from "react";
-import { createSignal } from "@react-rxjs/utils";
-
-export type RateInfo<T> = {
-    year: number;
-    value: T;
-};
+import type { PropsWithChildren } from "react";
+import { P, match } from "ts-pattern";
 
 export type ConstantOrTableProps = {
     title: string;
-    tableHeader: string;
-    key: string;
 };
 
-export default function constantOrTable<A>(
-    values$: Observable<A[]>,
-    isConstant$: Observable<boolean>,
-    renderEditCell: (props: RenderEditCellProps<A, unknown>) => ReactNode,
-    renderCell: (props: RenderCellProps<A, unknown>) => ReactNode
+export default function constantOrTable<T>(
+    values$: Observable<T[] | T>,
 ) {
-    const { component: ConstantSwitch, onChange$: switchChange$ } = switchComp(isConstant$);
+    const [useValues] = bind(values$, [] as T[]);
+
+    const { component: ConstantSwitch, onChange$: switchChange$ } = switchComp(values$.pipe(
+        map((values) => match(values)
+            .with(P.array(), () => false)
+            .otherwise(() => true)
+        ))
+    );
     const { component: ConstantInput } = numberInput("", "");
 
-    const [rowChange$, changeRows] = createSignal<A[]>();
-    const [useValues] = bind(values$, []);
-    const [isConstant] = bind(isConstant$, true);
+    switchChange$.subscribe()
 
     return {
-        onChange$: rowChange$,
         toggleConstant$: switchChange$,
         component: function ConstantOrTable({
             title,
-            tableHeader,
-            key
-        }: ConstantOrTableProps) {
-            const values = useValues();
-
+            children
+        }: PropsWithChildren<ConstantOrTableProps>) {
             return <div>
                 <Title level={5}>{title}</Title>
                 <span className={"flex flex-row items-center gap-2 pb-2"}>
@@ -48,29 +38,9 @@ export default function constantOrTable<A>(
                     <ConstantSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
                 </span>
 
-
-                {isConstant() &&
-                    <ConstantInput className={"w-1/2"} /> ||
-                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                        <DataGrid
-                            className={"h-full"}
-                            rows={values}
-                            columns={[
-                                {
-                                    name: "Year",
-                                    key: "year"
-                                },
-                                {
-                                    name: tableHeader,
-                                    key,
-                                    renderEditCell,
-                                    editable: true,
-                                    renderCell
-                                }
-                            ]}
-                            onRowsChange={changeRows}
-                        />
-                    </div>}
+                {match(useValues())
+                    .with(P.array(), () => children)
+                    .otherwise(() => <ConstantInput className={"w-1/2"} addonAfter={"%"} />)}
             </div>
         }
     }

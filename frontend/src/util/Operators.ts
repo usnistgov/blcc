@@ -50,3 +50,7 @@ export function parseHtml(): UnaryFunction<Observable<Response>, Observable<stri
 export function isTrue(): UnaryFunction<Observable<boolean>, Observable<boolean>> {
     return pipe(filter((bool) => bool))
 }
+
+export function isFalse(): UnaryFunction<Observable<boolean>, Observable<boolean>> {
+    return pipe(filter((bool) => bool === false))
+}

@@ -12,10 +12,9 @@ import { releaseYear$, studyPeriod$, zip$ } from "../../../model/Model";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { percentFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
-import Title from "antd/es/typography/Title";
-import { guard, isTrue } from "../../../util/Operators";
-import switchComp from "../../../components/Switch";
+import { guard, isFalse, isTrue } from "../../../util/Operators";
 import constantOrTable from "../../../components/ConstantOrTable";
+import { P, match } from "ts-pattern";
 
 type EscalationRateRespone = {
     case: string;
@@ -44,74 +43,47 @@ const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type ==
 const fuelType$ = energyCost$.pipe(map((cost) => cost.fuelType));
 const sector$ = energyCost$.pipe(map((cost) => cost?.customerSector ?? CustomerSector.RESIDENTIAL));
 const escalation$ = energyCost$.pipe(map((cost) => cost?.escalation), guard());
-
-const [isConstant, isConstant$] = bind(
-    energyCost$.pipe(map((cost) => !Array.isArray(cost?.escalation ?? 0))),
-    true
-);
+const useIndex$ = energyCost$.pipe(map((cost) => cost.useIndex));
 
 const [useEscalation] = bind(combineLatest([releaseYear$, escalation$]).pipe(
-    map(([releaseYear, escalation]) => {
-        if (Array.isArray(escalation)) {
-            return escalation.map((rate, i) => ({
-                year: releaseYear + i,
-                escalationRate: rate
-            }))
-        }
-
-        return [];
-    })
+    map(([releaseYear, escalation]) => match(escalation)
+        .with(P.array(), (escalation) => escalation.map((rate, i) => ({
+            year: releaseYear + i,
+            escalationRate: rate,
+        })))
+        .otherwise(() => [])
+    )
 ), []);
 
-const [useEscalationRates, escalationRates$] = bind(
-    combineLatest([releaseYear$, studyPeriod$, zip$, sector$]).pipe(
-        switchMap(([releaseYear, studyPeriod, zip, sector]) =>
-            ajax<EscalationRateRespone[]>({
-                url: "/api/escalation-rates",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: {
-                    from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0),
-                    zip: Number.parseInt(zip ?? "0"),
-                    sector
-                }
-
-            })
-        ),
-        map((response) => response.response),
-        combineLatestWith(fuelType$),
-        map(([response, fuelType]) => response.map((value) => {
-            function getEscalationRate() {
-                switch (fuelType) {
-                    case FuelType.ELECTRICITY:
-                        return value.electricity;
-                    case FuelType.PROPANE:
-                        return value.propane;
-                    case FuelType.DISTILLATE_OIL:
-                        return value.distillate_fuel_oil;
-                    case FuelType.RESIDUAL_OIL:
-                        return value.residual_fuel_oil;
-                    case FuelType.NATURAL_GAS:
-                        return value.natural_gas;
-                    case FuelType.OTHER:
-                        return 0;
-                }
+const fetchEscalationRates$ = combineLatest([releaseYear$, studyPeriod$, zip$, sector$]).pipe(
+    switchMap(([releaseYear, studyPeriod, zip, sector]) =>
+        ajax<EscalationRateRespone[]>({
+            url: "/api/escalation-rates",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: {
+                from: releaseYear,
+                to: releaseYear + (studyPeriod ?? 0),
+                zip: Number.parseInt(zip ?? "0"),
+                sector
             }
 
-            return {
-                year: value.year,
-                escalationRate: getEscalationRate()
-            }
-        })),
-        catchError(() => of([]))
+        })
     ),
-    []
+    map((response) => response.response),
+    combineLatestWith(fuelType$),
+    map(([response, fuelType]) => response.map((value) => match(fuelType)
+        .with(FuelType.ELECTRICITY, () => value.electricity)
+        .with(FuelType.PROPANE, () => value.propane)
+        .with(FuelType.DISTILLATE_OIL, () => value.distillate_fuel_oil)
+        .with(FuelType.RESIDUAL_OIL, () => value.residual_fuel_oil)
+        .with(FuelType.NATURAL_GAS, () => value.natural_gas)
+        .otherwise(() => 0)
+    )),
+    catchError(() => of([]))
 );
-
-const { component: ConstantSwitch } = switchComp(isConstant$);
 
 const [useUnit, unit$] = bind(energyCost$.pipe(map((cost) => cost.unit)), EnergyUnit.KWH);
 
@@ -153,27 +125,8 @@ const [escalationRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
 
 escalationRatesChange$.subscribe(console.log)
 
-const {
-    component: EscalationRateComponent,
-    toggleConstant$
-} = constantOrTable(
-    escalationRates$,
-    isConstant$,
-    ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo, unknown>) => {
-        return <input
-            className={"w-full pl-4"}
-            type={"number"}
-            defaultValue={row.escalationRate * 100}
-            onChange={(event) => onRowChange({
-                ...row,
-                [column.key]: Number.parseFloat(event.currentTarget.value) / 100
-            })}
-        />
-    },
-    (info: RenderCellProps<EscalationRateInfo, unknown>) => {
-        return percentFormatter.format(info.row.escalationRate);
-    }
-);
+const { component: EscalationRateComponent, toggleConstant$: escalationRatesToggle$ } = constantOrTable(escalation$);
+const { component: UseIndexComponent, toggleConstant$: usageIndexToggle$ } = constantOrTable(useIndex$);
 
 
 export default function EnergyCostFields() {
@@ -189,17 +142,33 @@ export default function EnergyCostFields() {
             escalationRatesChange$.pipe(
                 map((newRates) => newRates.map((rate) => rate.escalationRate)),
             ),
-            toggleConstant$.pipe(
+            escalationRatesToggle$.pipe(
+                isTrue(),
+                map(() => 0.0)
+            ),
+            escalationRatesToggle$.pipe(
+                isFalse(),
+                switchMap(() => fetchEscalationRates$)
+            )
+        ).pipe(tap(console.log)),
+        costCollection$,
+        "escalation"
+    );
+    useDbUpdate(
+        merge(
+            usageIndexToggle$.pipe(
                 map((isConstant) => isConstant ? 0.0 : [])
             )
         ),
         costCollection$,
-        "escalation"
-    );
+        "useIndex"
+    )
 
     //TODO add other fields
 
-    const escalationRates = useEscalation();
+    const escalationRates = useEscalation()
+
+    console.log(escalationRates);
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -217,18 +186,7 @@ export default function EnergyCostFields() {
                 <RebateInput className={"w-full"} addonBefore={"$"} />
                 <DemandChargeInput className={"w-full"} addonBefore={"$"} />
 
-                <EscalationRateComponent
-                    title={"Escalation Rates"}
-                    tableHeader={"Escalation Rate (%)"}
-                    key={"escalationRate"}
-                />
-
-                <div>
-                    <Title level={5}>Escalation Rates</Title>
-                    <span className={"flex flex-row items-center gap-2 pb-2"}>
-                        <p className={"text-md pb-1"}>Constant</p>
-                        <ConstantSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
-                    </span>
+                <EscalationRateComponent title={"Escalation Rates"}>
                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
                         <DataGrid
                             className={"h-full"}
@@ -261,9 +219,8 @@ export default function EnergyCostFields() {
                             onRowsChange={newRates}
                         />
                     </div>
-                </div>
-                <div>
-                    <Title level={5}>Usage Index</Title>
+                </EscalationRateComponent>
+                <UseIndexComponent title={"Usage Index"}>
                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
                         <DataGrid
                             className={"h-full"}
@@ -274,8 +231,8 @@ export default function EnergyCostFields() {
                                     key: "year"
                                 },
                                 {
-                                    name: "EscalationRate (%)",
-                                    key: "escalationRate",
+                                    name: "Usage",
+                                    key: "usage",
                                     renderEditCell: textEditor,
                                     renderCell: (info: RenderCellProps<EscalationRateInfo, unknown>) => {
                                         return percentFormatter.format(info.row.escalationRate);
@@ -284,7 +241,7 @@ export default function EnergyCostFields() {
                             ]}
                         />
                     </div>
-                </div>
+                </UseIndexComponent>
             </div>
         </div>
     );
