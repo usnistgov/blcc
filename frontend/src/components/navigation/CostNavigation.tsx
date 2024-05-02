@@ -7,8 +7,9 @@ import button, { ButtonType } from "./../Button";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import collapse from "./../Collapse";
 import { bind } from "@react-rxjs/core";
-import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
+import { alternativeID$, capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
 import { useActiveLink } from "../../hooks/UseActiveLink";
+import { costID$ } from "../../model/CostModel";
 
 type MenuItem = {
     title: string;
@@ -75,7 +76,10 @@ function costButton(cost: Cost) {
     return {
         component: function AltButton() {
             const navigate = useNavigate();
-            useSubscribe(click$, () => navigate(`cost/${cost.id}`), [navigate]);
+            useSubscribe(click$, () => {
+                costID$.next(cost.id ?? 0);
+                navigate(`cost/${cost.id}`);
+            }, [navigate]);
             return (
                 <Button
                     key={cost.id}

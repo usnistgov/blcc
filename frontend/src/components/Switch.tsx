@@ -1,8 +1,9 @@
-import { type Observable, of } from "rxjs";
-import type { PropsWithChildren } from "react";
+import { type Observable, of, Observer } from "rxjs";
+import { useEffect, type PropsWithChildren, type ReactNode } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import { Switch } from "antd";
-import { bind } from "@react-rxjs/core";
+import { StateObservable, bind, useStateObservable } from "@react-rxjs/core";
+import { Rxjs } from "../util/Util";
 
 export type SwitchProps = {
     className?: string;
@@ -48,3 +49,22 @@ export default function switchComp(value$: Observable<boolean> = of(false)): Swi
         }
     };
 }
+
+export const RxjsSwitch = Rxjs<{ toggle$: Observable<boolean>, toggle: (x: boolean) => void }, { value$: StateObservable<boolean>, callback: Observer<boolean> }>(
+    () => {
+        const [toggle$, toggle] = createSignal<boolean>();
+        return {
+            toggle$,
+            toggle
+        }
+    },
+    ({ toggle$, toggle, value$, callback }) => {
+        const value = useStateObservable(value$);
+
+        useEffect(() => {
+            toggle$.subscribe((t) => callback.next(t))
+        }, [toggle$, callback]);
+
+        return <Switch onChange={toggle} value={value} />
+    }
+)

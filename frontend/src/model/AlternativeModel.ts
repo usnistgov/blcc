@@ -1,6 +1,6 @@
 import { urlParameters$ } from "../components/UrlParameters";
-import { map } from "rxjs/operators";
-import { switchMap } from "rxjs";
+import { filter, map } from "rxjs/operators";
+import { BehaviorSubject, Subject, combineLatest, switchMap } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
 import { arrayFilter, guard } from "../util/Operators";
 import { bind, shareLatest } from "@react-rxjs/core";
@@ -10,11 +10,14 @@ import { liveQuery } from "dexie";
 /**
  * The ID of the currently selected alternative as denoted in the URL.
  */
-export const alternativeID$ = urlParameters$.pipe(
+export const alternativeID$ = new BehaviorSubject<number>(0);
+
+/*
+urlParameters$.pipe(
     map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)),
     shareLatest()
 );
-
+*/
 export const [useAlternativeID, altID$] = bind(alternativeID$, 0);
 
 export const alternativeCollection$ = alternativeID$.pipe(map((id) => db.alternatives.where("id").equals(id)));
@@ -35,7 +38,7 @@ export const altCosts$ = alternative$.pipe(
 );
 export const [useAltCosts] = bind(altCosts$, []);
 
-export const [useAltName] = bind(alternative$.pipe(map((alt) => alt.name)), "");
+export const [useAltName, altNameBind$] = bind(alternative$.pipe(map((alt) => alt.name)), "");
 
 /**
  * The energy costs of the current alternative.
@@ -61,3 +64,5 @@ export const contractCosts$ = altCosts$.pipe(arrayFilter(isContractCost));
  * The other costs of the current alternative.
  */
 export const otherCosts$ = altCosts$.pipe(arrayFilter(isOtherCost));
+
+export const [isLoaded] = bind(combineLatest([altNameBind$.pipe(filter((name) => name !== ""))]).pipe(map(() => true)), false);

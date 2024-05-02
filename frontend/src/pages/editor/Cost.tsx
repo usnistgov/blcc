@@ -18,7 +18,7 @@ import ImplementationContractCostFields from "./cost/ImplementationContractCostF
 import RecurringContractCostFields from "./cost/RecurringContractCostFields";
 import OtherCostFields from "./cost/OtherCostFields";
 import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
-import { useAlternativeID, useAltName } from "../../model/AlternativeModel";
+import { isLoaded, useAlternativeID, useAltName } from "../../model/AlternativeModel";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
@@ -27,6 +27,8 @@ import { defaultValue } from "../../util/Operators";
 import addCostModal from "../../components/AddCostModal";
 import { db } from "../../model/db";
 import SubHeader from "../../components/SubHeader";
+import { match } from "ts-pattern";
+import { motion } from "framer-motion";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
@@ -125,11 +127,13 @@ function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean
 }
 
 export default function Cost() {
+    const loaded = isLoaded();
     const id = useCostID();
     const alternativeName = useAltName();
     const navigate = useNavigate();
     const alternatives = useAlternatives();
     const onlyOne = onlyOneAlternativeIncludes();
+    const costType = useCostType();
 
     // Make back arrow go to the currently selected alternative
     const alternativeID = useAlternativeID();
@@ -143,6 +147,9 @@ export default function Cost() {
     useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
     useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
+
+    if (!loaded)
+        return <></>
 
     return (
         <div className={"w-full"}>
@@ -195,24 +202,18 @@ export default function Cost() {
                 </div>
             </div>
             <div className={"border-t border-base-lighter"}>
-                <Fields />
+                {match(costType)
+                    .with(CostTypes.ENERGY, () => <EnergyCostFields />)
+                    .with(CostTypes.WATER, () => <WaterCostFields />)
+                    .with(CostTypes.CAPITAL, () => <InvestmentCapitalCostFields />)
+                    .with(CostTypes.REPLACEMENT_CAPITAL, () => <ReplacementCapitalCostFields />)
+                    .with(CostTypes.OMR, () => <OMRCostFields />)
+                    .with(CostTypes.IMPLEMENTATION_CONTRACT, () => <ImplementationContractCostFields />)
+                    .with(CostTypes.RECURRING_CONTRACT, () => <RecurringContractCostFields />)
+                    .with(CostTypes.OTHER, () => <OtherCostFields />)
+                    .with(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />)
+                    .exhaustive()}
             </div>
         </div>
     );
-}
-
-const costFieldComponents = {
-    [CostTypes.ENERGY]: <EnergyCostFields />,
-    [CostTypes.WATER]: <WaterCostFields />,
-    [CostTypes.CAPITAL]: <InvestmentCapitalCostFields />,
-    [CostTypes.REPLACEMENT_CAPITAL]: <ReplacementCapitalCostFields />,
-    [CostTypes.OMR]: <OMRCostFields />,
-    [CostTypes.IMPLEMENTATION_CONTRACT]: <ImplementationContractCostFields />,
-    [CostTypes.RECURRING_CONTRACT]: <RecurringContractCostFields />,
-    [CostTypes.OTHER]: <OtherCostFields />,
-    [CostTypes.OTHER_NON_MONETARY]: <OtherNonMonetaryCostFields />
-};
-
-function Fields() {
-    return costFieldComponents[useCostType()];
 }

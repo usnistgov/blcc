@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { combineLatest, from, map, NEVER, of, switchMap } from "rxjs";
+import { combineLatest, from, map, merge, NEVER, of, switchMap } from "rxjs";
 import { liveQuery } from "dexie";
 import { db } from "./db";
 import { guard } from "../util/Operators";
@@ -100,7 +100,7 @@ export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 export const alternatives$ = alternativeIDs$.pipe(
     switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray()))
 );
-export const [useAlternatives] = bind(alternatives$, []);
+export const [useAlternatives, alt$] = bind(alternatives$, []);
 
 export const baselineID$ = alternatives$.pipe(
     map((alternatives) => alternatives.find((alternative) => alternative.baseline)?.id ?? -1)
@@ -228,3 +228,13 @@ alternatives$
         // If an entry exists but the error message has changed, update it
         collection.modify({ messages: result.messages ?? [] });
     });
+
+export const [isLoaded, loaded] = bind(
+    combineLatest([dbProject$, alt$.pipe(filter((x) => x.length > 0))]).pipe(map(() => true)),
+    false
+);
+
+loaded.subscribe((value) => console.log("loaded", value))
+
+alternatives$.subscribe((alts) => console.log("alts", alts))
+alt$.subscribe((alts) => console.log("bind alt", alts))

@@ -65,3 +65,7 @@ export function getOptionalTag(measures: Measures[], tag: string) {
         return acc;
     }, {});
 }
+
+export function Rxjs<A, B = Record<string, never>>(init: () => A, component: React.FC<A & B>): React.FC<B> {
+    return (b) => component({ ...init(), ...b })
+}

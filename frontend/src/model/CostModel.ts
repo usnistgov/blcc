@@ -1,5 +1,5 @@
 import { urlParameters$ } from "../components/UrlParameters";
-import { map, switchMap } from "rxjs";
+import { Subject, map, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
 import { db } from "./db";
@@ -9,10 +9,13 @@ import { CostTypes } from "../blcc-format/Format";
 /**
  * The ID of the currently selected cost
  */
+export const costID$ = new Subject<number>();
+/*
 export const costID$ = urlParameters$.pipe(
     map(({ costID }) => Number.parseInt(costID ?? "-1")),
     shareLatest()
 );
+*/
 
 export const costCollection$ = costID$.pipe(map((id) => db.costs.where("id").equals(id)));
 

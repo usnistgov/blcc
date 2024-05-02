@@ -1,7 +1,8 @@
-import type { Observable } from "rxjs";
-import type { PropsWithChildren } from "react";
+import { Subject, type Observable, type Observer } from "rxjs";
+import { useEffect, type PropsWithChildren } from "react";
 import { createSignal } from "@react-rxjs/utils";
 import Icon from "@mdi/react";
+import { Rxjs } from "../util/Util";
 
 export enum ButtonType {
     PRIMARY = " bg-primary hover:bg-primary-light active:bg-primary-dark text-base-lightest ",
@@ -64,3 +65,41 @@ export default function button(): Button {
         }
     };
 }
+
+export const RxjsButton = Rxjs<{ sClick$: Subject<void> }, PropsWithChildren & ButtonProps & { click$: (clicks: Subject<void>) => void }>(
+    () => ({ sClick$: new Subject<void>() }),
+    ({
+        children,
+        className,
+        click$,
+        sClick$,
+        type = ButtonType.PRIMARY,
+        icon,
+        disabled = false,
+        iconSide = "left",
+        ...buttonProps
+    }) => {
+        useEffect(() => {
+            click$(sClick$);
+        }, [click$, sClick$]);
+
+        return (
+            <button
+                type={"button"}
+                className={
+                    `${(className ? className : "")} ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`
+                }
+                onClick={() => sClick$.next()}
+                disabled={disabled}
+                {...buttonProps}
+            >
+                <span className={"flex flex-row place-items-center"}>
+                    {icon && iconSide === "left" && <Icon className={"mr-1 min-w-[24px]"} path={icon} size={0.8} />}
+                    {children}
+                    {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8} />}
+                </span>
+            </button>
+        );
+    })
+
+

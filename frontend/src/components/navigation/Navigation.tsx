@@ -1,79 +1,81 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { map } from "rxjs";
-import { alternatives$ } from "../../model/Model";
-import { bind } from "@react-rxjs/core";
-import type { Alternative } from "../../blcc-format/Format";
-import button, { ButtonType } from "./../Button";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import collapse from "./../Collapse";
+import { useAlternatives } from "../../model/Model";
+import { ButtonType, RxjsButton } from "./../Button";
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 import { useActiveLink } from "../../hooks/UseActiveLink";
+import Icon from "@mdi/react";
+import { match } from "ts-pattern";
+import { alternativeID$ } from "../../model/AlternativeModel";
 
-function altButton(alt: Alternative) {
-    const { click$, component: Button } = button();
+/*
+ *  Component representing the navigation button for an alternative
+ */
+function AltButton({ altID, name, icon }: { altID: number, name: string, icon?: string }) {
+    const navigate = useNavigate();
 
-    return {
-        component: function AltButton({ icon }: { icon?: string }) {
-            const navigate = useNavigate();
-
-            useSubscribe(click$, () => navigate(`/editor/alternative/${alt.id}`));
-
-            return (
-                <Button
-                    key={alt.id}
-                    className={useActiveLink(`/editor/alternative/${alt.id}/*`)}
-                    type={ButtonType.PRIMARY}
-                    icon={icon}
-                >
-                    {alt.name}
-                </Button>
-            );
-        }
-    };
+    return (
+        <RxjsButton
+            key={altID}
+            className={useActiveLink(`/editor/alternative/${altID}/*`)}
+            type={ButtonType.PRIMARY}
+            icon={icon}
+            click$={(click$) => click$.subscribe(() => {
+                alternativeID$.next(altID);
+                navigate(`/editor/alternative/${altID}`)
+            })}
+        >
+            {name}
+        </RxjsButton>
+    );
 }
 
-const [useMenuItems] = bind(
-    alternatives$.pipe(
-        map((alternatives) =>
-            [...alternatives.values()].map((alt) => {
-                const button = altButton(alt);
-                return <button.component key={alt.id} icon={alt.baseline ? mdiAlphaBBox : undefined} />;
-            })
-        )
-    ),
-    []
-);
-
-const { click$: generalInformationClick$, component: GeneralInformationButton } = button();
-const { click$: alternativeSummaryClick$, component: AlternativeSummaryButton } = button();
-const { component: AlternativeSubMenu } = collapse();
-
+/**
+ *  The main navigation component for the editor portion of the application. Has links to the 
+ *  General information page, the alternative summary page, and to all the alternatives.
+ */
 export default function Navigation() {
     const navigate = useNavigate();
 
-    useSubscribe(generalInformationClick$, () => navigate("/editor"), [navigate]);
-    useSubscribe(alternativeSummaryClick$, () => navigate("/editor/alternative"), [navigate]);
+    console.log(useAlternatives())
 
     return (
         <>
             <nav className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
-                <GeneralInformationButton
+                {/* Top level buttons */}
+                <RxjsButton
                     type={ButtonType.PRIMARY}
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}
                     icon={mdiFileDocument}
+                    click$={(click$) => click$.subscribe(() => navigate("/editor"))}
                 >
                     General Information
-                </GeneralInformationButton>
-                <AlternativeSummaryButton
+                </RxjsButton>
+                <RxjsButton
                     type={ButtonType.PRIMARY}
                     className={`whitespace-nowrap ${useActiveLink("/editor/alternative")}`}
                     icon={mdiViewList}
+                    click$={(click$) => click$.subscribe(() => navigate("/editor/alternative"))}
                 >
                     Alternative Summary
-                </AlternativeSummaryButton>
-                <AlternativeSubMenu title={"Alternatives"} icon={mdiFileTree}>
-                    {useMenuItems()}
-                </AlternativeSubMenu>
+                </RxjsButton>
+
+                {/* Alternative buttons */}
+                <span className={"flex flex-row place-items-center px-2 py-1 select-none"}>
+                    <Icon className={"mr-1 min-w-[24px]"} path={mdiFileTree} size={0.8} />
+                    Alternatives
+                </span>
+                <div className={"flex flex-col gap-2 pl-8"}>
+                    {match([...useAlternatives().values()])
+                        .when((alts) => alts.length <= 0, () => <p className={"text-base-light"}>No Alternatives</p>)
+                        .otherwise((alts) => alts.map((alt) =>
+                            <AltButton
+                                key={alt.id}
+                                altID={alt.id ?? 0}
+                                name={alt.name}
+                                icon={alt.baseline ? mdiAlphaBBox : undefined}
+                            />
+                        ))}
+                </div>
             </nav>
             <Outlet />
         </>

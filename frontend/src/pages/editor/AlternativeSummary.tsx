@@ -16,6 +16,7 @@ import addAlternativeModal from "../../components/AddAlternativeModal";
 import { db } from "../../model/db";
 import { liveQuery } from "dexie";
 import SubHeader from "../../components/SubHeader";
+import { AnimatePresence, motion } from "framer-motion";
 
 const { Title } = Typography;
 const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
@@ -27,7 +28,7 @@ export default function AlternativeSummary() {
     const cards = useCards();
 
     return (
-        <>
+        <motion.div exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
                     <AddAlternativeModal />
@@ -46,7 +47,7 @@ export default function AlternativeSummary() {
                     </div>
                 )}
             </div>
-        </>
+        </motion.div>
     );
 }
 
