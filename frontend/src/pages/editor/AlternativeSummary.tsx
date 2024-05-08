@@ -28,7 +28,7 @@ export default function AlternativeSummary() {
     const cards = useCards();
 
     return (
-        <motion.div exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1 }}>
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
                     <AddAlternativeModal />

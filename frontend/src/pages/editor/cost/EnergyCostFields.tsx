@@ -13,7 +13,7 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { percentFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import { guard, isFalse, isTrue } from "../../../util/Operators";
-import constantOrTable from "../../../components/ConstantOrTable";
+import constantOrTable, { RxjsConstantOrTable } from "../../../components/ConstantOrTable";
 import { P, match } from "ts-pattern";
 
 type EscalationRateRespone = {
@@ -185,6 +185,11 @@ export default function EnergyCostFields() {
 
                 <RebateInput className={"w-full"} addonBefore={"$"} />
                 <DemandChargeInput className={"w-full"} addonBefore={"$"} />
+
+                <RxjsConstantOrTable title={"Escalation Rates"}>
+                    <div>
+                    </div>
+                </RxjsConstantOrTable>
 
                 <EscalationRateComponent title={"Escalation Rates"}>
                     <div className={"w-full overflow-hidden rounded shadow-lg"}>

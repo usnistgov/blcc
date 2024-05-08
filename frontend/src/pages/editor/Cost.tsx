@@ -28,7 +28,6 @@ import addCostModal from "../../components/AddCostModal";
 import { db } from "../../model/db";
 import SubHeader from "../../components/SubHeader";
 import { match } from "ts-pattern";
-import { motion } from "framer-motion";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();

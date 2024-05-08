@@ -50,7 +50,10 @@ export default function switchComp(value$: Observable<boolean> = of(false)): Swi
     };
 }
 
-export const RxjsSwitch = Rxjs<{ toggle$: Observable<boolean>, toggle: (x: boolean) => void }, { value$: StateObservable<boolean>, callback: Observer<boolean> }>(
+export const RxjsSwitch = Rxjs<
+    { toggle$: Observable<boolean>, toggle: (x: boolean) => void },
+    { value$: StateObservable<boolean>, callback: Observer<boolean> } & SwitchProps
+>(
     () => {
         const [toggle$, toggle] = createSignal<boolean>();
         return {
@@ -58,13 +61,32 @@ export const RxjsSwitch = Rxjs<{ toggle$: Observable<boolean>, toggle: (x: boole
             toggle
         }
     },
-    ({ toggle$, toggle, value$, callback }) => {
+    ({
+        toggle$,
+        toggle,
+        value$,
+        callback,
+        className,
+        disabled,
+        defaultChecked,
+        checked,
+        checkedChildren,
+        unCheckedChildren
+    }) => {
         const value = useStateObservable(value$);
 
         useEffect(() => {
             toggle$.subscribe((t) => callback.next(t))
         }, [toggle$, callback]);
 
-        return <Switch onChange={toggle} value={value} />
+        return <Switch
+            className={className}
+            onChange={toggle}
+            checked={value}
+            disabled={disabled}
+            defaultChecked={defaultChecked}
+            checkedChildren={checkedChildren}
+            unCheckedChildren={unCheckedChildren}
+        />
     }
 )

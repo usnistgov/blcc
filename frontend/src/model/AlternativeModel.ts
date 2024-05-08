@@ -1,9 +1,8 @@
-import { urlParameters$ } from "../components/UrlParameters";
 import { filter, map } from "rxjs/operators";
 import { BehaviorSubject, Subject, combineLatest, switchMap } from "rxjs";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
 import { arrayFilter, guard } from "../util/Operators";
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind, shareLatest, state } from "@react-rxjs/core";
 import { db } from "./db";
 import { liveQuery } from "dexie";
 
@@ -12,12 +11,6 @@ import { liveQuery } from "dexie";
  */
 export const alternativeID$ = new BehaviorSubject<number>(0);
 
-/*
-urlParameters$.pipe(
-    map(({ alternativeID }) => (alternativeID ? +alternativeID : -1)),
-    shareLatest()
-);
-*/
 export const [useAlternativeID, altID$] = bind(alternativeID$, 0);
 
 export const alternativeCollection$ = alternativeID$.pipe(map((id) => db.alternatives.where("id").equals(id)));
@@ -34,7 +27,8 @@ export const alternative$ = alternativeID$.pipe(
  * The list of costs associated with the current alternative.
  */
 export const altCosts$ = alternative$.pipe(
-    switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray()))
+    switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
+    shareLatest()
 );
 export const [useAltCosts] = bind(altCosts$, []);
 
@@ -43,26 +37,29 @@ export const [useAltName, altNameBind$] = bind(alternative$.pipe(map((alt) => al
 /**
  * The energy costs of the current alternative.
  */
-export const energyCosts$ = altCosts$.pipe(arrayFilter(isEnergyCost));
+export const energyCosts$ = state(altCosts$.pipe(arrayFilter(isEnergyCost)), []);
 
 /**
  * The water costs of the current alternative.
  */
-export const waterCosts$ = altCosts$.pipe(arrayFilter(isWaterCost));
+export const waterCosts$ = state(altCosts$.pipe(arrayFilter(isWaterCost)), []);
 
 /**
  * The capital costs of the current alternative.
  */
-export const capitalCosts$ = altCosts$.pipe(arrayFilter(isCapitalCost));
+export const capitalCosts$ = state(altCosts$.pipe(arrayFilter(isCapitalCost)), []);
 
 /**
  * The contract costs of the current alternative.
  */
-export const contractCosts$ = altCosts$.pipe(arrayFilter(isContractCost));
+export const contractCosts$ = state(altCosts$.pipe(arrayFilter(isContractCost)), []);
 
 /**
  * The other costs of the current alternative.
  */
-export const otherCosts$ = altCosts$.pipe(arrayFilter(isOtherCost));
+export const otherCosts$ = state(altCosts$.pipe(arrayFilter(isOtherCost)), []);
 
-export const [isLoaded] = bind(combineLatest([altNameBind$.pipe(filter((name) => name !== ""))]).pipe(map(() => true)), false);
+export const [isLoaded, isLoaded$] = bind(combineLatest([
+    altNameBind$.pipe(filter((name) => name !== "")),
+    altCosts$.pipe(filter((costs) => costs.length > 0)),
+]).pipe(map(() => true)), false);

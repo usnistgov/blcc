@@ -5,7 +5,6 @@ import CostNavigation from "../../components/navigation/CostNavigation";
 import PageWrapper from "../../components/PageWrapper";
 import GeneralInformation from "./GeneralInformation";
 import AlternativeSummary from "./AlternativeSummary";
-import UrlParameters from "../../components/UrlParameters";
 import Cost from "./Cost";
 import Alternatives from "./Alternatives";
 import Statistics from "../../components/Statistics";
@@ -26,14 +25,16 @@ export default function Editor() {
         <EditorAppBar />
 
         <div className={"flex h-full overflow-hidden"}>
-            <Routes>
-                <Route path={"*"} element={<Navigation />} >
-                    <Route index />
-                    <Route path={"alternative/:altID"}>
-                        <Route index path={"*"} element={<CostNavigation />} />
+            <AnimatePresence mode={"wait"}>
+                <Routes location={location} key={location.key}>
+                    <Route path={"*"} element={<Navigation />} >
+                        <Route index />
+                        <Route path={"alternative/:altID"}>
+                            <Route index path={"*"} element={<CostNavigation />} />
+                        </Route>
                     </Route>
-                </Route>
-            </Routes>
+                </Routes>
+            </AnimatePresence>
 
             <AnimatePresence mode={"wait"}>
                 <Routes location={location} key={location.key}>
@@ -47,11 +48,7 @@ export default function Editor() {
                             />
                             <Route
                                 path={":alternativeID"}
-                                element={
-                                    <UrlParameters>
-                                        <Alternatives />
-                                    </UrlParameters>
-                                }
+                                element={<Alternatives />}
                             />
                         </Route>
                     </Route>

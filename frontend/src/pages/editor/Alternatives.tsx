@@ -29,6 +29,7 @@ import { defaultValue } from "../../util/Operators";
 import { db } from "../../model/db";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import SubHeader from "../../components/SubHeader";
+import { motion } from "framer-motion";
 
 const { Title } = Typography;
 
@@ -188,7 +189,7 @@ export default function Alternatives() {
     ];
 
     return (
-        <div className="h-full w-full">
+        <motion.div className="h-full w-full" exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1 }}>
             <AddAlternativeModal />
             <AddCostModal />
 
@@ -278,6 +279,6 @@ export default function Alternatives() {
                     <div />
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

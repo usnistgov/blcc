@@ -2,19 +2,17 @@ import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBol
 import { useNavigate } from "react-router-dom";
 
 import type { Cost } from "../../blcc-format/Format";
-import { map, type Observable } from "rxjs";
-import button, { ButtonType } from "./../Button";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import collapse from "./../Collapse";
-import { bind } from "@react-rxjs/core";
-import { alternativeID$, capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
+import { ButtonType, RxjsButton } from "./../Button";
+import { type StateObservable, useStateObservable } from "@react-rxjs/core";
+import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
 import { useActiveLink } from "../../hooks/UseActiveLink";
 import { costID$ } from "../../model/CostModel";
+import Icon from "@mdi/react";
 
 type MenuItem = {
     title: string;
     icon: string;
-    costs$: Observable<Cost[]>;
+    costs$: StateObservable<Cost[]>;
 };
 
 const items: MenuItem[] = [
@@ -45,61 +43,40 @@ const items: MenuItem[] = [
     }
 ];
 
-function menuCollapse(item: MenuItem) {
-    const { component: Collapse } = collapse();
-    const [useButtons] = bind(
-        item.costs$.pipe(
-            map((costs) => (
-                costs?.map((cost) => {
-                    const button = costButton(cost);
-                    return <button.component key={cost.id} />;
-                })
-            ))
-        ),
-        []
+function CostButton({ costID, name }: { costID: number, name: string }) {
+    const navigate = useNavigate();
+    return (
+        <RxjsButton
+            key={costID}
+            className={useActiveLink(`/editor/alternative/:alternativeID/cost/${costID}`)}
+            type={ButtonType.PRIMARY_DARK}
+            click$={(click$) => click$.subscribe(() => {
+                costID$.next(costID ?? 0);
+                navigate(`cost/${costID}`);
+            })}
+        >
+            {name}
+        </RxjsButton>
     );
-
-    return {
-        component: function MenuCollapse() {
-            return (
-                <Collapse buttonType={ButtonType.PRIMARY_DARK} title={item.title} icon={item.icon}>
-                    {useButtons()}
-                </Collapse>
-            );
-        }
-    };
 }
 
-function costButton(cost: Cost) {
-    const { click$, component: Button } = button();
-
-    return {
-        component: function AltButton() {
-            const navigate = useNavigate();
-            useSubscribe(click$, () => {
-                costID$.next(cost.id ?? 0);
-                navigate(`cost/${cost.id}`);
-            }, [navigate]);
-            return (
-                <Button
-                    key={cost.id}
-                    className={useActiveLink(`/editor/alternative/:alternativeID/cost/${cost.id}`)}
-                    type={ButtonType.PRIMARY_DARK}
-                >
-                    {cost.name}
-                </Button>
-            );
-        }
-    };
+function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>, item: MenuItem }) {
+    const costs = useStateObservable(costs$);
+    return <>
+        <span className={"flex flex-row place-items-center px-2 py-1 select-none"}>
+            <Icon className={"mr-1 min-w-[24px]"} path={item.icon} size={0.8} />
+            {item.title}
+        </span>
+        <div className={"flex flex-col gap-2 pl-8"}>
+            {costs.map((cost) => <CostButton key={cost.id} costID={cost.id ?? 0} name={cost.name} />)}
+        </div>
+    </>
 }
 
 export default function CostNavigation() {
     return (
         <nav className="flex h-full max-w-32 w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary-dark p-2 text-base-lightest">
-            {items.map((item) => {
-                const { component: MenuCollapse } = menuCollapse(item);
-                return <MenuCollapse key={item.title} />;
-            })}
+            {items.map((item) => <CostButtons key={item.title} item={item} costs$={item.costs$} />)}
         </nav>
     );
 }

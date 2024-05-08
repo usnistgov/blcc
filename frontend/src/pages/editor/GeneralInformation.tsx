@@ -49,6 +49,7 @@ import numberInput from "../../components/InputNumber";
 import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
 import { max } from "../../model/rules/Rules";
+import { motion } from "framer-motion";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -168,7 +169,7 @@ export default function GeneralInformation() {
     //TODO make location reset when switching to US vs non-US
 
     return (
-        <div className={"max-w-screen-lg p-6"}>
+        <motion.div className={"max-w-screen-lg p-6"} exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1, speed: 0.5 }} transition={{ duration: 0.1 }}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
                 <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
@@ -252,6 +253,6 @@ export default function GeneralInformation() {
                 <EmissionsRateDropdown label={"Emissions Rate Scenario *"} className={"w-full"} />
                 <SocialCostDropdown label={"Social Cost of GHG Scenario *"} className={"w-full"} />
             </div>
-        </div>
+        </motion.div>
     );
 }

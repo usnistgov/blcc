@@ -1,4 +1,3 @@
-import { urlParameters$ } from "../components/UrlParameters";
 import { Subject, map, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
@@ -17,6 +16,8 @@ export const costID$ = urlParameters$.pipe(
 );
 */
 
+costID$.subscribe(x => console.log("CostID", x))
+
 export const costCollection$ = costID$.pipe(map((id) => db.costs.where("id").equals(id)));
 
 export const [useCostID] = bind(costID$, -1);
@@ -29,6 +30,8 @@ export const cost$ = costID$.pipe(
     guard(),
     shareLatest()
 );
+
+cost$.subscribe(x => console.log("Cost", x))
 
 /**
  * The type of the currently selected cost.

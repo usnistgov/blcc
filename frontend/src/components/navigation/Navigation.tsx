@@ -5,7 +5,7 @@ import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js
 import { useActiveLink } from "../../hooks/UseActiveLink";
 import Icon from "@mdi/react";
 import { match } from "ts-pattern";
-import { alternativeID$ } from "../../model/AlternativeModel";
+import { alternativeID$, isLoaded$ } from "../../model/AlternativeModel";
 
 /*
  *  Component representing the navigation button for an alternative
@@ -21,7 +21,9 @@ function AltButton({ altID, name, icon }: { altID: number, name: string, icon?: 
             icon={icon}
             click$={(click$) => click$.subscribe(() => {
                 alternativeID$.next(altID);
-                navigate(`/editor/alternative/${altID}`)
+                isLoaded$.subscribe(() =>
+                    navigate(`/editor/alternative/${altID}`)
+                );
             })}
         >
             {name}
