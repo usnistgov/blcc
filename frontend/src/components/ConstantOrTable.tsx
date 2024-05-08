@@ -1,10 +1,9 @@
-import Title from "antd/es/typography/Title"
-import switchComp, { RxjsSwitch } from "./Switch";
-import { Subject, map, of, type Observable } from "rxjs";
-import { StateObservable, bind, state } from "@react-rxjs/core";
+import Title from "antd/es/typography/Title";
+import { type Observable, of, Subject } from "rxjs";
+import { bind, state, StateObservable } from "@react-rxjs/core";
 import numberInput, { NumberInputProps } from "./InputNumber";
 import type { PropsWithChildren } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { Rxjs } from "../util/Util";
 
 export type ConstantOrTableProps = {
@@ -16,18 +15,18 @@ export default function constantOrTable<T>(
 ) {
     const [useValues] = bind(values$, [] as T[]);
 
-    const { component: ConstantSwitch, onChange$: switchChange$ } = switchComp(values$.pipe(
+/*    const { component: ConstantSwitch, onChange$: switchChange$ } = switchComp(values$.pipe(
         map((values) => match(values)
             .with(P.array(), () => false)
             .otherwise(() => true)
         ))
-    );
+    );*/
     const { component: ConstantInput } = numberInput("", "");
 
-    switchChange$.subscribe()
+   /* switchChange$.subscribe()*/
 
     return {
-        toggleConstant$: switchChange$,
+        toggleConstant$: of(true),//switchChange$,
         component: function ConstantOrTable({
             title,
             children
@@ -36,7 +35,7 @@ export default function constantOrTable<T>(
                 <Title level={5}>{title}</Title>
                 <span className={"flex flex-row items-center gap-2 pb-2"}>
                     <p className={"text-md pb-1"}>Constant</p>
-                    <ConstantSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
+                    {/*<ConstantSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />*/}
                 </span>
 
                 {match(useValues())

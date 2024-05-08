@@ -50,6 +50,10 @@ import switchComp from "../../components/Switch";
 import { Country, State } from "../../constants/LOCATION";
 import { max } from "../../model/rules/Rules";
 import { motion } from "framer-motion";
+import { Subject } from "rxjs";
+import { state } from "@react-rxjs/core";
+import Switch from "../../components/Switch";
+import { match } from "ts-pattern";
 
 const DollarMethodReverse = {
     [DollarMethod.CONSTANT]: true,
@@ -79,9 +83,12 @@ const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput
     "/editor#Construction-Period-*",
     constructionPeriod$
 );
-const { onChange$: dollarMethodChange$, component: DollarMethodSwitch } = switchComp(
-    dollarMethod$.pipe(map((method) => DollarMethodReverse[method]))
-);
+const dollarMethodChange$ = new Subject<boolean>();
+const dollarMethod2$ = state(dollarMethod$.pipe(map((method) => match(method)
+    .with(DollarMethod.CONSTANT, () => true)
+    .otherwise( () => false)
+)), false);
+
 const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(
     "Inflation Rate *",
     "/editor#Inflation-Rate-*",
@@ -197,8 +204,10 @@ export default function GeneralInformation() {
             </div>
             <div className={"pt-4"}>
                 <Title level={5}>Dollar Analysis</Title>
-                <DollarMethodSwitch
+                <Switch
                     className={"bg-primary hover:bg-primary"}
+                    value$={dollarMethod2$}
+                    onChange={dollarMethodChange$.next}
                     checkedChildren={"Constant"}
                     unCheckedChildren={"Current"}
                     defaultChecked
