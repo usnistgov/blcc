@@ -1,14 +1,14 @@
-import { map, merge, sample, type Observable } from "rxjs";
-import button, { ButtonType } from "../Button";
+import { map, merge, sample, type Observable, Subject } from "rxjs";
+import { ButtonType, Button } from "../Button";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import Modal from "antd/es/modal/Modal";
 import { mdiClose, mdiDownload, mdiFileDocumentPlus } from "@mdi/js";
 
 export default function saveDiscardModal<T>(open$: Observable<T>) {
-    const { click$: saveClick$, component: SaveButton } = button();
-    const { click$: discardClick$, component: DiscardButton } = button();
-    const { click$: cancelClick$, component: CancelButton } = button();
+    const saveClick$ = new Subject<void>();
+    const discardClick$ = new Subject<void>();
+    const cancelClick$ = new Subject<void>();
 
     const [cancel$, cancel] = createSignal();
     const [useOpen] = bind(
@@ -30,15 +30,15 @@ export default function saveDiscardModal<T>(open$: Observable<T>) {
                 open={useOpen()}
                 footer={
                     <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                        <CancelButton type={ButtonType.LINKERROR} icon={mdiClose}>
+                        <Button type={ButtonType.LINKERROR} icon={mdiClose} onClick={() => cancelClick$.next()}>
                             Cancel
-                        </CancelButton>
-                        <DiscardButton type={ButtonType.ERROR} icon={mdiFileDocumentPlus}>
+                        </Button>
+                        <Button type={ButtonType.ERROR} icon={mdiFileDocumentPlus} onClick={() => discardClick$.next()}>
                             Discard Changes
-                        </DiscardButton>
-                        <SaveButton type={ButtonType.PRIMARY} icon={mdiDownload}>
+                        </Button>
+                        <Button type={ButtonType.PRIMARY} icon={mdiDownload} onClick={() => saveClick$.next()}>
                             Save
-                        </SaveButton>
+                        </Button>
                     </div>
                 }>
                 <div className={"flex flex-row justify-center mt-8"}>

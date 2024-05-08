@@ -2,7 +2,7 @@ import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBol
 import { useNavigate } from "react-router-dom";
 
 import type { Cost } from "../../blcc-format/Format";
-import { ButtonType, RxjsButton } from "./../Button";
+import { ButtonType, Button } from "./../Button";
 import { type StateObservable, useStateObservable } from "@react-rxjs/core";
 import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
 import { useActiveLink } from "../../hooks/UseActiveLink";
@@ -46,17 +46,17 @@ const items: MenuItem[] = [
 function CostButton({ costID, name }: { costID: number, name: string }) {
     const navigate = useNavigate();
     return (
-        <RxjsButton
+        <Button
             key={costID}
             className={useActiveLink(`/editor/alternative/:alternativeID/cost/${costID}`)}
             type={ButtonType.PRIMARY_DARK}
-            click$={(click$) => click$.subscribe(() => {
+            onClick={() => {
                 costID$.next(costID ?? 0);
                 navigate(`cost/${costID}`);
-            })}
+            }}
         >
             {name}
-        </RxjsButton>
+        </Button>
     );
 }
 

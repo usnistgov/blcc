@@ -1,13 +1,13 @@
 import React from "react";
 import ButtonBar from "./ButtonBar";
-import button, { ButtonType } from "./Button";
+import { Button, ButtonType } from "./Button";
 import AppBar from "./AppBar";
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
 import { E3Request, toE3Object } from "../model/E3Request";
-import { switchMap } from "rxjs";
+import { Subject, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { currentProject$, hash$, useName } from "../model/Model";
 import { filter, map, tap, withLatestFrom } from "rxjs/operators";
@@ -15,11 +15,10 @@ import { db } from "../model/db";
 import { liveQuery } from "dexie";
 import { download } from "../util/DownloadFile";
 
-const { click$: backClick$, component: BackButton } = button();
-const { click$: runClick$, component: RunButton } = button();
-const { click$: pdfClick$, component: PdfButton } = button();
-const { click$: saveClick$, component: SaveButton } = button();
-const { click$: csvClick$, component: CsvButton } = button();
+const runClick$ = new Subject<void>();
+const pdfClick$ = new Subject<void>();
+const saveClick$ = new Subject<void>();
+const csvClick$ = new Subject<void>();
 
 // Result stream that pulls from cache if available.
 const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
@@ -45,7 +44,6 @@ const e3Result$ = runClick$.pipe(
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(backClick$, () => navigate("/editor"), [navigate]);
     useSubscribe(e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) => db.results.add({ hash, ...result }));
     useSubscribe(pdfClick$, () => console.log("TODO: save pdf"));
     useSubscribe(csvClick$, () => console.log("TODO: save csv"));
@@ -55,17 +53,17 @@ export default function ResultsAppBar() {
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
             <ButtonBar className={"p-2"}>
-                <BackButton icon={mdiArrowLeft}>Back to Editor</BackButton>
-                <SaveButton icon={mdiContentSave}>Save</SaveButton>
-                <PdfButton icon={mdiFileDownload}>Export PDF</PdfButton>
-                <CsvButton icon={mdiTableArrowDown}>Export CSV</CsvButton>
+                <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>Back to Editor</Button>
+                <Button icon={mdiContentSave} onClick={() => saveClick$.next()}>Save</Button>
+                <Button icon={mdiFileDownload} onClick={() => pdfClick$.next()}>Export PDF</Button>
+                <Button icon={mdiTableArrowDown} onClick={() => saveClick$.next()}>Export CSV</Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-white"}>{useName()}</p>
                 <div className={"pl-4"}>
-                    <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
+                    <Button type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onClick={() => runClick$.next()}>
                         Run
-                    </RunButton>
+                    </Button>
                 </div>
             </div>
             <HelpButtons />

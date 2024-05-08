@@ -1,8 +1,8 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal } from "antd";
-import { map, merge, type Observable } from "rxjs";
-import button, { ButtonType } from "../Button";
+import { map, merge, type Observable, Subject } from "rxjs";
+import { ButtonType, Button } from "../Button";
 import { mdiCheck } from "@mdi/js";
 
 export type Message = {
@@ -11,7 +11,7 @@ export type Message = {
 }
 
 export default function messageModal(message$: Observable<Message>) {
-    const { component: OkButton, click$: okClick$ } = button();
+    const okClick$ = new Subject<void>();
     const [useMessage] = bind(message$, { title: "", message: "" });
 
     const [cancel$, cancel] = createSignal();
@@ -33,9 +33,9 @@ export default function messageModal(message$: Observable<Message>) {
                 onCancel={cancel}
                 open={useOpen()}
                 footer={
-                    <OkButton type={ButtonType.SUCCESS} icon={mdiCheck}>
+                    <Button type={ButtonType.SUCCESS} icon={mdiCheck} onClick={() => okClick$.next()}>
                         OK
-                    </OkButton>
+                    </Button>
                 }
             >
                 <p>{message}</p>

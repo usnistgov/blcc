@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { type Cost, CostTypes } from "../blcc-format/Format";
 import type { Measures } from "e3-sdk";
 
@@ -67,6 +68,16 @@ export function getOptionalTag(measures: Measures[], tag: string) {
 }
 
 export function Rxjs<A, B = Record<string, never>>(init: () => A, component: React.FC<A & B>): React.FC<B> {
-    const initial = init();
-    return (b) => component({ ...initial, ...b })
+    return (b) => {
+        const [initial, setInitial] = useState<A>();
+        useEffect(() => {
+            setInitial(init());
+        }, [init]);
+
+        if (initial !== undefined) {
+            component({ ...initial, ...b })
+        }
+
+        return <></>;
+    }
 }

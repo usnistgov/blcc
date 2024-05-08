@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAlternatives } from "../../model/Model";
-import { ButtonType, RxjsButton } from "./../Button";
+import { ButtonType, Button } from "./../Button";
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 import { useActiveLink } from "../../hooks/UseActiveLink";
 import Icon from "@mdi/react";
@@ -14,20 +14,20 @@ function AltButton({ altID, name, icon }: { altID: number, name: string, icon?: 
     const navigate = useNavigate();
 
     return (
-        <RxjsButton
+        <Button
             key={altID}
             className={useActiveLink(`/editor/alternative/${altID}/*`)}
             type={ButtonType.PRIMARY}
             icon={icon}
-            click$={(click$) => click$.subscribe(() => {
+            onClick={() => {
                 alternativeID$.next(altID);
                 isLoaded$.subscribe(() =>
                     navigate(`/editor/alternative/${altID}`)
                 );
-            })}
+            }}
         >
             {name}
-        </RxjsButton>
+        </Button>
     );
 }
 
@@ -44,22 +44,20 @@ export default function Navigation() {
         <>
             <nav className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 {/* Top level buttons */}
-                <RxjsButton
-                    type={ButtonType.PRIMARY}
+                <Button
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}
                     icon={mdiFileDocument}
-                    click$={(click$) => click$.subscribe(() => navigate("/editor"))}
+                    onClick={() => { navigate("/editor") }} 
                 >
                     General Information
-                </RxjsButton>
-                <RxjsButton
-                    type={ButtonType.PRIMARY}
+                </Button>
+                <Button
                     className={`whitespace-nowrap ${useActiveLink("/editor/alternative")}`}
                     icon={mdiViewList}
-                    click$={(click$) => click$.subscribe(() => navigate("/editor/alternative"))}
+                    onClick={() => navigate("/editor/alternative")}
                 >
                     Alternative Summary
-                </RxjsButton>
+                </Button>
 
                 {/* Alternative buttons */}
                 <span className={"flex flex-row place-items-center px-2 py-1 select-none"}>

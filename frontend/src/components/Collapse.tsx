@@ -1,9 +1,7 @@
-import button, { ButtonType } from "./Button";
+import { Button, ButtonType } from "./Button";
 import type { PropsWithChildren } from "react";
 import { startWith } from "rxjs/operators";
-import Icon from "@mdi/react";
-import { mdiChevronDown, mdiChevronLeft } from "@mdi/js";
-import { scan } from "rxjs";
+import { scan, Subject } from "rxjs";
 import { bind } from "@react-rxjs/core";
 
 type CollapseProps = {
@@ -13,7 +11,7 @@ type CollapseProps = {
 };
 
 export default function collapse() {
-    const { click$, component: Button } = button();
+    const click$ = new Subject<void>();
     const [opened] = bind(
         click$.pipe(
             scan((accumulator) => !accumulator, false),
@@ -32,7 +30,7 @@ export default function collapse() {
 
             return (
                 <>
-                    <Button type={buttonType} icon={icon}>
+                    <Button type={buttonType} icon={icon} onClick={() => click$.next()}>
                         <div className={"flex w-full items-center justify-between"}>
                             {title}
                             {/*<Icon path={open ? mdiChevronDown : mdiChevronLeft} size={0.8} />*/}

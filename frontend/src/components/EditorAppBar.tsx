@@ -1,5 +1,5 @@
 import ButtonBar from "./ButtonBar";
-import button, { ButtonType } from "./Button";
+import { Button, ButtonType } from "./Button";
 import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
 import AppBar from "./AppBar";
 import { useNavigate } from "react-router-dom";
@@ -14,16 +14,13 @@ import "dexie-export-import";
 import { download } from "../util/DownloadFile";
 import { convert } from "../blcc-format/Converter";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
-import { merge } from "rxjs";
+import { merge, Subject } from "rxjs";
 import saveDiscardModal from "./modal/SaveDiscardModal";
 import objectHash from "object-hash";
-import { Results } from "../App";
 
-const { click$: newClick$, component: NewButton } = button();
-const { click$: openClick$, component: OpenButton } = button();
-const { click$: saveClick$, component: SaveButton } = button();
-
-const { click$: runAnalysisClick$, component: RunAnalysisButton } = button();
+const newClick$ = new Subject<void>();
+const openClick$ = new Subject<void>();
+const saveClick$ = new Subject<void>();
 
 // Actions that can open the confirmation dialog
 enum OpenDiscard {
@@ -126,19 +123,18 @@ export default function EditorAppBar() {
         [navigate]
     );
     useSubscribe(hash$.pipe(sample(saveClick$)), async (hash) => await save(hash, "download.blcc"));
-    useSubscribe(runAnalysisClick$, () => navigate("/results"), [navigate]);
     useSubscribe(open$, () => document.getElementById("open")?.click());
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
             <SaveDiscardModal />
             <ButtonBar className={"p-2"}>
-                <NewButton type={ButtonType.PRIMARY} icon={mdiFileDocumentPlus}>
+                <Button type={ButtonType.PRIMARY} icon={mdiFileDocumentPlus} onClick={() => newClick$.next()}>
                     New
-                </NewButton>
-                <OpenButton type={ButtonType.PRIMARY} icon={mdiFolder}>
+                </Button>
+                <Button type={ButtonType.PRIMARY} icon={mdiFolder} onClick={() => openClick$.next()}>
                     Open
-                </OpenButton>
+                </Button>
                 <input
                     className={"hidden"}
                     type={"file"}
@@ -158,16 +154,16 @@ export default function EditorAppBar() {
                         }
                     }}
                 />
-                <SaveButton type={ButtonType.PRIMARY} icon={mdiContentSave}>
+                <Button type={ButtonType.PRIMARY} icon={mdiContentSave} onClick={() => saveClick$.next()}>
                     Save
-                </SaveButton>
+                </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-base-lightest"}>{useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
-                    <RunAnalysisButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"}>
+                    <Button type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onClick={() => navigate("/results")}>
                         Reports and Analysis
-                    </RunAnalysisButton>
+                    </Button>
                 </div>
             </div>
             <HelpButtons />

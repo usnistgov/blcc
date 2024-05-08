@@ -2,9 +2,9 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
-import { combineLatest, merge, type Observable, sample } from "rxjs";
+import { combineLatest, merge, type Observable, sample, Subject } from "rxjs";
 import { map } from "rxjs/operators";
-import button, { ButtonType } from "../components/Button";
+import { Button, ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { mdiClose, mdiPlus } from "@mdi/js";
@@ -13,9 +13,10 @@ import type { Alternative } from "../blcc-format/Format";
 import { db } from "../model/db";
 
 const { Title } = Typography;
-const { click$: addClick$, component: AddButton } = button();
-const { click$: cancelClick$, component: CancelButton } = button();
 const { onChange$: name$, component: NewAltInput } = textInput();
+
+const addClick$ = new Subject<void>();
+const cancelClick$ = new Subject<void>();
 
 const newAlternative$ = combineLatest([
     currentProject$,
@@ -67,12 +68,12 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
                     cancelButtonProps={{ disabled: false }}
                     footer={
                         <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                            <CancelButton type={ButtonType.ERROR} icon={mdiClose}>
+                            <Button type={ButtonType.ERROR} icon={mdiClose} onClick={() => cancelClick$.next()}>
                                 Cancel
-                            </CancelButton>
-                            <AddButton type={ButtonType.PRIMARY} icon={mdiPlus}>
+                            </Button>
+                            <Button type={ButtonType.PRIMARY} icon={mdiPlus} onClick={() => cancelClick$.next()}>
                                 Add
-                            </AddButton>
+                            </Button>
                         </div>
                     }
                 >

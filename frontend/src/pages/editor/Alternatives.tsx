@@ -1,6 +1,6 @@
 import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
 import { Typography } from "antd";
-import button, { ButtonType } from "../../components/Button";
+import { ButtonType, Button } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import addAlternativeModal from "../../components/AddAlternativeModal";
@@ -10,7 +10,7 @@ import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
 import { useNavigate } from "react-router-dom";
 import { map, withLatestFrom } from "rxjs/operators";
-import { combineLatest, sample, switchMap } from "rxjs";
+import { combineLatest, sample, Subject, switchMap } from "rxjs";
 import { bind } from "@react-rxjs/core";
 import {
     alternative$,
@@ -33,10 +33,11 @@ import { motion } from "framer-motion";
 
 const { Title } = Typography;
 
-const { click$: cloneAlternativeClick$, component: CloneButton } = button();
-const { click$: removeAlternativeClick$, component: RemoveButton } = button();
-const { click$: openAltModal$, component: AddAlternativeButton } = button();
-const { click$: openCostModal$, component: AddCostButton } = button();
+const cloneAlternativeClick$ = new Subject<void>();
+const removeAlternativeClick$ = new Subject<void>();
+const openAltModal$ = new Subject<void>();
+const openCostModal$ = new Subject<void>();
+
 const { onChange$: baseline$, component: BaselineSwitch } = switchComp(
     alternative$.pipe(map((alt) => alt?.baseline ?? false))
 );
@@ -195,16 +196,16 @@ export default function Alternatives() {
 
             <SubHeader>
                 <div className={"self-end"}>
-                    <AddAlternativeButton type={ButtonType.LINK}>
+                    <Button type={ButtonType.LINK} onClick={() => openAltModal$.next()}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
-                    </AddAlternativeButton>
-                    <CloneButton type={ButtonType.LINK}>
+                    </Button>
+                    <Button type={ButtonType.LINK} onClick={() => cloneAlternativeClick$.next()}>
                         <Icon path={mdiContentCopy} size={1} /> Clone
-                    </CloneButton>
-                    <RemoveButton type={ButtonType.LINKERROR}>
+                    </Button>
+                    <Button type={ButtonType.LINKERROR} onClick={() => removeAlternativeClick$.next()}>
                         <Icon path={mdiMinus} size={1} /> Remove
-                    </RemoveButton>
+                    </Button>
                 </div>
             </SubHeader>
             <div className={"p-6"}>
@@ -226,10 +227,10 @@ export default function Alternatives() {
                 <br />
                 <div className={"flex justify-between border-b-2 border-base-lightest"}>
                     <Title level={4}>Alternative Costs</Title>
-                    <AddCostButton type={ButtonType.LINK}>
+                    <Button type={ButtonType.LINK} onClick={() => openCostModal$.next()}>
                         <Icon path={mdiPlus} size={1} />
                         Add Cost
-                    </AddCostButton>
+                    </Button>
                 </div>
                 <div className={"flex flex-wrap gap-16 py-6"}>
                     {categories.map((category) => {

@@ -4,14 +4,14 @@ import { bind } from "@react-rxjs/core";
 import { Divider, Typography } from "antd";
 import { map } from "rxjs/operators";
 import type { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
-import button, { ButtonType } from "../../components/Button";
+import { ButtonType, Button } from "../../components/Button";
 import { alternatives$ } from "../../model/Model";
 import { countProperty } from "../../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { of, switchMap } from "rxjs";
+import { of, Subject, switchMap } from "rxjs";
 import addAlternativeModal from "../../components/AddAlternativeModal";
 import { db } from "../../model/db";
 import { liveQuery } from "dexie";
@@ -19,7 +19,9 @@ import SubHeader from "../../components/SubHeader";
 import { AnimatePresence, motion } from "framer-motion";
 
 const { Title } = Typography;
-const { click$: addAlternativeClick$, component: AddAlternativeButton } = button();
+
+const addAlternativeClick$ = new Subject<void>();
+
 const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
 
 const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
@@ -32,10 +34,10 @@ export default function AlternativeSummary() {
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
                     <AddAlternativeModal />
-                    <AddAlternativeButton className={"self-end"} type={ButtonType.LINK}>
+                    <Button className={"self-end"} type={ButtonType.LINK} onClick={() => addAlternativeClick$.next()}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
-                    </AddAlternativeButton>
+                    </Button>
                 </div>
             </SubHeader>
             <div className={"flex h-full w-full flex-col items-center"}>

@@ -1,6 +1,6 @@
-import { combineLatest, map, sample, switchMap } from "rxjs";
+import { combineLatest, map, sample, Subject, switchMap } from "rxjs";
 import { type Cost as FormatCost, CostTypes, type ID } from "../../blcc-format/Format";
-import button, { ButtonType } from "../../components/Button";
+import { ButtonType, Button } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { Checkbox, Typography } from "antd";
 import textInput, { TextInputType } from "../../components/TextInput";
@@ -31,11 +31,11 @@ import { match } from "ts-pattern";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
-const { component: BackButton, click$: backClick$ } = button();
 
-const { click$: openCostModal$, component: AddCostButton } = button();
-const { click$: cloneClick$, component: CloneCostButton } = button();
-const { click$: removeClick$, component: RemoveCostButton } = button();
+const openCostModal$ = new Subject<void>();
+const cloneClick$ = new Subject<void>();
+const removeClick$ = new Subject<void>();
+
 const { component: NameInput, onChange$: name$ } = textInput(cost$.pipe(map((cost) => cost.name)));
 const { component: DescriptionInput, onChange$: description$ } = textArea(cost$.pipe(map((cost) => cost.description)));
 const { component: CostSavingSwitch, onChange$: costSavingsChange$ } = switchComp(
@@ -133,12 +133,7 @@ export default function Cost() {
     const alternatives = useAlternatives();
     const onlyOne = onlyOneAlternativeIncludes();
     const costType = useCostType();
-
-    // Make back arrow go to the currently selected alternative
     const alternativeID = useAlternativeID();
-    useSubscribe(backClick$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [
-        alternativeID
-    ]);
 
     useDbUpdate(costSavingsChange$, costCollection$, "costSavings");
     useDbUpdate(name$.pipe(defaultValue("Unnamed Cost")), costCollection$, "name");
@@ -157,20 +152,20 @@ export default function Cost() {
             <SubHeader>
                 <div className="flex justify-between">
                     <div>
-                        <BackButton type={ButtonType.LINK} icon={mdiArrowLeft}>
+                        <Button type={ButtonType.LINK} icon={mdiArrowLeft} onClick={() => navigate(`/editor/alternative/${alternativeID}`, { replace: true })}>
                             {alternativeName}
-                        </BackButton>
+                        </Button>
                     </div>
                     <div>
-                        <AddCostButton type={ButtonType.LINK} icon={mdiPlus}>
+                        <Button type={ButtonType.LINK} icon={mdiPlus} onClick={() => openCostModal$.next()}>
                             Add Cost
-                        </AddCostButton>
-                        <CloneCostButton type={ButtonType.LINK} icon={mdiContentCopy}>
+                        </Button>
+                        <Button type={ButtonType.LINK} icon={mdiContentCopy} onClick={() => cloneClick$.next()}>
                             Clone
-                        </CloneCostButton>
-                        <RemoveCostButton type={ButtonType.LINKERROR} icon={mdiMinus}>
+                        </Button>
+                        <Button type={ButtonType.LINKERROR} icon={mdiMinus} onClick={() => removeClick$.next()}>
                             Remove
-                        </RemoveCostButton>
+                        </Button>
                     </div>
                 </div>
             </SubHeader>

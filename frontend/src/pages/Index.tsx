@@ -2,7 +2,7 @@
 
 import "../nist-header-footer.sass";
 import NistHeaderFooter from "../components/NistHeaderFooter";
-import { ButtonType, RxjsButton } from "../components/Button";
+import { Button } from "../components/Button";
 import { mdiArrowRight } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 import Logo from "../images/logo.svg?react";
@@ -21,15 +21,14 @@ export default function Index() {
                 <NistHeaderFooter>
                     <div className={"mt-32 flex flex-col items-center"}>
                         <Logo className={"h-52 w-full"} />
-                        <RxjsButton
+                        <Button
                             className={"my-16"}
-                            type={ButtonType.PRIMARY}
                             icon={mdiArrowRight}
                             iconSide={"right"}
-                            click$={(click$) => click$.subscribe(() => navigate("editor"))}
+                            onClick={() => navigate("editor")}
                         >
                             <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
-                        </RxjsButton>
+                        </Button>
                         <div className={"flex w-full flex-col items-center bg-primary-light py-8"}>
                             <div className={"flex w-full max-w-4xl flex-col"}>
                                 <span className={"w-[40rem] self-end text-justify"}>

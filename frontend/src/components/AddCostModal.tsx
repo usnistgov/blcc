@@ -1,9 +1,9 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Col, Modal, Row, Typography } from "antd";
-import { combineLatest, merge, type Observable, sample, switchMap } from "rxjs";
+import { combineLatest, merge, type Observable, sample, Subject, switchMap } from "rxjs";
 import { map, startWith } from "rxjs/operators";
-import button, { ButtonType } from "../components/Button";
+import { Button, ButtonType } from "../components/Button";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
 
@@ -15,9 +15,11 @@ import { db } from "../model/db";
 import { alternativeID$ } from "../model/AlternativeModel";
 
 const { Title } = Typography;
-const { click$: addCost$, component: AddButton } = button();
+
+const addCost$ = new Subject<void>();
+const cancel$ = new Subject<void>();
+
 const { onChange$: name$, component: NewCostInput } = textInput();
-const { click$: cancel$, component: CancelButton } = button();
 const { change$: type$, component: CostCategoryDropdown } = dropdown(Object.values(CostTypes));
 
 const [checkedAltsChange$, setCheckedAlts] = createSignal<number[]>();
@@ -75,12 +77,12 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                     onCancel={cancel}
                     footer={
                         <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                            <CancelButton type={ButtonType.ERROR} icon={mdiClose}>
+                            <Button type={ButtonType.ERROR} icon={mdiClose} onClick={() => cancel$.next()}>
                                 Cancel
-                            </CancelButton>
-                            <AddButton type={ButtonType.PRIMARY} icon={mdiPlus}>
+                            </Button>
+                            <Button type={ButtonType.PRIMARY} icon={mdiPlus} onClick={() => addCost$.next()}>
                                 Add
-                            </AddButton>
+                            </Button>
                         </div>
                     }
                 >
