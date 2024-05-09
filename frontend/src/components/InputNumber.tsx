@@ -1,15 +1,16 @@
-import { bind } from "@react-rxjs/core";
+import { type StateObservable, bind, useStateObservable } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber, Typography } from "antd";
-import type { PropsWithChildren } from "react";
-import { EMPTY, from, map, type Observable, sample, switchMap } from "rxjs";
 import type { InputNumberProps } from "antd/es/input-number";
-import { combineLatestWith, filter, startWith, withLatestFrom } from "rxjs/operators";
-import { type Rule, validate } from "../model/rules/Rules";
-import { guard } from "../util/Operators";
-import { db } from "../model/db";
-import { useSubscribe } from "../hooks/UseSubscribe";
 import { liveQuery } from "dexie";
+import { type PropsWithChildren, useEffect, useMemo } from "react";
+import { EMPTY, type Observable, from, map, sample, switchMap } from "rxjs";
+import { combineLatestWith, filter, startWith, withLatestFrom } from "rxjs/operators";
+import { P, match } from "ts-pattern";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import { db } from "../model/db";
+import { type Rule, type ValidationResult, validate } from "../model/rules/Rules";
+import { guard } from "../util/Operators";
 
 export type NumberInputProps = {
     label?: boolean;
@@ -27,7 +28,7 @@ export default function numberInput<T extends true | false = false>(
     url: string,
     value$: Observable<T extends true ? number | undefined : number> = EMPTY,
     allowEmpty: T | false = false,
-    validation: Rule<number>[] = []
+    validation: Rule<number>[] = [],
 ): NumberInput<T extends true ? number | undefined : number> {
     type Conditional = T extends true ? number | undefined : number;
 
@@ -42,15 +43,15 @@ export default function numberInput<T extends true | false = false>(
     const resetIfUndefined$ = (value$ as Observable<number>).pipe(
         sample(focusInitiated$),
         combineLatestWith(onChange$ as Observable<number>),
-        map(([snapshot, newValue]) => (newValue === undefined ? snapshot : newValue))
+        map(([snapshot, newValue]) => (newValue === undefined ? snapshot : newValue)),
     );
 
     const [useValue] = bind(
         focused$.pipe(
             startWith(false),
-            switchMap((focused) => (focused ? onChange$ : value$))
+            switchMap((focused) => (focused ? onChange$ : value$)),
         ),
-        undefined
+        undefined,
     );
 
     return {
@@ -64,14 +65,14 @@ export default function numberInput<T extends true | false = false>(
                     const collection = db.errors.where("id").equals(id);
 
                     // If the validation succeeded, remove error from db
-                    if (result.valid) collection.delete();
+                    /*                    if (result.valid) collection.delete();
 
                     // If an entry does not exist for this input, add it to the db
                     if (dbValue.length <= 0) db.errors.add({ id, url, messages: result.messages ?? [] });
 
                     // If an entry exists but the error message has changed, update it
-                    collection.modify({ messages: result.messages ?? [] });
-                }
+                    collection.modify({ messages: result.messages ?? [] });*/
+                },
             );
 
             const error = hasError();
@@ -102,6 +103,65 @@ export default function numberInput<T extends true | false = false>(
                     <div className={"pt-2 text-xs text-error"}>{error !== undefined && error.messages}</div>
                 </div>
             );
-        }
+        },
     };
+}
+
+type NumberInputProps2 = {
+    label: string;
+    value$: StateObservable<NumberValue>;
+};
+
+export type NumberValue = number | ValidationResult<number>;
+
+export function NumberInput({
+    label,
+    children,
+    value$,
+    ...inputProps
+}: PropsWithChildren<NumberInputProps2 & InputNumberProps<number>>) {
+    // Convert name to an ID so we can reference this element later
+    const id = label.toLowerCase().replaceAll(" ", "-");
+
+    // Get the value from the observable
+    const value = useStateObservable(value$);
+    const [focus$, focus] = useMemo(() => {
+        console.log("created memo");
+        return createSignal<boolean>();
+    }, []);
+    useSubscribe(focus$, console.log);
+
+    // Check whether we have error message
+    const error = match(value)
+        .with({ type: "invalid", messages: P.select() }, (messages) => messages)
+        .otherwise(() => undefined);
+
+    const input = (
+        <InputNumber
+            id={id}
+            onFocus={() => focus(true)}
+            onBlur={() => focus(false)}
+            // Display the value directly or get it out of the validation result
+            value={match(useStateObservable<NumberValue>(value$))
+                .with(P.number, (value) => value)
+                .otherwise((result) => result.value)}
+            status={error === undefined ? "" : "error"}
+            {...inputProps}
+        >
+            {children}
+        </InputNumber>
+    );
+
+    return (
+        <div>
+            {(label && (
+                <>
+                    <Title level={5}>{label}</Title>
+                    {input}
+                </>
+            )) ||
+                input}
+            <div className={"pt-2 text-xs text-error"}>{error}</div>
+        </div>
+    );
 }

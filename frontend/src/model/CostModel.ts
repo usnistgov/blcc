@@ -1,9 +1,9 @@
-import { Subject, map, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
-import { db } from "./db";
+import { Subject, filter, map, switchMap } from "rxjs";
+import { CostTypes, CustomerSector, type EnergyCost } from "../blcc-format/Format";
 import { guard } from "../util/Operators";
-import { CostTypes } from "../blcc-format/Format";
+import { db } from "./db";
 
 /**
  * The ID of the currently selected cost
@@ -16,7 +16,7 @@ export const costID$ = urlParameters$.pipe(
 );
 */
 
-costID$.subscribe(x => console.log("CostID", x))
+costID$.subscribe((x) => console.log("CostID", x));
 
 export const costCollection$ = costID$.pipe(map((id) => db.costs.where("id").equals(id)));
 
@@ -28,10 +28,10 @@ export const [useCostID] = bind(costID$, -1);
 export const cost$ = costID$.pipe(
     switchMap((id) => liveQuery(() => db.costs.where("id").equals(id).first())),
     guard(),
-    shareLatest()
+    shareLatest(),
 );
 
-cost$.subscribe(x => console.log("Cost", x))
+cost$.subscribe((x) => console.log("Cost", x));
 
 /**
  * The type of the currently selected cost.
@@ -44,3 +44,16 @@ export const [useCostType] = bind(costType$, CostTypes.OTHER);
  */
 export const costOrSavings$ = cost$.pipe(map((cost) => cost.costSavings ?? false));
 export const [useCostOrSavings] = bind(costOrSavings$, false);
+
+/**
+ * Outputs a value if the current cost is an energy cost
+ */
+export const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+
+export const fuelType$ = energyCost$.pipe(map((cost) => cost.fuelType));
+export const sector$ = energyCost$.pipe(map((cost) => cost?.customerSector ?? CustomerSector.RESIDENTIAL));
+export const escalation$ = energyCost$.pipe(
+    map((cost) => cost?.escalation),
+    guard(),
+);
+export const useIndex$ = energyCost$.pipe(map((cost) => cost.useIndex));

@@ -1,4 +1,10 @@
+import type { PropsWithChildren } from "react";
 import { type Observable, type UnaryFunction, map, pipe } from "rxjs";
+
+export type RuleContext = {
+    originator: string;
+    url: string;
+};
 
 export type Rule<T> = {
     name?: string;
@@ -6,11 +12,7 @@ export type Rule<T> = {
     test: (t: T) => boolean;
 };
 
-export type ValidationResult<T> = {
-    valid: boolean;
-    messages?: string[];
-    value?: T;
-};
+export type ValidationResult<T> = { type: "valid"; value: T } | { type: "invalid"; messages: string[]; value: T };
 
 export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, Observable<ValidationResult<T>>> {
     return pipe(
@@ -19,15 +21,16 @@ export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, O
 
             if (messages.length > 0)
                 return {
-                    valid: false,
-                    messages
-                };
+                    type: "invalid",
+                    messages,
+                    value: t,
+                } as ValidationResult<T>;
 
             return {
-                valid: true,
-                value: t
-            };
-        })
+                type: "invalid",
+                value: t,
+            } as ValidationResult<T>;
+        }),
     );
 }
 
@@ -35,7 +38,7 @@ export function max(maxValue: number): Rule<number> {
     return {
         name: "Max value rule",
         message: (x: number) => `${x} is larger than the maximum allowed value ${maxValue}`,
-        test: (x: number) => x <= maxValue
+        test: (x: number) => x <= maxValue,
     };
 }
 
@@ -43,6 +46,6 @@ export function min(minValue: number): Rule<number> {
     return {
         name: "Min value rule",
         message: (x: number) => `${x} is lower than the minium allowed value ${minValue}`,
-        test: (x: number) => x >= minValue
+        test: (x: number) => x >= minValue,
     };
 }

@@ -1,33 +1,33 @@
-import { combineLatest, map, sample, Subject, switchMap } from "rxjs";
-import { type Cost as FormatCost, CostTypes, type ID } from "../../blcc-format/Format";
-import { ButtonType, Button } from "../../components/Button";
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
+import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Typography } from "antd";
-import textInput, { TextInputType } from "../../components/TextInput";
+import { useNavigate } from "react-router-dom";
+import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
+import { match } from "ts-pattern";
+import { CostTypes, type Cost as FormatCost, type ID } from "../../blcc-format/Format";
+import addCostModal from "../../components/AddCostModal";
+import { Button, ButtonType } from "../../components/Button";
+import SubHeader from "../../components/SubHeader";
 import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
-import { bind } from "@react-rxjs/core";
-import EnergyCostFields from "./cost/EnergyCostFields";
+import textInput, { TextInputType } from "../../components/TextInput";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { isLoaded, useAltName, useAlternativeID } from "../../model/AlternativeModel";
 import { cost$, costCollection$, costID$, useCostID, useCostType } from "../../model/CostModel";
-import { createSignal } from "@react-rxjs/utils";
-import WaterCostFields from "./cost/WaterCostFields";
-import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
-import ReplacementCapitalCostFields from "./cost/ReplacementCapitalCostFields";
-import OMRCostFields from "./cost/OMRCostFields";
+import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
+import { db } from "../../model/db";
+import { defaultValue } from "../../util/Operators";
 import ImplementationContractCostFields from "./cost/ImplementationContractCostFields";
-import RecurringContractCostFields from "./cost/RecurringContractCostFields";
+import InvestmentCapitalCostFields from "./cost/InvestmentCapitalCostFields";
+import OMRCostFields from "./cost/OMRCostFields";
 import OtherCostFields from "./cost/OtherCostFields";
 import OtherNonMonetaryCostFields from "./cost/OtherNonMonetaryCostFields";
-import { isLoaded, useAlternativeID, useAltName } from "../../model/AlternativeModel";
-import { useNavigate } from "react-router-dom";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
-import { useDbUpdate } from "../../hooks/UseDbUpdate";
-import { defaultValue } from "../../util/Operators";
-import addCostModal from "../../components/AddCostModal";
-import { db } from "../../model/db";
-import SubHeader from "../../components/SubHeader";
-import { match } from "ts-pattern";
+import RecurringContractCostFields from "./cost/RecurringContractCostFields";
+import ReplacementCapitalCostFields from "./cost/ReplacementCapitalCostFields";
+import WaterCostFields from "./cost/WaterCostFields";
+import EnergyCostFields from "./cost/energycostfields/EnergyCostFields";
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
@@ -51,9 +51,9 @@ const clone$ = combineLatest([cost$, currentProject$]).pipe(sample(cloneClick$),
 // In which case we disable the user from removing the cost from all alternatives, so it does not become orphaned.
 const [onlyOneAlternativeIncludes] = bind(
     combineLatest([alternatives$, costID$]).pipe(
-        map(([alternatives, id]) => alternatives.filter((alt) => alt.costs.includes(id)).length <= 1)
+        map(([alternatives, id]) => alternatives.filter((alt) => alt.costs.includes(id)).length <= 1),
     ),
-    true
+    true,
 );
 
 function removeCost([costID, projectID]: [number, number]) {
@@ -142,8 +142,7 @@ export default function Cost() {
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
     useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
 
-    if (!loaded)
-        return <></>
+    if (!loaded) return <></>;
 
     return (
         <div className={"w-full"}>
@@ -152,7 +151,11 @@ export default function Cost() {
             <SubHeader>
                 <div className="flex justify-between">
                     <div>
-                        <Button type={ButtonType.LINK} icon={mdiArrowLeft} onClick={() => navigate(`/editor/alternative/${alternativeID}`, { replace: true })}>
+                        <Button
+                            type={ButtonType.LINK}
+                            icon={mdiArrowLeft}
+                            onClick={() => navigate(`/editor/alternative/${alternativeID}`, { replace: true })}
+                        >
                             {alternativeName}
                         </Button>
                     </div>

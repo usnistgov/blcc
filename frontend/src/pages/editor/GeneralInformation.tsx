@@ -1,5 +1,29 @@
+import { state } from "@react-rxjs/core";
 import { Divider } from "antd";
+import Title from "antd/es/typography/Title";
+import type { Collection } from "dexie";
+import { motion } from "framer-motion";
+import { Subject, of } from "rxjs";
+import { map, withLatestFrom } from "rxjs/operators";
+import { match } from "ts-pattern";
+import {
+    AnalysisType,
+    DiscountingMethod,
+    DollarMethod,
+    EmissionsRateScenario,
+    type Project,
+    Purpose,
+    SocialCostOfGhgScenario,
+} from "../../blcc-format/Format";
+import dropdown from "../../components/Dropdown";
+import numberInput, { NumberInput } from "../../components/InputNumber";
+import switchComp from "../../components/Switch";
+import Switch from "../../components/Switch";
+import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
+import { Country, State } from "../../constants/LOCATION";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { useSubscribe } from "../../hooks/UseSubscribe";
 import {
     analysisType$,
     analyst$,
@@ -25,35 +49,11 @@ import {
     useAnalysisType,
     useCountry,
     useDollarMethod,
-    zip$
+    zip$,
 } from "../../model/Model";
-import Title from "antd/es/typography/Title";
 import { db } from "../../model/db";
-import { map, withLatestFrom } from "rxjs/operators";
-import { defaultValue } from "../../util/Operators";
-import { useDbUpdate } from "../../hooks/UseDbUpdate";
-import textArea from "../../components/TextArea";
-import {
-    AnalysisType,
-    DiscountingMethod,
-    DollarMethod,
-    EmissionsRateScenario,
-    type Project,
-    Purpose,
-    SocialCostOfGhgScenario
-} from "../../blcc-format/Format";
-import dropdown from "../../components/Dropdown";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import type { Collection } from "dexie";
-import numberInput from "../../components/InputNumber";
-import switchComp from "../../components/Switch";
-import { Country, State } from "../../constants/LOCATION";
 import { max } from "../../model/rules/Rules";
-import { motion } from "framer-motion";
-import { Subject } from "rxjs";
-import { state } from "@react-rxjs/core";
-import Switch from "../../components/Switch";
-import { match } from "ts-pattern";
+import { defaultValue } from "../../util/Operators";
 
 /*
  * rxjs components
@@ -63,7 +63,7 @@ const { onChange$: analystChange$, component: AnalystInput } = textInput(analyst
 const { onChange$: descriptionChange$, component: DescInput } = textArea(description$);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
-    analysisType$
+    analysisType$,
 );
 const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
 const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(
@@ -71,40 +71,46 @@ const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInp
     "/editor#Study-Period-*",
     studyPeriod$,
     true,
-    [max(40)]
+    [max(40)],
 );
 const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(
     "Construction Period *",
     "/editor#Construction-Period-*",
-    constructionPeriod$
+    constructionPeriod$,
 );
 const dollarMethodChange$ = new Subject<boolean>();
-const dollarMethod2$ = state(dollarMethod$.pipe(map((method) => match(method)
-    .with(DollarMethod.CONSTANT, () => true)
-    .otherwise( () => false)
-)), false);
+const dollarMethod2$ = state(
+    dollarMethod$.pipe(
+        map((method) =>
+            match(method)
+                .with(DollarMethod.CONSTANT, () => true)
+                .otherwise(() => false),
+        ),
+    ),
+    false,
+);
 
 const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(
     "Inflation Rate *",
     "/editor#Inflation-Rate-*",
     inflationRate$,
-    true
+    true,
 );
 const { onChange$: nomDiscChange$, component: NominalDiscRate } = numberInput(
     "Nominal Discount Rate *",
     "/editor#Nominal-Discount-Rate-*",
     nominalDiscountRate$,
-    true
+    true,
 );
 const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(
     "Real Discount Rate *",
     "/editor#Real-Discount-Rate-*",
     realDiscountRate$,
-    true
+    true,
 );
 const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown(
     Object.values(DiscountingMethod),
-    discountingMethod$
+    discountingMethod$,
 );
 
 const { change$: countryChange$, component: CountryDropdown } = dropdown(Object.values(Country), country$);
@@ -114,11 +120,11 @@ const { onChange$: cityChange$, component: CityInput } = textInput(city$);
 const { onChange$: zipChange$, component: ZipInput } = textInput(zip$);
 const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = dropdown<EmissionsRateScenario>(
     Object.values(EmissionsRateScenario),
-    emissionsRate$
+    emissionsRate$,
 );
 const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<SocialCostOfGhgScenario>(
     Object.values(SocialCostOfGhgScenario),
-    socialCostOfGhgScenario$
+    socialCostOfGhgScenario$,
 );
 
 const projectCollection$ = currentProject$.pipe(map((id) => db.projects.where("id").equals(id)));
@@ -128,7 +134,7 @@ function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<P
     if (analysisType === AnalysisType.OMB_NON_ENERGY)
         collection.modify({
             analysisType,
-            purpose: Purpose.INVEST_REGULATION
+            purpose: Purpose.INVEST_REGULATION,
         });
     else collection.modify({ analysisType, purpose: undefined });
 }
@@ -156,7 +162,7 @@ export default function GeneralInformation() {
     useDbUpdate(
         discountingMethodChange$.pipe(defaultValue(DiscountingMethod.END_OF_YEAR)),
         projectCollection$,
-        "discountingMethod"
+        "discountingMethod",
     );
     useDbUpdate(countryChange$.pipe(defaultValue(Country.USA)), projectCollection$, "location.country");
     useDbUpdate(zipChange$.pipe(defaultValue(undefined)), projectCollection$, "location.zipcode");
@@ -171,8 +177,15 @@ export default function GeneralInformation() {
     //TODO make location reset when switching to US vs non-US
 
     return (
-        <motion.div className={"max-w-screen-lg p-6"} exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1, speed: 0.5 }} transition={{ duration: 0.1 }}>
+        <motion.div
+            className={"max-w-screen-lg p-6"}
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, speed: 0.5 }}
+            transition={{ duration: 0.1 }}
+        >
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <NumberInput ref={(x) => console.log(x)} label={"Test"} value$={state(of(10))} />
                 <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
                 <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
 
@@ -220,9 +233,23 @@ export default function GeneralInformation() {
                     </Divider>
                     <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention *"} />}</div>
                     <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
-                        <GenInflationRate disabled={dollarMethod !== DollarMethod.CURRENT} addonAfter={"%"} controls={false} />
-                        <NominalDiscRate disabled={dollarMethod !== DollarMethod.CURRENT} addonAfter={"%"} controls={false} min={0.0} />
-                        <RealDiscRate disabled={dollarMethod !== DollarMethod.CONSTANT} addonAfter={"%"} controls={false} min={0.0} />
+                        <GenInflationRate
+                            disabled={dollarMethod !== DollarMethod.CURRENT}
+                            addonAfter={"%"}
+                            controls={false}
+                        />
+                        <NominalDiscRate
+                            disabled={dollarMethod !== DollarMethod.CURRENT}
+                            addonAfter={"%"}
+                            controls={false}
+                            min={0.0}
+                        />
+                        <RealDiscRate
+                            disabled={dollarMethod !== DollarMethod.CONSTANT}
+                            addonAfter={"%"}
+                            controls={false}
+                            min={0.0}
+                        />
                     </div>
                 </div>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
