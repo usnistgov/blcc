@@ -16,12 +16,10 @@ export default function Switch(
         ...defaultProps
     }: SwitchProps & AntSwitchProps
 ) {
-    const value = useStateObservable(value$);
-
     return (
         <AntSwitch
             className={className}
-            checked={value}
+            checked={useStateObservable(value$)}
             {...defaultProps}
         />
     );

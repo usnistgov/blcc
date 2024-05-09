@@ -38,9 +38,9 @@ const removeClick$ = new Subject<void>();
 
 const { component: NameInput, onChange$: name$ } = textInput(cost$.pipe(map((cost) => cost.name)));
 const { component: DescriptionInput, onChange$: description$ } = textArea(cost$.pipe(map((cost) => cost.description)));
-const { component: CostSavingSwitch, onChange$: costSavingsChange$ } = switchComp(
+/*const { component: CostSavingSwitch, onChange$: costSavingsChange$ } = switchComp(
     cost$.pipe(map((cost) => cost.costSavings ?? false))
-);
+);*/
 
 const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
@@ -135,7 +135,7 @@ export default function Cost() {
     const costType = useCostType();
     const alternativeID = useAlternativeID();
 
-    useDbUpdate(costSavingsChange$, costCollection$, "costSavings");
+    /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     useDbUpdate(name$.pipe(defaultValue("Unnamed Cost")), costCollection$, "name");
     useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
     useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
@@ -191,7 +191,7 @@ export default function Cost() {
                     </span>
                     <span>
                         <Title level={5}>Cost or Savings</Title>
-                        <CostSavingSwitch checkedChildren={"Savings"} unCheckedChildren={"Cost"} />
+                        {/*<CostSavingSwitch checkedChildren={"Savings"} unCheckedChildren={"Cost"} />*/}
                     </span>
                 </div>
             </div>

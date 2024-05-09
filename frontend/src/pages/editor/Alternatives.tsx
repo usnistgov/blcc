@@ -38,9 +38,9 @@ const removeAlternativeClick$ = new Subject<void>();
 const openAltModal$ = new Subject<void>();
 const openCostModal$ = new Subject<void>();
 
-const { onChange$: baseline$, component: BaselineSwitch } = switchComp(
+/*const { onChange$: baseline$, component: BaselineSwitch } = switchComp(
     alternative$.pipe(map((alt) => alt?.baseline ?? false))
-);
+);*/
 const { onChange$: name$, component: NameInput } = textInput(alternative$.pipe(map((alt) => alt.name)));
 const { onChange$: description$, component: DescInput } = textArea(alternative$.pipe(map((alt) => alt.description)));
 
@@ -157,7 +157,7 @@ export default function Alternatives() {
 
     useDbUpdate(name$.pipe(defaultValue("Unnamed Alternative")), alternativeCollection$, "name");
     useDbUpdate(description$.pipe(defaultValue(undefined)), alternativeCollection$, "description");
-    useSubscribe(baseline$.pipe(withLatestFrom(alternativeID$)), setBaseline);
+    //useSubscribe(baseline$.pipe(withLatestFrom(alternativeID$)), setBaseline);
     useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
         // Navigate to last alternative after deletion of current one
         const lastAlternative = await db.alternatives.reverse().first();
@@ -215,7 +215,7 @@ export default function Alternatives() {
                         <span className={"w-1/2"}>
                             <Title level={5}>Baseline Alternative</Title>
                             <p>Only one alternative can be the baseline.</p>
-                            <BaselineSwitch />
+                            {/*<BaselineSwitch />*/}
                         </span>
 
                         <span className={"col-span-2"}>

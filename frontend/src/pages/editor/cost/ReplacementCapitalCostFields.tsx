@@ -41,9 +41,9 @@ const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
     replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
     true
 );
-const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = switchComp(
+/*const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = switchComp(
     approach$.pipe(map((approach) => approach === DollarOrPercent.PERCENT))
-);
+);*/
 const { component: ResidualValueInput, onChange$: residualValue$ } = numberInput(
     "Residual Value",
     "/",
@@ -65,11 +65,11 @@ export default function ReplacementCapitalCostFields() {
     useDbUpdate(annualRateOfChange$, costCollection$, "annualRateOfChange");
     useDbUpdate(expectedLife$, costCollection$, "expectedLife");
     useDbUpdate(residualValue$, costCollection$, "residualValue.value");
-    useDbUpdate(
+/*    useDbUpdate(
         dollarOrPercentChange$.pipe(map((value) => (value ? DollarOrPercent.PERCENT : DollarOrPercent.DOLLAR))),
         costCollection$,
         "residualValue.approach"
-    );
+    );*/
     useDbUpdate(residualValueEnabled$, costCollection$, "residualValue");
 
     return (
@@ -89,7 +89,7 @@ export default function ReplacementCapitalCostFields() {
                     {approach !== undefined && (
                         <>
                             <span>
-                                <ResidualValueSwitch unCheckedChildren={"Dollar"} checkedChildren={"Percent"} />
+                                {/*<ResidualValueSwitch unCheckedChildren={"Dollar"} checkedChildren={"Percent"} />*/}
                             </span>
                             <ResidualValueInput
                                 className={"py-4"}

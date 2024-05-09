@@ -55,11 +55,6 @@ import { state } from "@react-rxjs/core";
 import Switch from "../../components/Switch";
 import { match } from "ts-pattern";
 
-const DollarMethodReverse = {
-    [DollarMethod.CONSTANT]: true,
-    [DollarMethod.CURRENT]: false
-};
-
 /*
  * rxjs components
  */
@@ -207,7 +202,7 @@ export default function GeneralInformation() {
                 <Switch
                     className={"bg-primary hover:bg-primary"}
                     value$={dollarMethod2$}
-                    onChange={dollarMethodChange$.next}
+                    onChange={(v) => dollarMethodChange$.next(v)}
                     checkedChildren={"Constant"}
                     unCheckedChildren={"Current"}
                     defaultChecked

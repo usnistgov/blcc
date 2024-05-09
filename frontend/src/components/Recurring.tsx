@@ -22,7 +22,7 @@ const recurringCost$ = cost$.pipe(
 
 const [useRecurring, recurring$] = bind(recurringCost$.pipe(map((cost) => cost.rateOfRecurrence !== undefined)), false);
 
-const { component: RecurrenceSwitch, onChange$: recurringChange$ } = switchComp(recurring$);
+/*const { component: RecurrenceSwitch, onChange$: recurringChange$ } = switchComp(recurring$);*/
 const { component: RateOfRecurrenceInput, onChange$: rateOfRecurrence$ } = numberInput(
     "Recurring",
     `${window.location.pathname}#Recurring`,
@@ -31,17 +31,17 @@ const { component: RateOfRecurrenceInput, onChange$: rateOfRecurrence$ } = numbe
 );
 
 export default function Recurring() {
-    useDbUpdate(
+/*    useDbUpdate(
         merge(rateOfRecurrence$, recurringChange$.pipe(map((value) => (value ? 0 : undefined)))),
         costCollection$,
         "rateOfRecurrence"
-    );
+    );*/
 
     return (
         <div className={"flex flex-col"}>
             <Title level={5}>Recurring</Title>
             <span>
-                <RecurrenceSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />
+                {/*<RecurrenceSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />*/}
             </span>
             {useRecurring() && <RateOfRecurrenceInput className={"my-4"} label={false} addonAfter={"years"} />}
         </div>

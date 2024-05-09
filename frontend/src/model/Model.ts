@@ -18,9 +18,9 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { validate } from "./rules/Rules";
 import objectHash from "object-hash";
 
-type ReleaseYearReponse = { year: number; max: number; min: number };
+type ReleaseYearResponse = { year: number; max: number; min: number };
 
-export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearReponse[]>("/api/release_year");
+export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearResponse[]>("/api/release_year");
 
 export const releaseYears$ = releaseYearsResponse$.pipe(map((result) => result === null ? [2023] : result.map((r) => r.year)));
 export const [useReleaseYears] = bind(releaseYears$, []);
