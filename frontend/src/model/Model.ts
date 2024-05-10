@@ -41,8 +41,11 @@ const dbProject$ = currentProject$.pipe(
 
 export const [useProject, project$] = bind(dbProject$, undefined);
 
-export const name$ = dbProject$.pipe(map((p) => p.name));
-export const [useName] = bind(name$, "");
+export const sNameChange$ = new Subject<string>();
+export const [useName, name$] = bind(
+    merge(sNameChange$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
+    "",
+);
 
 export const analyst$ = dbProject$.pipe(map((p) => p.analyst));
 export const [useAnalyst] = bind(analyst$, undefined);
@@ -57,6 +60,7 @@ export const purpose$ = dbProject$.pipe(map((p) => p.purpose));
 export const [usePurpose] = bind(purpose$, undefined);
 
 export const sStudyPeriodChange = new Subject<number | undefined>();
+sStudyPeriodChange.subscribe();
 export const studyPeriod$ = state(
     merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
     25,

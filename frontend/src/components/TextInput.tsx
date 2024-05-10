@@ -9,7 +9,7 @@ export enum TextInputType {
     PRIMARY = " ",
     ERROR = " border-solid border-2 border-red-600 active:border-red-600 hover:border-red-600 ",
     SUCCESS = " border-solid border-2 border-green-600 active:border-green-600 hover:border-green-600 ",
-    DISABLED = " bg-base-lighter text-base-light "
+    DISABLED = " bg-base-lighter text-base-light ",
 }
 
 export type TextInputProps = {
@@ -35,9 +35,9 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
     const [useValue] = bind(
         focused$.pipe(
             startWith(false),
-            switchMap((focused) => (focused ? onChange$ : value$))
+            switchMap((focused) => (focused ? onChange$ : value$)),
         ),
-        undefined
+        undefined,
     );
 
     return {
@@ -49,7 +49,7 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
             disabled = false,
             bordered = true,
             placeholder,
-            label
+            label,
         }: PropsWithChildren & TextInputProps) => {
             return (
                 <div>
@@ -68,6 +68,30 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
                     </Input>
                 </div>
             );
-        }
+        },
     };
+}
+
+type TextInputProps2 = {
+    label: string;
+};
+
+export function TextInput({ label, children }: PropsWithChildren<TextInputProps2>) {
+    return (
+        <div>
+            <Title level={5}>{label}</Title>
+            <Input
+                onFocus={() => focus(true)}
+                onBlur={() => focus(false)}
+                className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
+                onChange={(event) => onChange(event.target.value)}
+                placeholder={placeholder}
+                variant={bordered ? "outlined" : "borderless"}
+                disabled={disabled}
+                value={useValue()}
+            >
+                {children}
+            </Input>
+        </div>
+    );
 }
