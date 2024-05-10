@@ -1,16 +1,16 @@
-import { type StateObservable, bind, useStateObservable } from "@react-rxjs/core";
+import { type StateObservable, bind, shareLatest, state, useStateObservable } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber, Typography } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import { liveQuery } from "dexie";
 import { type PropsWithChildren, useEffect, useMemo } from "react";
-import { EMPTY, type Observable, from, map, sample, switchMap } from "rxjs";
-import { combineLatestWith, filter, startWith, withLatestFrom } from "rxjs/operators";
+import { EMPTY, type Observable, type Subject, Subscription, from, iif, map, merge, of, sample, switchMap } from "rxjs";
+import { combineLatestWith, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import { db } from "../model/db";
 import { type Rule, type ValidationResult, validate } from "../model/rules/Rules";
-import { guard } from "../util/Operators";
+import { guard, isTrue } from "../util/Operators";
 
 export type NumberInputProps = {
     label?: boolean;
@@ -107,32 +107,69 @@ export default function numberInput<T extends true | false = false>(
     };
 }
 
-type NumberInputProps2 = {
+type Conditional<T> = T extends true ? number | undefined : number;
+
+type NumberInputProps2<T extends true | false = false> = {
     label: string;
-    value$: StateObservable<NumberValue>;
+    allowEmpty?: T | false;
+    rules?: Rule<number>[];
+    value$: StateObservable<Conditional<T>>;
+    wire?: Subject<Conditional<T>>;
 };
 
-export type NumberValue = number | ValidationResult<number>;
-
-export function NumberInput({
+export function NumberInput<T extends true | false = false>({
     label,
     children,
-    value$,
+    allowEmpty = false,
+    rules = [],
+    value$ = state(of(0)),
+    wire,
     ...inputProps
-}: PropsWithChildren<NumberInputProps2 & InputNumberProps<number>>) {
+}: PropsWithChildren<NumberInputProps2<T> & InputNumberProps<number>>) {
     // Convert name to an ID so we can reference this element later
     const id = label.toLowerCase().replaceAll(" ", "-");
 
     // Get the value from the observable
-    const value = useStateObservable(value$);
-    const [focus$, focus] = useMemo(() => {
-        console.log("created memo");
-        return createSignal<boolean>();
-    }, []);
-    useSubscribe(focus$, console.log);
+    const { change, focus, output$, useValue, hasErrors } = useMemo(() => {
+        const [onChange$, change] = createSignal<number | undefined>();
+        const [focused$, focus] = createSignal<boolean>();
+
+        // If allowEmpty is false, reset to a snapshot of the value when first focused
+        const resetIfUndefined$ = value$.pipe(
+            sample(focused$.pipe(isTrue())),
+            combineLatestWith(onChange$),
+            map(([snapshot, newValue]) => (newValue === undefined ? snapshot : newValue)),
+        );
+
+        const [useValue] = bind<number | ValidationResult<number> | undefined>(
+            focused$.pipe(
+                startWith(false),
+                switchMap((focused) => (focused ? onChange$ : value$.pipe(shareReplay(1)))),
+            ),
+            undefined,
+        );
+
+        const output$ = iif(() => allowEmpty, onChange$, resetIfUndefined$) as Observable<Conditional<T>>;
+        const [hasErrors, errors$] = bind(
+            (merge(value$.pipe(shareReplay(1)), output$) as Observable<number | undefined>).pipe(
+                guard(),
+                validate(...rules),
+            ),
+            undefined,
+        );
+
+        return { change, focus, output$, useValue, hasErrors };
+    }, [rules, allowEmpty, value$]);
+
+    useEffect(() => {
+        const sub = output$.subscribe(wire);
+        return () => sub.unsubscribe();
+    }, [output$, wire]);
+
+    const value = useValue();
 
     // Check whether we have error message
-    const error = match(value)
+    const error = match(hasErrors())
         .with({ type: "invalid", messages: P.select() }, (messages) => messages)
         .otherwise(() => undefined);
 
@@ -141,10 +178,12 @@ export function NumberInput({
             id={id}
             onFocus={() => focus(true)}
             onBlur={() => focus(false)}
+            onChange={(value) => change(value === null ? undefined : value)}
             // Display the value directly or get it out of the validation result
-            value={match(useStateObservable<NumberValue>(value$))
+            value={match(value)
                 .with(P.number, (value) => value)
-                .otherwise((result) => result.value)}
+                .with({ value: P.select() }, (value) => value)
+                .otherwise(() => undefined)}
             status={error === undefined ? "" : "error"}
             {...inputProps}
         >

@@ -42,6 +42,8 @@ import {
     realDiscountRate$,
     releaseYear$,
     releaseYears$,
+    sDollarMethodChange$,
+    sStudyPeriodChange,
     socialCostOfGhgScenario$,
     state$,
     stateOrProvince$,
@@ -52,7 +54,7 @@ import {
     zip$,
 } from "../../model/Model";
 import { db } from "../../model/db";
-import { max } from "../../model/rules/Rules";
+import { type ValidationResult, max, min } from "../../model/rules/Rules";
 import { defaultValue } from "../../util/Operators";
 
 /*
@@ -78,7 +80,6 @@ const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput
     "/editor#Construction-Period-*",
     constructionPeriod$,
 );
-const dollarMethodChange$ = new Subject<boolean>();
 const dollarMethod2$ = state(
     dollarMethod$.pipe(
         map((method) =>
@@ -139,11 +140,13 @@ function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<P
     else collection.modify({ analysisType, purpose: undefined });
 }
 
-function dollarMethodForward(value: boolean): DollarMethod {
-    return value ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
-}
-
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
+
+const testValue$ = new Subject<number | undefined>();
+testValue$.subscribe((x) => console.log("test1", x));
+
+const testValue2$ = new Subject<number>();
+testValue2$.subscribe((x) => console.log("test2", x));
 
 export default function GeneralInformation() {
     const dollarMethod = useDollarMethod();
@@ -155,7 +158,7 @@ export default function GeneralInformation() {
     useDbUpdate(purposeChange$, projectCollection$, "purpose");
     useDbUpdate(studyPeriodChange$, projectCollection$, "studyPeriod");
     useDbUpdate(constructionPeriodChange$, projectCollection$, "constructionPeriod");
-    useDbUpdate(dollarMethodChange$.pipe(map(dollarMethodForward)), projectCollection$, "dollarMethod");
+    useDbUpdate(sDollarMethodChange$, projectCollection$, "dollarMethod");
     useDbUpdate(inflationChange$.pipe(defaultValue(undefined)), projectCollection$, "inflationRate");
     useDbUpdate(nomDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "nominalDiscountRate");
     useDbUpdate(realDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "realDiscountRate");
@@ -185,7 +188,20 @@ export default function GeneralInformation() {
             transition={{ duration: 0.1 }}
         >
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NumberInput ref={(x) => console.log(x)} label={"Test"} value$={state(of(10))} />
+                <NumberInput
+                    wire={testValue$}
+                    label={"Test"}
+                    allowEmpty
+                    value$={state<number | undefined>(testValue$, 30)}
+                    rules={[min(10), max(20)]}
+                />
+                <NumberInput
+                    wire={testValue2$}
+                    label={"Test 2"}
+                    value$={state<number>(testValue2$, 11)}
+                    rules={[min(5), max(15)]}
+                />
+
                 <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
                 <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
 
@@ -198,12 +214,17 @@ export default function GeneralInformation() {
                     <DescInput label={"Description"} className={"w-full"} />
                 </span>
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                    <StudyPeriodInput
+                    <NumberInput
+                        label={"Study Period*"}
                         addonAfter={"years"}
                         defaultValue={0}
-                        //max={40}
+                        max={40}
                         min={0}
                         controls={true}
+                        allowEmpty
+                        rules={[max(40), min(0)]}
+                        wire={sStudyPeriodChange}
+                        value$={studyPeriod$}
                     />
                     <ConstructionPeriodInput addonAfter={"years"} defaultValue={0} max={40} min={0} controls={true} />
 
@@ -213,9 +234,11 @@ export default function GeneralInformation() {
             <div className={"pt-4"}>
                 <Title level={5}>Dollar Analysis</Title>
                 <Switch
+                    left={DollarMethod.CURRENT}
+                    right={DollarMethod.CONSTANT}
                     className={"bg-primary hover:bg-primary"}
-                    value$={dollarMethod2$}
-                    onChange={(v) => dollarMethodChange$.next(v)}
+                    value$={dollarMethod$}
+                    wire={sDollarMethodChange$}
                     checkedChildren={"Constant"}
                     unCheckedChildren={"Current"}
                     defaultChecked

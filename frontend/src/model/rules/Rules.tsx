@@ -27,7 +27,7 @@ export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, O
                 } as ValidationResult<T>;
 
             return {
-                type: "invalid",
+                type: "valid",
                 value: t,
             } as ValidationResult<T>;
         }),
