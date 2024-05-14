@@ -1,7 +1,7 @@
 import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiWater } from "@mdi/js";
 import Icon from "@mdi/react";
 import { type StateObservable, useStateObservable } from "@react-rxjs/core";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { Cost } from "../../blcc-format/Format";
 import { useActiveLink } from "../../hooks/UseActiveLink";
 import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
@@ -44,6 +44,8 @@ const items: MenuItem[] = [
 
 function CostButton({ costID, name }: { costID: number; name: string }) {
     const navigate = useNavigate();
+    const location = useLocation();
+
     return (
         <Button
             key={costID}
@@ -51,7 +53,8 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
             type={ButtonType.PRIMARY_DARK}
             onClick={() => {
                 costID$.next(costID ?? 0);
-                navigate(`cost/${costID}`);
+
+                if (!location.pathname.endsWith(`cost/${costID}`)) navigate(`cost/${costID}`);
             }}
         >
             {name}

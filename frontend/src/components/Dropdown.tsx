@@ -1,8 +1,8 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Select, Typography } from "antd";
-import type { PropsWithChildren } from "react";
-import { EMPTY, type Observable, of } from "rxjs";
+import { Select, type SelectProps, Typography } from "antd";
+import { type Key, type PropsWithChildren, useEffect, useMemo } from "react";
+import { EMPTY, type Observable, type Subject, of } from "rxjs";
 
 export type DropdownProps = {
     className?: string;
@@ -26,7 +26,7 @@ const { Title } = Typography;
  */
 export default function dropdown<T extends string | number>(
     options$: Observable<T[]> | T[],
-    value$: Observable<T | undefined> = EMPTY
+    value$: Observable<T | undefined> = EMPTY,
 ): Dropdown<T> {
     const [change$, change] = createSignal<T>();
     const [selectSearch$, selectSearch] = createSignal<T>();
@@ -42,7 +42,7 @@ export default function dropdown<T extends string | number>(
             disabled = false,
             placeholder,
             showSearch = true,
-            label
+            label,
         }: PropsWithChildren & DropdownProps) => {
             const select = (
                 <Select
@@ -72,6 +72,58 @@ export default function dropdown<T extends string | number>(
                 )) ||
                 select
             );
-        }
+        },
     };
+}
+
+type DropdownProps2<T extends Key> = {
+    className?: string;
+    label?: string;
+    options: Observable<T[]> | T[];
+    value$: Observable<T>;
+    wire: Subject<T>;
+};
+
+export function Dropdown<T extends Key>({
+    label,
+    children,
+    options,
+    value$,
+    wire,
+    ...selectProps
+}: PropsWithChildren<DropdownProps2<T>> & Omit<SelectProps, "onChange" | "value" | "options">) {
+    const { change$, change, useValue, useOptions } = useMemo(() => {
+        const [change$, change] = createSignal<T>();
+        const [useValue] = bind(value$, undefined);
+
+        const [useOptions] = bind(Array.isArray(options) ? of(options) : options, []);
+
+        return { change$, change, useValue, useOptions };
+    }, [value$, options]);
+
+    useEffect(() => {
+        const sub = change$.subscribe(wire);
+        return () => sub.unsubscribe();
+    }, [wire, change$]);
+
+    const select = (
+        <Select onChange={(value) => change(value)} value={useValue()} {...selectProps}>
+            {children}
+            {useOptions().map((option) => (
+                <Select.Option key={option} value={option}>
+                    {option.toString()}
+                </Select.Option>
+            ))}
+        </Select>
+    );
+
+    return (
+        (label !== undefined && (
+            <div>
+                <Title level={5}>{label}</Title>
+                {select}
+            </div>
+        )) ||
+        select
+    );
 }

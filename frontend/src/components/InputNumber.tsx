@@ -133,11 +133,13 @@ export function NumberInput<T extends true | false = false>({
 
     // Get the value from the observable
     const { change, focus, output$, useValue, hasErrors } = useMemo(() => {
+        const replayed$ = value$.pipe(shareReplay(1));
+
         const [onChange$, change] = createSignal<number | undefined>();
         const [focused$, focus] = createSignal<boolean>();
 
         // If allowEmpty is false, reset to a snapshot of the value when first focused
-        const resetIfUndefined$ = value$.pipe(
+        const resetIfUndefined$ = replayed$.pipe(
             sample(focused$.pipe(isTrue())),
             combineLatestWith(onChange$),
             map(([snapshot, newValue]) => (newValue === undefined ? snapshot : newValue)),
@@ -146,17 +148,14 @@ export function NumberInput<T extends true | false = false>({
         const [useValue] = bind<number | ValidationResult<number> | undefined>(
             focused$.pipe(
                 startWith(false),
-                switchMap((focused) => (focused ? onChange$ : value$.pipe(shareReplay(1)))),
+                switchMap((focused) => (focused ? onChange$ : replayed$)),
             ),
             undefined,
         );
 
         const output$ = iif(() => allowEmpty, onChange$, resetIfUndefined$) as Observable<Conditional<T>>;
         const [hasErrors, errors$] = bind(
-            (merge(value$.pipe(shareReplay(1)), output$) as Observable<number | undefined>).pipe(
-                guard(),
-                validate(...rules),
-            ),
+            (merge(replayed$, output$) as Observable<number | undefined>).pipe(guard(), validate(...rules)),
             undefined,
         );
 

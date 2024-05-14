@@ -22,7 +22,7 @@ export default function Switch<Left = false, Right = true>({
     wire,
     className,
     ...defaultProps
-}: SwitchProps<Left, Right> & Omit<AntSwitchProps, "onChange">) {
+}: SwitchProps<Left, Right> & Omit<AntSwitchProps, "onChange" | "checked">) {
     // Set up the toggle subscription
     const [output$, toggle] = useMemo(() => createSignal<Left | Right>(), []);
 

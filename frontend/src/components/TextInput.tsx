@@ -57,7 +57,7 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
                     <Input
                         onFocus={() => focus(true)}
                         onBlur={() => focus(false)}
-                        className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
+                        className={`${className ?? ""} ${disabled ? TextInputType.DISABLED : type}`}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder={placeholder}
                         variant={bordered ? "outlined" : "borderless"}

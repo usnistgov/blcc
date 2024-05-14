@@ -1,6 +1,6 @@
 import { bind, state } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
-import { BehaviorSubject, switchMap } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, switchMap } from "rxjs";
 import { map, shareReplay, tap } from "rxjs/operators";
 import { arrayFilter, guard } from "../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
@@ -19,6 +19,7 @@ export const alternativeCollection$ = sAlternativeID$.pipe(map((id) => db.altern
  * The current alternative object that relates to the currently selected ID.
  */
 export const alternative$ = sAlternativeID$.pipe(
+    distinctUntilChanged(),
     switchMap((id) => liveQuery(() => db.alternatives.where("id").equals(id).first())),
     guard(),
     shareReplay(1),

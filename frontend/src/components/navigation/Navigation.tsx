@@ -1,6 +1,6 @@
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 import Icon from "@mdi/react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { match } from "ts-pattern";
 import { useActiveLink } from "../../hooks/UseActiveLink";
 import { sAlternativeID$ } from "../../model/AlternativeModel";
@@ -12,6 +12,7 @@ import { Button, ButtonType } from "../Button";
  */
 function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: string }) {
     const navigate = useNavigate();
+    const location = useLocation();
 
     return (
         <Button
@@ -21,7 +22,9 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
             icon={icon}
             onClick={() => {
                 sAlternativeID$.next(altID);
-                navigate(`/editor/alternative/${altID}`);
+
+                if (!location.pathname.endsWith(`/editor/alternative/${altID}`))
+                    navigate(`/editor/alternative/${altID}`);
             }}
         >
             {name}

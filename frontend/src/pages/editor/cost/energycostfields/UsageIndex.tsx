@@ -4,7 +4,7 @@ import Title from "antd/es/typography/Title";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, textEditor } from "react-data-grid";
 import { Subject, combineLatest, map, merge, switchMap } from "rxjs";
-import { filter } from "rxjs/operators";
+import { filter, shareReplay } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { NumberInput } from "../../../../components/InputNumber";
 import Switch from "../../../../components/Switch";
@@ -47,7 +47,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
             const usageRateChange$ = gridChange$.pipe(map((newRates) => newRates.map((rate) => rate.usage)));
 
             // Represents whether the escalation rates is a constant value or an array
-            const isConstant$ = state(useIndex$.pipe(map((rates) => !Array.isArray(rates))));
+            const isConstant$ = state(useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
 
             // Converts the usage rates into the format the grid needs
             const [useUsage] = bind(
@@ -66,7 +66,13 @@ export default function UsageIndex({ title }: UsageIndexProps) {
                 [],
             );
 
-            const constantUsage$ = state(useIndex$.pipe(filter((rate): rate is number => !Array.isArray(rate))), 0.0);
+            const constantUsage$ = state(
+                useIndex$.pipe(
+                    filter((rate): rate is number => !Array.isArray(rate)),
+                    shareReplay(1),
+                ),
+                0.0,
+            );
 
             const newRate$ = merge(
                 // Set to default constant
@@ -78,7 +84,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
                 // Fetch and set to default escalation rates
                 sIsConstant$.pipe(
                     isFalse(),
-                    switchMap(() => []),
+                    map(() => [] as number[]),
                 ),
 
                 usageRateChange$,

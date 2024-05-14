@@ -1,7 +1,8 @@
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
-import { Subject, filter, map, switchMap } from "rxjs";
-import { CostTypes, CustomerSector, type EnergyCost } from "../blcc-format/Format";
+import { Subject, distinctUntilChanged, map, switchMap } from "rxjs";
+import { shareReplay } from "rxjs/operators";
+import { CostTypes } from "../blcc-format/Format";
 import { guard } from "../util/Operators";
 import { db } from "./db";
 
@@ -9,14 +10,12 @@ import { db } from "./db";
  * The ID of the currently selected cost
  */
 export const costID$ = new Subject<number>();
-/*
-export const costID$ = urlParameters$.pipe(
-    map(({ costID }) => Number.parseInt(costID ?? "-1")),
-    shareLatest()
-);
-*/
 
-export const costCollection$ = costID$.pipe(map((id) => db.costs.where("id").equals(id)));
+export const costCollection$ = costID$.pipe(
+    distinctUntilChanged(),
+    map((id) => db.costs.where("id").equals(id)),
+    shareReplay(1),
+);
 
 export const [useCostID] = bind(costID$, -1);
 
@@ -24,9 +23,10 @@ export const [useCostID] = bind(costID$, -1);
  * The currently selected cost object as specified by the URL parameter.
  */
 export const cost$ = costID$.pipe(
+    distinctUntilChanged(),
     switchMap((id) => liveQuery(() => db.costs.where("id").equals(id).first())),
     guard(),
-    shareLatest(),
+    shareReplay(1),
 );
 
 cost$.subscribe((x) => console.log("Cost", x));

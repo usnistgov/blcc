@@ -3,15 +3,13 @@ import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { Subject, catchError, combineLatest, combineLatestWith, map, merge, of, switchMap } from "rxjs";
-import { ajax } from "rxjs/internal/ajax/ajax";
-import { filter, tap } from "rxjs/operators";
+import { Subject, combineLatest, map, merge, switchMap } from "rxjs";
+import { filter } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import { FuelType } from "../../../../blcc-format/Format";
 import { NumberInput } from "../../../../components/InputNumber";
 import Switch from "../../../../components/Switch";
-import { releaseYear$, studyPeriod$, zip$ } from "../../../../model/Model";
-import { escalation$, fuelType$, rateChange, sector$ } from "../../../../model/costs/EnergyCostModel";
+import { releaseYear$ } from "../../../../model/Model";
+import { escalation$, fetchEscalationRates$, rateChange } from "../../../../model/costs/EnergyCostModel";
 import { isFalse, isTrue } from "../../../../util/Operators";
 import { percentFormatter } from "../../../../util/Util";
 
@@ -22,20 +20,6 @@ type EscalationRatesProps = {
 type EscalationRateInfo = {
     year: number;
     escalationRate: number;
-};
-
-type EscalationRateResponse = {
-    case: string;
-    release_year: number;
-    year: number;
-    division: string;
-    electricity: number;
-    natural_gas: number;
-    propane: number;
-    region: string;
-    residual_fuel_oil: number;
-    distillate_fuel_oil: number;
-    sector: string;
 };
 
 const COLUMNS = [
@@ -68,39 +52,6 @@ const COLUMNS = [
     },
 ];
 
-// Gets the default escalation rate information from the api
-const fetchEscalationRates$ = combineLatest([releaseYear$, studyPeriod$, zip$, sector$]).pipe(
-    switchMap(([releaseYear, studyPeriod, zip, sector]) =>
-        ajax<EscalationRateResponse[]>({
-            url: "/api/escalation-rates",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: {
-                from: releaseYear,
-                to: releaseYear + (studyPeriod ?? 0),
-                zip: Number.parseInt(zip ?? "0"),
-                sector,
-            },
-        }),
-    ),
-    map((response) => response.response),
-    combineLatestWith(fuelType$),
-    map(([response, fuelType]) =>
-        response.map((value) =>
-            match(fuelType)
-                .with(FuelType.ELECTRICITY, () => value.electricity)
-                .with(FuelType.PROPANE, () => value.propane)
-                .with(FuelType.DISTILLATE_OIL, () => value.distillate_fuel_oil)
-                .with(FuelType.RESIDUAL_OIL, () => value.residual_fuel_oil)
-                .with(FuelType.NATURAL_GAS, () => value.natural_gas)
-                .otherwise(() => 0),
-        ),
-    ),
-    catchError(() => of([])),
-);
-
 export default function EscalationRates({ title }: EscalationRatesProps) {
     const {
         useEscalation,
@@ -121,7 +72,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
         );
 
         // Represents whether the escalation rates is a constant value or an array
-        const isConstant$ = state(escalation$.pipe(map((rates) => !Array.isArray(rates))));
+        const isConstant$ = state(escalation$.pipe(map((rates) => !Array.isArray(rates))), false);
 
         // Converts the escalation rates into the format the grid needs
         const [useEscalation] = bind(
@@ -177,7 +128,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
     }, []);
 
     useEffect(() => {
-        const sub = newRate$.pipe(tap((x) => console.log("CHANGE", x))).subscribe(rateChange);
+        const sub = newRate$.subscribe(rateChange);
 
         return () => sub.unsubscribe();
     }, [newRate$]);
