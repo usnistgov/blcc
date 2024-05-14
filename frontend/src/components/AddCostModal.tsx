@@ -1,18 +1,18 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Col, Modal, Row, Typography } from "antd";
-import { combineLatest, merge, type Observable, sample, Subject, switchMap } from "rxjs";
+import { type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 import { Button, ButtonType } from "../components/Button";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
 
-import { type Cost, CostTypes } from "../blcc-format/Format";
 import { mdiClose, mdiPlus } from "@mdi/js";
-import { currentProject$, useAlternatives } from "../model/Model";
+import { type Cost, CostTypes } from "../blcc-format/Format";
 import { useSubscribe } from "../hooks/UseSubscribe";
+import { alternativeID$, sAlternativeID$ } from "../model/AlternativeModel";
+import { currentProject$, useAlternatives } from "../model/Model";
 import { db } from "../model/db";
-import { alternativeID$ } from "../model/AlternativeModel";
 
 const { Title } = Typography;
 
@@ -24,12 +24,12 @@ const { change$: type$, component: CostCategoryDropdown } = dropdown(Object.valu
 
 const [checkedAltsChange$, setCheckedAlts] = createSignal<number[]>();
 const [useChecked, checkedAlts$] = bind(
-    alternativeID$.pipe(switchMap((id) => checkedAltsChange$.pipe(startWith([id])))),
-    []
+    sAlternativeID$.pipe(switchMap((id) => checkedAltsChange$.pipe(startWith([id])))),
+    [],
 );
 
 const newCost$ = combineLatest([currentProject$, name$, type$.pipe(startWith(CostTypes.ENERGY)), checkedAlts$]).pipe(
-    sample(addCost$)
+    sample(addCost$),
 );
 
 //TODO make inputs clear when closing the modal
@@ -37,11 +37,8 @@ const newCost$ = combineLatest([currentProject$, name$, type$.pipe(startWith(Cos
 export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
     const [useOpen] = bind(
-        merge(
-            modifiedOpenModal$,
-            merge(cancel$, newCost$, modalCancel$).pipe(map(() => false)),
-        ),
-        false
+        merge(modifiedOpenModal$, merge(cancel$, newCost$, modalCancel$).pipe(map(() => false))),
+        false,
     );
     return {
         component: () => {
@@ -114,6 +111,6 @@ export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
                     </div>
                 </Modal>
             );
-        }
+        },
     };
 }

@@ -1,16 +1,16 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { useAlternatives } from "../../model/Model";
-import { ButtonType, Button } from "./../Button";
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
-import { useActiveLink } from "../../hooks/UseActiveLink";
 import Icon from "@mdi/react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { match } from "ts-pattern";
-import { alternativeID$, isLoaded$ } from "../../model/AlternativeModel";
+import { useActiveLink } from "../../hooks/UseActiveLink";
+import { sAlternativeID$ } from "../../model/AlternativeModel";
+import { useAlternatives } from "../../model/Model";
+import { Button, ButtonType } from "../Button";
 
 /*
  *  Component representing the navigation button for an alternative
  */
-function AltButton({ altID, name, icon }: { altID: number, name: string, icon?: string }) {
+function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: string }) {
     const navigate = useNavigate();
 
     return (
@@ -20,10 +20,8 @@ function AltButton({ altID, name, icon }: { altID: number, name: string, icon?: 
             type={ButtonType.PRIMARY}
             icon={icon}
             onClick={() => {
-                alternativeID$.next(altID);
-                isLoaded$.subscribe(() =>
-                    navigate(`/editor/alternative/${altID}`)
-                );
+                sAlternativeID$.next(altID);
+                navigate(`/editor/alternative/${altID}`);
             }}
         >
             {name}
@@ -32,13 +30,11 @@ function AltButton({ altID, name, icon }: { altID: number, name: string, icon?: 
 }
 
 /**
- *  The main navigation component for the editor portion of the application. Has links to the 
+ *  The main navigation component for the editor portion of the application. Has links to the
  *  General information page, the alternative summary page, and to all the alternatives.
  */
 export default function Navigation() {
     const navigate = useNavigate();
-
-    console.log(useAlternatives())
 
     return (
         <>
@@ -47,7 +43,9 @@ export default function Navigation() {
                 <Button
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}
                     icon={mdiFileDocument}
-                    onClick={() => { navigate("/editor") }} 
+                    onClick={() => {
+                        navigate("/editor");
+                    }}
                 >
                     General Information
                 </Button>
@@ -66,15 +64,20 @@ export default function Navigation() {
                 </span>
                 <div className={"flex flex-col gap-2 pl-8"}>
                     {match([...useAlternatives().values()])
-                        .when((alts) => alts.length <= 0, () => <p className={"text-base-light"}>No Alternatives</p>)
-                        .otherwise((alts) => alts.map((alt) =>
-                            <AltButton
-                                key={alt.id}
-                                altID={alt.id ?? 0}
-                                name={alt.name}
-                                icon={alt.baseline ? mdiAlphaBBox : undefined}
-                            />
-                        ))}
+                        .when(
+                            (alts) => alts.length <= 0,
+                            () => <p className={"text-base-light"}>No Alternatives</p>,
+                        )
+                        .otherwise((alts) =>
+                            alts.map((alt) => (
+                                <AltButton
+                                    key={alt.id}
+                                    altID={alt.id ?? 0}
+                                    name={alt.name}
+                                    icon={alt.baseline ? mdiAlphaBBox : undefined}
+                                />
+                            )),
+                        )}
                 </div>
             </nav>
             <Outlet />

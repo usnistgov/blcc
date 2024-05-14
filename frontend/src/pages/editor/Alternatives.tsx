@@ -1,35 +1,35 @@
-import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
-import { Typography } from "antd";
-import { ButtonType, Button } from "../../components/Button";
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
+import { bind } from "@react-rxjs/core";
+import { Typography } from "antd";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Subject, combineLatest, sample, switchMap } from "rxjs";
+import { map, withLatestFrom } from "rxjs/operators";
+import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
 import addAlternativeModal from "../../components/AddAlternativeModal";
 import addCostModal from "../../components/AddCostModal";
+import { Button, ButtonType } from "../../components/Button";
+import SubHeader from "../../components/SubHeader";
 import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
-import { useNavigate } from "react-router-dom";
-import { map, withLatestFrom } from "rxjs/operators";
-import { combineLatest, sample, Subject, switchMap } from "rxjs";
-import { bind } from "@react-rxjs/core";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { useSubscribe } from "../../hooks/UseSubscribe";
 import {
     alternative$,
     alternativeCollection$,
-    alternativeID$,
     capitalCosts$,
     contractCosts$,
     energyCosts$,
     otherCosts$,
-    waterCosts$
+    sAlternativeID$,
+    waterCosts$,
 } from "../../model/AlternativeModel";
 import { currentProject$, useAlternativeIDs } from "../../model/Model";
-import { useEffect } from "react";
-import { useDbUpdate } from "../../hooks/UseDbUpdate";
-import { defaultValue } from "../../util/Operators";
 import { db } from "../../model/db";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import SubHeader from "../../components/SubHeader";
-import { motion } from "framer-motion";
+import { defaultValue } from "../../util/Operators";
 
 const { Title } = Typography;
 
@@ -44,7 +44,7 @@ const openCostModal$ = new Subject<void>();
 const { onChange$: name$, component: NameInput } = textInput(alternative$.pipe(map((alt) => alt.name)));
 const { onChange$: description$, component: DescInput } = textArea(alternative$.pipe(map((alt) => alt.description)));
 
-const removeAlternative$ = combineLatest([alternativeID$, currentProject$]).pipe(sample(removeAlternativeClick$));
+const removeAlternative$ = combineLatest([sAlternativeID$, currentProject$]).pipe(sample(removeAlternativeClick$));
 const cloneAlternative$ = combineLatest([alternative$, currentProject$]).pipe(sample(cloneAlternativeClick$));
 
 const { component: AddAlternativeModal } = addAlternativeModal(openAltModal$.pipe(map(() => true)));
@@ -58,39 +58,39 @@ type Subcategories<T> = {
 const [energyCategories] = bind(
     energyCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>)
+        map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>),
     ),
-    {} as Subcategories<FuelType>
+    {} as Subcategories<FuelType>,
 );
 
 // Count all water costs
-const [waterCosts] = bind(waterCosts$.pipe(map(costs => costs.length > 0 ? { "Water Costs": costs } : {})), {});
+const [waterCosts] = bind(waterCosts$.pipe(map((costs) => (costs.length > 0 ? { "Water Costs": costs } : {}))), {});
 
 // Count all capital costs and its subcategories
 const [capitalCategories] = bind(
     capitalCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
+        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
     ),
-    {} as Subcategories<CostTypes>
+    {} as Subcategories<CostTypes>,
 );
 
 // Count all contract costs and its subcategories
 const [contractCategories] = bind(
     contractCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
+        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
     ),
-    {} as Subcategories<CostTypes>
+    {} as Subcategories<CostTypes>,
 );
 
 // Count all other costs and its subcategories
 const [otherCategories] = bind(
     otherCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>)
+        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
     ),
-    {} as Subcategories<CostTypes>
+    {} as Subcategories<CostTypes>,
 );
 
 function setBaseline([baseline, id]: [boolean, ID]) {
@@ -128,7 +128,7 @@ async function cloneAlternative([alternative, projectID]: [Alternative, number])
         ...alternative,
         id: undefined,
         baseline: false,
-        name: `${alternative.name} Copy`
+        name: `${alternative.name} Copy`,
     } as Alternative;
 
     return db.transaction("rw", db.alternatives, db.projects, async () => {
@@ -169,28 +169,34 @@ export default function Alternatives() {
     const categories = [
         {
             label: "Energy Costs",
-            children: energyCategories()
+            children: energyCategories(),
         },
         {
             label: "Water Costs",
-            children: waterCosts()
+            children: waterCosts(),
         },
         {
             label: "Capital Costs",
-            children: capitalCategories()
+            children: capitalCategories(),
         },
         {
             label: "Contract Costs",
-            children: contractCategories()
+            children: contractCategories(),
         },
         {
             label: "Other Costs",
-            children: otherCategories()
-        }
+            children: otherCategories(),
+        },
     ];
 
     return (
-        <motion.div className="h-full w-full" exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1 }}>
+        <motion.div
+            className="h-full w-full"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1 }}
+        >
             <AddAlternativeModal />
             <AddCostModal />
 
@@ -254,18 +260,20 @@ export default function Alternatives() {
                                                 </div>
                                                 <ul className={"hover:cursor-pointer"}>
                                                     {costs.map((item: Cost) => {
-                                                        const navigateToItem = () => navigate(`cost/${item.id}`)
-                                                        return <li
-                                                            key={item.id}
-                                                            className={
-                                                                "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary"
-                                                            }
-                                                            onClick={navigateToItem}
-                                                            onKeyDown={navigateToItem}
-                                                        >
-                                                            {/*FIXME switch to button so keyboard navigation works*/}
-                                                            {item?.name || "Unknown"}
-                                                        </li>
+                                                        const navigateToItem = () => navigate(`cost/${item.id}`);
+                                                        return (
+                                                            <li
+                                                                key={item.id}
+                                                                className={
+                                                                    "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary"
+                                                                }
+                                                                onClick={navigateToItem}
+                                                                onKeyDown={navigateToItem}
+                                                            >
+                                                                {/*FIXME switch to button so keyboard navigation works*/}
+                                                                {item?.name || "Unknown"}
+                                                            </li>
+                                                        );
                                                     })}
                                                 </ul>
                                             </span>

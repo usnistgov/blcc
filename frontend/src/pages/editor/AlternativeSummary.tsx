@@ -1,22 +1,22 @@
 import { mdiAlphaBBox, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import { Divider, Typography } from "antd";
+import { liveQuery } from "dexie";
+import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import type { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
-import { ButtonType, Button } from "../../components/Button";
+import addAlternativeModal from "../../components/AddAlternativeModal";
+import { Button, ButtonType } from "../../components/Button";
+import SubHeader from "../../components/SubHeader";
+import { useSubscribe } from "../../hooks/UseSubscribe";
 import { alternatives$ } from "../../model/Model";
+import { db } from "../../model/db";
 import { countProperty } from "../../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
-import { createSignal } from "@react-rxjs/utils";
-import { useNavigate } from "react-router-dom";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import { of, Subject, switchMap } from "rxjs";
-import addAlternativeModal from "../../components/AddAlternativeModal";
-import { db } from "../../model/db";
-import { liveQuery } from "dexie";
-import SubHeader from "../../components/SubHeader";
-import { AnimatePresence, motion } from "framer-motion";
 
 const { Title } = Typography;
 
@@ -30,7 +30,12 @@ export default function AlternativeSummary() {
     const cards = useCards();
 
     return (
-        <motion.div exit={{ opacity: 0 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1 }}>
+        <motion.div
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1 }}
+        >
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
                     <AddAlternativeModal />
@@ -55,7 +60,7 @@ export default function AlternativeSummary() {
 
 export function createAlternativeCard(alternative: Alternative) {
     const altCosts$ = of(alternative).pipe(
-        switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray()))
+        switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
     );
 
     // Count all energy costs, and the count of its subcategories
@@ -84,27 +89,27 @@ export function createAlternativeCard(alternative: Alternative) {
         {
             label: "Energy Costs",
             hook: energyCosts,
-            children: fuelSubcategories
+            children: fuelSubcategories,
         },
         {
             label: "Water Costs",
-            hook: waterCosts
+            hook: waterCosts,
         },
         {
             label: "Capital Costs",
             hook: capitalCosts,
-            children: capitalSubcategories
+            children: capitalSubcategories,
         },
         {
             label: "Contract Costs",
             hook: contractCosts,
-            children: contractSubcategories
+            children: contractSubcategories,
         },
         {
             label: "Other Costs",
             hook: otherCosts,
-            children: otherSubcategories
-        }
+            children: otherSubcategories,
+        },
     ];
     return {
         component: function AltCard() {
@@ -149,6 +154,6 @@ export function createAlternativeCard(alternative: Alternative) {
                     </div>
                 </div>
             );
-        }
+        },
     };
 }

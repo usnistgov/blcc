@@ -6,15 +6,11 @@ import constantOrTable from "../../../../components/ConstantOrTable";
 import dropdown from "../../../../components/Dropdown";
 import numberInput from "../../../../components/InputNumber";
 import { useDbUpdate } from "../../../../hooks/UseDbUpdate";
-import {
-    costCollection$ as baseCostCollection$,
-    energyCost$,
-    fuelType$,
-    sector$,
-    useIndex$,
-} from "../../../../model/CostModel";
+import { costCollection$ as baseCostCollection$ } from "../../../../model/CostModel";
+import { energyCost$, fuelType$, sector$, useIndex$ } from "../../../../model/costs/EnergyCostModel";
 import { min } from "../../../../model/rules/Rules";
 import EscalationRates from "./EscalationRates";
+import UsageIndex from "./UsageIndex";
 
 // If we are on this page that means the cost collection can be narrowed to EnergyCost.
 const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
@@ -87,28 +83,7 @@ export default function EnergyCostFields() {
                 <DemandChargeInput className={"w-full"} addonBefore={"$"} />
 
                 <EscalationRates title={"Escalation Rates"} />
-                {/*                <UseIndexComponent title={"Usage Index"}>
-                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                        <DataGrid
-                            className={"h-full"}
-                            rows={escalationRates}
-                            columns={[
-                                {
-                                    name: "Year",
-                                    key: "year",
-                                },
-                                {
-                                    name: "Usage",
-                                    key: "usage",
-                                    renderEditCell: textEditor,
-                                    renderCell: (info: RenderCellProps<EscalationRateInfo, unknown>) => {
-                                        return percentFormatter.format(info.row.escalationRate);
-                                    },
-                                },
-                            ]}
-                        />
-                    </div>
-                </UseIndexComponent>*/}
+                <UsageIndex title={"Usage Index"} />
             </div>
         </div>
     );

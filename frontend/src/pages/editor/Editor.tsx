@@ -1,61 +1,49 @@
+import { AnimatePresence } from "framer-motion";
 import { Route, Routes, useLocation } from "react-router-dom";
 import EditorAppBar from "../../components/EditorAppBar";
-import Navigation from "../../components/navigation/Navigation";
-import CostNavigation from "../../components/navigation/CostNavigation";
 import PageWrapper from "../../components/PageWrapper";
-import GeneralInformation from "./GeneralInformation";
-import AlternativeSummary from "./AlternativeSummary";
-import Cost from "./Cost";
-import Alternatives from "./Alternatives";
 import Statistics from "../../components/Statistics";
-import { match } from "ts-pattern";
-import { isLoaded } from "../../model/Model";
-import { AnimatePresence } from "framer-motion";
+import CostNavigation from "../../components/navigation/CostNavigation";
+import Navigation from "../../components/navigation/Navigation";
+import AlternativeSummary from "./AlternativeSummary";
+import Alternatives from "./Alternatives";
+import Cost from "./Cost";
+import GeneralInformation from "./GeneralInformation";
 
 export default function Editor() {
-    const loaded = isLoaded();
     const location = useLocation();
 
-    console.log("Rendered", loaded)
+    return (
+        <>
+            <EditorAppBar />
 
-    if (!loaded)
-        return <></>
-
-    return <>
-        <EditorAppBar />
-
-        <div className={"flex h-full overflow-hidden"}>
-            <AnimatePresence mode={"wait"}>
-                <Routes location={location} key={location.key}>
-                    <Route path={"*"} element={<Navigation />} >
-                        <Route index />
-                        <Route path={"alternative/:altID"}>
-                            <Route index path={"*"} element={<CostNavigation />} />
+            <div className={"flex h-full overflow-hidden"}>
+                <AnimatePresence mode={"wait"}>
+                    <Routes location={location} key={location.key}>
+                        <Route path={"*"} element={<Navigation />}>
+                            <Route index />
+                            <Route path={"alternative/:altID"}>
+                                <Route index path={"*"} element={<CostNavigation />} />
+                            </Route>
                         </Route>
-                    </Route>
-                </Routes>
-            </AnimatePresence>
+                    </Routes>
+                </AnimatePresence>
 
-            <AnimatePresence mode={"wait"}>
-                <Routes location={location} key={location.key}>
-                    <Route element={<PageWrapper />}>
-                        <Route index element={<GeneralInformation />} />
-                        <Route path={"alternative"}>
-                            <Route index element={<AlternativeSummary />} />
-                            <Route
-                                path={":alternativeID/cost/:costID"}
-                                element={<Cost />}
-                            />
-                            <Route
-                                path={":alternativeID"}
-                                element={<Alternatives />}
-                            />
+                <AnimatePresence mode={"wait"}>
+                    <Routes location={location} key={location.key}>
+                        <Route element={<PageWrapper />}>
+                            <Route index element={<GeneralInformation />} />
+                            <Route path={"alternative"}>
+                                <Route index element={<AlternativeSummary />} />
+                                <Route path={":alternativeID/cost/:costID"} element={<Cost />} />
+                                <Route path={":alternativeID"} element={<Alternatives />} />
+                            </Route>
                         </Route>
-                    </Route>
-                </Routes>
-            </AnimatePresence>
-        </div>
+                    </Routes>
+                </AnimatePresence>
+            </div>
 
-        <Statistics />
-    </>
-} 
+            <Statistics />
+        </>
+    );
+}

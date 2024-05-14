@@ -184,7 +184,7 @@ export default function GeneralInformation() {
             className={"max-w-screen-lg p-6"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1, speed: 0.5 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>

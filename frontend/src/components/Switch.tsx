@@ -22,13 +22,12 @@ export default function Switch<Left = false, Right = true>({
     wire,
     className,
     ...defaultProps
-}: SwitchProps<Left, Right> & AntSwitchProps) {
+}: SwitchProps<Left, Right> & Omit<AntSwitchProps, "onChange">) {
     // Set up the toggle subscription
     const [output$, toggle] = useMemo(() => createSignal<Left | Right>(), []);
 
     // Connect the toggle subscription to the output subject prop
     useEffect(() => {
-        console.log("run effect");
         const sub = output$.subscribe(wire);
         return () => sub.unsubscribe();
     }, [wire, output$]);

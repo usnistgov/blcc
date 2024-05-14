@@ -111,6 +111,7 @@ type Conditional<T> = T extends true ? number | undefined : number;
 
 type NumberInputProps2<T extends true | false = false> = {
     label: string;
+    showLabel?: boolean;
     allowEmpty?: T | false;
     rules?: Rule<number>[];
     value$: StateObservable<Conditional<T>>;
@@ -119,6 +120,7 @@ type NumberInputProps2<T extends true | false = false> = {
 
 export function NumberInput<T extends true | false = false>({
     label,
+    showLabel = true,
     children,
     allowEmpty = false,
     rules = [],
@@ -193,7 +195,7 @@ export function NumberInput<T extends true | false = false>({
 
     return (
         <div>
-            {(label && (
+            {(showLabel && (
                 <>
                     <Title level={5}>{label}</Title>
                     {input}

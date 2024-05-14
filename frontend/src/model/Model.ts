@@ -1,9 +1,9 @@
-import { bind, state } from "@react-rxjs/core";
+import { bind, shareLatest, state } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
 import objectHash from "object-hash";
 import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, filter, startWith, withLatestFrom } from "rxjs/operators";
+import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import {
     AnalysisType,
     DiscountingMethod,
@@ -60,7 +60,6 @@ export const purpose$ = dbProject$.pipe(map((p) => p.purpose));
 export const [usePurpose] = bind(purpose$, undefined);
 
 export const sStudyPeriodChange = new Subject<number | undefined>();
-sStudyPeriodChange.subscribe();
 export const studyPeriod$ = state(
     merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
     25,
@@ -112,6 +111,7 @@ export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
 export const alternatives$ = alternativeIDs$.pipe(
     switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray())),
+    shareReplay(1),
 );
 export const [useAlternatives, alt$] = bind(alternatives$, []);
 
@@ -241,13 +241,3 @@ alternatives$
         // If an entry exists but the error message has changed, update it
         collection.modify({ messages: result.messages ?? [] });
     });
-
-export const [isLoaded, loaded] = bind(
-    combineLatest([dbProject$, alt$.pipe(filter((x) => x.length > 0))]).pipe(map(() => true)),
-    false,
-);
-
-loaded.subscribe((value) => console.log("loaded", value));
-
-alternatives$.subscribe((alts) => console.log("alts", alts));
-alt$.subscribe((alts) => console.log("bind alt", alts));

@@ -1,7 +1,9 @@
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { bind } from "@react-rxjs/core";
+import { bind, state, useStateObservable } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Typography } from "antd";
+import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
@@ -9,12 +11,11 @@ import { CostTypes, type Cost as FormatCost, type ID } from "../../blcc-format/F
 import addCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
-import switchComp from "../../components/Switch";
 import textArea from "../../components/TextArea";
 import textInput, { TextInputType } from "../../components/TextInput";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { isLoaded, useAltName, useAlternativeID } from "../../model/AlternativeModel";
+import { alternative$, useAltName, useAlternativeID } from "../../model/AlternativeModel";
 import { cost$, costCollection$, costID$, useCostID, useCostType } from "../../model/CostModel";
 import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
 import { db } from "../../model/db";
@@ -126,14 +127,20 @@ function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean
 }
 
 export default function Cost() {
-    const loaded = isLoaded();
     const id = useCostID();
-    const alternativeName = useAltName();
     const navigate = useNavigate();
     const alternatives = useAlternatives();
     const onlyOne = onlyOneAlternativeIncludes();
     const costType = useCostType();
     const alternativeID = useAlternativeID();
+
+    const { useAltName } = useMemo(() => {
+        const [useAltName] = bind(alternative$.pipe(map((alt) => alt.name)));
+
+        return { useAltName };
+    }, []);
+
+    const alternativeName = useAltName();
 
     /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     useDbUpdate(name$.pipe(defaultValue("Unnamed Cost")), costCollection$, "name");
@@ -142,10 +149,14 @@ export default function Cost() {
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
     useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
 
-    if (!loaded) return <></>;
-
     return (
-        <div className={"w-full"}>
+        <motion.div
+            className={"w-full"}
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, speed: 0.5 }}
+            transition={{ duration: 0.2 }}
+        >
             <AddCostModal />
 
             <SubHeader>
@@ -211,6 +222,6 @@ export default function Cost() {
                     .with(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />)
                     .exhaustive()}
             </div>
-        </div>
+        </motion.div>
     );
 }
