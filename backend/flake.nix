@@ -1,0 +1,73 @@
+{
+    description = "BLCC actix server;";
+
+    inputs = {
+        nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+        crane = {
+            url = "github:ipetkov/crane";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
+        flake-utils.url = "github:numtide/flake-utils";
+        rust-overlay = {
+            url = "github:oxalica/rust-overlay";
+            inputs = {
+                nixpkgs.follows = "nixpkgs";
+                flake-utils.follows = "flake-utils";
+            };
+        };
+    };
+
+    outputs = { nixpkgs, crane, flake-utils, rust-overlay, ... }:
+        flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
+        let
+            pkgs = import nixpkgs {
+                inherit system;
+                overlays = [ (import rust-overlay) ];
+            };
+
+            rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+                targets = [ "x86_64-unknown-linux-musl" ];
+            };
+
+            craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+
+            sqlFilter = path: _type: builtins.match ".*sql$" path != null;
+            sqlOrCargoFilter = path: type:
+                (sqlFilter path type) || (craneLib.filterCargoSources path type);
+
+            blcc-backend = craneLib.buildPackage {
+                buildInputs = [
+                    pkgs.postgresql
+                    pkgs.openssl
+                ];
+
+                src = pkgs.lib.cleanSourceWith {
+                  src = craneLib.path ./.;
+                  filter = sqlOrCargoFilter;
+                };
+
+                strictDeps = true;
+
+                CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
+                CARGO_BUILD_RUSTFLAGS = "-C target-feature=+crt-static";
+
+                #fixes issues related to openssl
+                OPENSSL_DIR = "${pkgs.openssl.dev}";
+                OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+                OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include/";
+
+                CARGO_BUILD_FLAGS = "-L${pkgs.postgresql.lib}/lib -lpq";
+            };
+        in
+        rec {
+            checks = {
+                inherit blcc-backend;
+            };
+
+            devShells.default = craneLib.devShell {
+                inputsFrom = [ blcc-backend ];
+            };
+
+            packages.default = blcc-backend;
+        });
+}
