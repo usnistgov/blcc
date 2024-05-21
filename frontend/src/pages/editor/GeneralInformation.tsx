@@ -142,12 +142,6 @@ function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<P
 
 const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
-const testValue$ = new Subject<number | undefined>();
-testValue$.subscribe((x) => console.log("test1", x));
-
-const testValue2$ = new Subject<number>();
-testValue2$.subscribe((x) => console.log("test2", x));
-
 export default function GeneralInformation() {
     const dollarMethod = useDollarMethod();
 
@@ -188,20 +182,6 @@ export default function GeneralInformation() {
             transition={{ duration: 0.1 }}
         >
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NumberInput
-                    wire={testValue$}
-                    label={"Test"}
-                    allowEmpty
-                    value$={state<number | undefined>(testValue$, 30)}
-                    rules={[min(10), max(20)]}
-                />
-                <NumberInput
-                    wire={testValue2$}
-                    label={"Test 2"}
-                    value$={state<number>(testValue2$, 11)}
-                    rules={[min(5), max(15)]}
-                />
-
                 <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
                 <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
 

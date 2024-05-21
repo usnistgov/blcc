@@ -1,25 +1,25 @@
-import numberInput from "../../../components/InputNumber";
-import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { filter, type Observable } from "rxjs";
 import type { Collection } from "dexie";
-import { CostTypes, type OMRCost } from "../../../blcc-format/Format";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { type Observable, filter } from "rxjs";
 import { map } from "rxjs/operators";
+import { CostTypes, type OMRCost } from "../../../blcc-format/Format";
+import numberInput from "../../../components/InputNumber";
 import Recurring from "../../../components/Recurring";
+import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { CostModel } from "../../../model/CostModel";
 
 // If we are on this page that means the cost collection can be narrowed to OMRCost.
-const costCollection$ = baseCostCollection$ as Observable<Collection<OMRCost, number>>;
-const omrCost$ = cost$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
+const costCollection$ = CostModel.collection$ as Observable<Collection<OMRCost, number>>;
+const omrCost$ = CostModel.cost$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
 
 const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
     "Initial Cost",
     "/",
-    omrCost$.pipe(map((cost) => cost.initialCost))
+    omrCost$.pipe(map((cost) => cost.initialCost)),
 );
 const { component: InitialOccurrenceInput, onChange$: initialOccurrence$ } = numberInput(
     "Initial Occurrence",
     "/",
-    omrCost$.pipe(map((cost) => cost.initialOccurrence))
+    omrCost$.pipe(map((cost) => cost.initialOccurrence)),
 );
 export default function OMRCostFields() {
     useDbUpdate(initialCost$, costCollection$, "initialCost");

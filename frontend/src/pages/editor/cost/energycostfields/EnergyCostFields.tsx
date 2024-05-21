@@ -1,11 +1,10 @@
-import { bind } from "@react-rxjs/core";
 import type { Collection } from "dexie";
 import { type Observable, map } from "rxjs";
 import { CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "../../../../blcc-format/Format";
-import dropdown, { Dropdown } from "../../../../components/Dropdown";
+import { Dropdown } from "../../../../components/Dropdown";
 import numberInput from "../../../../components/InputNumber";
 import { useDbUpdate } from "../../../../hooks/UseDbUpdate";
-import { costCollection$ as baseCostCollection$ } from "../../../../model/CostModel";
+import { CostModel } from "../../../../model/CostModel";
 import {
     customerSector$,
     energyCost$,
@@ -21,7 +20,7 @@ import EscalationRates from "./EscalationRates";
 import UsageIndex from "./UsageIndex";
 
 // If we are on this page that means the cost collection can be narrowed to EnergyCost.
-const costCollection$ = baseCostCollection$ as Observable<Collection<EnergyCost, number>>;
+const costCollection$ = CostModel.collection$ as Observable<Collection<EnergyCost, number>>;
 
 const { component: CostPerUnitInput, onChange$: costPerUnitChange$ } = numberInput(
     "Cost per Unit",

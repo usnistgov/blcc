@@ -1,44 +1,44 @@
-import numberInput from "../../../components/InputNumber";
-import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { filter, type Observable } from "rxjs";
-import { type CapitalCost, CostTypes } from "../../../blcc-format/Format";
-import { map } from "rxjs/operators";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import type { Collection } from "dexie";
+import { type Observable, filter } from "rxjs";
+import { map } from "rxjs/operators";
+import { type CapitalCost, CostTypes } from "../../../blcc-format/Format";
+import numberInput from "../../../components/InputNumber";
+import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { CostModel } from "../../../model/CostModel";
 
 // If we are on this page that means the cost collection can be narrowed to CapitalCost.
-const costCollection$ = baseCostCollection$ as Observable<Collection<CapitalCost, number>>;
-const capitalCost$ = cost$.pipe(filter((cost): cost is CapitalCost => cost.type === CostTypes.CAPITAL));
+const costCollection$ = CostModel.collection$ as Observable<Collection<CapitalCost, number>>;
+const capitalCost$ = CostModel.cost$.pipe(filter((cost): cost is CapitalCost => cost.type === CostTypes.CAPITAL));
 
 const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
     "Initial Cost (Base Year Dollars)",
     "/",
     capitalCost$.pipe(map((cost) => cost.initialCost)),
-    true
+    true,
 );
 const { component: AnnualRateOfChangeInput, onChange$: rateOfChange$ } = numberInput(
     "Annual Rate of Change",
     "/",
     capitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
-    true
+    true,
 );
 const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
     "Expected Lifetime",
     "/",
     capitalCost$.pipe(map((cost) => cost.expectedLife)),
-    true
+    true,
 );
 const { component: CostAdjustmentFactorInput, onChange$: costAdjustment$ } = numberInput(
     "Cost Adjustment Factor",
     "/",
     capitalCost$.pipe(map((cost) => cost.costAdjustment)),
-    true
+    true,
 );
 const { component: AmountFinancedInput, onChange$: amountFinanced$ } = numberInput(
     "Amount Financed",
     "/",
     capitalCost$.pipe(map((cost) => cost.amountFinanced)),
-    true
+    true,
 );
 
 export default function InvestmentCapitalCostFields() {

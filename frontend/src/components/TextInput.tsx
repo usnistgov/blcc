@@ -1,8 +1,8 @@
-import { bind } from "@react-rxjs/core";
+import { type StateObservable, bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Input, Typography } from "antd";
-import type { PropsWithChildren } from "react";
-import { EMPTY, type Observable, switchMap } from "rxjs";
+import { Input, type InputProps, Typography } from "antd";
+import { type PropsWithChildren, useEffect, useMemo } from "react";
+import { EMPTY, type Observable, type Subject, switchMap } from "rxjs";
 import { startWith } from "rxjs/operators";
 
 export enum TextInputType {
@@ -74,21 +74,51 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
 
 type TextInputProps2 = {
     label: string;
+    className?: string;
+    type: TextInputType;
+    value$: StateObservable<string | undefined>;
+    wire: Subject<string | undefined>;
 };
 
-export function TextInput({ label, children }: PropsWithChildren<TextInputProps2>) {
+export function TextInput({
+    label,
+    children,
+    value$,
+    wire,
+    className,
+    disabled,
+    type,
+    ...defaultProps
+}: PropsWithChildren<TextInputProps2 & InputProps>) {
+    const { useValue, focus, onChange, onChange$ } = useMemo(() => {
+        const [onChange$, onChange] = createSignal<string | undefined>();
+        const [focused$, focus] = createSignal<boolean>();
+
+        const [useValue] = bind(
+            focused$.pipe(
+                startWith(false),
+                switchMap((focused) => (focused ? onChange$ : value$)),
+            ),
+            undefined,
+        );
+
+        return { useValue, focus, onChange, onChange$ };
+    }, [value$]);
+
+    useEffect(() => {
+        onChange$.subscribe(wire);
+    }, [wire, onChange$]);
+
     return (
         <div>
             <Title level={5}>{label}</Title>
             <Input
                 onFocus={() => focus(true)}
                 onBlur={() => focus(false)}
-                className={(className ?? "") + `${disabled ? TextInputType.DISABLED : type}`}
-                onChange={(event) => onChange(event.target.value)}
-                placeholder={placeholder}
-                variant={bordered ? "outlined" : "borderless"}
-                disabled={disabled}
+                className={`${className ?? ""} ${disabled ? TextInputType.DISABLED : type}`}
+                onChange={(event) => onChange(event.currentTarget.value)}
                 value={useValue()}
+                {...defaultProps}
             >
                 {children}
             </Input>

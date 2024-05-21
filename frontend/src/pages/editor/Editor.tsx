@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import EditorAppBar from "../../components/EditorAppBar";
 import PageWrapper from "../../components/PageWrapper";
 import Statistics from "../../components/Statistics";
+import SyncUrlParams from "../../components/SyncUrlParams";
 import CostNavigation from "../../components/navigation/CostNavigation";
 import Navigation from "../../components/navigation/Navigation";
 import AlternativeSummary from "./AlternativeSummary";
@@ -35,7 +36,14 @@ export default function Editor() {
                             <Route index element={<GeneralInformation />} />
                             <Route path={"alternative"}>
                                 <Route index element={<AlternativeSummary />} />
-                                <Route path={":alternativeID/cost/:costID"} element={<Cost />} />
+                                <Route
+                                    path={":alternativeID/cost/:costID"}
+                                    element={
+                                        <SyncUrlParams>
+                                            <Cost />
+                                        </SyncUrlParams>
+                                    }
+                                />
                                 <Route path={":alternativeID"} element={<Alternatives />} />
                             </Route>
                         </Route>

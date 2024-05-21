@@ -1,45 +1,49 @@
-import numberInput from "../../../components/InputNumber";
-import switchComp from "../../../components/Switch";
-import { Typography } from "antd";
-import { cost$, costCollection$ as baseCostCollection$ } from "../../../model/CostModel";
-import { filter, type Observable } from "rxjs";
-import { CostTypes, DollarOrPercent, type ReplacementCapitalCost, type ResidualValue } from "../../../blcc-format/Format";
-import { map } from "rxjs/operators";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { defaultValue } from "../../../util/Operators";
 import { bind } from "@react-rxjs/core";
-import checkbox from "../../../components/Checkbox";
+import { Typography } from "antd";
 import type { Collection } from "dexie";
+import { type Observable, filter } from "rxjs";
+import { map } from "rxjs/operators";
+import {
+    CostTypes,
+    DollarOrPercent,
+    type ReplacementCapitalCost,
+    type ResidualValue,
+} from "../../../blcc-format/Format";
+import checkbox from "../../../components/Checkbox";
+import numberInput from "../../../components/InputNumber";
+import { useDbUpdate } from "../../../hooks/UseDbUpdate";
+import { CostModel } from "../../../model/CostModel";
+import { defaultValue } from "../../../util/Operators";
 
 const { Title } = Typography;
 
 // If we are on this page that means the cost collection can be narrowed to ReplacementCapitalCost.
-const costCollection$ = baseCostCollection$ as Observable<Collection<ReplacementCapitalCost, number>>;
-const replacementCapitalCost$ = cost$.pipe(
-    filter((cost): cost is ReplacementCapitalCost => cost.type === CostTypes.REPLACEMENT_CAPITAL)
+const costCollection$ = CostModel.collection$ as Observable<Collection<ReplacementCapitalCost, number>>;
+const replacementCapitalCost$ = CostModel.cost$.pipe(
+    filter((cost): cost is ReplacementCapitalCost => cost.type === CostTypes.REPLACEMENT_CAPITAL),
 );
 
 const [useApproach, approach$] = bind(
     replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.approach)),
-    undefined
+    undefined,
 );
 
 const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
     "Inital Cost (Base Year Dollars)",
     "/",
-    replacementCapitalCost$.pipe(map((cost) => cost.initialCost))
+    replacementCapitalCost$.pipe(map((cost) => cost.initialCost)),
 );
 const { component: AnnualRateOfChangeInput, onChange$: annualRateOfChange$ } = numberInput(
     "Annual Rate of Change",
     "/",
     replacementCapitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
-    true
+    true,
 );
 const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
     "Expected Lifetime",
     "/",
     replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
-    true
+    true,
 );
 /*const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = switchComp(
     approach$.pipe(map((approach) => approach === DollarOrPercent.PERCENT))
@@ -48,14 +52,14 @@ const { component: ResidualValueInput, onChange$: residualValue$ } = numberInput
     "Residual Value",
     "/",
     replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.value)),
-    true
+    true,
 );
 
 const { component: ResidualValueCheckbox, onChange$: residualValueCheck$ } = checkbox(
-    replacementCapitalCost$.pipe(map((cost) => cost.residualValue !== undefined))
+    replacementCapitalCost$.pipe(map((cost) => cost.residualValue !== undefined)),
 );
 const residualValueEnabled$ = residualValueCheck$.pipe(
-    map((value) => (value ? ({ approach: DollarOrPercent.DOLLAR, value: 0 } as ResidualValue) : undefined))
+    map((value) => (value ? ({ approach: DollarOrPercent.DOLLAR, value: 0 } as ResidualValue) : undefined)),
 );
 
 export default function ReplacementCapitalCostFields() {
@@ -65,7 +69,7 @@ export default function ReplacementCapitalCostFields() {
     useDbUpdate(annualRateOfChange$, costCollection$, "annualRateOfChange");
     useDbUpdate(expectedLife$, costCollection$, "expectedLife");
     useDbUpdate(residualValue$, costCollection$, "residualValue.value");
-/*    useDbUpdate(
+    /*    useDbUpdate(
         dollarOrPercentChange$.pipe(map((value) => (value ? DollarOrPercent.PERCENT : DollarOrPercent.DOLLAR))),
         costCollection$,
         "residualValue.approach"

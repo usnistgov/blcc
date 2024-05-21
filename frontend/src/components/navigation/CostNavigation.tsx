@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { Cost } from "../../blcc-format/Format";
 import { useActiveLink } from "../../hooks/UseActiveLink";
 import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
-import { costID$ } from "../../model/CostModel";
+import { CostModel } from "../../model/CostModel";
 import { Button, ButtonType } from "../Button";
 
 type MenuItem = {
@@ -52,7 +52,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
             className={useActiveLink(`/editor/alternative/:alternativeID/cost/${costID}`)}
             type={ButtonType.PRIMARY_DARK}
             onClick={() => {
-                costID$.next(costID ?? 0);
+                CostModel.id$.next(costID ?? 0);
 
                 if (!location.pathname.endsWith(`cost/${costID}`)) navigate(`cost/${costID}`);
             }}
@@ -64,8 +64,6 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
 
 function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: MenuItem }) {
     const costs = useStateObservable(costs$);
-
-    console.log("Rerender cost buttons");
 
     return (
         <>
@@ -83,8 +81,6 @@ function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: 
 }
 
 export default function CostNavigation() {
-    console.log("Rerender cost navigation");
-
     return (
         <nav className="flex h-full max-w-32 w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary-dark p-2 text-base-lightest">
             {items.map((item) => (

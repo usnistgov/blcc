@@ -13,13 +13,13 @@ import {
     type Unit,
 } from "../../blcc-format/Format";
 import { guard } from "../../util/Operators";
-import { cost$, costCollection$ } from "../CostModel";
+import { CostModel } from "../CostModel";
 import { releaseYear$, studyPeriod$, zip$ } from "../Model";
 
 /**
  * Outputs a value if the current cost is an energy cost
  */
-export const energyCost$ = cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+export const energyCost$ = CostModel.cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
 
 /**
  * Customer sector streams
@@ -29,7 +29,7 @@ export const customerSector$ = merge(sSectorChange$, energyCost$.pipe(map((cost)
     guard(),
     distinctUntilChanged(),
 );
-combineLatest([sSectorChange$, costCollection$]).subscribe(([customerSector, costCollection]) =>
+combineLatest([sSectorChange$, CostModel.collection$]).subscribe(([customerSector, costCollection]) =>
     costCollection.modify({ customerSector }),
 );
 
@@ -40,7 +40,7 @@ export const sFuelTypeChange$ = new Subject<FuelType>();
 export const fuelType$ = merge(sFuelTypeChange$, energyCost$.pipe(map((cost) => cost.fuelType))).pipe(
     distinctUntilChanged(),
 );
-combineLatest([sFuelTypeChange$, costCollection$]).subscribe(([fuelType, costCollection]) =>
+combineLatest([sFuelTypeChange$, CostModel.collection$]).subscribe(([fuelType, costCollection]) =>
     costCollection.modify({ fuelType }),
 );
 
@@ -94,7 +94,7 @@ export const escalation$ = merge(
     rateChange$,
     energyCost$.pipe(switchMap((cost) => (cost.escalation ? of(cost.escalation) : fetchEscalationRates$))),
 ).pipe(distinctUntilChanged());
-combineLatest([rateChange$, costCollection$]).subscribe(([newRates, costCollection]) =>
+combineLatest([rateChange$, CostModel.collection$]).subscribe(([newRates, costCollection]) =>
     costCollection.modify({ escalation: newRates }),
 );
 
@@ -107,7 +107,7 @@ export const useIndex$ = merge(newUseIndex$, energyCost$.pipe(map((cost) => cost
     distinctUntilChanged(),
     shareReplay(1),
 );
-combineLatest([newUseIndex$, costCollection$]).subscribe(([newRates, costCollection]) =>
+combineLatest([newUseIndex$, CostModel.collection$]).subscribe(([newRates, costCollection]) =>
     costCollection.modify({ useIndex: newRates }),
 );
 
@@ -122,4 +122,6 @@ export const unit$ = merge(sUnitChange$, energyCost$.pipe(map((cost) => cost.uni
     shareReplay(1),
 );
 export const [useUnit] = bind(unit$, EnergyUnit.KWH);
-combineLatest([sUnitChange$, costCollection$]).subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
+combineLatest([sUnitChange$, CostModel.collection$]).subscribe(([unit, costCollection]) =>
+    costCollection.modify({ unit }),
+);
