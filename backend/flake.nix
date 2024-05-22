@@ -36,15 +36,23 @@
                 (sqlFilter path type) || (craneLib.filterCargoSources path type);
 
             blcc-backend = craneLib.buildPackage {
-                buildInputs = [
-                    pkgs.postgresql
-                    pkgs.openssl
+                nativeBuildInputs = with pkgs; [
+                    pkg-config
+                ];
+
+                buildInputs = with pkgs; [
+                    postgresql
+                    openssl
                 ];
 
                 src = pkgs.lib.cleanSourceWith {
                   src = craneLib.path ./.;
                   filter = sqlOrCargoFilter;
                 };
+
+                shellHook = ''
+                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.postgresql.lib}";
+                '';
 
                 strictDeps = true;
 
@@ -56,7 +64,7 @@
                 OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
                 OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include/";
 
-                CARGO_BUILD_FLAGS = "-L${pkgs.postgresql.lib}/lib -lpq";
+                LIBPQ_DIR = "${pkgs.postgresql.out}/lib";
             };
         in
         rec {
@@ -66,6 +74,12 @@
 
             devShells.default = craneLib.devShell {
                 inputsFrom = [ blcc-backend ];
+
+                buildInputs = with pkgs; [
+                    pkg-config
+                    postgresql
+                    openssl
+                ];
             };
 
             packages.default = blcc-backend;
