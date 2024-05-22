@@ -1,5 +1,5 @@
 {
-    description = "BLCC actix server;";
+    description = "BLCC actix server";
 
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -25,11 +25,6 @@
                 overlays = [ (import rust-overlay) ];
             };
 
-            #rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-            #    targets = [ "x86_64-unknown-linux-musl" ];
-            #};
-
-            #craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
             craneLib = crane.mkLib pkgs;
 
             sqlFilter = path: _type: builtins.match ".*sql$" path != null;
@@ -51,21 +46,21 @@
                   filter = sqlOrCargoFilter;
                 };
 
-                #shellHook = ''
-                #    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.postgresql.lib}";
-                #'';
-
                 strictDeps = true;
-
-                #CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
-                #CARGO_BUILD_RUSTFLAGS = "-C target-feature=+crt-static";
 
                 #fixes issues related to openssl
                 OPENSSL_DIR = "${pkgs.openssl.dev}";
                 OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
                 OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include/";
+            };
 
-                #LIBPQ_DIR = "${pkgs.postgresql.out}/lib";
+            docker = pkgs.dockerTools.buildLayeredImage {
+                name = "BLCC";
+                tag = "latest";
+                contents = [ blcc-backend ];
+                config = {
+                    Cmd = [ "${blcc-backend}/bin/backend" ];
+                };
             };
         in
         rec {
@@ -85,12 +80,9 @@
                 ];
             };
 
-            packages.default = blcc-backend;
-            packages.docker = pkgs.dockerTools.buildLayeredImage{
-                name = "BLCC";
-                config = {
-                    Cmd = [ "./result/bin/backend" ];
-                };
+            packages = {
+                inherit blcc-backend docker;
+                default = blcc-backend;
             };
         });
 }
