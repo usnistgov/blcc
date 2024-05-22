@@ -17,7 +17,7 @@
         };
     };
 
-    outputs = { nixpkgs, crane, flake-utils, rust-overlay, ... }:
+    outputs = { self, nixpkgs, crane, flake-utils, rust-overlay, ... }:
         flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
         let
             pkgs = import nixpkgs {
@@ -25,11 +25,12 @@
                 overlays = [ (import rust-overlay) ];
             };
 
-            rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-                targets = [ "x86_64-unknown-linux-musl" ];
-            };
+            #rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+            #    targets = [ "x86_64-unknown-linux-musl" ];
+            #};
 
-            craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+            #craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+            craneLib = crane.mkLib pkgs;
 
             sqlFilter = path: _type: builtins.match ".*sql$" path != null;
             sqlOrCargoFilter = path: type:
@@ -50,21 +51,21 @@
                   filter = sqlOrCargoFilter;
                 };
 
-                shellHook = ''
-                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.postgresql.lib}";
-                '';
+                #shellHook = ''
+                #    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.postgresql.lib}";
+                #'';
 
                 strictDeps = true;
 
-                CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
-                CARGO_BUILD_RUSTFLAGS = "-C target-feature=+crt-static";
+                #CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
+                #CARGO_BUILD_RUSTFLAGS = "-C target-feature=+crt-static";
 
                 #fixes issues related to openssl
                 OPENSSL_DIR = "${pkgs.openssl.dev}";
                 OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
                 OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include/";
 
-                LIBPQ_DIR = "${pkgs.postgresql.out}/lib";
+                #LIBPQ_DIR = "${pkgs.postgresql.out}/lib";
             };
         in
         rec {
@@ -73,6 +74,8 @@
             };
 
             devShells.default = craneLib.devShell {
+                checks = self.checks.${system};
+
                 inputsFrom = [ blcc-backend ];
 
                 buildInputs = with pkgs; [
@@ -83,5 +86,11 @@
             };
 
             packages.default = blcc-backend;
+            packages.docker = pkgs.dockerTools.buildLayeredImage{
+                name = "BLCC";
+                config = {
+                    Cmd = [ "./result/bin/backend" ];
+                };
+            };
         });
 }
