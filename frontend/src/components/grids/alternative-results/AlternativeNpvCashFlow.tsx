@@ -1,8 +1,8 @@
-import DataGrid from "react-data-grid";
 import { bind } from "@react-rxjs/core";
+import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
-import { selectedAlternative$, selectedMeasure$ } from "../../../model/ResultModel";
 import { map } from "rxjs/operators";
+import { selectedAlternative$, selectedMeasure$ } from "../../../model/ResultModel";
 import { dollarFormatter } from "../../../util/Util";
 
 type Row = {
@@ -13,7 +13,7 @@ type Row = {
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
-    cellClass: "text-ink"
+    cellClass: "text-ink",
 };
 
 const [useColumns] = bind(
@@ -23,12 +23,12 @@ const [useColumns] = bind(
                 name: "Cost Type",
                 key: "category",
                 colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "subcategory",
                 key: "subcategory",
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: alternative.name,
@@ -36,11 +36,11 @@ const [useColumns] = bind(
                 renderCell: ({ row }: { row: Row }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.alternative ?? 0)}</p>
                 ),
-                ...cellClasses
-            }
-        ])
+                ...cellClasses,
+            },
+        ]),
     ),
-    []
+    [],
 );
 
 const [useRows] = bind(
@@ -56,11 +56,11 @@ const [useRows] = bind(
                 { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
                 { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
                 { category: "Replacement" },
-                { category: "Residual Value" }
+                { category: "Residual Value" },
             ];
-        })
+        }),
     ),
-    []
+    [],
 );
 
 export default function AlternativeNpvCashFlow() {
@@ -70,12 +70,14 @@ export default function AlternativeNpvCashFlow() {
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
                 className={"h-full"}
+                // @ts-ignore
                 rows={rows}
                 columns={useColumns()}
                 style={{
+                    // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#565C65",
-                    "--rdg-row-hover-background-color": "#3D4551"
+                    "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
             />

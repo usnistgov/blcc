@@ -1,14 +1,14 @@
-import DataGrid, { type Column } from "react-data-grid";
-import { from, type Observable, switchMap, zip } from "rxjs";
-import { map, toArray } from "rxjs/operators";
 import { bind } from "@react-rxjs/core";
+import DataGrid, { type Column } from "react-data-grid";
+import { type Observable, from, switchMap, zip } from "rxjs";
+import { map, toArray } from "rxjs/operators";
 import "react-data-grid/lib/styles.css";
-import type { Required } from "e3-sdk";
+import type { Required } from "@lrd/e3-sdk";
 import type { Alternative } from "../../../blcc-format/Format";
+import { alternatives$ } from "../../../model/Model";
 import { required$ } from "../../../model/ResultModel";
 import { db } from "../../../model/db";
 import { dollarFormatter } from "../../../util/Util";
-import { alternatives$ } from "../../../model/Model";
 
 type Row = {
     key: number;
@@ -28,9 +28,9 @@ const requiredWithAlternative$: Observable<[Required, Alternative | undefined][]
             required.map(async (req) => {
                 const alternative = await db.alternatives.get(req.altId);
                 return [req, alternative] as [Required, Alternative | undefined];
-            })
+            }),
         );
-    })
+    }),
 );
 
 const [useColumns] = bind(
@@ -54,8 +54,8 @@ const [useColumns] = bind(
                             <p className={"text-right font-bold"}>
                                 {alternative?.name ? dollarFormatter.format(row[alternative?.name]) : "N/A"}
                             </p>
-                        )
-                    }) as Column<Row>
+                        ),
+                    }) as Column<Row>,
             );
 
             cols.unshift({
@@ -65,13 +65,13 @@ const [useColumns] = bind(
                 locked: true,
                 headerCellClass: "bg-primary text-white",
                 cellClass: "text-ink",
-                renderSummaryCell: () => <p className={"font-bold"}>Total</p>
+                renderSummaryCell: () => <p className={"font-bold"}>Total</p>,
             } as Column<Row>);
 
             return cols;
-        })
+        }),
     ),
-    []
+    [],
 );
 
 const [useRows] = bind(
@@ -83,11 +83,11 @@ const [useRows] = bind(
                     values.forEach((value, i) => (result[i.toString()] = value));
                     return result;
                 }),
-                toArray()
-            )
-        )
+                toArray(),
+            ),
+        ),
     ),
-    []
+    [],
 );
 
 const [useSummary] = bind(
@@ -100,11 +100,11 @@ const [useSummary] = bind(
 
                     return accumulator;
                 },
-                { key: "totals" } as SummaryRow
-            )
-        )
+                { key: "totals" } as SummaryRow,
+            ),
+        ),
     ),
-    { key: "totals" } as SummaryRow
+    { key: "totals" } as SummaryRow,
 );
 
 export default function NpvCashFlowComparison() {
@@ -113,14 +113,14 @@ export default function NpvCashFlowComparison() {
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
+                // @ts-ignore
                 rows={rows}
                 columns={useColumns()}
                 style={{
+                    // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#565C65",
-                    "--rdg-row-hover-background-color": "#3D4551"
+                    "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
                 bottomSummaryRows={[useSummary()]}

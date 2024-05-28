@@ -1,8 +1,8 @@
-import DataGrid from "react-data-grid";
-import { optionalsByTag$, required$, selection$ } from "../../../model/ResultModel";
 import { bind } from "@react-rxjs/core";
-import { map, toArray } from "rxjs/operators";
+import DataGrid from "react-data-grid";
 import { combineLatest, from, switchMap, zip } from "rxjs";
+import { map, toArray } from "rxjs/operators";
+import { optionalsByTag$, required$, selection$ } from "../../../model/ResultModel";
 import { dollarFormatter } from "../../../util/Util";
 
 type Row = {
@@ -22,7 +22,7 @@ type Row = {
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
-    cellClass: "text-ink"
+    cellClass: "text-ink",
 };
 
 const columns = [
@@ -30,8 +30,8 @@ const columns = [
     {
         name: "Investment",
         key: "investment",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row["total"])}</p>,
-        ...cellClasses
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.total)}</p>,
+        ...cellClasses,
     },
     {
         name: "Energy",
@@ -41,27 +41,27 @@ const columns = [
                 name: "Consumption",
                 key: "consumption",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["consumption"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.consumption ?? 0)}</p>
                 ),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "Demand",
                 key: "demand",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["demand"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.demand ?? 0)}</p>
                 ),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "Rebates",
                 key: "rebates",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["rebates"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.rebates ?? 0)}</p>
                 ),
-                ...cellClasses
-            }
-        ]
+                ...cellClasses,
+            },
+        ],
     },
 
     {
@@ -72,19 +72,19 @@ const columns = [
                 name: "Use",
                 key: "waterUse",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["waterUse"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.waterUse ?? 0)}</p>
                 ),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "Disposal",
                 key: "waterDisposal",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["waterDisposal"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.waterDisposal ?? 0)}</p>
                 ),
-                ...cellClasses
-            }
-        ]
+                ...cellClasses,
+            },
+        ],
     },
     {
         name: "OMR",
@@ -94,42 +94,42 @@ const columns = [
                 name: "Recurring",
                 key: "recurring",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["recurring"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.recurring ?? 0)}</p>
                 ),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "Non-Recurring",
                 key: "nonRecurring",
                 renderCell: ({ row }: { row: Row }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row["nonRecurring"] ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.nonRecurring ?? 0)}</p>
                 ),
-                ...cellClasses
-            }
-        ]
+                ...cellClasses,
+            },
+        ],
     },
     {
         name: "Replace",
         key: "replace",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["replace"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.replace ?? 0)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Residual Value",
         key: "residualValue",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["residualValue"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.residualValue ?? 0)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Total",
         key: "total",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row["total"])}</p>,
-        ...cellClasses
-    }
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.total)}</p>,
+        ...cellClasses,
+    },
 ];
 
 const [useRows] = bind(
@@ -147,7 +147,7 @@ const [useRows] = bind(
                 from(optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray),
                 from(optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray),
                 from(optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray),
-                from(optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray)
+                from(optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray),
             ).pipe(
                 map(([total, investment, consumption, recurring, nonRecurring], year) => ({
                     year,
@@ -155,13 +155,13 @@ const [useRows] = bind(
                     consumption,
                     recurring,
                     nonRecurring,
-                    total
+                    total,
                 })),
-                toArray()
+                toArray(),
             );
-        })
+        }),
     ),
-    []
+    [],
 );
 
 export default function AlternativeNpvCashFlowGrid() {
@@ -170,14 +170,14 @@ export default function AlternativeNpvCashFlowGrid() {
     return (
         <div className={"overflow-hidden rounded shadow-lg"}>
             <DataGrid
+                // @ts-ignore
                 rows={rows}
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
                 columns={columns}
                 style={{
+                    // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#565C65",
-                    "--rdg-row-hover-background-color": "#3D4551"
+                    "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
                 rowGetter={rows}

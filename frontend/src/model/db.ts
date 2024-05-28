@@ -1,6 +1,6 @@
+import type { Output } from "@lrd/e3-sdk";
 import Dexie, { type Table } from "dexie";
 import type { Alternative, Cost, Project } from "../blcc-format/Format";
-import type { Output } from "e3-sdk";
 
 export class BlccDexie extends Dexie {
     projects!: Table<Project, number>;
@@ -19,7 +19,7 @@ export class BlccDexie extends Dexie {
             alternatives: "++id, name, baseline",
             results: "&hash",
             errors: "&id",
-            dirty: "&hash"
+            dirty: "&hash",
         });
     }
 }

@@ -1,12 +1,12 @@
-import DataGrid from "react-data-grid";
-import { bind } from "@react-rxjs/core";
-import { alternativeNames$, measures$ } from "../../../model/ResultModel";
-import { map } from "rxjs/operators";
-import { combineLatest } from "rxjs";
-import { dollarFormatter, numberFormatter } from "../../../util/Util";
-import { baselineID$ } from "../../../model/Model";
-import Icon from "@mdi/react";
 import { mdiCheck } from "@mdi/js";
+import Icon from "@mdi/react";
+import { bind } from "@react-rxjs/core";
+import DataGrid from "react-data-grid";
+import { combineLatest } from "rxjs";
+import { map } from "rxjs/operators";
+import { baselineID$ } from "../../../model/Model";
+import { alternativeNames$, measures$ } from "../../../model/ResultModel";
+import { dollarFormatter, numberFormatter } from "../../../util/Util";
 
 type Row = {
     name: string;
@@ -24,14 +24,14 @@ type Row = {
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
-    cellClass: "text-ink"
+    cellClass: "text-ink",
 };
 
 const columns = [
     {
         name: "Alternative",
         key: "name",
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Base Case",
@@ -44,81 +44,79 @@ const columns = [
                     </div>
                 );
         },
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Initial Cost",
         key: "initialCost",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["initialCost"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.initialCost ?? 0)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "SIR",
         key: "sir",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["sir"])}</p>,
-        ...cellClasses
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.sir)}</p>,
+        ...cellClasses,
     },
     {
         name: "AIRR",
         key: "airr",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["airr"])}</p>,
-        ...cellClasses
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.airr)}</p>,
+        ...cellClasses,
     },
     {
         name: "SPP",
         key: "spp",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["spp"])}</p>,
-        ...cellClasses
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.spp)}</p>,
+        ...cellClasses,
     },
     {
         name: "DPP",
         key: "dpp",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row["dpp"])}</p>,
-        ...cellClasses
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.dpp)}</p>,
+        ...cellClasses,
     },
     {
         name: "Change in Energy",
         key: "deltaEnergy",
         renderCell: ({ row }: { row: Row }) => {
-            const value = row["deltaEnergy"];
+            const value = row.deltaEnergy;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
             return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
         },
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Change in GHG (kg co2)",
         key: "deltaGhg",
         renderCell: ({ row }: { row: Row }) => {
-            const value = row["deltaGhg"];
+            const value = row.deltaGhg;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
             return <p className={"text-right"}>{numberFormatter.format(value)}</p>;
         },
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Change in SCC",
         key: "deltaScc",
         renderCell: ({ row }: { row: Row }) => {
-            const value = row["deltaScc"];
+            const value = row.deltaScc;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
             return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
         },
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Net Savings and SCC Reductions",
         key: "netSavings",
-        renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["netSavings"])}</p>
-        ),
-        ...cellClasses
-    }
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>,
+        ...cellClasses,
+    },
 ];
 
 const [useRows] = bind(
@@ -136,14 +134,14 @@ const [useRows] = bind(
                 spp: measure.spp,
                 dpp: measure.dpp,
                 initialCost: measure.totalCosts,
-                deltaEnergy: (baseline?.totalTagFlows["Energy"] ?? 0) - measure.totalTagFlows["Energy"],
-                deltaGhg: (baseline?.totalTagFlows["Emissions"] ?? 0) - measure.totalTagFlows["Emissions"],
-                deltaScc: (baseline?.totalTagFlows["SCC"] ?? 0) - measure.totalTagFlows["SCC"],
-                netSavings: measure.netSavings + measure.totalTagFlows["SCC"]
+                deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
+                deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
+                deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
+                netSavings: measure.netSavings + measure.totalTagFlows.SCC,
             }));
-        })
+        }),
     ),
-    []
+    [],
 );
 
 export default function LifecycleResultsToBaseline() {
@@ -152,15 +150,15 @@ export default function LifecycleResultsToBaseline() {
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
                 className={"h-fit"}
+                // @ts-ignore
                 rows={rows}
                 columns={columns}
                 style={{
+                    // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#565C65",
-                    "--rdg-row-hover-background-color": "#3D4551"
+                    "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
                 rowGetter={rows}

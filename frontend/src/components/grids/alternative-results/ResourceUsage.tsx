@@ -1,9 +1,9 @@
-import DataGrid from "react-data-grid";
 import { bind } from "@react-rxjs/core";
+import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
-import { dollarFormatter } from "../../../util/Util";
-import { selectedMeasure$ } from "../../../model/ResultModel";
 import { FuelType } from "../../../blcc-format/Format";
+import { selectedMeasure$ } from "../../../model/ResultModel";
+import { dollarFormatter } from "../../../util/Util";
 
 type Row = {
     category: string;
@@ -14,7 +14,7 @@ type Row = {
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
-    cellClass: "text-ink"
+    cellClass: "text-ink",
 };
 
 const columns = [
@@ -22,12 +22,12 @@ const columns = [
         name: "Resource Type",
         key: "category",
         colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Subcategory",
         key: "subcategory",
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Consumption",
@@ -35,7 +35,7 @@ const columns = [
         renderCell: ({ row }: { row: Row }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.consumption ?? 0)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Emissions",
@@ -43,8 +43,8 @@ const columns = [
         renderCell: ({ row }: { row: Row }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.emissions ?? 0)}</p>
         ),
-        ...cellClasses
-    }
+        ...cellClasses,
+    },
 ];
 
 const [useRows] = bind(
@@ -56,7 +56,7 @@ const [useRows] = bind(
                 FuelType.DISTILLATE_OIL,
                 FuelType.RESIDUAL_OIL,
                 FuelType.PROPANE,
-                "Energy"
+                "Energy",
             ].map((fuelType) => measure.totalTagFlows[fuelType]);
 
             const emissions = [
@@ -65,7 +65,7 @@ const [useRows] = bind(
                 FuelType.DISTILLATE_OIL,
                 FuelType.RESIDUAL_OIL,
                 FuelType.PROPANE,
-                "Energy"
+                "Energy",
             ].map((fuelType) => measure.totalTagFlows[fuelType]);
 
             return [
@@ -73,18 +73,18 @@ const [useRows] = bind(
                     category: "Consumption",
                     subcategory: FuelType.ELECTRICITY,
                     consumption: consumption[0],
-                    emissions: emissions[0]
+                    emissions: emissions[0],
                 },
                 { subcategory: FuelType.NATURAL_GAS, consumption: consumption[1], emissions: emissions[1] },
                 { subcategory: FuelType.DISTILLATE_OIL, consumption: consumption[2], emissions: emissions[2] },
                 { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
                 { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
                 { subcategory: "Total", consumption: consumption[5], emissions: emissions[5] },
-                { category: "Water", subcategory: "Use" }
+                { category: "Water", subcategory: "Use" },
             ];
-        })
+        }),
     ),
-    []
+    [],
 );
 
 export default function ResourceUsage() {
@@ -94,12 +94,14 @@ export default function ResourceUsage() {
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
                 className={"h-full"}
+                // @ts-ignore
                 rows={rows}
                 columns={columns}
                 style={{
+                    // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#565C65",
-                    "--rdg-row-hover-background-color": "#3D4551"
+                    "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
             />
