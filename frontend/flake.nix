@@ -4,7 +4,7 @@
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
         flake-utils.url = "github:numtide/flake-utils";
-        pnpm2nix.url = "github:LukeDonmoyer/pnpm2nix-nzbr?ref=version-9";
+        pnpm2nix.url = "github:LukeDonmoyer/pnpm2nix-nzbr"; #?ref=version-9";
     };
 
     outputs = {self, nixpkgs, flake-utils, pnpm2nix}:
@@ -14,8 +14,13 @@
                 inherit system;
             };
 
+            #pnpm-9 = stdenv.mkDerivation {
+            #    nativeBuildInputs = [ pnpm ];
+            #};
+
             blcc-frontend = pnpm2nix.packages.${system}.mkPnpmPackage {
                 src = ./.;
+                extraBuildInputs = [ pkgs.cypress ];
             };
         in {
             packages = {

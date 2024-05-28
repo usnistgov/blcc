@@ -12,6 +12,7 @@
         "test": "vitest"
     },
     "dependencies": {
+        "@lrd/e3-sdk": "^1.0.11",
         "@mdi/js": "^7.4.47",
         "@mdi/react": "^1.6.1",
         "@react-rxjs/core": "^0.10.7",
@@ -21,7 +22,6 @@
         "convert": "^5.2.0",
         "dexie": "^3.2.7",
         "dexie-export-import": "^4.1.2",
-        "e3-sdk": "file:e3-sdk-1.0.10.tgz",
         "fast-xml-parser": "^4.4.0",
         "framer-motion": "^11.2.6",
         "html-to-react": "^1.7.0",
@@ -40,7 +40,6 @@
         "@types/react-dom": "^18.3.0",
         "@vitejs/plugin-react": "^4.3.0",
         "autoprefixer": "^10.4.19",
-        "cypress": "^13.10.0",
         "postcss": "^8.4.38",
         "postcss-import": "^16.1.0",
         "sass": "^1.77.2",
