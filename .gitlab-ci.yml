@@ -58,6 +58,8 @@ variables:
 release-image:
   image: docker:26.1.3
   stage: release
+  needs:
+    - docker-build
   tags:
     - dind
   services:
