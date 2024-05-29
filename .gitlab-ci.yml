@@ -50,7 +50,6 @@ docker-build:
       - blcc-image.tar.gz
   script:
     - nix build
-    - file result
     - cp result blcc-image.tar.gz
 
 variables:
