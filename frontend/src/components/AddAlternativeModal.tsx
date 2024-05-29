@@ -1,31 +1,29 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { combineLatest, merge, Observable, sample } from "rxjs";
+import { combineLatest, merge, type Observable, sample, Subject } from "rxjs";
 import { map } from "rxjs/operators";
-import button, { ButtonType } from "../components/Button";
+import { Button, ButtonType } from "../components/Button";
 import textInput, { TextInputType } from "../components/TextInput";
 import { useSubscribe } from "../hooks/UseSubscribe";
-import { Model } from "../model/Model";
-import { getNewID } from "../util/Util";
 import { mdiClose, mdiPlus } from "@mdi/js";
+import { currentProject$ } from "../model/Model";
+import type { Alternative } from "../blcc-format/Format";
+import { db } from "../model/db";
 
 const { Title } = Typography;
-const { click$: addClick$, component: AddAlternativeBtn } = button();
-const { click$: cancelClick$, component: CancelBtn } = button();
 const { onChange$: name$, component: NewAltInput } = textInput();
 
-export const addAlternative$ = combineLatest([Model.alternatives$, name$]).pipe(
-    sample(addClick$),
-    map(([alts, name]) => ({
-        id: getNewID(alts),
-        name: name,
-        costs: [],
-        baseline: false
-    }))
-);
+const addClick$ = new Subject<void>();
+const cancelClick$ = new Subject<void>();
+
+const newAlternative$ = combineLatest([
+    currentProject$,
+    name$.pipe(map((name) => ({ name: name, costs: [], baseline: false }) as Alternative))
+]).pipe(sample(addClick$));
+
+//TODO make inputs clear when closing modal
 
 export default function addAlternativeModal(open$: Observable<boolean>) {
     const [modalCancel$, cancel] = createSignal();
@@ -33,7 +31,7 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
         merge(
             open$,
             cancelClick$.pipe(map(() => false)),
-            addAlternative$.pipe(map(() => false)),
+            newAlternative$.pipe(map(() => false)),
             modalCancel$.pipe(map(() => false))
         ),
         false
@@ -42,8 +40,23 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
     return {
         component: () => {
             const navigate = useNavigate();
-            useSubscribe(addAlternative$, (alt) => {
-                navigate(`/editor/alternative/${alt?.id - 1}`);
+            useSubscribe(newAlternative$, async ([projectID, newAlternative]) => {
+                const newID = await db.transaction("rw", db.alternatives, db.projects, async () => {
+                    // Add new alternative and get its ID
+                    const newID = await db.alternatives.add(newAlternative);
+
+                    // Add alternative ID to current project
+                    await db.projects
+                        .where("id")
+                        .equals(projectID)
+                        .modify((project) => {
+                            project.alternatives.push(newID);
+                        });
+
+                    return newID;
+                });
+
+                navigate(`/editor/alternative/${newID}`);
             });
 
             return (
@@ -53,17 +66,19 @@ export default function addAlternativeModal(open$: Observable<boolean>) {
                     onCancel={cancel}
                     okButtonProps={{ disabled: false }}
                     cancelButtonProps={{ disabled: false }}
-                    footer={[
-                        <CancelBtn key="back" type={ButtonType.ERROR} icon={mdiClose}>
-                            Cancel
-                        </CancelBtn>,
-                        <AddAlternativeBtn type={ButtonType.PRIMARY} key="add" icon={mdiPlus}>
-                            Add
-                        </AddAlternativeBtn>
-                    ]}
+                    footer={
+                        <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
+                            <Button type={ButtonType.ERROR} icon={mdiClose} onClick={() => cancelClick$.next()}>
+                                Cancel
+                            </Button>
+                            <Button type={ButtonType.PRIMARY} icon={mdiPlus} onClick={() => cancelClick$.next()}>
+                                Add
+                            </Button>
+                        </div>
+                    }
                 >
                     <div>
-                        <Title level={5}>Name</Title>
+                        <Title level={5}>Alternative Name</Title>
                         <NewAltInput type={TextInputType.PRIMARY} />
                     </div>
                     <p>Further changes can be made in the associated alternative page.</p>

@@ -1,0 +1,22 @@
+meta {
+  name: Region Case BA
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/api/region-case-ba
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "from": 2020,
+      "to": 2025,
+      "release_year": 2023,
+      "ba": "Arizona Public Service Company",
+      "case": "REF",
+      "rate": "Avg"
+  }
+}

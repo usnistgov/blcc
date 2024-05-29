@@ -2,7 +2,6 @@
  * Creates a common component to display data for the Input page.
  */
 import { Typography } from "antd";
-import React from "react";
 
 const { Title } = Typography;
 

@@ -1,119 +1,243 @@
-import { selfDependent } from "@react-rxjs/utils";
-import { AnalysisType, DiscountingMethod, DollarMethod, Project, USLocation } from "../blcc-format/Format";
+import { bind, shareLatest, state } from "@react-rxjs/core";
+import { liveQuery } from "dexie";
+import objectHash from "object-hash";
+import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
+import { ajax } from "rxjs/internal/ajax/ajax";
+import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import {
+    AnalysisType,
+    DiscountingMethod,
+    DollarMethod,
+    EmissionsRateScenario,
+    type NonUSLocation,
+    SocialCostOfGhgScenario,
+    type USLocation,
+} from "../blcc-format/Format";
 import { Country } from "../constants/LOCATION";
-import { bind, shareLatest } from "@react-rxjs/core";
-import { filter, map } from "rxjs";
+import { guard } from "../util/Operators";
+import { db } from "./db";
+import { validate } from "./rules/Rules";
 
-const [_p$, connectProject] = selfDependent<Project>();
+type ReleaseYearResponse = { year: number; max: number; min: number };
 
-const _project$ = _p$.pipe(shareLatest());
+export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearResponse[]>("/api/release_year");
 
-export { _project$, connectProject };
-
-const [useName, name$] = bind(_project$.pipe(map((p) => p.name)), "Untitled Project");
-
-const [useDescription, description$] = bind(_project$.pipe(map((p) => p.description)), undefined);
-const [useAnalyst, analyst$] = bind(_project$.pipe(map((p) => p.analyst)), undefined);
-const [useAnalysisType, analysisType$] = bind(
-    _project$.pipe(map((p) => p.analysisType)),
-    AnalysisType.FEDERAL_FINANCED
+export const releaseYears$ = releaseYearsResponse$.pipe(
+    map((result) => (result === null ? [2023] : result.map((r) => r.year))),
 );
-const [usePurpose, purpose$] = bind(_project$.pipe(map((p) => p.purpose)), undefined);
-const [useDollarMethod, dollarMethod$] = bind(_project$.pipe(map((p) => p.dollarMethod)), DollarMethod.CONSTANT);
-const [useStudyPeriod, studyPeriod$] = bind(_project$.pipe(map((p) => p.studyPeriod)), 25);
-const [useConstructionPeriod, constructionPeriod$] = bind(_project$.pipe(map((p) => p.constructionPeriod)), 0);
-const [useDiscountingMethod, discountingMethod$] = bind(
-    _project$.pipe(map((p) => p.discountingMethod)),
-    DiscountingMethod.END_OF_YEAR
+export const [useReleaseYears] = bind(releaseYears$, []);
+
+export const defaultReleaseYear$ = releaseYears$.pipe(
+    map((years) => years[0]),
+    catchError(() => of(new Date().getFullYear())),
 );
-const [useRealDiscountRate, realDiscountRate$] = bind(_project$.pipe(map((p) => p.realDiscountRate)), 0.06);
-const [useNominalDiscountRate, nominalDiscountRate$] = bind(
-    _project$.pipe(map((p) => p.nominalDiscountRate)),
-    undefined
+
+export const currentProject$ = NEVER.pipe(startWith(1));
+
+const dbProject$ = currentProject$.pipe(
+    switchMap((currentID) => liveQuery(() => db.projects.where("id").equals(currentID).first())),
+    guard(),
 );
-const [useInflationRate, inflationRate$] = bind(_project$.pipe(map((p) => p.inflationRate)), undefined);
-const [useCountry, country$] = bind(_project$.pipe(map((p) => p.location?.country)), Country.USA);
-const [useState, state$] = bind(
-    _project$.pipe(
-        map((p) => {
-            if (p.location?.country === Country.USA) return (p.location as USLocation)?.state;
 
-            return p.location?.stateProvince;
-        })
-    ),
-    undefined
+export const [useProject, project$] = bind(dbProject$, undefined);
+
+export const sNameChange$ = new Subject<string>();
+export const [useName, name$] = bind(
+    merge(sNameChange$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
+    "",
 );
-const [useCity, city$] = bind(_project$.pipe(map((p) => p.location?.city)), undefined);
-const [useZip, zip$] = bind(
-    _project$.pipe(
-        filter((p) => p.location.country === Country.USA),
-        map((p) => (p.location as USLocation)?.zipcode)
-    ),
-    undefined
+
+export const analyst$ = dbProject$.pipe(map((p) => p.analyst));
+export const [useAnalyst] = bind(analyst$, undefined);
+
+export const description$ = dbProject$.pipe(map((p) => p.description));
+export const [useDescription] = bind(description$, undefined);
+
+export const analysisType$ = dbProject$.pipe(map((p) => p.analysisType));
+export const [useAnalysisType] = bind(analysisType$, AnalysisType.FEDERAL_FINANCED);
+
+export const purpose$ = dbProject$.pipe(map((p) => p.purpose));
+export const [usePurpose] = bind(purpose$, undefined);
+
+export const sStudyPeriodChange = new Subject<number | undefined>();
+export const studyPeriod$ = state(
+    merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
+    25,
 );
-const [useCombinedLocation, combinedLocation$] = bind(_project$.pipe(map((p) => p?.location)), undefined);
-const [useModifiedDollarMethod, modifiedDollarMethod$] = bind(_project$.pipe(map((p) => p?.dollarMethod)), undefined);
 
-const [useEmissionsRate, emissionsRate$] = bind(_project$.pipe(map((p) => p.ghg?.emissionsRateScenario)), undefined);
-const [useSocialCostRate, socialCostOfGhgScenario$] = bind(
-    _project$.pipe(map((p) => p.ghg?.socialCostOfGhgScenario)),
-    undefined
+export const constructionPeriod$ = dbProject$.pipe(map((p) => p.constructionPeriod));
+export const [useConstructionPeriod] = bind(constructionPeriod$, 0);
+
+export const sDollarMethodChange$ = new Subject<DollarMethod>();
+export const dollarMethod$ = state(
+    merge(sDollarMethodChange$, dbProject$.pipe(map((p) => p.dollarMethod))).pipe(distinctUntilChanged()),
+    DollarMethod.CONSTANT,
 );
-const [useCombinedGHG, combinedGHG$] = bind(_project$.pipe(map((p) => p?.ghg)), undefined);
+export const [useDollarMethod] = bind(dollarMethod$, DollarMethod.CONSTANT);
 
-const [useAlternatives, alternatives$] = bind(_project$.pipe(map((p) => p.alternatives)), []);
-const [useCosts, costs$] = bind(_project$.pipe(map((p) => p.costs)), []);
+export const inflationRate$ = dbProject$.pipe(map((p) => p.inflationRate));
+export const [useInflationRate] = bind(inflationRate$, undefined);
 
-const Model = {
-    project$: _project$,
+export const nominalDiscountRate$ = dbProject$.pipe(map((p) => p.nominalDiscountRate));
+export const [useNominalDiscountRate] = bind(nominalDiscountRate$, undefined);
 
-    name$,
-    useName,
-    description$,
-    useDescription,
-    analyst$,
-    useAnalyst,
-    analysisType$,
-    useAnalysisType,
-    purpose$,
-    usePurpose,
-    dollarMethod$,
-    useDollarMethod,
-    useModifiedDollarMethod,
-    modifiedDollarMethod$,
-    studyPeriod$,
-    useStudyPeriod,
-    constructionPeriod$,
-    useConstructionPeriod,
-    discountingMethod$,
-    useDiscountingMethod,
-    realDiscountRate$,
-    useRealDiscountRate,
-    nominalDiscountRate$,
-    useNominalDiscountRate,
-    inflationRate$,
-    useInflationRate,
-    country$,
-    useCountry,
-    city$,
-    useCity,
-    state$,
-    useState,
-    useZip,
-    zip$,
-    useEmissionsRate,
-    emissionsRate$,
-    useSocialCostRate,
-    socialCostOfGhgScenario$,
-    useCombinedLocation,
-    combinedLocation$,
-    useCombinedGHG,
-    combinedGHG$,
+export const realDiscountRate$ = dbProject$.pipe(map((p) => p.realDiscountRate));
+export const [useRealDiscountRate] = bind(realDiscountRate$, undefined);
 
-    alternatives$,
-    useAlternatives,
-    costs$,
-    useCosts
+export const discountingMethod$ = dbProject$.pipe(map((p) => p.discountingMethod));
+export const [useDiscountingMethod] = bind(discountingMethod$, DiscountingMethod.END_OF_YEAR);
+
+export const location$ = dbProject$.pipe(map((p) => p.location));
+
+export const country$ = location$.pipe(map((p) => p.country));
+export const [useCountry] = bind(country$, Country.USA);
+
+export const city$ = location$.pipe(map((p) => p.city));
+export const usLocation$ = location$.pipe(
+    filter((location): location is USLocation => location.country === Country.USA),
+);
+export const nonUSLocation$ = location$.pipe(
+    filter((location): location is NonUSLocation => location.country !== Country.USA),
+);
+export const state$ = usLocation$.pipe(map((usLocation) => usLocation.state));
+export const stateOrProvince$ = nonUSLocation$.pipe(map((nonUSLocation) => nonUSLocation.stateProvince));
+export const zip$ = usLocation$.pipe(map((p) => p.zipcode));
+
+export const emissionsRate$ = dbProject$.pipe(map((p) => p.ghg.emissionsRateScenario));
+export const socialCostOfGhgScenario$ = dbProject$.pipe(map((p) => p.ghg.socialCostOfGhgScenario));
+
+export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
+export const [useAlternativeIDs] = bind(alternativeIDs$, []);
+
+export const alternatives$ = alternativeIDs$.pipe(
+    switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray())),
+    shareReplay(1),
+);
+export const [useAlternatives, alt$] = bind(alternatives$, []);
+
+export const baselineID$ = alternatives$.pipe(
+    map((alternatives) => alternatives.find((alternative) => alternative.baseline)?.id ?? -1),
+);
+
+export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
+export const [useCostIDs] = bind(costIDs$, []);
+
+export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
+
+export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
+
+export const getEmissionsRateOption = (option: EmissionsRateScenario | undefined) => {
+    switch (option) {
+        case EmissionsRateScenario.BASELINE:
+            return "REF";
+        case EmissionsRateScenario.LOW_RENEWABLE:
+            return "LRC";
+        default:
+            return undefined;
+    }
 };
 
-export { Model };
+// Get the emissions data from the database.
+export const emissions$ = combineLatest([
+    zip$.pipe(guard()),
+    releaseYear$,
+    studyPeriod$,
+    emissionsRate$.pipe(map(getEmissionsRateOption), guard()),
+]).pipe(
+    switchMap(([zip, releaseYear, studyPeriod, emissionsRate]) =>
+        ajax<number[]>({
+            url: "/api/emissions",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: {
+                from: releaseYear,
+                to: releaseYear + (studyPeriod ?? 0),
+                release_year: releaseYear,
+                zip: Number.parseInt(zip ?? "0"),
+                case: emissionsRate,
+                rate: "Avg",
+            },
+        }),
+    ),
+    map((response) => response.response),
+    startWith(undefined),
+);
+
+const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
+    switch (option) {
+        case SocialCostOfGhgScenario.LOW:
+            return "three_percent_average";
+        case SocialCostOfGhgScenario.MEDIUM:
+            return "five_percent_average";
+        case SocialCostOfGhgScenario.HIGH:
+            return "three_percent_ninety_fifth_percentile";
+        default:
+            return undefined;
+    }
+};
+
+export const scc$ = combineLatest([
+    releaseYear$,
+    studyPeriod$,
+    socialCostOfGhgScenario$.pipe(map(getSccOption), guard()),
+]).pipe(
+    switchMap(([releaseYear, studyPeriod, option]) =>
+        ajax<number[]>({
+            url: "/api/scc",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: {
+                from: releaseYear,
+                to: releaseYear + (studyPeriod ?? 0),
+                release_year: releaseYear,
+                option,
+            },
+        }),
+    ),
+    map((response) => response.response),
+    map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
+    startWith(undefined),
+);
+
+// Creates a hash of the current project
+export const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
+    map(([project, alternatives, costs]) => {
+        if (project === undefined) throw "Project is undefined";
+
+        return objectHash({ project, alternatives, costs });
+    }),
+);
+
+export const isDirty$ = hash$.pipe(
+    switchMap((hash) => from(liveQuery(() => db.dirty.get(hash)))),
+    map((result) => result === undefined),
+);
+
+alternatives$
+    .pipe(
+        validate({
+            name: "At least one baseline alternative",
+            test: (alts) => alts.find((alt) => alt.baseline) !== undefined,
+            message: () => "Must have at least one baseline alternative",
+        }),
+        withLatestFrom(from(liveQuery(() => db.errors.where("id").equals("Has Baseline").toArray()))),
+    )
+    .subscribe(([result, dbValue]) => {
+        if (result === undefined) return;
+
+        const collection = db.errors.where("id").equals("Has Baseline");
+
+        // If the validation succeeded, remove error from db
+        if (result.valid) collection.delete();
+
+        // If an entry does not exist for this input, add it to the db
+        if (dbValue.length <= 0)
+            db.errors.add({ id: "Has Baseline", url: "/editor/alternative", messages: result.messages ?? [] });
+
+        // If an entry exists but the error message has changed, update it
+        collection.modify({ messages: result.messages ?? [] });
+    });

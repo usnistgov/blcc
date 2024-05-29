@@ -1,8 +1,11 @@
-import { bind } from "@react-rxjs/core";
+import { type StateObservable, bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Input, Typography } from "antd";
-import React, { PropsWithChildren } from "react";
-import { EMPTY, Observable } from "rxjs";
+import { Input, type InputProps } from "antd";
+import Title from "antd/es/typography/Title";
+import { type PropsWithChildren, useEffect, useMemo } from "react";
+import { EMPTY, type Observable, type Subject, switchMap } from "rxjs";
+import { startWith } from "rxjs/operators";
+import { TextInputType } from "./TextInput";
 
 export type TextAreaProps = {
     className?: string;
@@ -13,9 +16,6 @@ export type TextAreaProps = {
     label?: string;
 };
 
-const { TextArea } = Input;
-const { Title } = Typography;
-
 export type TextArea = {
     onChange$: Observable<string>;
     component: React.FC<PropsWithChildren & TextAreaProps>;
@@ -23,7 +23,15 @@ export type TextArea = {
 
 export default function textArea(value$: Observable<string | undefined> = EMPTY): TextArea {
     const [onChange$, onChange] = createSignal<string>();
-    const [useValue] = bind(value$, undefined);
+    const [focused$, focus] = createSignal<boolean>();
+
+    const [useValue] = bind(
+        focused$.pipe(
+            startWith(false),
+            switchMap((focused) => (focused ? onChange$ : value$)),
+        ),
+        undefined,
+    );
 
     return {
         onChange$,
@@ -34,24 +42,81 @@ export default function textArea(value$: Observable<string | undefined> = EMPTY)
             bordered = true,
             placeholder,
             rows = 4,
-            label
+            label,
         }: PropsWithChildren & TextAreaProps) => {
             return (
                 <>
                     <Title level={5}>{label}</Title>
-                    <TextArea
+                    <Input.TextArea
+                        onFocus={() => focus(true)}
+                        onBlur={() => focus(false)}
                         className={(className ?? "") + "w-44"}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder={placeholder}
-                        bordered={bordered}
+                        variant={bordered ? "outlined" : "borderless"}
                         disabled={disabled}
                         rows={rows}
                         value={useValue()}
                     >
                         {children}
-                    </TextArea>
+                    </Input.TextArea>
                 </>
             );
-        }
+        },
     };
+}
+
+type TextAreaProps2 = {
+    label: string;
+    className?: string;
+    value$: StateObservable<string | undefined>;
+    wire: Subject<string | undefined>;
+};
+
+export function TextArea({
+    label,
+    children,
+    value$,
+    wire,
+    className,
+    disabled,
+    ...defaultProps
+}: PropsWithChildren<TextAreaProps2 & InputProps>) {
+    const { useValue, focus, onChange, onChange$ } = useMemo(() => {
+        const [onChange$, onChange] = createSignal<string | undefined>();
+        const [focused$, focus] = createSignal<boolean>();
+
+        const [useValue] = bind(
+            focused$.pipe(
+                startWith(false),
+                switchMap((focused) => (focused ? onChange$ : value$)),
+            ),
+            undefined,
+        );
+
+        return { useValue, focus, onChange, onChange$ };
+    }, [value$]);
+
+    useEffect(() => {
+        onChange$.subscribe(wire);
+    }, [wire, onChange$]);
+
+    return (
+        <div>
+            <Title level={5}>{label}</Title>
+            <Input.TextArea
+                onChange={(e) => {
+                    console.log("Text area change", e);
+                    onChange(e.currentTarget.value);
+                }}
+                onFocus={() => focus(true)}
+                onBlur={() => focus(false)}
+                className={`${className ?? ""} w-44`}
+                value={useValue()}
+                {...defaultProps}
+            >
+                {children}
+            </Input.TextArea>
+        </div>
+    );
 }

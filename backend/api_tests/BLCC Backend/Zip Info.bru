@@ -1,0 +1,17 @@
+meta {
+  name: Zip Info
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/zip_info
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "zip": 17860
+  }
+}

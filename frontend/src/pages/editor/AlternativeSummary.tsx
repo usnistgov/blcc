@@ -1,50 +1,66 @@
-import { mdiPlus } from "@mdi/js";
+import { mdiAlphaBBox, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import { Divider, Typography } from "antd";
-import { map, withLatestFrom } from "rxjs/operators";
-import { Cost, EnergyCost } from "../../blcc-format/Format";
-import button, { ButtonType } from "../../components/Button";
-import { Model } from "../../model/Model";
+import { liveQuery } from "dexie";
+import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Subject, of, switchMap } from "rxjs";
+import { map } from "rxjs/operators";
+import type { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
+import addAlternativeModal from "../../components/AddAlternativeModal";
+import { Button, ButtonType } from "../../components/Button";
+import SubHeader from "../../components/SubHeader";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { alternatives$ } from "../../model/Model";
+import { db } from "../../model/db";
 import { countProperty } from "../../util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../../util/Util";
 
 const { Title } = Typography;
-const { component: Button } = button();
 
-const combinedCostObject$ = Model.costs$.pipe(map((costs) => new Map(costs.map((cost) => [cost.id, cost]))));
+const addAlternativeClick$ = new Subject<void>();
 
-export { combinedCostObject$ };
+const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
 
-const [useCards] = bind(Model.alternatives$.pipe(map((alts) => alts.map((_a, i) => createAlternativeCard(i)))), []);
+const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
 
 export default function AlternativeSummary() {
+    const cards = useCards();
+
     return (
-        <div className={"w-full h-full"}>
-            <div className="add-alternative flex flex-col">
-                <div className="flex flex-row-reverse">
-                    <Button className="" type={ButtonType.LINK}>
+        <motion.div
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1 }}
+        >
+            <SubHeader>
+                <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
+                    <AddAlternativeModal />
+                    <Button className={"self-end"} type={ButtonType.LINK} onClick={() => addAlternativeClick$.next()}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
                     </Button>
                 </div>
-                <Divider className="p-0 m-0" />
+            </SubHeader>
+            <div className={"flex h-full w-full flex-col items-center"}>
+                <br />
+                {(cards.length !== 0 && cards.map((card) => <card.component key={card.component.name} />)) || (
+                    <div className={"w-full p-8 text-center text-base-dark"}>
+                        <p className={"text-2xl"}>No Alternatives</p>
+                        <p className={"text-lg"}>Create an alternative or load a saved file</p>
+                    </div>
+                )}
             </div>
-            <br />
-            {useCards().map((card, i) => (
-                <card.component key={i} />
-            ))}
-        </div>
+        </motion.div>
     );
 }
 
-export function createAlternativeCard(index: number) {
-    const alt$ = Model.alternatives$.pipe(map((alts) => alts[index]));
-    const [alt] = bind(alt$, undefined);
-
-    const altCosts$ = alt$.pipe(
-        withLatestFrom(combinedCostObject$),
-        map(([alt, combinedCosts]) => alt.costs.map((cost) => combinedCosts.get(cost) as Cost))
+export function createAlternativeCard(alternative: Alternative) {
+    const altCosts$ = of(alternative).pipe(
+        switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
     );
 
     // Count all energy costs, and the count of its subcategories
@@ -66,64 +82,78 @@ export function createAlternativeCard(index: number) {
     const [otherCosts, otherCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isOtherCost))), []);
     const [otherSubcategories] = bind(otherCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
 
+    const [cardClick$, click] = createSignal();
+
     // The categories with their associated hooks and subcategory hooks
     const categories = [
         {
             label: "Energy Costs",
             hook: energyCosts,
-            children: fuelSubcategories
+            children: fuelSubcategories,
         },
         {
             label: "Water Costs",
-            hook: waterCosts
+            hook: waterCosts,
         },
         {
             label: "Capital Costs",
             hook: capitalCosts,
-            children: capitalSubcategories
+            children: capitalSubcategories,
         },
         {
             label: "Contract Costs",
             hook: contractCosts,
-            children: contractSubcategories
+            children: contractSubcategories,
         },
         {
             label: "Other Costs",
             hook: otherCosts,
-            children: otherSubcategories
-        }
+            children: otherSubcategories,
+        },
     ];
     return {
         component: function AltCard() {
-            return (
-                <div className="flex justify-center align-middle">
-                    <div className="bg-primary-light p-5 w-3/4 rounded mb-5">
-                        <Title level={4}>{alt()?.name}</Title>
-                        <p>{alt()?.description}</p>
-                        <br />
-                        <div className="costs flex justify-between" key={index}>
-                            {/* Render each category */}
-                            {categories.map((category) => (
-                                <div className="water-costs w-40" key={category.label}>
-                                    <div className=" flex justify-between">
-                                        <Title level={5}>{category.label}</Title>
-                                        <p>{category.hook().length}</p>
-                                    </div>
-                                    <Divider className="m-0" />
+            const navigate = useNavigate();
+            useSubscribe(cardClick$, () => navigate(`/editor/alternative/${alternative.id}`));
 
-                                    {/* Render each subcategory */}
-                                    {category.children?.().map(([type, count]) => (
-                                        <div className="flex justify-between" key={type}>
-                                            <p>{type}</p>
+            return (
+                <div
+                    className={
+                        "mb-5 flex w-3/4 max-w-6xl cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
+                    }
+                    onClick={click}
+                    onKeyDown={click}
+                >
+                    <div className={"flex flex-row gap-1"}>
+                        {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
+                        <Title level={4}>{alternative.name}</Title>
+                    </div>
+                    <p>{alternative.description}</p>
+                    <br />
+                    <div className={"flex flex-row justify-between gap-6"}>
+                        {/* Render each category */}
+                        {categories.map((category) => (
+                            <div className={"flex flex-col"} key={category.label}>
+                                <div className={"flex gap-6"}>
+                                    <Title level={5}>{category.label}</Title>
+                                    <p>{category.hook().length}</p>
+                                </div>
+                                <Divider className={"m-0"} />
+
+                                {/* Render each subcategory */}
+                                {category.children?.().map(([type, count]) => (
+                                    <div className={"flex gap-6"} key={type}>
+                                        <p className={"grow"}>{type}</p>
+                                        <div className={"w-fit"}>
                                             <p>{count}</p>
                                         </div>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
                     </div>
                 </div>
             );
-        }
+        },
     };
 }

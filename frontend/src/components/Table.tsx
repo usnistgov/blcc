@@ -1,8 +1,8 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Form, Input, Table, TablePaginationConfig, Typography } from "antd";
-import React, { PropsWithChildren, useState } from "react";
-import { Observable } from "rxjs";
+import { Form, Input, Table, type TablePaginationConfig, Typography } from "antd";
+import { type PropsWithChildren, useState } from "react";
+import type { Observable } from "rxjs";
 
 type Column<T> = {
     title: string;
@@ -16,7 +16,7 @@ type Column<T> = {
 export type TableProps<T> = {
     className?: string;
     columns: Column<T>[];
-    editable: boolean;
+    editable?: boolean;
     scroll?: { x?: number | string; y?: number | string };
     pagination?: false | TablePaginationConfig;
 };

@@ -1,277 +1,292 @@
+import { state } from "@react-rxjs/core";
 import { Divider } from "antd";
-
-import dropdown from "../../components/Dropdown";
-import inputNumber from "../../components/InputNumber";
-import switchComp from "../../components/Switch";
-import textArea from "../../components/TextArea";
-import textInput, { TextInputType } from "../../components/TextInput";
-
-import { Observable, combineLatest, iif, merge, of } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import Title from "antd/es/typography/Title";
+import type { Collection } from "dexie";
+import { motion } from "framer-motion";
+import { Subject, of } from "rxjs";
+import { map, withLatestFrom } from "rxjs/operators";
+import { match } from "ts-pattern";
 import {
     AnalysisType,
     DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
-    Location,
-    NonUSLocation,
+    type Project,
     Purpose,
     SocialCostOfGhgScenario,
-    USLocation
 } from "../../blcc-format/Format";
+import dropdown from "../../components/Dropdown";
+import numberInput, { NumberInput } from "../../components/InputNumber";
+import switchComp from "../../components/Switch";
+import Switch from "../../components/Switch";
+import textArea from "../../components/TextArea";
+import textInput, { TextInputType } from "../../components/TextInput";
 import { Country, State } from "../../constants/LOCATION";
-import { Model } from "../../model/Model";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import {
+    analysisType$,
+    analyst$,
+    city$,
+    constructionPeriod$,
+    country$,
+    currentProject$,
+    description$,
+    discountingMethod$,
+    dollarMethod$,
+    emissionsRate$,
+    inflationRate$,
+    name$,
+    nominalDiscountRate$,
+    purpose$,
+    realDiscountRate$,
+    releaseYear$,
+    releaseYears$,
+    sDollarMethodChange$,
+    sStudyPeriodChange,
+    socialCostOfGhgScenario$,
+    state$,
+    stateOrProvince$,
+    studyPeriod$,
+    useAnalysisType,
+    useCountry,
+    useDollarMethod,
+    zip$,
+} from "../../model/Model";
+import { db } from "../../model/db";
+import { type ValidationResult, max, min } from "../../model/rules/Rules";
+import { defaultValue } from "../../util/Operators";
 
 /*
  * rxjs components
  */
-
-const { onChange$: nameChange$, component: NameInput } = textInput(Model.name$, of("Untitled Project"));
-const { onChange$: analystChange$, component: AnalystInput } = textInput(Model.analyst$);
-const { onChange$: descriptionChange$, component: DescInput } = textArea(Model.description$);
+const { onChange$: nameChange$, component: NameInput } = textInput(name$);
+const { onChange$: analystChange$, component: AnalystInput } = textInput(analyst$);
+const { onChange$: descriptionChange$, component: DescInput } = textArea(description$);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
-    Model.analysisType$
+    analysisType$,
 );
-const { change$: analysisPurposeChange$, component: AnalysisPurposeDropdown } = dropdown<Purpose>(
-    Object.values(Purpose),
-    Model.purpose$
+const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
+const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(
+    "Study Period *",
+    "/editor#Study-Period-*",
+    studyPeriod$,
+    true,
+    [max(40)],
 );
-const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = inputNumber(Model.studyPeriod$);
-const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = inputNumber(
-    Model.constructionPeriod$
+const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(
+    "Construction Period *",
+    "/editor#Construction-Period-*",
+    constructionPeriod$,
 );
-const { onChange$: dollarMethodChange$, component: Switch } = switchComp(
-    Model.dollarMethod$.pipe(
-        map((method) => {
-            switch (method) {
-                case DollarMethod.CURRENT:
-                    return false;
-                case DollarMethod.CONSTANT:
-                default:
-                    return true;
-            }
-        })
-    )
+const dollarMethod2$ = state(
+    dollarMethod$.pipe(
+        map((method) =>
+            match(method)
+                .with(DollarMethod.CONSTANT, () => true)
+                .otherwise(() => false),
+        ),
+    ),
+    false,
 );
-const { onChange$: inflationChange$, component: GenInflationRate } = inputNumber(Model.inflationRate$);
-const { onChange$: nomDiscChange$, component: NominalDiscRate } = inputNumber(Model.nominalDiscountRate$);
-const { onChange$: realDiscChange$, component: RealDiscRate } = inputNumber(Model.realDiscountRate$);
-const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown<DiscountingMethod>(
+
+const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(
+    "Inflation Rate *",
+    "/editor#Inflation-Rate-*",
+    inflationRate$,
+    true,
+);
+const { onChange$: nomDiscChange$, component: NominalDiscRate } = numberInput(
+    "Nominal Discount Rate *",
+    "/editor#Nominal-Discount-Rate-*",
+    nominalDiscountRate$,
+    true,
+);
+const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(
+    "Real Discount Rate *",
+    "/editor#Real-Discount-Rate-*",
+    realDiscountRate$,
+    true,
+);
+const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown(
     Object.values(DiscountingMethod),
-    Model.discountingMethod$
+    discountingMethod$,
 );
 
-const { change$: countryChange$, component: CountryDropdown } = dropdown<Country>(
-    Object.values(Country),
-    Model.country$
-);
-const { onChange$: stateChange$, component: StateInput } = textInput(Model.state$);
-const { change$: stateDDChange$, component: StateDropdown } = dropdown<State>(Object.values(State), Model.state$);
-const { onChange$: cityChange$, component: CityInput } = textInput(Model.city$);
-const { onChange$: zipChange$, component: ZipInput } = textInput(Model.zip$);
-
+const { change$: countryChange$, component: CountryDropdown } = dropdown(Object.values(Country), country$);
+const { onChange$: stateChange$, component: StateInput } = textInput(stateOrProvince$);
+const { change$: stateDDChange$, component: StateDropdown } = dropdown(Object.values(State), state$);
+const { onChange$: cityChange$, component: CityInput } = textInput(city$);
+const { onChange$: zipChange$, component: ZipInput } = textInput(zip$);
 const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = dropdown<EmissionsRateScenario>(
     Object.values(EmissionsRateScenario),
-    Model.emissionsRate$
+    emissionsRate$,
 );
 const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<SocialCostOfGhgScenario>(
     Object.values(SocialCostOfGhgScenario),
-    Model.socialCostOfGhgScenario$
+    socialCostOfGhgScenario$,
 );
 
-const combinedLocation$: Observable<Location> = countryChange$.pipe(
-    startWith(Country.USA),
-    switchMap((country) =>
-        iif(
-            () => country === Country.USA,
-            combineLatest([
-                countryChange$.pipe(startWith(country)),
-                merge(stateDDChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-                merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-                merge(zipChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
-            ]).pipe(
-                map(
-                    ([country, state, city, zipcode]) =>
-                        ({
-                            country,
-                            city,
-                            state,
-                            zipcode
-                        }) as USLocation
-                )
-            ),
-            combineLatest([
-                countryChange$.pipe(startWith(country)),
-                merge(stateChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined))),
-                merge(cityChange$.pipe(startWith(undefined)), countryChange$.pipe(map(() => undefined)))
-            ]).pipe(
-                map(
-                    ([country, state, city]) =>
-                        ({
-                            country,
-                            city,
-                            stateProvince: state
-                        }) as NonUSLocation
-                )
-            )
-        )
-    )
-);
+const projectCollection$ = currentProject$.pipe(map((id) => db.projects.where("id").equals(id)));
 
-const combinedGHG$ = combineLatest([
-    emissionsRateChange$.pipe(startWith(undefined)),
-    socialCostChange$.pipe(startWith(undefined))
-]).pipe(
-    map(([emissionsRateScenario, socialCostOfGhgScenario]) => {
-        return {
-            emissionsRateScenario,
-            socialCostOfGhgScenario
-        };
-    })
-);
+function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<Project>]) {
+    // If OMB_NON_ENERGY, set purpose to default value, otherwise just set analysis type and keep purpose undefined.
+    if (analysisType === AnalysisType.OMB_NON_ENERGY)
+        collection.modify({
+            analysisType,
+            purpose: Purpose.INVEST_REGULATION,
+        });
+    else collection.modify({ analysisType, purpose: undefined });
+}
 
-const modifiedDollarMethod$: Observable<DollarMethod> = dollarMethodChange$.pipe(
-    map((val) => {
-        return val ? DollarMethod.CONSTANT : DollarMethod.CURRENT;
-    })
-);
-
-export {
-    analysisPurposeChange$,
-    analysisTypeChange$,
-    analystChange$,
-    combinedGHG$,
-    combinedLocation$,
-    constructionPeriodChange$,
-    descriptionChange$,
-    discountingMethodChange$,
-    inflationChange$,
-    modifiedDollarMethod$,
-    nameChange$,
-    nomDiscChange$,
-    realDiscChange$,
-    studyPeriodChange$
-};
+const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
 export default function GeneralInformation() {
+    const dollarMethod = useDollarMethod();
+
+    useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
+    useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
+    useDbUpdate(descriptionChange$.pipe(defaultValue(undefined)), projectCollection$, "description");
+    useSubscribe(analysisTypeChange$.pipe(withLatestFrom(projectCollection$)), setAnalysisType);
+    useDbUpdate(purposeChange$, projectCollection$, "purpose");
+    useDbUpdate(studyPeriodChange$, projectCollection$, "studyPeriod");
+    useDbUpdate(constructionPeriodChange$, projectCollection$, "constructionPeriod");
+    useDbUpdate(sDollarMethodChange$, projectCollection$, "dollarMethod");
+    useDbUpdate(inflationChange$.pipe(defaultValue(undefined)), projectCollection$, "inflationRate");
+    useDbUpdate(nomDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "nominalDiscountRate");
+    useDbUpdate(realDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "realDiscountRate");
+    useDbUpdate(
+        discountingMethodChange$.pipe(defaultValue(DiscountingMethod.END_OF_YEAR)),
+        projectCollection$,
+        "discountingMethod",
+    );
+    useDbUpdate(countryChange$.pipe(defaultValue(Country.USA)), projectCollection$, "location.country");
+    useDbUpdate(zipChange$.pipe(defaultValue(undefined)), projectCollection$, "location.zipcode");
+    useDbUpdate(stateDDChange$.pipe(defaultValue(undefined)), projectCollection$, "location.state");
+    useDbUpdate(stateChange$.pipe(defaultValue(undefined)), projectCollection$, "location.stateOrProvince");
+    useDbUpdate(cityChange$.pipe(defaultValue(undefined)), projectCollection$, "location.city");
+    useDbUpdate(emissionsRateChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.emissionsRateScenario");
+    useDbUpdate(socialCostChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.socialCostOfGhgScenario");
+    useDbUpdate(releaseYearChange$, projectCollection$, "releaseYear");
+
+    //TODO make ghg values removable
+    //TODO make location reset when switching to US vs non-US
+
     return (
-        <div className={"w-full h-full p-8 "}>
-            <div className="w-1/2 grid grid-cols-2">
-                <span className="pb-3">
-                    <NameInput label="Project Name" className="w-3/4" type={TextInputType.PRIMARY} />
-                </span>
-                <span>
-                    <AnalystInput label="Analyst" className="w-3/4" type={TextInputType.PRIMARY} />
-                </span>
-                <span className="pb-3">
-                    <AnalysisTypeDropdown label="Analysis Type" className={"w-3/4"} />
-                </span>
-                {Model.useAnalysisType() === "OMB Analysis, Non-Energy Project" ? (
-                    <span className="pb-3">
-                        <AnalysisPurposeDropdown label="Analysis Purpose" className="w-3/4" />
-                    </span>
-                ) : (
-                    ""
+        <motion.div
+            className={"max-w-screen-lg p-6"}
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1 }}
+        >
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
+                <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
+
+                <AnalysisTypeDropdown label={"Analysis Type *"} className={"w-full"} />
+                {useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
+                    <AnalysisPurposeDropdown label={"Analysis Purpose"} className={"w-full"} />
                 )}
-                <span className="col-span-2 pb-3">
-                    <DescInput label="Description" className="w-full" />
+
+                <span className={"col-span-2"}>
+                    <DescInput label={"Description"} className={"w-full"} />
                 </span>
-                <span className="pb-3">
-                    <StudyPeriodInput
-                        label="Length of Study Period"
-                        after="years"
+                <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
+                    <NumberInput
+                        label={"Study Period*"}
+                        addonAfter={"years"}
                         defaultValue={0}
                         max={40}
                         min={0}
                         controls={true}
+                        allowEmpty
+                        rules={[max(40), min(0)]}
+                        wire={sStudyPeriodChange}
+                        value$={studyPeriod$}
                     />
-                </span>
-                <span className="pb-3 pl-3">
-                    <ConstructionPeriodInput
-                        label="Construction Period"
-                        after="years"
-                        defaultValue={0}
-                        max={40}
-                        min={0}
-                        controls={true}
-                    />
-                </span>
+                    <ConstructionPeriodInput addonAfter={"years"} defaultValue={0} max={40} min={0} controls={true} />
+
+                    <ReleaseYearDropdown className={"w-full"} label={"Data Release Year *"} />
+                </div>
             </div>
-            <span className="w-1/4 pb-3">
-                <Switch className="" checkedChildren="Consant" unCheckedChildren="Current" defaultChecked />
-            </span>
-            <div className="grid grid-cols-2">
-                <div className="grid grid-cols-2">
+            <div className={"pt-4"}>
+                <Title level={5}>Dollar Analysis</Title>
+                <Switch
+                    left={DollarMethod.CURRENT}
+                    right={DollarMethod.CONSTANT}
+                    className={"bg-primary hover:bg-primary"}
+                    value$={dollarMethod$}
+                    wire={sDollarMethodChange$}
+                    checkedChildren={"Constant"}
+                    unCheckedChildren={"Current"}
+                    defaultChecked
+                />
+            </div>
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <div className={"grid grid-cols-2"}>
                     <Divider
-                        className="col-span-2 pb-3"
+                        className={"col-span-2"}
                         style={{ fontSize: "20px" }}
-                        orientation="left"
-                        orientationMargin="0"
+                        orientation={"left"}
+                        orientationMargin={"0"}
                     >
                         Discounting
                     </Divider>
-                    <span className="pb-3">
-                        <DiscountingConvention label="Discounting Convention" className="w-3/4" />
-                    </span>
-                    <span className="pb-3">
-                        <GenInflationRate label="General Inflation Rate" className="w-3/4" controls={false} />
-                    </span>
-                    <span className="pb-3 w-full">
-                        <NominalDiscRate label="Nominal Discount Rate" className="w-3/4" controls={false} min={0.0} />
-                    </span>
-                    <span>
-                        <RealDiscRate label="Real Discount Rate" className="w-3/4" controls={false} min={0.0} />
-                    </span>
+                    <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention *"} />}</div>
+                    <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
+                        <GenInflationRate
+                            disabled={dollarMethod !== DollarMethod.CURRENT}
+                            addonAfter={"%"}
+                            controls={false}
+                        />
+                        <NominalDiscRate
+                            disabled={dollarMethod !== DollarMethod.CURRENT}
+                            addonAfter={"%"}
+                            controls={false}
+                            min={0.0}
+                        />
+                        <RealDiscRate
+                            disabled={dollarMethod !== DollarMethod.CONSTANT}
+                            addonAfter={"%"}
+                            controls={false}
+                            min={0.0}
+                        />
+                    </div>
                 </div>
-                <div className="grid grid-cols-2">
+                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <Divider
-                        className="col-span-2 pb-3"
+                        className={"col-span-2"}
                         style={{ fontSize: "20px" }}
-                        orientation="left"
-                        orientationMargin="0"
+                        orientation={"left"}
+                        orientationMargin={"0"}
                     >
                         Location
                     </Divider>
-                    <span className="pb-3">
-                        <CountryDropdown label="Country" className="w-3/4" value={Model.useCountry()} />
-                    </span>
-                    <span>
-                        <CityInput label="City" className="w-3/4" type={TextInputType.PRIMARY} />
-                    </span>
-                    <span className="pb-3">
-                        {Model.useCountry() === Country.USA ? (
-                            <StateDropdown label="State" className="w-3/4" />
-                        ) : (
-                            <StateInput label="State" className="w-3/4" type={TextInputType.PRIMARY} />
-                        )}
-                    </span>
-                    {Model.useCountry() === Country.USA ? (
-                        <span>
-                            <ZipInput label="Zip" className="w-3/4" type={TextInputType.PRIMARY} />
-                        </span>
+                    <CountryDropdown label={"Country"} className={"w-full"} value={useCountry()} />
+                    <CityInput label={"City"} type={TextInputType.PRIMARY} />
+                    {useCountry() === Country.USA ? (
+                        <StateDropdown label={"State"} className={"w-full"} />
                     ) : (
-                        ""
+                        <StateInput label={"State"} type={TextInputType.PRIMARY} />
                     )}
+                    {useCountry() === Country.USA && <ZipInput label={"Zip *"} type={TextInputType.PRIMARY} />}
                 </div>
             </div>
 
-            <div className="grid grid-cols-2">
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <Divider
-                    className="col-span-2 pb-3"
+                    className={"col-span-2"}
                     style={{ fontSize: "20px" }}
-                    orientation="left"
-                    orientationMargin="0"
+                    orientation={"left"}
+                    orientationMargin={"0"}
                 >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
-                <span className="pb-3">
-                    <EmissionsRateDropdown label="Emissions Rate Scenario" className="w-1/2" />
-                </span>
-                <span className="pb-3">
-                    <SocialCostDropdown label="Social Cost of GHG Scenario" className="w-1/2" />
-                </span>
+                <EmissionsRateDropdown label={"Emissions Rate Scenario *"} className={"w-full"} />
+                <SocialCostDropdown label={"Social Cost of GHG Scenario *"} className={"w-full"} />
             </div>
-        </div>
+        </motion.div>
     );
 }

@@ -1,5 +1,57 @@
 version: "3.6"
 services:
   server:
-    image: dockreg.el.nist.gov/blcc/server:latest
+    image: docker.nist.gov:4567/lrd/blcc:latest
     hostname: blcc
+    depends_on:
+      - postgres
+    configs:
+      - source: blcc-server
+        target: /.env
+    expose:
+      - "8080"
+    networks:
+      - postgres
+      - traefik_net
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_net"
+        - "traefik.http.routers.blcc_router_http.rule=Host(`blcctest.el.nist.gov`)"
+        - "traefik.http.routers.blcc_router_http.entrypoints=web"
+        - "traefik.http.middlewares.https_redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.blcc_router_http.middlewares=https_redirect"
+        - "traefik.http.routers.blcc_router_https.rule=Host(`blcctest.el.nist.gov`)"
+        - "traefik.http.routers.blcc_router_https.entrypoints=websecure"
+        - "traefik.http.routers.blcc_router_https.tls"
+        - "traefik.http.services.blcc_service.loadbalancer.server.port=8080"
+
+  postgres:
+    image: postgres:16.2
+    restart: always
+    hostname: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
+      POSTGRES_DB: BLCC
+    networks:
+      - postgres
+    volumes:
+      - pg_data:/pg_data
+
+networks:
+  postgres:
+  traefik_net:
+    external: true
+
+configs:
+  blcc-server:
+    external: true
+
+volumes:
+  pg_data:
+    driver_opts:
+      type: none
+      device: /DATA/blcc/pg_data
+      o: bind

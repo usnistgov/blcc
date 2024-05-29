@@ -1,24 +1,26 @@
-import { Country, State } from "../constants/LOCATION";
-import { Version } from "./Verison";
+import type { Country, State } from "../constants/LOCATION";
+import type { Version } from "./Verison";
 
 export type Project = {
+    id?: number;
     version: Version;
     name: string;
     description?: string;
     analyst?: string;
-    analysisType: AnalysisType;
+    analysisType?: AnalysisType;
     purpose?: Purpose; // For use with OMB_NON_ENERGY
     dollarMethod: DollarMethod;
-    studyPeriod: number;
+    studyPeriod?: number;
     constructionPeriod: number;
-    discountingMethod: DiscountingMethod;
+    discountingMethod?: DiscountingMethod;
     realDiscountRate?: number;
     nominalDiscountRate?: number;
     inflationRate?: number;
     location: Location;
-    alternatives: Alternative[];
-    costs: Cost[];
+    alternatives: ID[];
+    costs: ID[];
     ghg: GHG;
+    releaseYear: number;
 };
 
 export type GHG = {
@@ -35,7 +37,7 @@ export enum SocialCostOfGhgScenario {
     SCC = "SCC = $0 / ton",
     LOW = "2023 – 5% Discount Rate – Average (“Low”)",
     MEDIUM = "2023 – 3% Discount Rate – Average (“Medium”)",
-    HIGHT = "2023 – 3% Discount Rate – 95th Percentile (“High”)"
+    HIGH = "2023 – 3% Discount Rate – 95th Percentile (“High”)"
 }
 
 export type Location = USLocation | NonUSLocation;
@@ -69,7 +71,7 @@ export enum AnalysisType {
     OMB_NON_ENERGY = "OMB Analysis, Non-Energy Project",
     MILCON_ENERGY = "MILCON Analysis, Energy Project",
     MILCON_NON_ENERGY = "MILCON Analysis, Non-Energy Project",
-    MILCON_ECIP = "MILCON Analysis, ECIP Project"
+    MILCON_ECIP = "MILCON Analysis, ERCIP (formerly ECIP) Project"
 }
 
 export enum Purpose {
@@ -80,7 +82,7 @@ export enum Purpose {
 export type ID = number;
 
 export type Alternative = {
-    id: ID;
+    id?: ID;
     name: string;
     description?: string;
     baseline?: boolean;
@@ -111,10 +113,11 @@ export type Cost =
     | OtherNonMonetary;
 
 export type BaseCost = {
-    id: ID;
+    id?: ID;
     name: string;
     description?: string;
     location?: Location;
+    costSavings?: boolean;
 };
 
 export type CapitalCost = Type<CostTypes.CAPITAL> &

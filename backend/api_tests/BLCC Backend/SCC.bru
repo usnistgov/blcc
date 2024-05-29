@@ -1,0 +1,20 @@
+meta {
+  name: SCC
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/api/scc
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "from": 2020,
+    "to": 2026,
+    "release_year": 2023,
+    "option": "three_percent_ninety_fifth_percentile"
+  }
+}

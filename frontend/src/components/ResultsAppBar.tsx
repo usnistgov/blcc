@@ -1,44 +1,69 @@
 import React from "react";
 import ButtonBar from "./ButtonBar";
-import button, { ButtonType } from "./Button";
+import { Button, ButtonType } from "./Button";
 import AppBar from "./AppBar";
-import { mdiArrowLeft, mdiPlay } from "@mdi/js";
+import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
 import { useSubscribe } from "../hooks/UseSubscribe";
 import HelpButtons from "./HelpButtons";
-import { Model } from "../model/Model";
 import { E3Request, toE3Object } from "../model/E3Request";
-import { sample } from "rxjs";
+import { Subject, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
+import { currentProject$, hash$, useName } from "../model/Model";
+import { filter, map, tap, withLatestFrom } from "rxjs/operators";
+import { db } from "../model/db";
+import { liveQuery } from "dexie";
+import { download } from "../util/DownloadFile";
 
-const { click$: backClick$, component: BackButton } = button();
-const { click$: runClick$, component: RunButton } = button();
+const runClick$ = new Subject<void>();
+const pdfClick$ = new Subject<void>();
+const saveClick$ = new Subject<void>();
+const csvClick$ = new Subject<void>();
 
-const e3Result$ = Model.project$.pipe(sample(runClick$), toE3Object(), E3Request(), shareLatest());
-const [useE3Result] = bind(e3Result$, undefined);
+// Result stream that pulls from cache if available.
+const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
+const [useResult] = bind(result$, undefined);
+export { result$, useResult };
 
-export { e3Result$, useE3Result };
+// True if the project has been run before, if anything has changed since, false.
+const isCached$ = result$.pipe(map((result) => result !== undefined));
 
-e3Result$.subscribe(console.log);
+// Only send E3 request if we don't have the results cached
+const e3Result$ = runClick$.pipe(
+    withLatestFrom(isCached$),
+    filter(([, cached]) => !cached),
+    withLatestFrom(currentProject$),
+    map(([, id]) => id),
+    toE3Object(),
+    tap(console.log),
+    E3Request(),
+    tap(console.log),
+    shareLatest()
+);
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(backClick$, () => navigate(-1), [navigate]);
+    useSubscribe(e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) => db.results.add({ hash, ...result }));
+    useSubscribe(pdfClick$, () => console.log("TODO: save pdf"));
+    useSubscribe(csvClick$, () => console.log("TODO: save csv"));
+    useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
+    //TODO: change download filename
 
     return (
-        <AppBar className={"bg-primary"}>
+        <AppBar className={"z-50 bg-primary shadow-lg"}>
             <ButtonBar className={"p-2"}>
-                <BackButton type={ButtonType.PRIMARY} icon={mdiArrowLeft} iconSide={"left"}>
-                    Back to Editor
-                </BackButton>
+                <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>Back to Editor</Button>
+                <Button icon={mdiContentSave} onClick={() => saveClick$.next()}>Save</Button>
+                <Button icon={mdiFileDownload} onClick={() => pdfClick$.next()}>Export PDF</Button>
+                <Button icon={mdiTableArrowDown} onClick={() => saveClick$.next()}>Export CSV</Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-white"}>{Model.useName()}</p>
+                <p className={"text-white"}>{useName()}</p>
                 <div className={"pl-4"}>
-                    <RunButton type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay}>
+                    <Button type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onClick={() => runClick$.next()}>
                         Run
-                    </RunButton>
+                    </Button>
                 </div>
             </div>
             <HelpButtons />
