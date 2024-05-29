@@ -1,6 +1,6 @@
+import type { Measures } from "@lrd/e3-sdk";
 import { useEffect, useState } from "react";
 import { type Cost, CostTypes } from "../blcc-format/Format";
-import type { Measures } from "e3-sdk";
 
 // Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {
@@ -48,14 +48,14 @@ export function getNewID(ids: number[]) {
  */
 export const dollarFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD"
+    currency: "USD",
 });
 
 export const numberFormatter = Intl.NumberFormat("en-US");
 
 export const percentFormatter = Intl.NumberFormat("en-US", {
     style: "percent",
-    minimumFractionDigits: 2
+    minimumFractionDigits: 2,
 });
 
 export function getOptionalTag(measures: Measures[], tag: string) {
@@ -75,9 +75,9 @@ export function Rxjs<A, B = Record<string, never>>(init: () => A, component: Rea
         }, [init]);
 
         if (initial !== undefined) {
-            component({ ...initial, ...b })
+            component({ ...initial, ...b });
         }
 
         return <></>;
-    }
+    };
 }

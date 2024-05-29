@@ -72,7 +72,7 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
     };
 }
 
-type TextInputProps2 = {
+/*type TextInputProps2 = {
     label: string;
     className?: string;
     type: TextInputType;
@@ -124,4 +124,4 @@ export function TextInput({
             </Input>
         </div>
     );
-}
+}*/

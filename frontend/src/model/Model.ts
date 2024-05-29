@@ -217,7 +217,7 @@ export const isDirty$ = hash$.pipe(
     map((result) => result === undefined),
 );
 
-alternatives$
+/*alternatives$
     .pipe(
         validate({
             name: "At least one baseline alternative",
@@ -241,3 +241,4 @@ alternatives$
         // If an entry exists but the error message has changed, update it
         collection.modify({ messages: result.messages ?? [] });
     });
+*/

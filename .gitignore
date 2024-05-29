@@ -27,3 +27,7 @@ target
 dev-dist
 .~lock.*
 .env*
+/backend/backend
+
+.npmrc
+result

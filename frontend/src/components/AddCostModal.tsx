@@ -3,14 +3,14 @@ import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Col, Modal, Row, Typography } from "antd";
 import { type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
 import { map, startWith } from "rxjs/operators";
-import { Button, ButtonType } from "../components/Button";
 import dropdown from "../components/Dropdown";
 import textInput, { TextInputType } from "../components/TextInput";
+import { Button, ButtonType } from "./Button";
 
 import { mdiClose, mdiPlus } from "@mdi/js";
 import { type Cost, CostTypes } from "../blcc-format/Format";
 import { useSubscribe } from "../hooks/UseSubscribe";
-import { alternativeID$, sAlternativeID$ } from "../model/AlternativeModel";
+import { sAlternativeID$ } from "../model/AlternativeModel";
 import { currentProject$, useAlternatives } from "../model/Model";
 import { db } from "../model/db";
 

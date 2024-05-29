@@ -27,7 +27,7 @@ mod models;
 mod schema;
 
 async fn index() -> Result<NamedFile> {
-    Ok(NamedFile::open(PathBuf::from("public/dist/index.html"))?)
+    Ok(NamedFile::open(PathBuf::from("public/index.html"))?)
 }
 
 type DbPool = Pool<ConnectionManager<PgConnection>>;
@@ -87,7 +87,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .configure(config_api)
-            .service(Files::new("/", "./public/dist/").index_file("index.html"))
+            .service(Files::new("/", "./public/").index_file("index.html"))
             .default_service(web::to(index))
     })
     .bind(("0.0.0.0", 8080))?

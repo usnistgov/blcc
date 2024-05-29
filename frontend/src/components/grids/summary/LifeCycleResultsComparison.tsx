@@ -1,12 +1,12 @@
-import DataGrid from "react-data-grid";
-import { alternativeNames$, measures$ } from "../../../model/ResultModel";
-import { bind } from "@react-rxjs/core";
-import { map } from "rxjs/operators";
-import { combineLatest } from "rxjs";
-import { dollarFormatter, numberFormatter } from "../../../util/Util";
-import { baselineID$ } from "../../../model/Model";
-import Icon from "@mdi/react";
 import { mdiCheck } from "@mdi/js";
+import Icon from "@mdi/react";
+import { bind } from "@react-rxjs/core";
+import DataGrid from "react-data-grid";
+import { combineLatest } from "rxjs";
+import { map } from "rxjs/operators";
+import { baselineID$ } from "../../../model/Model";
+import { alternativeNames$, measures$ } from "../../../model/ResultModel";
+import { dollarFormatter, numberFormatter } from "../../../util/Util";
 
 type Row = {
     name: string;
@@ -21,14 +21,14 @@ type Row = {
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
-    cellClass: "text-ink"
+    cellClass: "text-ink",
 };
 
 const columns = [
     {
         name: "Alternative",
         key: "name",
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Base Case",
@@ -41,56 +41,54 @@ const columns = [
                     </div>
                 );
         },
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Initial Cost",
         key: "initialCost",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["initialCost"])}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.initialCost)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Life Cycle Cost",
         key: "lifeCycleCost",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["lifeCycleCost"])}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.lifeCycleCost)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "Energy",
         key: "energy",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["energy"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.energy ?? 0)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "GHG Emissions (kg co2)",
         key: "ghgEmissions",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{numberFormatter.format(row["ghgEmissions"] ?? 0)}</p>
+            <p className={"text-right"}>{numberFormatter.format(row.ghgEmissions ?? 0)}</p>
         ),
-        ...cellClasses
+        ...cellClasses,
     },
     {
         name: "SCC",
         key: "scc",
-        renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["scc"] ?? 0)}</p>
-        ),
-        ...cellClasses
+        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.scc ?? 0)}</p>,
+        ...cellClasses,
     },
     {
         name: "LCC + SCC",
         key: "lccScc",
         renderCell: ({ row }: { row: Row }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row["lccScc"] ?? 0)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.lccScc ?? 0)}</p>
         ),
-        ...cellClasses
-    }
+        ...cellClasses,
+    },
 ];
 
 const [useRows] = bind(
@@ -101,17 +99,17 @@ const [useRows] = bind(
                     ({
                         name: alternativeNames.get(measure.altId),
                         baseline: measure.altId === baselineID,
-                        lifeCycleCost: measure.totalTagFlows["LCC"],
+                        lifeCycleCost: measure.totalTagFlows.LCC,
                         initialCost: measure.totalTagFlows["Initial Investment"],
-                        energy: measure.totalTagFlows["Energy"],
-                        ghgEmissions: measure.totalTagFlows["Emissions"],
-                        scc: measure.totalTagFlows["SCC"],
-                        lccScc: measure.totalCosts
-                    }) as Row
-            )
-        )
+                        energy: measure.totalTagFlows.Energy,
+                        ghgEmissions: measure.totalTagFlows.Emissions,
+                        scc: measure.totalTagFlows.SCC,
+                        lccScc: measure.totalCosts,
+                    }) as Row,
+            ),
+        ),
     ),
-    []
+    [],
 );
 
 export default function LifecycleResultsComparison() {
@@ -120,15 +118,15 @@ export default function LifecycleResultsComparison() {
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
+                // @ts-ignore
                 className={"h-fit"}
                 rows={rows}
                 columns={columns}
                 style={{
+                    // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#565C65",
-                    "--rdg-row-hover-background-color": "#3D4551"
+                    "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
                 rowGetter={rows}
