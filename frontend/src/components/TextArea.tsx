@@ -50,7 +50,7 @@ export default function textArea(value$: Observable<string | undefined> = EMPTY)
                     <Input.TextArea
                         onFocus={() => focus(true)}
                         onBlur={() => focus(false)}
-                        className={(className ?? "") + "w-44"}
+                        className={`${className ?? ""} w-44`}
                         onChange={(event) => onChange(event.target.value)}
                         placeholder={placeholder}
                         variant={bordered ? "outlined" : "borderless"}
@@ -81,9 +81,9 @@ export function TextArea({
     className,
     disabled,
     ...defaultProps
-}: PropsWithChildren<TextAreaProps2 & InputProps>) {
-    const { useValue, focus, onChange, onChange$ } = useMemo(() => {
-        const [onChange$, onChange] = createSignal<string | undefined>();
+}: PropsWithChildren<TextAreaProps2 & TextAreaProps>) {
+    const { useValue, focus, textChange, onChange$ } = useMemo(() => {
+        const [onChange$, textChange] = createSignal<string | undefined>();
         const [focused$, focus] = createSignal<boolean>();
 
         const [useValue] = bind(
@@ -94,7 +94,7 @@ export function TextArea({
             undefined,
         );
 
-        return { useValue, focus, onChange, onChange$ };
+        return { useValue, focus, textChange, onChange$ };
     }, [value$]);
 
     useEffect(() => {
@@ -105,12 +105,10 @@ export function TextArea({
         <div>
             <Title level={5}>{label}</Title>
             <Input.TextArea
-                onChange={(e) => {
-                    console.log("Text area change", e);
-                    onChange(e.currentTarget.value);
-                }}
+                onChange={(e) => textChange(e.currentTarget.value)}
                 onFocus={() => focus(true)}
                 onBlur={() => focus(false)}
+                rows={4}
                 className={`${className ?? ""} w-44`}
                 value={useValue()}
                 {...defaultProps}

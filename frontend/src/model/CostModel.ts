@@ -1,4 +1,4 @@
-import { bind, state } from "@react-rxjs/core";
+import { type StateObservable, bind, state } from "@react-rxjs/core";
 import { type Collection, liveQuery } from "dexie";
 import { type Observable, Subject, distinctUntilChanged, map, merge, switchMap } from "rxjs";
 import { shareReplay, withLatestFrom } from "rxjs/operators";
@@ -20,9 +20,9 @@ export namespace CostModel {
 
     export const [useID] = bind(id$, -1);
 
-    function costModelState<B>(mapper: (cost: Cost) => B, key: keyof Cost) {
+    /*function costModelState<B>(mapper: (cost: Cost) => B, key: keyof Cost) {
         return createModelState(cost$.pipe(map((cost) => mapper(cost))), collection$, key);
-    }
+    }*/
 
     /**
      * The currently selected cost object as specified by the URL parameter.
@@ -62,7 +62,7 @@ export namespace CostModel {
     /**
      * The description of the current cost
      */
-    /**export const sDescription$ = new Subject<string | undefined>();
+    export const sDescription$ = new Subject<string | undefined>();
     export const description$ = state(
         merge(sDescription$, cost$.pipe(map((cost) => cost?.description))).pipe(distinctUntilChanged()),
         undefined,
@@ -70,19 +70,19 @@ export namespace CostModel {
     sDescription$
         .pipe(withLatestFrom(collection$))
         .subscribe(([description, collection]) => collection.modify({ description }));
-    */
 
-    export const [sDescription$, description$] = costModelState((cost) => cost?.description, "description");
+    //export const [sDescription$, description$] = costModelState((cost) => cost?.description, "description");
 }
 
-function createModelState<A, B>(
+/*function createModelState<A, B, Default = undefined>(
     input$: Observable<B>,
     collection$: Observable<Collection<A>>,
     key: keyof A,
-): [Subject<B>, Observable<B>] {
+    init: Default = undefined
+): [Subject<B>, StateObservable<B | Default>] {
     const subject$ = new Subject<B>();
-    const stream$ = state(merge(subject$, input$).pipe(distinctUntilChanged()), undefined);
+    const stream$ = state(merge(subject$, input$).pipe(distinctUntilChanged()), init);
     subject$.pipe(withLatestFrom(collection$)).subscribe(([value, collection]) => collection.modify({ [key]: value }));
 
     return [subject$, stream$];
-}
+}*/

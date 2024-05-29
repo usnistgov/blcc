@@ -1,4 +1,5 @@
-import { Cost, CostTypes } from "../blcc-format/Format";
+import type { Measures } from "@lrd/e3-sdk";
+import { type Cost, CostTypes } from "../blcc-format/Format";
 
 // Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {
@@ -39,5 +40,20 @@ export function getNewID(values: { id: number }[]) {
 
 export const dollarFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD"
+    currency: "USD",
 });
+
+export const numberFormatter = Intl.NumberFormat("en-US");
+
+export const percentFormatter = Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: 2,
+});
+
+export function getOptionalTag(measures: Measures[], tag: string) {
+    return measures.reduce((acc, next, i) => {
+        // @ts-ignore
+        acc[i.toString()] = next.totalTagFlows[tag];
+        return acc;
+    }, {});
+}
