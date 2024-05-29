@@ -13,7 +13,6 @@
 
 stages:
   - build
-  - docker
   - release
 
 backend-build:
@@ -30,9 +29,10 @@ frontend-build:
 
 docker-build:
   extends: .nix
-  stage: docker
+  stage: build
   needs:
-    - build
+    - backend-build
+    - frontend-build
   artifacts:
     paths:
       - result
