@@ -35,8 +35,6 @@ frontend-build:
 
 docker-build:
   extends: .nix
-  tags:
-    - dind
   stage: build
   rules:
     - changes:
@@ -60,6 +58,8 @@ variables:
 release-image:
   image: docker:26.1.3
   stage: release
+  tags:
+    - dind
   services:
     - docker:26.1.3-dind
   dependencies:
