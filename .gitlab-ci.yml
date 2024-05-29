@@ -47,9 +47,11 @@ docker-build:
     - frontend-build
   artifacts:
     paths:
-      - result
+      - blcc-image.tar.gz
   script:
     - nix build
+    - file result
+    - cp result blcc-image.tar.gz
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
@@ -64,6 +66,6 @@ release-image:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker load < result
+    - docker load < blcc-image.tar.gz
     - docker tag blcc:latest $IMAGE_TAG
     - docker push $IMAGE_TAG
