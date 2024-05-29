@@ -59,7 +59,7 @@
             extraBuildInputs = [ pkgs.cypress ];
         };
 
-        # Docker image
+        # Final contents
         contents = pkgs.stdenv.mkDerivation {
             name = "contents";
             src = ./.;
@@ -74,6 +74,7 @@
             '';
         };
 
+        # Docker image
         docker = pkgs.dockerTools.buildLayeredImage {
             name = "BLCC";
             tag = "latest";
