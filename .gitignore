@@ -30,3 +30,4 @@ dev-dist
 /backend/backend
 
 .npmrc
+result
