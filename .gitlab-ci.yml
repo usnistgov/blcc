@@ -35,6 +35,8 @@ frontend-build:
 
 docker-build:
   extends: .nix
+  tags:
+    - dind
   stage: build
   rules:
     - changes:
