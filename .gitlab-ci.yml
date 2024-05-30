@@ -30,12 +30,6 @@ frontend-build:
 docker-build:
   extends: .nix
   stage: build
-  rules:
-    - changes:
-      - backend/*
-      - frontend/*
-      - flake.nix
-      - flake.lock
   needs:
     - backend-build
     - frontend-build
