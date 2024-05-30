@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   server:
-    image: dockreg.el.nist.gov/blcc/server:dev
+    image: docker.nist.gov:4567/lrd/blcc:latest
     hostname: blcc
     depends_on:
       - postgres
