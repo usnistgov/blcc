@@ -18,18 +18,12 @@ stages:
 backend-build:
   extends: .nix
   stage: build
-  rules:
-    - changes: 
-      - backend/*
   script:
     - nix build .#backend
 
 frontend-build:
   extends: .nix
   stage: build
-  rules:
-    - changes:
-      - frontend/*
   script:
     - nix build .#frontend
 
