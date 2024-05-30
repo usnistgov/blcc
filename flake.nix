@@ -60,7 +60,7 @@
         };
 
         # Final contents
-        contents = pkgs.stdenv.mkDerivation {
+        blcc = pkgs.stdenv.mkDerivation {
             name = "contents";
             src = ./.;
             buildInputs = [ backend frontend ];
@@ -78,14 +78,14 @@
         docker = pkgs.dockerTools.buildLayeredImage {
             name = "BLCC";
             tag = "latest";
-            contents = [ contents ];
+            contents = [ blcc ];
             config = {
                 Cmd = [ "./blcc/backend" ];
             };
         };
     in {
         packages = {
-            inherit docker backend frontend contents;
+            inherit docker backend frontend blcc;
             default = docker;
         };
     });

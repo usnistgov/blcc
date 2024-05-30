@@ -1,20 +1,18 @@
-// Openssl declaration must be first
-extern crate openssl;
-
 extern crate diesel;
-extern crate diesel_migrations;
+extern crate diesel_migrations;// Openssl declaration must be first
+extern crate openssl;
 
 use std::env;
 use std::path::PathBuf;
 
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
+use actix_web::{App, HttpServer, middleware, Result};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use actix_web::{middleware, web, App, HttpServer, Result};
 use diesel::pg::Pg;
-use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
+use diesel::r2d2::ConnectionManager;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
 use env_logger;
@@ -25,10 +23,6 @@ use crate::api::config_api;
 mod api;
 mod models;
 mod schema;
-
-async fn index() -> Result<NamedFile> {
-    Ok(NamedFile::open(PathBuf::from("public/index.html"))?)
-}
 
 type DbPool = Pool<ConnectionManager<PgConnection>>;
 
@@ -62,6 +56,9 @@ async fn main() -> std::io::Result<()> {
     let origin = env::var("ALLOWED_ORIGIN")
         .unwrap_or_else(|_| { "https://localhost:8080" }.parse().unwrap());
 
+    let public_folder = env::var("PUBLIC_FOLDER")
+        .unwrap_or_else(|_| { "public/" }.parse().unwrap());
+
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
@@ -87,10 +84,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .configure(config_api)
-            .service(Files::new("/", "./public/").index_file("index.html"))
-            .default_service(web::to(index))
+            .default_service(Files::new("/", public_folder.clone()).index_file("index.html"))
     })
-    .bind(("0.0.0.0", 8080))?
-    .run()
-    .await
+        .bind(("0.0.0.0", 8080))?
+        .run()
+        .await
 }
