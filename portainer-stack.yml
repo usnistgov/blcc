@@ -1,15 +1,13 @@
 version: "3.6"
 services:
   server:
-    image: docker.nist.gov:4567/lrd/blcc:latest
+    image: dockreg.el.nist.gov/blcc/server:dev
     hostname: blcc
     depends_on:
       - postgres
     configs:
       - source: blcc-server
         target: /.env
-    expose:
-      - "8080"
     networks:
       - postgres
       - traefik_net
@@ -38,7 +36,8 @@ services:
     networks:
       - postgres
     volumes:
-      - pg_data:/pg_data
+      - pg_data:/var/lib/postgresql/data
+      - db_backup:/db_backup
 
 networks:
   postgres:
@@ -53,5 +52,10 @@ volumes:
   pg_data:
     driver_opts:
       type: none
-      device: /DATA/blcc/pg_data
+      device: /DATA/e3/blcc/pg_data
+      o: bind
+  db_backup:
+    driver_opts:
+      type: none
+      device: /DATA/e3/blcc/db_backup
       o: bind
