@@ -80,7 +80,7 @@
             tag = "latest";
             contents = [ contents ];
             config = {
-                Cmd = [ "cd ${contents}/blcc && ./backend" ];
+                Cmd = [ "./blcc/backend" ];
             };
         };
     in {
