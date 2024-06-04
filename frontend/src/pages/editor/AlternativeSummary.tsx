@@ -4,12 +4,12 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Divider, Typography } from "antd";
 import { liveQuery } from "dexie";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import type { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
-import addAlternativeModal from "../../components/AddAlternativeModal";
+import AddAlternativeModal from "../../components/AddAlternativeModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
 import { useSubscribe } from "../../hooks/UseSubscribe";
@@ -21,8 +21,6 @@ import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost }
 const { Title } = Typography;
 
 const addAlternativeClick$ = new Subject<void>();
-
-const { component: AddAlternativeModal } = addAlternativeModal(addAlternativeClick$.pipe(map(() => true)));
 
 const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
 
@@ -38,7 +36,7 @@ export default function AlternativeSummary() {
         >
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
-                    <AddAlternativeModal />
+                    <AddAlternativeModal open$={addAlternativeClick$.pipe(map(() => true))} />
                     <Button className={"self-end"} type={ButtonType.LINK} onClick={() => addAlternativeClick$.next()}>
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative

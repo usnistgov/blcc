@@ -73,10 +73,10 @@ export default function textInput(value$: Observable<string | undefined> = EMPTY
 }
 
 type TextInputProps2 = {
-    label: string;
+    label?: string;
     className?: string;
     type: TextInputType;
-    value$: StateObservable<string | undefined>;
+    value$?: StateObservable<string | undefined>;
     wire: Subject<string | undefined>;
 };
 
@@ -97,21 +97,22 @@ export function TextInput({
         const [useValue] = bind(
             focused$.pipe(
                 startWith(false),
-                switchMap((focused) => (focused ? onChange$ : value$)),
+                switchMap((focused) => (focused ? onChange$ : value$ ? value$ : wire)),
             ),
             undefined,
         );
 
         return { useValue, focus, onChange, onChange$ };
-    }, [value$]);
+    }, [value$, wire]);
 
     useEffect(() => {
-        onChange$.subscribe(wire);
+        const sub = onChange$.subscribe(wire);
+        return () => sub.unsubscribe();
     }, [wire, onChange$]);
 
     return (
         <div>
-            <Title level={5}>{label}</Title>
+            {label && <Title level={5}>{label}</Title>}
             <Input
                 onFocus={() => focus(true)}
                 onBlur={() => focus(false)}

@@ -9,6 +9,7 @@ import { Subject, combineLatest, sample, switchMap } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
 import addAlternativeModal from "../../components/AddAlternativeModal";
+import AddAlternativeModal from "../../components/AddAlternativeModal";
 import addCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
@@ -47,7 +48,6 @@ const { onChange$: description$, component: DescInput } = textArea(alternative$.
 const removeAlternative$ = combineLatest([sAlternativeID$, currentProject$]).pipe(sample(removeAlternativeClick$));
 const cloneAlternative$ = combineLatest([alternative$, currentProject$]).pipe(sample(cloneAlternativeClick$));
 
-const { component: AddAlternativeModal } = addAlternativeModal(openAltModal$.pipe(map(() => true)));
 const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
 type Subcategories<T> = {
@@ -197,7 +197,7 @@ export default function Alternatives() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
-            <AddAlternativeModal />
+            <AddAlternativeModal open$={openAltModal$.pipe(map(() => true))} />
             <AddCostModal />
 
             <SubHeader>

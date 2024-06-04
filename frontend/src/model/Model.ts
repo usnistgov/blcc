@@ -32,7 +32,7 @@ export const defaultReleaseYear$ = releaseYears$.pipe(
     catchError(() => of(new Date().getFullYear())),
 );
 
-export const currentProject$ = NEVER.pipe(startWith(1));
+export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
 const dbProject$ = currentProject$.pipe(
     switchMap((currentID) => liveQuery(() => db.projects.where("id").equals(currentID).first())),
