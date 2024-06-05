@@ -8,11 +8,12 @@ import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { CostTypes, type Cost as FormatCost, type ID } from "../../blcc-format/Format";
-import addCostModal from "../../components/AddCostModal";
+import AddCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
 import { TextArea } from "../../components/TextArea";
 import { TextInput, TextInputType } from "../../components/TextInput";
+import AppliedCheckboxes from "../../components/navigation/AppliedCheckboxes";
 import { useSubscribe } from "../../hooks/UseSubscribe";
 import { alternative$, useAlternativeID } from "../../model/AlternativeModel";
 import { CostModel } from "../../model/CostModel";
@@ -41,8 +42,6 @@ const removeClick$ = new Subject<void>();
 /*const { component: CostSavingSwitch, onChange$: costSavingsChange$ } = switchComp(
     cost$.pipe(map((cost) => cost.costSavings ?? false))
 );*/
-
-const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
 const remove$ = combineLatest([CostModel.id$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
 const clone$ = combineLatest([CostModel.cost$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
@@ -133,10 +132,18 @@ export default function Cost() {
     const costType = CostModel.useType();
     const alternativeID = useAlternativeID();
 
-    const { useAltName } = useMemo(() => {
-        const [useAltName] = bind(alternative$.pipe(map((alt) => alt.name)));
+    const [useAltName, altsThatInclude$, sCheckedAlt$] = useMemo(() => {
+        const sCheckedAlt$ = new Subject<Set<ID>>();
 
-        return { useAltName };
+        const [useAltName] = bind(alternative$.pipe(map((alt) => alt.name)));
+        const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
+            map(
+                ([alternatives, id]) =>
+                    new Set(alternatives.filter((alt) => alt.costs.includes(id)).map((alt) => alt.id ?? -1)),
+            ),
+        );
+
+        return [useAltName, altsThatInclude$, sCheckedAlt$];
     }, []);
 
     const alternativeName = useAltName();
@@ -155,7 +162,7 @@ export default function Cost() {
             animate={{ opacity: 1, speed: 0.5 }}
             transition={{ duration: 0.2 }}
         >
-            <AddCostModal />
+            <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
             <SubHeader>
                 <div className="flex justify-between">
@@ -192,7 +199,8 @@ export default function Cost() {
                     />
                     <div className={"flex flex-col"}>
                         <Title level={5}>Alternatives applied to</Title>
-                        {alternatives.map((alt) => (
+                        <AppliedCheckboxes value$={altsThatInclude$} wire={sCheckedAlt$} />
+                        {/*{alternatives.map((alt) => (
                             <Checkbox
                                 key={alt.id}
                                 disabled={onlyOne && alt.costs.includes(id)}
@@ -201,7 +209,7 @@ export default function Cost() {
                             >
                                 {alt.name}
                             </Checkbox>
-                        )) || "No Alternatives"}
+                        )) || "No Alternatives"}*/}
                     </div>
                     <span className={"col-span-2"}>
                         <TextArea

@@ -1,11 +1,11 @@
-import { count, from, groupBy, mergeMap, type Observable, of, pipe, type UnaryFunction } from "rxjs";
+import { type Observable, type UnaryFunction, count, from, groupBy, mergeMap, of, pipe, scan } from "rxjs";
 import { catchError, filter, map, shareReplay, toArray } from "rxjs/operators";
 
 /**
  * Counts the number of occurrences of each unique property in type A. The property is obtained with the given property extractor function.
  */
 export function countProperty<A, B extends string>(
-    propertyExtractor: (cost: A) => B
+    propertyExtractor: (cost: A) => B,
 ): UnaryFunction<Observable<A[]>, Observable<[B, number][]>> {
     return pipe(
         mergeMap((costs) =>
@@ -15,12 +15,12 @@ export function countProperty<A, B extends string>(
                     (group$) =>
                         group$.pipe(
                             count(),
-                            map((count) => [group$.key, count])
-                        ) as Observable<[B, number]>
+                            map((count) => [group$.key, count]),
+                        ) as Observable<[B, number]>,
                 ),
-                toArray()
-            )
-        )
+                toArray(),
+            ),
+        ),
     );
 }
 
@@ -43,14 +43,40 @@ export function parseHtml(): UnaryFunction<Observable<Response>, Observable<stri
     return pipe(
         mergeMap((result) => result.text()),
         shareReplay(1),
-        catchError(() => of(""))
+        catchError(() => of("")),
     );
 }
 
 export function isTrue(): UnaryFunction<Observable<boolean>, Observable<boolean>> {
-    return pipe(filter((bool) => bool))
+    return pipe(filter((bool) => bool));
 }
 
 export function isFalse(): UnaryFunction<Observable<boolean>, Observable<boolean>> {
-    return pipe(filter((bool) => bool === false))
+    return pipe(filter((bool) => !bool));
+}
+
+export function gatherSet<T>(...seed: T[]): UnaryFunction<Observable<[T, boolean]>, Observable<Set<T>>> {
+    return pipe(
+        scan((acc, [value, shouldAdd]) => {
+            if (shouldAdd) acc.add(value);
+            else acc.delete(value);
+
+            return new Set(acc.values());
+        }, new Set(seed)),
+    );
+}
+
+export function gatherArray<T>(...seed: T[]): UnaryFunction<Observable<T>, Observable<T[]>> {
+    return pipe(
+        scan(
+            (acc, value) => {
+                const index = acc.indexOf(value);
+                if (index === -1) acc.push(value);
+                else acc.splice(index, 1);
+
+                return acc;
+            },
+            [...seed],
+        ),
+    );
 }

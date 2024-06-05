@@ -61,7 +61,7 @@ function createAlternativeInDB([projectID, name]: [number, string]): Promise<num
  */
 export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeModalProps) {
     const navigate = useNavigate();
-    const { modalCancel$, cancel, useOpen, isOpen$, sName$, cancelClick$, addClick$, newAlternativeID$, disableAdd } =
+    const [modalCancel$, cancel, useOpen, isOpen$, sName$, cancelClick$, addClick$, newAlternativeID$, disableAdd] =
         useMemo(() => {
             const sName$ = new BehaviorSubject<string | undefined>(undefined);
             const addClick$ = new Subject<void>();
@@ -81,7 +81,7 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
                 false,
             );
 
-            return {
+            return [
                 modalCancel$,
                 cancel,
                 useOpen,
@@ -91,7 +91,7 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
                 addClick$,
                 newAlternativeID$,
                 disableAdd,
-            };
+            ];
         }, [open$]);
 
     // Set name field to nothing when the modal closes

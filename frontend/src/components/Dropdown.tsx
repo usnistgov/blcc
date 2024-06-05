@@ -80,7 +80,7 @@ type DropdownProps2<T extends Key> = {
     className?: string;
     label?: string;
     options: Observable<T[]> | T[];
-    value$: Observable<T>;
+    value$?: Observable<T>;
     wire: Subject<T>;
 };
 
@@ -94,12 +94,12 @@ export function Dropdown<T extends Key>({
 }: PropsWithChildren<DropdownProps2<T>> & Omit<SelectProps, "onChange" | "value" | "options">) {
     const { change$, change, useValue, useOptions } = useMemo(() => {
         const [change$, change] = createSignal<T>();
-        const [useValue] = bind(value$, undefined);
+        const [useValue] = bind(value$ ? value$ : wire, undefined);
 
         const [useOptions] = bind(Array.isArray(options) ? of(options) : options, []);
 
         return { change$, change, useValue, useOptions };
-    }, [value$, options]);
+    }, [value$, options, wire]);
 
     useEffect(() => {
         const sub = change$.subscribe(wire);

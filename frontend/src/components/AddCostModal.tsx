@@ -1,116 +1,135 @@
-import { bind } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox, Col, Modal, Row, Typography } from "antd";
-import { type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
-import { map, startWith } from "rxjs/operators";
-import dropdown from "../components/Dropdown";
-import textInput, { TextInputType } from "../components/TextInput";
+import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample, scan, switchMap } from "rxjs";
+import { map, shareReplay, startWith } from "rxjs/operators";
 import { Button, ButtonType } from "./Button";
+import { Dropdown } from "./Dropdown";
+import { TextInput, TextInputType } from "./TextInput";
 
 import { mdiClose, mdiPlus } from "@mdi/js";
-import { type Cost, CostTypes } from "../blcc-format/Format";
+import { useMemo } from "react";
+import { type Cost, CostTypes, type ID } from "../blcc-format/Format";
 import { useSubscribe } from "../hooks/UseSubscribe";
-import { sAlternativeID$ } from "../model/AlternativeModel";
+import { sAlternativeID$, useAlternativeID } from "../model/AlternativeModel";
 import { currentProject$, useAlternatives } from "../model/Model";
 import { db } from "../model/db";
+import { gatherSet, guard } from "../util/Operators";
+import AppliedCheckboxes from "./navigation/AppliedCheckboxes";
 
-const { Title } = Typography;
+type AddCostModalProps = {
+    open$: Observable<boolean>;
+};
 
-const addCost$ = new Subject<void>();
-const cancel$ = new Subject<void>();
+function createCostInDB([projectID, name, type, alts]: [number, string, CostTypes, Set<number>]): Promise<void> {
+    return db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
+        // Add new cost to DB and get new ID
+        const newID = await db.costs.add({ name, type } as Cost);
 
-const { onChange$: name$, component: NewCostInput } = textInput();
-const { change$: type$, component: CostCategoryDropdown } = dropdown(Object.values(CostTypes));
-
-const [checkedAltsChange$, setCheckedAlts] = createSignal<number[]>();
-const [useChecked, checkedAlts$] = bind(
-    sAlternativeID$.pipe(switchMap((id) => checkedAltsChange$.pipe(startWith([id])))),
-    [],
-);
-
-const newCost$ = combineLatest([currentProject$, name$, type$.pipe(startWith(CostTypes.ENERGY)), checkedAlts$]).pipe(
-    sample(addCost$),
-);
-
-//TODO make inputs clear when closing the modal
-
-export default function addCostModal(modifiedOpenModal$: Observable<boolean>) {
-    const [modalCancel$, cancel] = createSignal();
-    const [useOpen] = bind(
-        merge(modifiedOpenModal$, merge(cancel$, newCost$, modalCancel$).pipe(map(() => false))),
-        false,
-    );
-    return {
-        component: () => {
-            const openModal = useOpen();
-
-            useSubscribe(newCost$, async ([projectID, name, type, alts]) => {
-                db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
-                    // Add new cost to DB and get new ID
-                    const newID = await db.costs.add({ name, type } as Cost);
-
-                    // Add new cost ID to project
-                    await db.projects
-                        .where("id")
-                        .equals(projectID)
-                        .modify((project) => {
-                            project.costs.push(newID);
-                        });
-
-                    // Add new cost ID to alternatives
-                    await db.alternatives
-                        .where("id")
-                        .anyOf(alts)
-                        .modify((alt) => {
-                            alt.costs.push(newID);
-                        });
-                });
+        // Add new cost ID to project
+        await db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                project.costs.push(newID);
             });
 
-            return (
-                <Modal
-                    title="Add New Cost"
-                    open={openModal}
-                    onCancel={cancel}
-                    footer={
-                        <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                            <Button type={ButtonType.ERROR} icon={mdiClose} onClick={() => cancel$.next()}>
-                                Cancel
-                            </Button>
-                            <Button type={ButtonType.PRIMARY} icon={mdiPlus} onClick={() => addCost$.next()}>
-                                Add
-                            </Button>
-                        </div>
-                    }
-                >
-                    <div>
-                        <Title level={5}>Name</Title>
-                        <NewCostInput type={TextInputType.PRIMARY} />
-                    </div>
-                    <br />
-                    <div className="w-full">
-                        <Title level={5}>Add to Alternatives</Title>
-                        <Checkbox.Group
-                            style={{ width: "100%" }}
-                            value={useChecked()}
-                            onChange={(values) => setCheckedAlts(values as number[])}
-                        >
-                            <Row>
-                                {useAlternatives().map((alt) => (
-                                    <Col span={16} key={alt.id}>
-                                        <Checkbox value={alt.id}>{alt.name}</Checkbox>
-                                    </Col>
-                                )) || "No Alternatives"}
-                            </Row>
-                        </Checkbox.Group>
-                    </div>
-                    <br />
-                    <div>
-                        <Title level={5}>Cost Category</Title>
-                        <CostCategoryDropdown className={"w-full"} placeholder={CostTypes.ENERGY} />
-                    </div>
-                </Modal>
+        // Add new cost ID to alternatives
+        await db.alternatives
+            .where("id")
+            .anyOf([...alts.values()])
+            .modify((alt) => {
+                alt.costs.push(newID);
+            });
+    });
+}
+
+export default function AddCostModal({ open$ }: AddCostModalProps) {
+    const [useOpen, cancel, disableAdd, sCheckAlt$, sName$, sType$, sAddClick$, sCancelClick$, newCost$, isOpen$] =
+        useMemo(() => {
+            const sName$ = new BehaviorSubject<string | undefined>(undefined);
+            const sAddClick$ = new Subject<void>();
+            const sCancelClick$ = new Subject<void>();
+            const sType$ = new BehaviorSubject<CostTypes>(CostTypes.ENERGY);
+            const sCheckAlt$ = new Subject<Set<ID>>();
+
+            const newCost$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
+                sample(sAddClick$),
             );
-        },
-    };
+
+            const [modalCancel$, cancel] = createSignal();
+            const [useOpen, isOpen$] = bind(
+                merge(open$, merge(sCancelClick$, newCost$, modalCancel$).pipe(map(() => false))),
+                false,
+            );
+
+            const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), true);
+
+            return [
+                useOpen,
+                cancel,
+                disableAdd,
+                sCheckAlt$,
+                sName$,
+                sType$,
+                sAddClick$,
+                sCancelClick$,
+                newCost$,
+                isOpen$,
+            ];
+        }, [open$]);
+
+    //Clear fields when modal closes
+    useSubscribe(isOpen$, () => {
+        sName$.next(undefined);
+        sType$.next(CostTypes.ENERGY);
+    });
+    // Create the new costs in the database
+    useSubscribe(newCost$, createCostInDB);
+
+    return (
+        <Modal
+            title="Add New Cost"
+            open={useOpen()}
+            onCancel={cancel}
+            footer={
+                <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
+                    <Button type={ButtonType.ERROR} icon={mdiClose} wire={sCancelClick$}>
+                        Cancel
+                    </Button>
+                    <Button type={ButtonType.PRIMARY} icon={mdiPlus} disabled={disableAdd()} wire={sAddClick$}>
+                        Add
+                    </Button>
+                </div>
+            }
+        >
+            <div>
+                <Typography.Title level={5}>Name</Typography.Title>
+                <TextInput type={TextInputType.PRIMARY} wire={sName$} />
+            </div>
+            <br />
+            <div className="w-full">
+                <Typography.Title level={5}>Add to Alternatives</Typography.Title>
+                <AppliedCheckboxes defaults={[useAlternativeID()]} wire={sCheckAlt$} />
+                {/*<Checkbox.Group
+                    style={{ width: "100%" }}
+                    value={useChecked()}
+                    onChange={(values) => setCheckedAlts(values as number[])}
+                >
+                    <Row>
+                        {useAlternatives().map((alt) => (
+                            <Col span={16} key={alt.id}>
+                                <Checkbox value={alt.id}>{alt.name}</Checkbox>
+                            </Col>
+                        )) || "No Alternatives"}
+                    </Row>
+                </Checkbox.Group>*/}
+            </div>
+            <br />
+            <div>
+                <Typography.Title level={5}>Cost Category</Typography.Title>
+                <Dropdown options={Object.values(CostTypes)} wire={sType$} />
+            </div>
+        </Modal>
+    );
 }

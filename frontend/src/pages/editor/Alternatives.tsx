@@ -11,6 +11,7 @@ import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-form
 import addAlternativeModal from "../../components/AddAlternativeModal";
 import AddAlternativeModal from "../../components/AddAlternativeModal";
 import addCostModal from "../../components/AddCostModal";
+import AddCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
 import switchComp from "../../components/Switch";
@@ -47,8 +48,6 @@ const { onChange$: description$, component: DescInput } = textArea(alternative$.
 
 const removeAlternative$ = combineLatest([sAlternativeID$, currentProject$]).pipe(sample(removeAlternativeClick$));
 const cloneAlternative$ = combineLatest([alternative$, currentProject$]).pipe(sample(cloneAlternativeClick$));
-
-const { component: AddCostModal } = addCostModal(openCostModal$.pipe(map(() => true)));
 
 type Subcategories<T> = {
     [key in keyof T]: Cost[];
@@ -198,7 +197,7 @@ export default function Alternatives() {
             transition={{ duration: 0.1 }}
         >
             <AddAlternativeModal open$={openAltModal$.pipe(map(() => true))} />
-            <AddCostModal />
+            <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
             <SubHeader>
                 <div className={"self-end"}>
