@@ -3,7 +3,7 @@ import Icon from "@mdi/react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { match } from "ts-pattern";
 import { useActiveLink } from "../../hooks/UseActiveLink";
-import { sAlternativeID$ } from "../../model/AlternativeModel";
+import { AlternativeModel } from "../../model/AlternativeModel";
 import { useAlternatives } from "../../model/Model";
 import { Button, ButtonType } from "../Button";
 
@@ -21,7 +21,7 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
             type={ButtonType.PRIMARY}
             icon={icon}
             onClick={() => {
-                sAlternativeID$.next(altID);
+                AlternativeModel.sID$.next(altID);
 
                 if (!location.pathname.endsWith(`/editor/alternative/${altID}`))
                     navigate(`/editor/alternative/${altID}`);

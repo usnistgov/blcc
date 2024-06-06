@@ -13,8 +13,8 @@ import {
     SocialCostOfGhgScenario,
     type USLocation,
 } from "../blcc-format/Format";
-import { Country } from "../constants/LOCATION";
-import { guard } from "../util/Operators";
+import { Country, State } from "../constants/LOCATION";
+import { defaultValue, guard } from "../util/Operators";
 import { db } from "./db";
 import { validate } from "./rules/Rules";
 
@@ -34,6 +34,8 @@ export const defaultReleaseYear$ = releaseYears$.pipe(
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
+const projectCollection$ = currentProject$.pipe(map((id) => db.projects.where("id").equals(id)));
+
 const dbProject$ = currentProject$.pipe(
     switchMap((currentID) => liveQuery(() => db.projects.where("id").equals(currentID).first())),
     guard(),
@@ -41,17 +43,38 @@ const dbProject$ = currentProject$.pipe(
 
 export const [useProject, project$] = bind(dbProject$, undefined);
 
-export const sNameChange$ = new Subject<string>();
+/**
+ * The name of the current project.
+ */
+export const sName$ = new Subject<string | undefined>();
+const newName$ = sName$.pipe(defaultValue("Untitled Project"));
 export const [useName, name$] = bind(
-    merge(sNameChange$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
-    "",
+    merge(newName$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
+    undefined,
 );
+newName$.pipe(withLatestFrom(projectCollection$)).subscribe(([name, collection]) => collection.modify({ name }));
 
-export const analyst$ = dbProject$.pipe(map((p) => p.analyst));
-export const [useAnalyst] = bind(analyst$, undefined);
+/**
+ * The analyst for the current project
+ */
+export const sAnalyst$ = new Subject<string | undefined>();
+export const analyst$ = state(
+    merge(sAnalyst$, dbProject$.pipe(map((p) => p?.analyst))).pipe(distinctUntilChanged()),
+    undefined,
+);
+sAnalyst$.pipe(withLatestFrom(projectCollection$)).subscribe(([analyst, collection]) => collection.modify({ analyst }));
 
-export const description$ = dbProject$.pipe(map((p) => p.description));
-export const [useDescription] = bind(description$, undefined);
+/**
+ * The description of the current project
+ */
+export const sDescription$ = new Subject<string | undefined>();
+export const description$ = state(
+    merge(sDescription$, dbProject$.pipe(map((p) => p?.description))).pipe(distinctUntilChanged()),
+    undefined,
+);
+sDescription$
+    .pipe(withLatestFrom(projectCollection$))
+    .subscribe(([description, collection]) => collection.modify({ description }));
 
 export const analysisType$ = dbProject$.pipe(map((p) => p.analysisType));
 export const [useAnalysisType] = bind(analysisType$, AnalysisType.FEDERAL_FINANCED);
@@ -92,7 +115,17 @@ export const location$ = dbProject$.pipe(map((p) => p.location));
 export const country$ = location$.pipe(map((p) => p.country));
 export const [useCountry] = bind(country$, Country.USA);
 
-export const city$ = location$.pipe(map((p) => p.city));
+/**
+ * The city of the current location
+ */
+export const sCity$ = new Subject<string | undefined>();
+export const city$ = state(merge(sCity$, location$.pipe(map((p) => p.city))).pipe(distinctUntilChanged()), undefined);
+sCity$.pipe(withLatestFrom(projectCollection$)).subscribe(([city, collection]) =>
+    collection.modify((project) => {
+        project.location.city = city;
+    }),
+);
+
 export const usLocation$ = location$.pipe(
     filter((location): location is USLocation => location.country === Country.USA),
 );
@@ -100,8 +133,38 @@ export const nonUSLocation$ = location$.pipe(
     filter((location): location is NonUSLocation => location.country !== Country.USA),
 );
 export const state$ = usLocation$.pipe(map((usLocation) => usLocation.state));
-export const stateOrProvince$ = nonUSLocation$.pipe(map((nonUSLocation) => nonUSLocation.stateProvince));
-export const zip$ = usLocation$.pipe(map((p) => p.zipcode));
+
+/**
+ * The State or Province when the location is non-US.
+ */
+export const sStateOrProvince$ = new Subject<string | undefined>();
+export const stateOrProvince$ = state(
+    merge(sStateOrProvince$, nonUSLocation$.pipe(map((nonUSLocation) => nonUSLocation.stateProvince))).pipe(
+        distinctUntilChanged(),
+    ),
+    undefined,
+);
+sStateOrProvince$.pipe(withLatestFrom(projectCollection$)).subscribe(([stateOrProvince, collection]) =>
+    collection.modify((project) => {
+        if (stateOrProvince === undefined) return;
+
+        (project.location as NonUSLocation).stateProvince = stateOrProvince;
+    }),
+);
+
+/**
+ * The zipcode of the current project's location
+ */
+export const sZip$ = new Subject<string | undefined>();
+export const zip$ = state(
+    merge(sZip$, usLocation$.pipe(map((p) => p.zipcode))).pipe(distinctUntilChanged()),
+    undefined,
+);
+sZip$.pipe(withLatestFrom(projectCollection$)).subscribe(([zipcode, collection]) =>
+    collection.modify((project) => {
+        (project.location as USLocation).zipcode = zipcode;
+    }),
+);
 
 export const emissionsRate$ = dbProject$.pipe(map((p) => p.ghg.emissionsRateScenario));
 export const socialCostOfGhgScenario$ = dbProject$.pipe(map((p) => p.ghg.socialCostOfGhgScenario));

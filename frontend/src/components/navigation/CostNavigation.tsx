@@ -4,7 +4,7 @@ import { type StateObservable, useStateObservable } from "@react-rxjs/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Cost } from "../../blcc-format/Format";
 import { useActiveLink } from "../../hooks/UseActiveLink";
-import { capitalCosts$, contractCosts$, energyCosts$, otherCosts$, waterCosts$ } from "../../model/AlternativeModel";
+import { AlternativeModel } from "../../model/AlternativeModel";
 import { CostModel } from "../../model/CostModel";
 import { Button, ButtonType } from "../Button";
 
@@ -18,27 +18,27 @@ const items: MenuItem[] = [
     {
         title: "Energy Costs",
         icon: mdiLightningBolt,
-        costs$: energyCosts$,
+        costs$: AlternativeModel.energyCosts$,
     },
     {
         title: "Water Costs",
         icon: mdiWater,
-        costs$: waterCosts$,
+        costs$: AlternativeModel.waterCosts$,
     },
     {
         title: "Capital Costs",
         icon: mdiCurrencyUsd,
-        costs$: capitalCosts$,
+        costs$: AlternativeModel.capitalCosts$,
     },
     {
         title: "Contract Costs",
         icon: mdiFileSign,
-        costs$: contractCosts$,
+        costs$: AlternativeModel.contractCosts$,
     },
     {
         title: "Other",
         icon: mdiFormatListBulletedType,
-        costs$: otherCosts$,
+        costs$: AlternativeModel.otherCosts$,
     },
 ];
 

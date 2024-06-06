@@ -12,10 +12,10 @@ import AddCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
 import { TextArea } from "../../components/TextArea";
-import { TextInput, TextInputType } from "../../components/TextInput";
+import TextInput, { TextInputType } from "../../components/TextInput";
 import AppliedCheckboxes from "../../components/navigation/AppliedCheckboxes";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import { alternative$, useAlternativeID } from "../../model/AlternativeModel";
+import { AlternativeModel } from "../../model/AlternativeModel";
 import { CostModel } from "../../model/CostModel";
 import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
 import { db } from "../../model/db";
@@ -130,12 +130,12 @@ export default function Cost() {
     const alternatives = useAlternatives();
     const onlyOne = onlyOneAlternativeIncludes();
     const costType = CostModel.useType();
-    const alternativeID = useAlternativeID();
+    const alternativeID = AlternativeModel.useID();
 
     const [useAltName, altsThatInclude$, sCheckedAlt$] = useMemo(() => {
         const sCheckedAlt$ = new Subject<Set<ID>>();
 
-        const [useAltName] = bind(alternative$.pipe(map((alt) => alt.name)));
+        const [useAltName] = bind(AlternativeModel.alternative$.pipe(map((alt) => alt.name)));
         const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
             map(
                 ([alternatives, id]) =>

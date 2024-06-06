@@ -1,20 +1,20 @@
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Checkbox, Col, Modal, Row, Typography } from "antd";
-import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample, scan, switchMap } from "rxjs";
-import { map, shareReplay, startWith } from "rxjs/operators";
+import { Modal, Typography } from "antd";
+import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample } from "rxjs";
+import { map } from "rxjs/operators";
 import { Button, ButtonType } from "./Button";
 import { Dropdown } from "./Dropdown";
-import { TextInput, TextInputType } from "./TextInput";
+import TextInput, { TextInputType } from "./TextInput";
 
 import { mdiClose, mdiPlus } from "@mdi/js";
 import { useMemo } from "react";
 import { type Cost, CostTypes, type ID } from "../blcc-format/Format";
 import { useSubscribe } from "../hooks/UseSubscribe";
-import { sAlternativeID$, useAlternativeID } from "../model/AlternativeModel";
-import { currentProject$, useAlternatives } from "../model/Model";
+import { AlternativeModel } from "../model/AlternativeModel";
+import { currentProject$ } from "../model/Model";
 import { db } from "../model/db";
-import { gatherSet, guard } from "../util/Operators";
+import { guard } from "../util/Operators";
 import AppliedCheckboxes from "./navigation/AppliedCheckboxes";
 
 type AddCostModalProps = {
@@ -110,7 +110,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             <br />
             <div className="w-full">
                 <Typography.Title level={5}>Add to Alternatives</Typography.Title>
-                <AppliedCheckboxes defaults={[useAlternativeID()]} wire={sCheckAlt$} />
+                <AppliedCheckboxes defaults={[AlternativeModel.useID()]} wire={sCheckAlt$} />
                 {/*<Checkbox.Group
                     style={{ width: "100%" }}
                     value={useChecked()}

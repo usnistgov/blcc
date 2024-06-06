@@ -6,32 +6,18 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, sample, switchMap } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
-import addAlternativeModal from "../../components/AddAlternativeModal";
 import AddAlternativeModal from "../../components/AddAlternativeModal";
-import addCostModal from "../../components/AddCostModal";
 import AddCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
-import switchComp from "../../components/Switch";
-import textArea from "../../components/TextArea";
-import textInput, { TextInputType } from "../../components/TextInput";
-import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import { TextArea } from "../../components/TextArea";
+import TextInput, { TextInputType } from "../../components/TextInput";
 import { useSubscribe } from "../../hooks/UseSubscribe";
-import {
-    alternative$,
-    alternativeCollection$,
-    capitalCosts$,
-    contractCosts$,
-    energyCosts$,
-    otherCosts$,
-    sAlternativeID$,
-    waterCosts$,
-} from "../../model/AlternativeModel";
+import { AlternativeModel } from "../../model/AlternativeModel";
 import { currentProject$, useAlternativeIDs } from "../../model/Model";
 import { db } from "../../model/db";
-import { defaultValue } from "../../util/Operators";
 
 const { Title } = Typography;
 
@@ -43,11 +29,13 @@ const openCostModal$ = new Subject<void>();
 /*const { onChange$: baseline$, component: BaselineSwitch } = switchComp(
     alternative$.pipe(map((alt) => alt?.baseline ?? false))
 );*/
-const { onChange$: name$, component: NameInput } = textInput(alternative$.pipe(map((alt) => alt.name)));
-const { onChange$: description$, component: DescInput } = textArea(alternative$.pipe(map((alt) => alt.description)));
 
-const removeAlternative$ = combineLatest([sAlternativeID$, currentProject$]).pipe(sample(removeAlternativeClick$));
-const cloneAlternative$ = combineLatest([alternative$, currentProject$]).pipe(sample(cloneAlternativeClick$));
+const removeAlternative$ = combineLatest([AlternativeModel.sID$, currentProject$]).pipe(
+    sample(removeAlternativeClick$),
+);
+const cloneAlternative$ = combineLatest([AlternativeModel.alternative$, currentProject$]).pipe(
+    sample(cloneAlternativeClick$),
+);
 
 type Subcategories<T> = {
     [key in keyof T]: Cost[];
@@ -55,7 +43,7 @@ type Subcategories<T> = {
 
 // Count all energy costs, and the count of its subcategories
 const [energyCategories] = bind(
-    energyCosts$.pipe(
+    AlternativeModel.energyCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>),
     ),
@@ -63,11 +51,14 @@ const [energyCategories] = bind(
 );
 
 // Count all water costs
-const [waterCosts] = bind(waterCosts$.pipe(map((costs) => (costs.length > 0 ? { "Water Costs": costs } : {}))), {});
+const [waterCosts] = bind(
+    AlternativeModel.waterCosts$.pipe(map((costs) => (costs.length > 0 ? { "Water Costs": costs } : {}))),
+    {},
+);
 
 // Count all capital costs and its subcategories
 const [capitalCategories] = bind(
-    capitalCosts$.pipe(
+    AlternativeModel.capitalCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
     ),
@@ -76,7 +67,7 @@ const [capitalCategories] = bind(
 
 // Count all contract costs and its subcategories
 const [contractCategories] = bind(
-    contractCosts$.pipe(
+    AlternativeModel.contractCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
     ),
@@ -85,7 +76,7 @@ const [contractCategories] = bind(
 
 // Count all other costs and its subcategories
 const [otherCategories] = bind(
-    otherCosts$.pipe(
+    AlternativeModel.otherCosts$.pipe(
         // @ts-expect-error groupBy is linted by mistake
         map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
     ),
@@ -154,8 +145,6 @@ export default function Alternatives() {
         if (alternatives.length <= 0) navigate("/editor");
     }, [navigate, alternatives]);
 
-    useDbUpdate(name$.pipe(defaultValue("Unnamed Alternative")), alternativeCollection$, "name");
-    useDbUpdate(description$.pipe(defaultValue(undefined)), alternativeCollection$, "description");
     //useSubscribe(baseline$.pipe(withLatestFrom(alternativeID$)), setBaseline);
     useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
         // Navigate to last alternative after deletion of current one
@@ -216,7 +205,13 @@ export default function Alternatives() {
             <div className={"p-6"}>
                 <div className={"max-w-screen-lg"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        <NameInput className={"w-full"} type={TextInputType.PRIMARY} label={"Name"} />
+                        <TextInput
+                            className={"w-full"}
+                            type={TextInputType.PRIMARY}
+                            label={"Name"}
+                            value$={AlternativeModel.name$}
+                            wire={AlternativeModel.sName$}
+                        />
                         <span className={"w-1/2"}>
                             <Title level={5}>Baseline Alternative</Title>
                             <p>Only one alternative can be the baseline.</p>
@@ -224,7 +219,12 @@ export default function Alternatives() {
                         </span>
 
                         <span className={"col-span-2"}>
-                            <DescInput className={"w-full"} label={"Description"} />
+                            <TextArea
+                                className={"w-full"}
+                                label={"Description"}
+                                value$={AlternativeModel.description$}
+                                wire={AlternativeModel.sDescription$}
+                            />
                         </span>
                     </div>
                 </div>

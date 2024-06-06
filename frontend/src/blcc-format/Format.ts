@@ -30,14 +30,14 @@ export type GHG = {
 
 export enum EmissionsRateScenario {
     BASELINE = "2023 – EIA - Baseline Scenario",
-    LOW_RENEWABLE = "2023 – EIA – Low Renewable Cost Scenario"
+    LOW_RENEWABLE = "2023 – EIA – Low Renewable Cost Scenario",
 }
 
 export enum SocialCostOfGhgScenario {
     SCC = "SCC = $0 / ton",
     LOW = "2023 – 5% Discount Rate – Average (“Low”)",
     MEDIUM = "2023 – 3% Discount Rate – Average (“Medium”)",
-    HIGH = "2023 – 3% Discount Rate – 95th Percentile (“High”)"
+    HIGH = "2023 – 3% Discount Rate – 95th Percentile (“High”)",
 }
 
 export type Location = USLocation | NonUSLocation;
@@ -51,18 +51,18 @@ export type USLocation = {
 
 export type NonUSLocation = {
     country?: Country;
-    stateProvince?: State;
+    stateProvince?: string;
     city?: string;
 };
 
 export enum DiscountingMethod {
     END_OF_YEAR = "End of Year",
-    MID_YEAR = "Mid Year"
+    MID_YEAR = "Mid Year",
 }
 
 export enum DollarMethod {
     CONSTANT = "Constant",
-    CURRENT = "Current"
+    CURRENT = "Current",
 }
 
 export enum AnalysisType {
@@ -71,12 +71,12 @@ export enum AnalysisType {
     OMB_NON_ENERGY = "OMB Analysis, Non-Energy Project",
     MILCON_ENERGY = "MILCON Analysis, Energy Project",
     MILCON_NON_ENERGY = "MILCON Analysis, Non-Energy Project",
-    MILCON_ECIP = "MILCON Analysis, ERCIP (formerly ECIP) Project"
+    MILCON_ECIP = "MILCON Analysis, ERCIP (formerly ECIP) Project",
 }
 
 export enum Purpose {
     INVEST_REGULATION = "Cost-effectiveness, lease-purchase, internal government investment, and asset sales",
-    COST_LEASE = "Public investment and regulatory analyses"
+    COST_LEASE = "Public investment and regulatory analyses",
 }
 
 export type ID = number;
@@ -98,7 +98,7 @@ export enum CostTypes {
     IMPLEMENTATION_CONTRACT = "Contract Implementation",
     RECURRING_CONTRACT = "Recurring Contract",
     OTHER = "Other",
-    OTHER_NON_MONETARY = "Non-Monetary"
+    OTHER_NON_MONETARY = "Non-Monetary",
 }
 
 export type Cost =
@@ -138,7 +138,7 @@ export type ResidualValue = {
 
 export enum DollarOrPercent {
     PERCENT = "%",
-    DOLLAR = "$"
+    DOLLAR = "$",
 }
 
 export enum FuelType {
@@ -147,7 +147,7 @@ export enum FuelType {
     RESIDUAL_OIL = "Residual Fuel Oil (#4, #5, #6)",
     NATURAL_GAS = "Natural Gas",
     PROPANE = "Liquefied Petroleum Gas / Propane",
-    OTHER = "Other (Coal, Steam, etc.)"
+    OTHER = "Other (Coal, Steam, etc.)",
 }
 
 export type EnergyCost = Type<CostTypes.ENERGY> &
@@ -167,7 +167,7 @@ export type EnergyCost = Type<CostTypes.ENERGY> &
 export enum CustomerSector {
     RESIDENTIAL = "Residential",
     COMMERCIAL = "Commercial",
-    INDUSTRIAL = "Industrial"
+    INDUSTRIAL = "Industrial",
 }
 
 export type Unit = ElectricityUnit | NaturalGasUnit | FuelOilUnit | LiquefiedPetroleumGasUnit | CoalUnit;
@@ -177,25 +177,25 @@ export enum EnergyUnit {
     THERM = "Therm",
     MBTU = "MBtu",
     MJ = "Mj",
-    GJ = "Gj"
+    GJ = "Gj",
 }
 
 export enum CubicUnit {
     CUBIC_METERS = "Cubic meters",
-    CUBIC_FEET = "Cubic feet"
+    CUBIC_FEET = "Cubic feet",
 }
 
 export enum LiquidUnit {
     LITER = "Liter",
     K_LITER = "1000 liters",
     GALLON = "Gallon",
-    K_GALLON = "1000 gallons"
+    K_GALLON = "1000 gallons",
 }
 
 export enum WeightUnit {
     KG = "kg",
     POUND = "Pound",
-    TON = "Ton"
+    TON = "Ton",
 }
 
 export type ElectricityUnit = EnergyUnit;
@@ -223,7 +223,7 @@ export enum Season {
     SPRING = "Spring",
     SUMMER = "Summer",
     AUTUMN = "Autumn",
-    WINTER = "Winter"
+    WINTER = "Winter",
 }
 
 export type WaterUnit = LiquidUnit | CubicUnit;
@@ -272,7 +272,7 @@ export type OtherCost = Type<CostTypes.OTHER> &
 
 export enum CostBenefit {
     COST = "Cost",
-    Benefit = "Benefit"
+    Benefit = "Benefit",
 }
 
 export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &

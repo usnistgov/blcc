@@ -3,7 +3,6 @@ import { Divider } from "antd";
 import Title from "antd/es/typography/Title";
 import type { Collection } from "dexie";
 import { motion } from "framer-motion";
-import { Subject, of } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import {
@@ -17,10 +16,9 @@ import {
 } from "../../blcc-format/Format";
 import dropdown from "../../components/Dropdown";
 import numberInput, { NumberInput } from "../../components/InputNumber";
-import switchComp from "../../components/Switch";
 import Switch from "../../components/Switch";
-import textArea from "../../components/TextArea";
-import textInput, { TextInputType } from "../../components/TextInput";
+import { TextArea } from "../../components/TextArea";
+import TextInput, { TextInputType } from "../../components/TextInput";
 import { Country, State } from "../../constants/LOCATION";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
 import { useSubscribe } from "../../hooks/UseSubscribe";
@@ -42,8 +40,14 @@ import {
     realDiscountRate$,
     releaseYear$,
     releaseYears$,
+    sAnalyst$,
+    sCity$,
+    sDescription$,
     sDollarMethodChange$,
+    sName$,
+    sStateOrProvince$,
     sStudyPeriodChange,
+    sZip$,
     socialCostOfGhgScenario$,
     state$,
     stateOrProvince$,
@@ -54,15 +58,12 @@ import {
     zip$,
 } from "../../model/Model";
 import { db } from "../../model/db";
-import { type ValidationResult, max, min } from "../../model/rules/Rules";
+import { max, min } from "../../model/rules/Rules";
 import { defaultValue } from "../../util/Operators";
 
 /*
  * rxjs components
  */
-const { onChange$: nameChange$, component: NameInput } = textInput(name$);
-const { onChange$: analystChange$, component: AnalystInput } = textInput(analyst$);
-const { onChange$: descriptionChange$, component: DescInput } = textArea(description$);
 const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
     Object.values(AnalysisType),
     analysisType$,
@@ -115,10 +116,7 @@ const { change$: discountingMethodChange$, component: DiscountingConvention } = 
 );
 
 const { change$: countryChange$, component: CountryDropdown } = dropdown(Object.values(Country), country$);
-const { onChange$: stateChange$, component: StateInput } = textInput(stateOrProvince$);
 const { change$: stateDDChange$, component: StateDropdown } = dropdown(Object.values(State), state$);
-const { onChange$: cityChange$, component: CityInput } = textInput(city$);
-const { onChange$: zipChange$, component: ZipInput } = textInput(zip$);
 const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = dropdown<EmissionsRateScenario>(
     Object.values(EmissionsRateScenario),
     emissionsRate$,
@@ -145,9 +143,6 @@ const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown
 export default function GeneralInformation() {
     const dollarMethod = useDollarMethod();
 
-    useDbUpdate(nameChange$.pipe(defaultValue("Untitled Project")), projectCollection$, "name");
-    useDbUpdate(analystChange$.pipe(defaultValue(undefined)), projectCollection$, "analyst");
-    useDbUpdate(descriptionChange$.pipe(defaultValue(undefined)), projectCollection$, "description");
     useSubscribe(analysisTypeChange$.pipe(withLatestFrom(projectCollection$)), setAnalysisType);
     useDbUpdate(purposeChange$, projectCollection$, "purpose");
     useDbUpdate(studyPeriodChange$, projectCollection$, "studyPeriod");
@@ -162,10 +157,7 @@ export default function GeneralInformation() {
         "discountingMethod",
     );
     useDbUpdate(countryChange$.pipe(defaultValue(Country.USA)), projectCollection$, "location.country");
-    useDbUpdate(zipChange$.pipe(defaultValue(undefined)), projectCollection$, "location.zipcode");
     useDbUpdate(stateDDChange$.pipe(defaultValue(undefined)), projectCollection$, "location.state");
-    useDbUpdate(stateChange$.pipe(defaultValue(undefined)), projectCollection$, "location.stateOrProvince");
-    useDbUpdate(cityChange$.pipe(defaultValue(undefined)), projectCollection$, "location.city");
     useDbUpdate(emissionsRateChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.emissionsRateScenario");
     useDbUpdate(socialCostChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.socialCostOfGhgScenario");
     useDbUpdate(releaseYearChange$, projectCollection$, "releaseYear");
@@ -182,8 +174,14 @@ export default function GeneralInformation() {
             transition={{ duration: 0.1 }}
         >
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NameInput label={"Project Name *"} type={TextInputType.PRIMARY} placeholder={"Untitled Project"} />
-                <AnalystInput label={"Analyst"} type={TextInputType.PRIMARY} />
+                <TextInput
+                    label={"Project Name *"}
+                    type={TextInputType.PRIMARY}
+                    placeholder={"Untitled Project"}
+                    value$={name$}
+                    wire={sName$}
+                />
+                <TextInput label={"Analyst"} type={TextInputType.PRIMARY} value$={analyst$} wire={sAnalyst$} />
 
                 <AnalysisTypeDropdown label={"Analysis Type *"} className={"w-full"} />
                 {useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
@@ -191,7 +189,7 @@ export default function GeneralInformation() {
                 )}
 
                 <span className={"col-span-2"}>
-                    <DescInput label={"Description"} className={"w-full"} />
+                    <TextArea label={"Description"} className={"w-full"} value$={description$} wire={sDescription$} />
                 </span>
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                     <NumberInput
@@ -265,13 +263,20 @@ export default function GeneralInformation() {
                         Location
                     </Divider>
                     <CountryDropdown label={"Country"} className={"w-full"} value={useCountry()} />
-                    <CityInput label={"City"} type={TextInputType.PRIMARY} />
+                    <TextInput label={"City"} type={TextInputType.PRIMARY} value$={city$} wire={sCity$} />
                     {useCountry() === Country.USA ? (
                         <StateDropdown label={"State"} className={"w-full"} />
                     ) : (
-                        <StateInput label={"State"} type={TextInputType.PRIMARY} />
+                        <TextInput
+                            label={"State"}
+                            type={TextInputType.PRIMARY}
+                            value$={stateOrProvince$}
+                            wire={sStateOrProvince$}
+                        />
                     )}
-                    {useCountry() === Country.USA && <ZipInput label={"Zip *"} type={TextInputType.PRIMARY} />}
+                    {useCountry() === Country.USA && (
+                        <TextInput label={"Zip *"} type={TextInputType.PRIMARY} value$={zip$} wire={sZip$} />
+                    )}
                 </div>
             </div>
 

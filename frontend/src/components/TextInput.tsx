@@ -1,8 +1,9 @@
 import { type StateObservable, bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Input, type InputProps, Typography } from "antd";
+import { Input, type InputProps } from "antd";
+import Title from "antd/es/typography/Title";
 import { type PropsWithChildren, useEffect, useMemo } from "react";
-import { EMPTY, type Observable, type Subject, switchMap } from "rxjs";
+import { type Subject, switchMap } from "rxjs";
 import { startWith } from "rxjs/operators";
 
 export enum TextInputType {
@@ -12,67 +13,7 @@ export enum TextInputType {
     DISABLED = " bg-base-lighter text-base-light ",
 }
 
-export type TextInputProps = {
-    className?: string;
-    type: TextInputType;
-    disabled?: boolean;
-    placeholder?: string;
-    bordered?: boolean;
-    label?: string;
-};
-
-export type TextInput = {
-    onChange$: Observable<string>;
-    component: React.FC<PropsWithChildren & TextInputProps>;
-};
-
-const { Title } = Typography;
-
-export default function textInput(value$: Observable<string | undefined> = EMPTY): TextInput {
-    const [onChange$, onChange] = createSignal<string>();
-    const [focused$, focus] = createSignal<boolean>();
-
-    const [useValue] = bind(
-        focused$.pipe(
-            startWith(false),
-            switchMap((focused) => (focused ? onChange$ : value$)),
-        ),
-        undefined,
-    );
-
-    return {
-        onChange$,
-        component: ({
-            children,
-            className,
-            type,
-            disabled = false,
-            bordered = true,
-            placeholder,
-            label,
-        }: PropsWithChildren & TextInputProps) => {
-            return (
-                <div>
-                    <Title level={5}>{label}</Title>
-                    <Input
-                        onFocus={() => focus(true)}
-                        onBlur={() => focus(false)}
-                        className={`${className ?? ""} ${disabled ? TextInputType.DISABLED : type}`}
-                        onChange={(event) => onChange(event.target.value)}
-                        placeholder={placeholder}
-                        variant={bordered ? "outlined" : "borderless"}
-                        disabled={disabled}
-                        value={useValue()}
-                    >
-                        {children}
-                    </Input>
-                </div>
-            );
-        },
-    };
-}
-
-type TextInputProps2 = {
+type TextInputProps = {
     label?: string;
     className?: string;
     type: TextInputType;
@@ -80,7 +21,7 @@ type TextInputProps2 = {
     wire: Subject<string | undefined>;
 };
 
-export function TextInput({
+export default function TextInput({
     label,
     children,
     value$,
@@ -89,7 +30,7 @@ export function TextInput({
     disabled,
     type,
     ...defaultProps
-}: PropsWithChildren<TextInputProps2 & InputProps>) {
+}: PropsWithChildren<TextInputProps & InputProps>) {
     const { useValue, focus, onChange, onChange$ } = useMemo(() => {
         const [onChange$, onChange] = createSignal<string | undefined>();
         const [focused$, focus] = createSignal<boolean>();
