@@ -66,6 +66,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    region_case_reeds (release_year, year, reeds, case, rate) {
+        release_year -> Int4,
+        year -> Int4,
+        reeds -> Text,
+        case -> Text,
+        rate -> Text,
+        kg_co2_per_mwh -> Float8,
+    }
+}
+
+diesel::table! {
     region_natgas (release_year, year, technobasin, case, rate) {
         release_year -> Int4,
         year -> Int4,
@@ -114,6 +125,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     region_case_ba,
     region_case_oil,
     region_case_propane_lng,
+    region_case_reeds,
     region_natgas,
     scc,
     state_division_region,
