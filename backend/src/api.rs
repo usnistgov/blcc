@@ -29,10 +29,10 @@ async fn post_escalation_rates(
     data: Data<DbPool>,
 ) -> impl Responder {
     use crate::schema::escalation_rates::dsl::escalation_rates;
-    use crate::schema::escalation_rates::{year, sector, division};
+    use crate::schema::escalation_rates::{division, sector, year};
     use crate::schema::state_division_region::dsl::state_division_region;
     use crate::schema::zip_info::dsl::zip_info;
-    use crate::schema::zip_info::{zip, state};
+    use crate::schema::zip_info::{state, zip};
 
     let from = request.from;
     let to = request.to;
@@ -150,7 +150,145 @@ async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<DbPoo
     match query {
         Ok(emissions) => HttpResponse::Ok().json(emissions),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get emissions information for {}", request),
+            error: format!("Could not get region natgas information for {}", request),
+        }),
+    }
+}
+
+#[derive(Deserialize)]
+struct RegionCasePropaneLNGRequest {
+    from: i32,
+    to: i32,
+    release_year: i32,
+    padd: String,
+    case: String,
+    rate: String,
+}
+
+impl Display for RegionCasePropaneLNGRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "key: {} {} {} release year {} for years {} to {}",
+            self.padd, self.case, self.rate, self.release_year, self.from, self.to
+        )
+    }
+}
+
+#[post("/region-case-propane-lng")]
+async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>, data: Data<DbPool>) -> impl Responder {
+    use crate::schema::region_case_propane_lng::dsl::*;
+    use crate::schema::region_case_propane_lng::*;
+
+    let mut db = data.get().expect("Failed to get a connection");
+
+    let query: QueryResult<Vec<f64>> = region_case_propane_lng
+        .filter(
+            case.eq(request.case.clone())
+                .and(padd.eq(request.padd.clone()))
+                .and(release_year.eq(request.release_year))
+                .and(rate.eq(request.rate.clone()))
+                .and(year.between(request.from, request.to)),
+        )
+        .select(kg_co2_per_mj)
+        .load(&mut db);
+
+    match query {
+        Ok(emissions) => HttpResponse::Ok().json(emissions),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get region case propane lng information for {}", request),
+        }),
+    }
+}
+
+#[derive(Deserialize)]
+struct RegionOilRequest {
+    from: i32,
+    to: i32,
+    release_year: i32,
+    padd: String,
+    case: String,
+    rate: String,
+}
+
+impl Display for RegionOilRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "key: {} {} {} release year {} for years {} to {}",
+            self.padd, self.case, self.rate, self.release_year, self.from, self.to
+        )
+    }
+}
+
+#[post("/region-case-oil")]
+async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<DbPool>) -> impl Responder {
+    use crate::schema::region_case_oil::dsl::*;
+    use crate::schema::region_case_oil::*;
+
+    let mut db = data.get().expect("Failed to get a connection");
+
+    let query: QueryResult<Vec<f64>> = region_case_oil
+        .filter(
+            case.eq(request.case.clone())
+                .and(padd.eq(request.padd.clone()))
+                .and(release_year.eq(request.release_year))
+                .and(rate.eq(request.rate.clone()))
+                .and(year.between(request.from, request.to)),
+        )
+        .select(kg_co2_per_mj)
+        .load(&mut db);
+
+    match query {
+        Ok(emissions) => HttpResponse::Ok().json(emissions),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get region case oil information for {}", request),
+        }),
+    }
+}
+
+#[derive(Deserialize)]
+struct RegionCaseReedsRequest {
+    from: i32,
+    to: i32,
+    release_year: i32,
+    reeds: String,
+    case: String,
+    rate: String,
+}
+
+impl Display for RegionCaseReedsRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "key: {} {} {} release year {} for years {} to {}",
+            self.reeds, self.case, self.rate, self.release_year, self.from, self.to
+        )
+    }
+}
+
+#[post("/region-case-reeds")]
+async fn post_region_case_reeds(request: Json<RegionCaseReedsRequest>, data: Data<DbPool>) -> impl Responder {
+    use crate::schema::region_case_reeds::dsl::*;
+    use crate::schema::region_case_reeds::*;
+
+    let mut db = data.get().expect("Failed to get a connection");
+
+    let query: QueryResult<Vec<f64>> = region_case_reeds
+        .filter(
+            case.eq(request.case.clone())
+                .and(reeds.eq(request.reeds.clone()))
+                .and(release_year.eq(request.release_year))
+                .and(rate.eq(request.rate.clone()))
+                .and(year.between(request.from, request.to)),
+        )
+        .select(kg_co2_per_mwh)
+        .load(&mut db);
+
+    match query {
+        Ok(emissions) => HttpResponse::Ok().json(emissions),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get region case reeds information for {}", request),
         }),
     }
 }
@@ -396,5 +534,8 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(post_scc)
             .service(get_states)
             .service(post_region_natgas)
+            .service(post_region_case_oil)
+            .service(post_region_case_propane_lng)
+            .service(post_region_case_reeds)
     );
 }

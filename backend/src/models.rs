@@ -100,9 +100,8 @@ pub struct RegionCaseReeds {
     pub kg_co2_per_mwh: f64,
 }
 
-
 #[derive(Queryable, Selectable, Serialize)]
-#[diesel(table_name = crate::schema::region_case_natgas)]
+#[diesel(table_name = crate::schema::region_natgas)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct RegionCaseNatgas {
     pub release_year: i32,
