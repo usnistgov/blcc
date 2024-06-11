@@ -5,10 +5,14 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use std::env;
-use std::path::PathBuf;
 
 use actix_cors::Cors;
+<<<<<<< Updated upstream
 use actix_files::{Files, NamedFile};
+=======
+use actix_files::Files;
+use actix_web::{App, HttpServer, middleware};
+>>>>>>> Stashed changes
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{middleware, web, App, HttpServer, Result};

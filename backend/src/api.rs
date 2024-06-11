@@ -316,8 +316,25 @@ async fn post_scc(request: Json<SccRequest>, data: Data<DbPool>) -> impl Respond
     match query {
         Ok(values) => HttpResponse::Ok().json(values),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get scc"),
+            error: "Could not get scc".to_string(),
         }),
+    }
+}
+
+#[get("/states")]
+async fn get_states(data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::state_division_region::dsl::*;
+    use crate::schema::state_division_region::*;
+
+    let query: QueryResult<Vec<String>> = state_division_region.select(state).load(&mut db);
+
+    match query {
+        Ok(values) => HttpResponse::Ok().json(values),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: "Could not get states".to_string()
+        })
     }
 }
 
@@ -331,5 +348,6 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(get_release_years)
             .service(post_check_release_year_exists)
             .service(post_scc)
+            .service(get_states)
     );
 }

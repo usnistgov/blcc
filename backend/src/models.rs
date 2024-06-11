@@ -31,7 +31,8 @@ pub struct ZipInfo {
     pub gea: String,
     pub state: String,
     pub padd: String,
-    pub technobasin: String
+    pub technobasin: String,
+    pub reeds_ba: Option<String>
 }
 
 #[derive(Queryable, Selectable, Serialize)]
