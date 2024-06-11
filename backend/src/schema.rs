@@ -1,6 +1,22 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    energy_price_indices (release_year, year, division, sector) {
+        release_year -> Int4,
+        year -> Int4,
+        division -> Text,
+        sector -> Text,
+        case -> Text,
+        region -> Text,
+        propane -> Nullable<Float8>,
+        distillate_fuel_oil -> Nullable<Float8>,
+        residual_fuel_oil -> Nullable<Float8>,
+        natural_gas -> Nullable<Float8>,
+        electricity -> Nullable<Float8>,
+    }
+}
+
+diesel::table! {
     energy_prices (release_year, year, division, sector) {
         release_year -> Int4,
         year -> Int4,
@@ -120,6 +136,7 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
+    energy_price_indices,
     energy_prices,
     escalation_rates,
     region_case_ba,
