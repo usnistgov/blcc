@@ -119,9 +119,40 @@ struct RegionNatgasRequest {
     rate: String,
 }
 
+impl Display for RegionNatgasRequest{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "key: {} {} {} release year {} for years {} to {}",
+            self.technobasin, self.case, self.rate, self.release_year, self.from, self.to
+        )
+    }
+}
+
 #[post("/region-natgas")]
 async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<DbPool>) -> impl Responder {
+    use crate::schema::region_natgas::dsl::*;
+    use crate::schema::region_natgas::*;
 
+    let mut db = data.get().expect("Failed to get a connection");
+
+    let query: QueryResult<Vec<f64>> = region_natgas
+        .filter(
+            case.eq(request.case.clone())
+                .and(technobasin.eq(request.technobasin.clone()))
+                .and(release_year.eq(request.release_year))
+                .and(rate.eq(request.rate.clone()))
+                .and(year.between(request.from, request.to)),
+        )
+        .select(kg_co2_per_mj)
+        .load(&mut db);
+
+    match query {
+        Ok(emissions) => HttpResponse::Ok().json(emissions),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get emissions information for {}", request),
+        }),
+    }
 }
 
 #[derive(Deserialize)]
@@ -364,5 +395,6 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(post_check_release_year_exists)
             .service(post_scc)
             .service(get_states)
+            .service(post_region_natgas)
     );
 }
