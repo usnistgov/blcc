@@ -19,10 +19,12 @@ use env_logger;
 use r2d2::Pool;
 
 use crate::api::config_api;
+use crate::paginated::config_paginated;
 
 mod api;
 mod models;
 mod schema;
+mod paginated;
 
 async fn index() -> Result<NamedFile> {
     Ok(NamedFile::open(PathBuf::from("public/index.html"))?)
@@ -85,6 +87,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .configure(config_api)
+            .configure(config_paginated)
             .service(Files::new("/", "./public/").index_file("index.html"))
             .default_service(web::to(index))
     })

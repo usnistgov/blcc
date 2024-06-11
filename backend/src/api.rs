@@ -11,8 +11,8 @@ use crate::DbPool;
 use crate::models::*;
 
 #[derive(Serialize)]
-struct ErrorResponse {
-    error: String,
+pub struct ErrorResponse {
+    pub error: String,
 }
 
 #[derive(Deserialize)]
@@ -107,6 +107,21 @@ async fn post_region_case_ba(
             error: format!("Could not get emissions information for {}", request),
         }),
     }
+}
+
+#[derive(Deserialize)]
+struct RegionNatgasRequest {
+    from: i32,
+    to: i32,
+    release_year: i32,
+    technobasin: String,
+    case: String,
+    rate: String,
+}
+
+#[post("/region-natgas")]
+async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<DbPool>) -> impl Responder {
+
 }
 
 #[derive(Deserialize)]
