@@ -119,7 +119,7 @@ struct RegionNatgasRequest {
     rate: String,
 }
 
-impl Display for RegionNatgasRequest{
+impl Display for RegionNatgasRequest {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -522,6 +522,88 @@ async fn get_states(data: Data<DbPool>) -> impl Responder {
     }
 }
 
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+enum EnergyTypeOptions {
+    DistillateFuelOil,
+    ResidualFuelOil,
+    NaturalGas,
+    Electricity,
+    Propane,
+}
+
+#[derive(Deserialize)]
+struct EnergyPriceRequest {
+    from: i32,
+    to: i32,
+    release_year: i32,
+    division: String,
+    sector: String,
+    fuel_type: EnergyTypeOptions,
+}
+
+#[post("/energy-prices")]
+async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::energy_prices::dsl::*;
+    use crate::schema::energy_prices::*;
+
+    let query = energy_prices
+        .filter(
+            release_year.eq(request.release_year)
+                .and(year.between(request.from, request.to))
+                .and(division.eq(request.division.clone()))
+                .and(sector.eq(request.sector.clone()))
+        );
+
+    let result: QueryResult<Vec<Option<f64>>> = match request.fuel_type.clone() {
+        EnergyTypeOptions::DistillateFuelOil => query.select(distillate_fuel_oil).load(&mut db),
+        EnergyTypeOptions::ResidualFuelOil => query.select(residual_fuel_oil).load(&mut db),
+        EnergyTypeOptions::NaturalGas => query.select(natural_gas).load(&mut db),
+        EnergyTypeOptions::Electricity => query.select(electricity).load(&mut db),
+        EnergyTypeOptions::Propane => query.select(propane).load(&mut db)
+    };
+
+    match result {
+        Ok(values) => HttpResponse::Ok().json(values),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: "Could not get energy prices".to_string()
+        })
+    }
+}
+
+#[post("/energy-price-indices")]
+async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::energy_price_indices::dsl::*;
+    use crate::schema::energy_price_indices::*;
+
+    let query = energy_price_indices
+        .filter(
+            release_year.eq(request.release_year)
+                .and(year.between(request.from, request.to))
+                .and(division.eq(request.division.clone()))
+                .and(sector.eq(request.sector.clone()))
+        );
+
+    let result: QueryResult<Vec<Option<f64>>> = match request.fuel_type.clone() {
+        EnergyTypeOptions::DistillateFuelOil => query.select(distillate_fuel_oil).load(&mut db),
+        EnergyTypeOptions::ResidualFuelOil => query.select(residual_fuel_oil).load(&mut db),
+        EnergyTypeOptions::NaturalGas => query.select(natural_gas).load(&mut db),
+        EnergyTypeOptions::Electricity => query.select(electricity).load(&mut db),
+        EnergyTypeOptions::Propane => query.select(propane).load(&mut db)
+    };
+
+    match result {
+        Ok(values) => HttpResponse::Ok().json(values),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: "Could not get energy price indices".to_string()
+        })
+    }
+}
+
 pub fn config_api(config: &mut ServiceConfig) {
     config.service(
         scope("/api")
@@ -537,5 +619,7 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(post_region_case_oil)
             .service(post_region_case_propane_lng)
             .service(post_region_case_reeds)
+            .service(post_energy_prices)
+            .service(post_energy_price_indices)
     );
 }
