@@ -59,17 +59,19 @@ async fn main() -> std::io::Result<()> {
         .expect("Could not get postgres connection for migrations.");
     run_migrations(&mut connection);
 
-    let origin = env::var("ALLOWED_ORIGIN")
-        .unwrap_or_else(|_| { "https://localhost:8080" }.parse().unwrap());
-
     HttpServer::new(move || {
+        // Set up cors middleware
+        let cors = env::var("ALLOWED_ORIGIN")
+            .unwrap_or_else(|_| { "https://localhost:8080" }.parse().unwrap())
+            .split(",")
+            .fold(
+                Cors::default().allowed_methods(vec!["GET", "POST"]),
+                |cors, origin| cors.allowed_origin(&*origin)
+            );
+
         App::new()
             .app_data(Data::new(pool.clone()))
-            .wrap(
-                Cors::default()
-                    .allowed_origin(&*origin)
-                    .allowed_methods(vec!["GET"]),
-            )
+            .wrap(cors)
             .wrap(
                 middleware::DefaultHeaders::new()
                     .add((
