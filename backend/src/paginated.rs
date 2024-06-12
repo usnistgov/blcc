@@ -31,8 +31,6 @@ async fn post_zipcodes(request: Json<ZipcodeRequest>, data: Data<DbPool>) -> imp
     use crate::schema::zip_info::dsl::zip_info;
     use crate::schema::zip_info::*;
 
-    println!("{:?}", request.partial_zip);
-
     let mut db = data.get().expect("Failed to get db connection");
 
     let mut query = zip_info.into_boxed();
@@ -52,15 +50,13 @@ async fn post_zipcodes(request: Json<ZipcodeRequest>, data: Data<DbPool>) -> imp
         next_query = next_query.filter(sql::<Bool>("zip::text LIKE ").bind::<Text, _>(pattern));
     }
 
-    println!("{}", diesel::debug_query(&query));
-
     // Get the page to load or default to the first (0 index) page
     let page = request.page.unwrap_or(0);
 
     // Get the results
     let result: QueryResult<Vec<i32>> = query
         .limit(PAGE_LIMIT)
-        .offset((page + 1) * PAGE_LIMIT)
+        .offset(page * PAGE_LIMIT)
         .select(zip)
         .load(&mut db);
 
