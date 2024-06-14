@@ -38,6 +38,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - db_backup:/db_backup
+      - blcc_data:/blcc.pgdata
 
 networks:
   postgres:
@@ -58,4 +59,9 @@ volumes:
     driver_opts:
       type: none
       device: /DATA/e3/blcc/db_backup
+      o: bind
+  blcc_data:
+    driver_opts:
+      type: none
+      device: /DATA/e3/blcc/blcc.pgdata
       o: bind
