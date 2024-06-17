@@ -38,7 +38,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - db_backup:/db_backup
-    #  - blcc_data:/blcc.pgdata
+      - /DATA/e3/blcc/blcc.pgdata:/blcc.pgdata
 
 networks:
   postgres:
