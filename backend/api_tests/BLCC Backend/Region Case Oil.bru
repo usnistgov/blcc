@@ -1,0 +1,22 @@
+meta {
+  name: Region Case Oil
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:8080/api/region-case-oil
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "from": 2024,
+    "to": 2030,
+    "release_year": 2024,
+    "padd": "PADD 1",
+    "case": "LRC",
+    "rate": "avg"
+  }
+}

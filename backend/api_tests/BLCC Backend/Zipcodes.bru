@@ -1,0 +1,19 @@
+meta {
+  name: Zipcodes
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8080/paginated/zipcodes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "partial_zip": "17",
+    "state": "PA",
+    "page": 0
+  }
+}

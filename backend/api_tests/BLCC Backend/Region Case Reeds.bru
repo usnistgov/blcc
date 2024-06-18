@@ -1,0 +1,22 @@
+meta {
+  name: Region Case Reeds
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:8080/api/region-case-reeds
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "from": 2024,
+    "to": 2030,
+    "release_year": 2024,
+    "reeds": "p1",
+    "case": "mid-case",
+    "rate": "avg"
+  }
+}

@@ -1,13 +1,12 @@
 extern crate diesel;
-extern crate diesel_migrations;// Openssl declaration must be first
+extern crate diesel_migrations; // Openssl declaration must be first
 extern crate openssl;
 
 use std::env;
-use std::path::PathBuf;
 
 use actix_cors::Cors;
-use actix_files::{Files, NamedFile};
-use actix_web::{App, HttpServer, middleware, Result};
+use actix_files::Files;
+use actix_web::{App, HttpServer, middleware};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use diesel::pg::Pg;
@@ -19,10 +18,12 @@ use env_logger;
 use r2d2::Pool;
 
 use crate::api::config_api;
+use crate::paginated::config_paginated;
 
 mod api;
 mod models;
 mod schema;
+mod paginated;
 
 type DbPool = Pool<ConnectionManager<PgConnection>>;
 
@@ -53,20 +54,22 @@ async fn main() -> std::io::Result<()> {
         .expect("Could not get postgres connection for migrations.");
     run_migrations(&mut connection);
 
-    let origin = env::var("ALLOWED_ORIGIN")
-        .unwrap_or_else(|_| { "https://localhost:8080" }.parse().unwrap());
-
     let public_folder = env::var("PUBLIC_FOLDER")
         .unwrap_or_else(|_| { "public/" }.parse().unwrap());
 
     HttpServer::new(move || {
+        // Set up cors middleware
+        let cors = env::var("ALLOWED_ORIGIN")
+            .unwrap_or_else(|_| { "https://localhost:8080" }.parse().unwrap())
+            .split(",")
+            .fold(
+                Cors::default().allowed_methods(vec!["GET", "POST"]),
+                |cors, origin| cors.allowed_origin(&*origin)
+            );
+
         App::new()
             .app_data(Data::new(pool.clone()))
-            .wrap(
-                Cors::default()
-                    .allowed_origin(&*origin)
-                    .allowed_methods(vec!["GET"]),
-            )
+            .wrap(cors)
             .wrap(
                 middleware::DefaultHeaders::new()
                     .add((
@@ -84,6 +87,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .configure(config_api)
+            .configure(config_paginated)
             .default_service(Files::new("/", public_folder.clone()).index_file("index.html"))
     })
         .bind(("0.0.0.0", 8080))?

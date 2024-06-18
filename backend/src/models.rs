@@ -31,7 +31,8 @@ pub struct ZipInfo {
     pub gea: String,
     pub state: String,
     pub padd: String,
-    pub technobasin: String
+    pub technobasin: String,
+    pub reeds_ba: Option<String>
 }
 
 #[derive(Queryable, Selectable, Serialize)]
@@ -61,4 +62,86 @@ pub struct EscalationRate {
     pub residual_fuel_oil: Option<f64>,
     pub natural_gas: Option<f64>,
     pub electricity: Option<f64>,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::region_case_oil)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct RegionCaseOil {
+    pub release_year: i32,
+    pub year: i32,
+    pub case: String,
+    pub rate: String,
+    pub padd: String,
+    pub kg_co2_per_mj: f64,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::region_case_propane_lng)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct RegionCasePropaneLNG {
+    pub release_year: i32,
+    pub year: i32,
+    pub case: String,
+    pub rate: String,
+    pub padd: String,
+    pub kg_co2_per_mj: f64,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::region_case_reeds)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct RegionCaseReeds {
+    pub release_year: i32,
+    pub year: i32,
+    pub case: String,
+    pub rate: String,
+    pub reeds: String,
+    pub kg_co2_per_mwh: f64,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::region_natgas)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct RegionCaseNatgas {
+    pub release_year: i32,
+    pub year: i32,
+    pub technobasin: String,
+    pub case: String,
+    pub rate: String,
+    pub kg_co2_per_mj: f64,
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::energy_prices)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct EnergyPrices {
+    pub release_year: i32,
+    pub year: i32,
+    pub division: String,
+    pub sector: String,
+    pub case: String,
+    pub region: String,
+    pub propane: Option<f64>,
+    pub distillate_fuel_oil: Option<f64>,
+    pub residual_fuel_oil: Option<f64>,
+    pub natural_gas: Option<f64>,
+    pub electricity: Option<f64>
+}
+
+#[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::energy_price_indices)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct EnergyPriceIndices {
+    pub release_year: i32,
+    pub year: i32,
+    pub division: String,
+    pub sector: String,
+    pub case: String,
+    pub region: String,
+    pub propane: Option<f64>,
+    pub distillate_fuel_oil: Option<f64>,
+    pub residual_fuel_oil: Option<f64>,
+    pub natural_gas: Option<f64>,
+    pub electricity: Option<f64>
 }

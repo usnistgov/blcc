@@ -11,7 +11,7 @@ export default defineConfig({
     },
     build: {
         assetsInlineLimit: 0,
-        outDir: "../backend/public/dist",
+        //outDir: "../backend/public/dist",
     },
     plugins: [react(), svgr()],
 });

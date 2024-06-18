@@ -1,0 +1,22 @@
+meta {
+  name: Region Case Propane LNG
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:8080/api/region-case-propane-lng
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "from": 2024,
+    "to": 2030,
+    "release_year": 2024,
+    "padd": "PADD 1",
+    "case": "LRC",
+    "rate": "avg"
+  }
+}
