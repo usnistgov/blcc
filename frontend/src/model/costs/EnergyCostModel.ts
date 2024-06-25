@@ -14,7 +14,7 @@ import {
 } from "../../blcc-format/Format";
 import { guard } from "../../util/Operators";
 import { CostModel } from "../CostModel";
-import { Model, studyPeriod$ } from "../Model";
+import { Model } from "../Model";
 
 /**
  * Outputs a value if the current cost is an energy cost
@@ -60,7 +60,7 @@ type EscalationRateResponse = {
 // Gets the default escalation rate information from the api
 export const fetchEscalationRates$ = combineLatest([
     Model.releaseYear$,
-    studyPeriod$,
+    Model.studyPeriod$,
     Model.Location.zip$,
     customerSector$,
 ]).pipe(

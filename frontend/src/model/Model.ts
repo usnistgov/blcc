@@ -1,18 +1,7 @@
 import { bind, state } from "@react-rxjs/core";
 import { type Collection, liveQuery } from "dexie";
 import objectHash from "object-hash";
-import {
-    BehaviorSubject,
-    NEVER,
-    Subject,
-    combineLatest,
-    distinctUntilChanged,
-    from,
-    map,
-    merge,
-    of,
-    switchMap,
-} from "rxjs";
+import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import {
@@ -73,31 +62,6 @@ export const description$ = state(
 sDescription$
     .pipe(withLatestFrom(projectCollection$))
     .subscribe(([description, collection]) => collection.modify({ description }));
-
-export const sStudyPeriodChange = new Subject<number | undefined>();
-export const studyPeriod$ = state(
-    merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
-    25,
-);
-
-export const constructionPeriod$ = dbProject$.pipe(map((p) => p.constructionPeriod));
-export const [useConstructionPeriod] = bind(constructionPeriod$, 0);
-
-export const sDollarMethodChange$ = new Subject<DollarMethod>();
-export const dollarMethod$ = state(
-    merge(sDollarMethodChange$, dbProject$.pipe(map((p) => p.dollarMethod))).pipe(distinctUntilChanged()),
-    DollarMethod.CONSTANT,
-);
-export const [useDollarMethod] = bind(dollarMethod$, DollarMethod.CONSTANT);
-
-export const inflationRate$ = dbProject$.pipe(map((p) => p.inflationRate));
-export const [useInflationRate] = bind(inflationRate$, undefined);
-
-export const nominalDiscountRate$ = dbProject$.pipe(map((p) => p.nominalDiscountRate));
-export const [useNominalDiscountRate] = bind(nominalDiscountRate$, undefined);
-
-export const realDiscountRate$ = dbProject$.pipe(map((p) => p.realDiscountRate));
-export const [useRealDiscountRate] = bind(realDiscountRate$, undefined);
 
 export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
@@ -283,6 +247,30 @@ export namespace Model {
     );
 
     /**
+     * The study period of the current project.
+     */
+    export const sStudyPeriodChange = new Subject<number | undefined>();
+    export const studyPeriod$ = state(
+        merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
+        25,
+    );
+    studyPeriod$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([studyPeriod, collection]) => collection.modify({ studyPeriod }));
+
+    /**
+     * The construction period of the current project
+     */
+    export const sConstructionPeriod$ = new Subject<number>();
+    export const constructionPeriod$ = state(
+        merge(sConstructionPeriod$, dbProject$.pipe(map((p) => p.constructionPeriod))).pipe(distinctUntilChanged()),
+        0,
+    );
+    constructionPeriod$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([constructionPeriod, collection]) => collection.modify({ constructionPeriod }));
+
+    /**
      * The analysis type of the current project.
      */
     export const sAnalysisType$ = new Subject<AnalysisType>();
@@ -303,6 +291,54 @@ export namespace Model {
     purpose$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([purpose, collection]) => collection.modify({ purpose }));
+
+    /**
+     * Inflation rate of the current project
+     */
+    export const sInflationRate$ = new Subject<number | undefined>();
+    export const inflationRate$ = state(
+        merge(sInflationRate$, dbProject$.pipe(map((p) => p.inflationRate))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+    inflationRate$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([inflationRate, collection]) => collection.modify({ inflationRate }));
+
+    /**
+     * Nominal Discount Rate of the current project
+     */
+    export const sNominalDiscountRate$ = new Subject<number | undefined>();
+    export const nominalDiscountRate$ = state(
+        merge(sNominalDiscountRate$, dbProject$.pipe(map((p) => p.nominalDiscountRate))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+    nominalDiscountRate$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([nominalDiscountRate, collection]) => collection.modify({ nominalDiscountRate }));
+
+    /**
+     * Real discount rate of the current project
+     */
+    export const sRealDiscountRate$ = new Subject<number | undefined>();
+    export const realDiscountRate$ = state(
+        merge(sRealDiscountRate$, dbProject$.pipe(map((p) => p.realDiscountRate))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+    realDiscountRate$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
+
+    /**
+     * The dollar method of the current project
+     */
+    export const sDollarMethod$ = new Subject<DollarMethod>();
+    export const dollarMethod$ = state(
+        merge(sDollarMethod$, dbProject$.pipe(map((p) => p.dollarMethod))).pipe(distinctUntilChanged()),
+        DollarMethod.CONSTANT,
+    );
+    dollarMethod$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([dollarMethod, collection]) => collection.modify({ dollarMethod }));
 
     /**
      * The discounting method of the current project

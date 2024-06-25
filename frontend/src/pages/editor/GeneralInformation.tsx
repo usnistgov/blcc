@@ -1,9 +1,7 @@
-import { state, useStateObservable } from "@react-rxjs/core";
+import { useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
 import Title from "antd/es/typography/Title";
 import { motion } from "framer-motion";
-import { map } from "rxjs/operators";
-import { match } from "ts-pattern";
 import {
     AnalysisType,
     DiscountingMethod,
@@ -13,95 +11,19 @@ import {
     SocialCostOfGhgScenario,
 } from "../../blcc-format/Format";
 import { Dropdown } from "../../components/Dropdown";
-import numberInput, { NumberInput } from "../../components/InputNumber";
+import { NumberInput } from "../../components/InputNumber";
 import Switch from "../../components/Switch";
 import { TextArea } from "../../components/TextArea";
 import TextInput, { TextInputType } from "../../components/TextInput";
 import { Country, State } from "../../constants/LOCATION";
-import { useDbUpdate } from "../../hooks/UseDbUpdate";
-import {
-    Model,
-    analyst$,
-    constructionPeriod$,
-    currentProject$,
-    description$,
-    dollarMethod$,
-    inflationRate$,
-    name$,
-    nominalDiscountRate$,
-    realDiscountRate$,
-    sAnalyst$,
-    sDescription$,
-    sDollarMethodChange$,
-    sName$,
-    sStudyPeriodChange,
-    studyPeriod$,
-    useDollarMethod,
-} from "../../model/Model";
-import { db } from "../../model/db";
+import { Model, analyst$, description$, name$, sAnalyst$, sDescription$, sName$ } from "../../model/Model";
 import { max, min } from "../../model/rules/Rules";
-import { defaultValue } from "../../util/Operators";
-
-/*
- * rxjs components
- */
-const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(
-    "Study Period *",
-    "/editor#Study-Period-*",
-    studyPeriod$,
-    true,
-    [max(40)],
-);
-const { onChange$: constructionPeriodChange$, component: ConstructionPeriodInput } = numberInput(
-    "Construction Period *",
-    "/editor#Construction-Period-*",
-    constructionPeriod$,
-);
-const dollarMethod2$ = state(
-    dollarMethod$.pipe(
-        map((method) =>
-            match(method)
-                .with(DollarMethod.CONSTANT, () => true)
-                .otherwise(() => false),
-        ),
-    ),
-    false,
-);
-
-const { onChange$: inflationChange$, component: GenInflationRate } = numberInput(
-    "Inflation Rate *",
-    "/editor#Inflation-Rate-*",
-    inflationRate$,
-    true,
-);
-const { onChange$: nomDiscChange$, component: NominalDiscRate } = numberInput(
-    "Nominal Discount Rate *",
-    "/editor#Nominal-Discount-Rate-*",
-    nominalDiscountRate$,
-    true,
-);
-const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(
-    "Real Discount Rate *",
-    "/editor#Real-Discount-Rate-*",
-    realDiscountRate$,
-    true,
-);
-
-const projectCollection$ = currentProject$.pipe(map((id) => db.projects.where("id").equals(id)));
 
 export default function GeneralInformation() {
-    const dollarMethod = useDollarMethod();
-
-    useDbUpdate(studyPeriodChange$, projectCollection$, "studyPeriod");
-    useDbUpdate(constructionPeriodChange$, projectCollection$, "constructionPeriod");
-    useDbUpdate(sDollarMethodChange$, projectCollection$, "dollarMethod");
-    useDbUpdate(inflationChange$.pipe(defaultValue(undefined)), projectCollection$, "inflationRate");
-    useDbUpdate(nomDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "nominalDiscountRate");
-    useDbUpdate(realDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "realDiscountRate");
-
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
 
+    const dollarMethod = useStateObservable(Model.dollarMethod$);
     const country = useStateObservable(Model.Location.country$);
 
     return (
@@ -152,10 +74,19 @@ export default function GeneralInformation() {
                         controls={true}
                         allowEmpty
                         rules={[max(40), min(0)]}
-                        wire={sStudyPeriodChange}
-                        value$={studyPeriod$}
+                        wire={Model.sStudyPeriodChange}
+                        value$={Model.studyPeriod$}
                     />
-                    <ConstructionPeriodInput addonAfter={"years"} defaultValue={0} max={40} min={0} controls={true} />
+                    <NumberInput
+                        label={"Construction Period*"}
+                        addonAfter={"years"}
+                        defaultValue={0}
+                        max={40}
+                        min={0}
+                        controls={true}
+                        wire={Model.sConstructionPeriod$}
+                        value$={Model.constructionPeriod$}
+                    />
 
                     <Dropdown
                         className={"w-full"}
@@ -172,8 +103,8 @@ export default function GeneralInformation() {
                     left={DollarMethod.CURRENT}
                     right={DollarMethod.CONSTANT}
                     className={"bg-primary hover:bg-primary"}
-                    value$={dollarMethod$}
-                    wire={sDollarMethodChange$}
+                    value$={Model.dollarMethod$}
+                    wire={Model.sDollarMethod$}
                     checkedChildren={"Constant"}
                     unCheckedChildren={"Current"}
                     defaultChecked
@@ -200,22 +131,34 @@ export default function GeneralInformation() {
                         }
                     </div>
                     <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
-                        <GenInflationRate
+                        <NumberInput
+                            label={"Inflation Rate*"}
                             disabled={dollarMethod !== DollarMethod.CURRENT}
                             addonAfter={"%"}
+                            allowEmpty={true}
                             controls={false}
+                            wire={Model.sInflationRate$}
+                            value$={Model.inflationRate$}
                         />
-                        <NominalDiscRate
+                        <NumberInput
+                            label={"Nominal Discount Rate*"}
                             disabled={dollarMethod !== DollarMethod.CURRENT}
                             addonAfter={"%"}
+                            allowEmpty={true}
                             controls={false}
                             min={0.0}
+                            wire={Model.sNominalDiscountRate$}
+                            value$={Model.nominalDiscountRate$}
                         />
-                        <RealDiscRate
+                        <NumberInput
+                            label={"Real Discount Rate*"}
                             disabled={dollarMethod !== DollarMethod.CONSTANT}
                             addonAfter={"%"}
+                            allowEmpty={true}
                             controls={false}
                             min={0.0}
+                            wire={Model.sRealDiscountRate$}
+                            value$={Model.realDiscountRate$}
                         />
                     </div>
                 </div>
