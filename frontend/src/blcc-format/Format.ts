@@ -12,7 +12,7 @@ export type Project = {
     dollarMethod: DollarMethod;
     studyPeriod?: number;
     constructionPeriod: number;
-    discountingMethod?: DiscountingMethod;
+    discountingMethod: DiscountingMethod;
     realDiscountRate?: number;
     nominalDiscountRate?: number;
     inflationRate?: number;
@@ -24,8 +24,8 @@ export type Project = {
 };
 
 export type GHG = {
-    emissionsRateScenario?: EmissionsRateScenario;
-    socialCostOfGhgScenario?: SocialCostOfGhgScenario;
+    emissionsRateScenario: EmissionsRateScenario;
+    socialCostOfGhgScenario: SocialCostOfGhgScenario;
 };
 
 export enum EmissionsRateScenario {

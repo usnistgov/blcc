@@ -8,7 +8,7 @@ import { filter } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { NumberInput } from "../../../../components/InputNumber";
 import Switch from "../../../../components/Switch";
-import { releaseYear$ } from "../../../../model/Model";
+import { Model } from "../../../../model/Model";
 import { escalation$, fetchEscalationRates$, rateChange } from "../../../../model/costs/EnergyCostModel";
 import { isFalse, isTrue } from "../../../../util/Operators";
 import { percentFormatter } from "../../../../util/Util";
@@ -76,7 +76,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
 
         // Converts the escalation rates into the format the grid needs
         const [useEscalation] = bind(
-            combineLatest([releaseYear$, escalation$]).pipe(
+            combineLatest([Model.releaseYear$, escalation$]).pipe(
                 map(([releaseYear, escalation]) =>
                     match(escalation)
                         .with(P.array(), (escalation) =>

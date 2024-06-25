@@ -35,7 +35,7 @@ import {
     type WaterCost,
 } from "../blcc-format/Format";
 import { toMWh } from "../util/UnitConversion";
-import { emissions$, scc$ } from "./Model";
+import { Model } from "./Model";
 import { db } from "./db";
 
 /**
@@ -43,7 +43,7 @@ import { db } from "./db";
  */
 export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBuilder>> {
     return pipe(
-        withLatestFrom(emissions$, scc$),
+        withLatestFrom(Model.emissions$, Model.scc$),
         switchMap(async ([projectID, emissions, scc]) => {
             const project = await db.projects.get(projectID);
 

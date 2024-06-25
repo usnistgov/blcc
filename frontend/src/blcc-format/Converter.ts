@@ -1,7 +1,14 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
+import { createSignal } from "@react-rxjs/utils";
 import { XMLParser } from "fast-xml-parser";
-import { map, Subject, switchMap } from "rxjs";
+import objectHash from "object-hash";
+import { Subject, map, switchMap } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
+import { showMessage } from "../App";
+import { Country, stateToAbbreviation } from "../constants/LOCATION";
+import { Model } from "../model/Model";
+import { db } from "../model/db";
 import {
     AnalysisType,
     type CapitalCost,
@@ -26,19 +33,12 @@ import {
     Season,
     type SeasonUsage,
     SocialCostOfGhgScenario,
-    type Unit,
     type USLocation,
+    type Unit,
     type WaterCost,
-    WeightUnit
+    WeightUnit,
 } from "./Format";
 import { Version } from "./Verison";
-import objectHash from "object-hash";
-import { Country, stateToAbbreviation } from "../constants/LOCATION";
-import { createSignal } from "@react-rxjs/utils";
-import { db } from "../model/db";
-import { withLatestFrom } from "rxjs/operators";
-import { defaultReleaseYear$ } from "../model/Model";
-import { showMessage } from "../App";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
@@ -58,7 +58,7 @@ converted$
 
             // Read file
             const reader = new FileReader();
-            reader.onload = function() {
+            reader.onload = function () {
                 result$.next(this.result as string);
             };
             reader.readAsText(file);
@@ -66,7 +66,7 @@ converted$
             return result$;
         }),
         map((xml) => parser.parse(xml)),
-        withLatestFrom(defaultReleaseYear$)
+        withLatestFrom(Model.defaultReleaseYear$),
     )
     .subscribe(async ([obj, releaseYear]) => {
         const project = obj.Project;
@@ -99,14 +99,15 @@ converted$
             costs: newCosts,
             ghg: {
                 socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
-                emissionsRateScenario: EmissionsRateScenario.BASELINE
+                emissionsRateScenario: EmissionsRateScenario.BASELINE,
             },
-            releaseYear
+            releaseYear,
         });
 
         showMessage({
             title: "Old Format Conversion",
-            message: "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness."
+            message:
+                "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
         });
     });
 
@@ -185,7 +186,7 @@ function parseLocation(old: string | undefined): USLocation {
         country: Country.USA,
         state: stateToAbbreviation[old],
         city: undefined,
-        zipcode: undefined
+        zipcode: undefined,
     };
 }
 
@@ -197,7 +198,7 @@ function extractCosts(alternative: any, name: CostComponent) {
     return arrayOfComponents.map((x: object) => {
         return {
             type: name,
-            ...x
+            ...x,
         };
     });
 }
@@ -229,13 +230,13 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
                     return [
                         ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
                         ...extractCosts(capitalComponent, "RecurringCost").map(rename),
-                        ...extractCosts(capitalComponent, "NonRecurringCost").map(rename)
+                        ...extractCosts(capitalComponent, "NonRecurringCost").map(rename),
                     ];
                 }),
                 ...extractCosts(alternative, "EnergyUsage"),
                 ...extractCosts(alternative, "WaterUsage"),
                 ...extractCosts(alternative, "RecurringContractCost"),
-                ...extractCosts(alternative, "NonRecurringContractCost")
+                ...extractCosts(alternative, "NonRecurringContractCost"),
             ];
 
             for (const cost of costs) {
@@ -248,9 +249,9 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
             return db.alternatives.add({
                 name: alternative.Name,
                 description: alternative.Comment,
-                costs: costs.map((cost) => costCache.get(objectHash(cost)) ?? -1)
+                costs: costs.map((cost) => costCache.get(objectHash(cost)) ?? -1),
             });
-        })
+        }),
     );
 
     return [newAlternatives, [...costCache.values()]];
@@ -278,8 +279,8 @@ async function convertCost(cost: any, studyPeriod: number) {
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 residualValue: {
                     approach: DollarOrPercent.PERCENT,
-                    value: cost.ResaleValueFactor
-                }
+                    value: cost.ResaleValueFactor,
+                },
             } as ReplacementCapitalCost);
         case "NonRecurringCost":
             return db.costs.add({
@@ -288,7 +289,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost.Amount,
                 annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                residualValue: undefined
+                residualValue: undefined,
             } as ReplacementCapitalCost);
         case "RecurringCost":
             return db.costs.add({
@@ -298,7 +299,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 initialCost: cost.Amount,
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                rateOfRecurrence: 1 //parseUseIndex(cost["Index"], studyPeriod)
+                rateOfRecurrence: 1, //parseUseIndex(cost["Index"], studyPeriod)
             } as OMRCost);
         case "CapitalComponent":
             return db.costs.add({
@@ -313,10 +314,10 @@ async function convertCost(cost: any, studyPeriod: number) {
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost.ResaleValueFactor
                     ? ({
-                        approach: DollarOrPercent.PERCENT,
-                        value: cost.ResaleValueFactor as number
-                    } as ResidualValue)
-                    : undefined
+                          approach: DollarOrPercent.PERCENT,
+                          value: cost.ResaleValueFactor as number,
+                      } as ResidualValue)
+                    : undefined,
             } as CapitalCost);
         case "EnergyUsage":
             return db.costs.add({
@@ -332,7 +333,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 demandCharge: cost.DemandCharge as number,
                 rebate: cost.UtilityRebate as number,
                 escalation: parseEscalation(cost, studyPeriod),
-                useIndex: parseUseIndex(cost.UsageIndex, studyPeriod)
+                useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
             } as EnergyCost);
         case "WaterUsage":
             return db.costs.add({
@@ -344,7 +345,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 disposal: parseSeasonalUsage(cost, "Disposal"),
                 escalation: parseEscalation(cost.UsageEscalation, studyPeriod),
                 useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
-                disposalIndex: parseUseIndex(cost.DisposalIndex, studyPeriod)
+                disposalIndex: parseUseIndex(cost.DisposalIndex, studyPeriod),
             } as WaterCost);
         case "RecurringContractCost":
             return db.costs.add({
@@ -354,7 +355,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value
+                rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
             } as RecurringContractCost);
         case "NonRecurringContractCost":
             return db.costs.add({
@@ -362,7 +363,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 description: cost.Comment ?? undefined,
                 type: CostTypes.IMPLEMENTATION_CONTRACT,
                 cost: cost.Amount,
-                occurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value
+                occurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
             } as ImplementationContractCost);
     }
 }
@@ -427,7 +428,7 @@ function parseSeason(cost: any, season: Season, category: string): SeasonUsage {
     return {
         season: season,
         amount: cost[`${season}Yearly${category}`],
-        costPerUnit: cost[`${season}${category}UnitCost`]
+        costPerUnit: cost[`${season}${category}UnitCost`],
     };
 }
 

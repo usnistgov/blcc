@@ -1,36 +1,34 @@
-import { bind, shareLatest, state } from "@react-rxjs/core";
-import { liveQuery } from "dexie";
+import { bind, state } from "@react-rxjs/core";
+import { type Collection, liveQuery } from "dexie";
 import objectHash from "object-hash";
-import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
+import {
+    BehaviorSubject,
+    NEVER,
+    Subject,
+    combineLatest,
+    distinctUntilChanged,
+    from,
+    map,
+    merge,
+    of,
+    switchMap,
+} from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import {
     AnalysisType,
-    DiscountingMethod,
+    type DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
     type NonUSLocation,
+    type Project,
+    Purpose,
     SocialCostOfGhgScenario,
     type USLocation,
 } from "../blcc-format/Format";
-import { Country, State } from "../constants/LOCATION";
+import { Country, type State } from "../constants/LOCATION";
 import { defaultValue, guard } from "../util/Operators";
 import { db } from "./db";
-import { validate } from "./rules/Rules";
-
-type ReleaseYearResponse = { year: number; max: number; min: number };
-
-export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearResponse[]>("/api/release_year");
-
-export const releaseYears$ = releaseYearsResponse$.pipe(
-    map((result) => (result === null ? [2023] : result.map((r) => r.year))),
-);
-export const [useReleaseYears] = bind(releaseYears$, []);
-
-export const defaultReleaseYear$ = releaseYears$.pipe(
-    map((years) => years[0]),
-    catchError(() => of(new Date().getFullYear())),
-);
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
@@ -76,12 +74,6 @@ sDescription$
     .pipe(withLatestFrom(projectCollection$))
     .subscribe(([description, collection]) => collection.modify({ description }));
 
-export const analysisType$ = dbProject$.pipe(map((p) => p.analysisType));
-export const [useAnalysisType] = bind(analysisType$, AnalysisType.FEDERAL_FINANCED);
-
-export const purpose$ = dbProject$.pipe(map((p) => p.purpose));
-export const [usePurpose] = bind(purpose$, undefined);
-
 export const sStudyPeriodChange = new Subject<number | undefined>();
 export const studyPeriod$ = state(
     merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
@@ -107,68 +99,6 @@ export const [useNominalDiscountRate] = bind(nominalDiscountRate$, undefined);
 export const realDiscountRate$ = dbProject$.pipe(map((p) => p.realDiscountRate));
 export const [useRealDiscountRate] = bind(realDiscountRate$, undefined);
 
-export const discountingMethod$ = dbProject$.pipe(map((p) => p.discountingMethod));
-export const [useDiscountingMethod] = bind(discountingMethod$, DiscountingMethod.END_OF_YEAR);
-
-export const location$ = dbProject$.pipe(map((p) => p.location));
-
-export const country$ = location$.pipe(map((p) => p.country));
-export const [useCountry] = bind(country$, Country.USA);
-
-/**
- * The city of the current location
- */
-export const sCity$ = new Subject<string | undefined>();
-export const city$ = state(merge(sCity$, location$.pipe(map((p) => p.city))).pipe(distinctUntilChanged()), undefined);
-sCity$.pipe(withLatestFrom(projectCollection$)).subscribe(([city, collection]) =>
-    collection.modify((project) => {
-        project.location.city = city;
-    }),
-);
-
-export const usLocation$ = location$.pipe(
-    filter((location): location is USLocation => location.country === Country.USA),
-);
-export const nonUSLocation$ = location$.pipe(
-    filter((location): location is NonUSLocation => location.country !== Country.USA),
-);
-export const state$ = usLocation$.pipe(map((usLocation) => usLocation.state));
-
-/**
- * The State or Province when the location is non-US.
- */
-export const sStateOrProvince$ = new Subject<string | undefined>();
-export const stateOrProvince$ = state(
-    merge(sStateOrProvince$, nonUSLocation$.pipe(map((nonUSLocation) => nonUSLocation.stateProvince))).pipe(
-        distinctUntilChanged(),
-    ),
-    undefined,
-);
-sStateOrProvince$.pipe(withLatestFrom(projectCollection$)).subscribe(([stateOrProvince, collection]) =>
-    collection.modify((project) => {
-        if (stateOrProvince === undefined) return;
-
-        (project.location as NonUSLocation).stateProvince = stateOrProvince;
-    }),
-);
-
-/**
- * The zipcode of the current project's location
- */
-export const sZip$ = new Subject<string | undefined>();
-export const zip$ = state(
-    merge(sZip$, usLocation$.pipe(map((p) => p.zipcode))).pipe(distinctUntilChanged()),
-    undefined,
-);
-sZip$.pipe(withLatestFrom(projectCollection$)).subscribe(([zipcode, collection]) =>
-    collection.modify((project) => {
-        (project.location as USLocation).zipcode = zipcode;
-    }),
-);
-
-export const emissionsRate$ = dbProject$.pipe(map((p) => p.ghg.emissionsRateScenario));
-export const socialCostOfGhgScenario$ = dbProject$.pipe(map((p) => p.ghg.socialCostOfGhgScenario));
-
 export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
@@ -187,8 +117,6 @@ export const [useCostIDs] = bind(costIDs$, []);
 
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
 
-export const releaseYear$ = dbProject$.pipe(map((p) => p.releaseYear));
-
 export const getEmissionsRateOption = (option: EmissionsRateScenario | undefined) => {
     switch (option) {
         case EmissionsRateScenario.BASELINE:
@@ -199,34 +127,6 @@ export const getEmissionsRateOption = (option: EmissionsRateScenario | undefined
             return undefined;
     }
 };
-
-// Get the emissions data from the database.
-export const emissions$ = combineLatest([
-    zip$.pipe(guard()),
-    releaseYear$,
-    studyPeriod$,
-    emissionsRate$.pipe(map(getEmissionsRateOption), guard()),
-]).pipe(
-    switchMap(([zip, releaseYear, studyPeriod, emissionsRate]) =>
-        ajax<number[]>({
-            url: "/api/emissions",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: {
-                from: releaseYear,
-                to: releaseYear + (studyPeriod ?? 0),
-                release_year: releaseYear,
-                zip: Number.parseInt(zip ?? "0"),
-                case: emissionsRate,
-                rate: "Avg",
-            },
-        }),
-    ),
-    map((response) => response.response),
-    startWith(undefined),
-);
 
 const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
     switch (option) {
@@ -240,31 +140,6 @@ const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | und
             return undefined;
     }
 };
-
-export const scc$ = combineLatest([
-    releaseYear$,
-    studyPeriod$,
-    socialCostOfGhgScenario$.pipe(map(getSccOption), guard()),
-]).pipe(
-    switchMap(([releaseYear, studyPeriod, option]) =>
-        ajax<number[]>({
-            url: "/api/scc",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: {
-                from: releaseYear,
-                to: releaseYear + (studyPeriod ?? 0),
-                release_year: releaseYear,
-                option,
-            },
-        }),
-    ),
-    map((response) => response.response),
-    map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
-    startWith(undefined),
-);
 
 // Creates a hash of the current project
 export const hash$ = combineLatest([project$, alternatives$, costs$]).pipe(
@@ -305,3 +180,229 @@ export const isDirty$ = hash$.pipe(
         collection.modify({ messages: result.messages ?? [] });
     });
 */
+
+export namespace Model {
+    export namespace Location {
+        export const location$ = dbProject$.pipe(map((p) => p.location));
+
+        /**
+         * The country of the current project
+         */
+        export const sCountry$ = new Subject<Country>();
+        export const country$ = state(
+            merge(sCountry$, location$.pipe(map((p) => p.country))).pipe(distinctUntilChanged()),
+            Country.USA,
+        );
+        country$
+            .pipe(withLatestFrom(projectCollection$))
+            .subscribe(([country, collection]) => collection.modify({ "location.country": country }));
+
+        /**
+         * The city of the current project
+         */
+        export const sCity$ = new Subject<string | undefined>();
+        export const city$ = state(
+            merge(sCity$, location$.pipe(map((p) => p.city))).pipe(distinctUntilChanged()),
+            undefined,
+        );
+        sCity$.pipe(withLatestFrom(projectCollection$)).subscribe(([city, collection]) =>
+            collection.modify((project) => {
+                project.location.city = city;
+            }),
+        );
+
+        export const usLocation$ = location$.pipe(
+            filter((location): location is USLocation => location.country === Country.USA),
+        );
+        export const nonUSLocation$ = location$.pipe(
+            filter((location): location is NonUSLocation => location.country !== Country.USA),
+        );
+
+        /**
+         * The state of the current project
+         */
+        export const sState$ = new Subject<State>();
+        export const state$ = merge(sState$, usLocation$.pipe(map((usLocation) => usLocation.state))).pipe(
+            distinctUntilChanged(),
+        );
+        state$
+            .pipe(withLatestFrom(projectCollection$))
+            .subscribe(([state, collection]) => collection.modify({ "location.state": state }));
+
+        /**
+         * The State or Province when the location is non-US.
+         */
+        export const sStateOrProvince$ = new Subject<string | undefined>();
+        export const stateOrProvince$ = state(
+            merge(sStateOrProvince$, nonUSLocation$.pipe(map((nonUSLocation) => nonUSLocation.stateProvince))).pipe(
+                distinctUntilChanged(),
+            ),
+            undefined,
+        );
+        sStateOrProvince$.pipe(withLatestFrom(projectCollection$)).subscribe(([stateOrProvince, collection]) =>
+            collection.modify((project) => {
+                if (stateOrProvince === undefined) return;
+
+                (project.location as NonUSLocation).stateProvince = stateOrProvince;
+            }),
+        );
+
+        /**
+         * The zipcode of the current project's location
+         */
+        export const sZip$ = new Subject<string | undefined>();
+        export const zip$ = state(
+            merge(sZip$, usLocation$.pipe(map((p) => p.zipcode))).pipe(distinctUntilChanged()),
+            undefined,
+        );
+        sZip$.pipe(withLatestFrom(projectCollection$)).subscribe(([zipcode, collection]) =>
+            collection.modify((project) => {
+                (project.location as USLocation).zipcode = zipcode;
+            }),
+        );
+    }
+
+    /**
+     * Get the release years of the data that are available
+     */
+    type ReleaseYearResponse = { year: number; max: number; min: number };
+    export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearResponse[]>("/api/release_year");
+    export const releaseYears$ = releaseYearsResponse$.pipe(
+        map((result) => (result === null ? [2023] : result.map((r) => r.year))),
+    );
+    export const sReleaseYear$ = new Subject<number>();
+    export const releaseYear$ = merge(sReleaseYear$, dbProject$.pipe(map((p) => p.releaseYear))).pipe(
+        distinctUntilChanged(),
+    );
+    releaseYear$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([releaseYear, collection]) => collection.modify({ releaseYear }));
+    export const defaultReleaseYear$ = releaseYears$.pipe(
+        map((years) => years[0]),
+        catchError(() => of(new Date().getFullYear())),
+    );
+
+    /**
+     * The analysis type of the current project.
+     */
+    export const sAnalysisType$ = new Subject<AnalysisType>();
+    export const analysisType$ = state(
+        merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
+        AnalysisType.FEDERAL_FINANCED,
+    );
+    analysisType$.pipe(withLatestFrom(projectCollection$)).subscribe((params) => setAnalysisType(params));
+
+    /**
+     * The purpose of the current project.
+     */
+    export const sPurpose$ = new Subject<Purpose>();
+    export const purpose$ = state(
+        merge(sPurpose$, dbProject$.pipe(map((p) => p.purpose))).pipe(distinctUntilChanged()),
+        Purpose.COST_LEASE,
+    );
+    purpose$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([purpose, collection]) => collection.modify({ purpose }));
+
+    /**
+     * The discounting method of the current project
+     */
+    export const sDiscountingMethod$ = new Subject<DiscountingMethod>();
+    export const discountingMethod$ = merge(sDiscountingMethod$, dbProject$.pipe(map((p) => p.discountingMethod))).pipe(
+        distinctUntilChanged(),
+    );
+    discountingMethod$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([discountingMethod, collection]) => collection.modify({ discountingMethod }));
+
+    /**
+     * The emissions rate scenario of the current project
+     */
+    export const sEmissionsRateScenario$ = new Subject<EmissionsRateScenario>();
+    export const emissionsRateScenario$ = state(
+        merge(sEmissionsRateScenario$, dbProject$.pipe(map((p) => p.ghg.emissionsRateScenario))).pipe(
+            distinctUntilChanged(),
+        ),
+        EmissionsRateScenario.BASELINE,
+    );
+    emissionsRateScenario$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([emissionsRateScenario, collection]) =>
+            collection.modify({ "ghg.emissionsRateScenario": emissionsRateScenario }),
+        );
+
+    // Get the emissions data from the database.
+    export const emissions$ = combineLatest([
+        Location.zip$.pipe(guard()),
+        releaseYear$,
+        studyPeriod$,
+        emissionsRateScenario$.pipe(map(getEmissionsRateOption), guard()),
+    ]).pipe(
+        switchMap(([zip, releaseYear, studyPeriod, emissionsRate]) =>
+            ajax<number[]>({
+                url: "/api/emissions",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    from: releaseYear,
+                    to: releaseYear + (studyPeriod ?? 0),
+                    release_year: releaseYear,
+                    zip: Number.parseInt(zip ?? "0"),
+                    case: emissionsRate,
+                    rate: "Avg",
+                },
+            }),
+        ),
+        map((response) => response.response),
+        startWith(undefined),
+    );
+
+    export const sSocialCostOfGhgScenario$ = new Subject<SocialCostOfGhgScenario>();
+    export const socialCostOfGhgScenario$ = state(
+        merge(sSocialCostOfGhgScenario$, dbProject$.pipe(map((p) => p.ghg.socialCostOfGhgScenario))).pipe(
+            distinctUntilChanged(),
+        ),
+    );
+    socialCostOfGhgScenario$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([socialCostOfGhgScenario, collection]) =>
+            collection.modify({ "ghg.socialCostOfGhgScenario": socialCostOfGhgScenario }),
+        );
+
+    export const scc$ = combineLatest([
+        releaseYear$,
+        studyPeriod$,
+        socialCostOfGhgScenario$.pipe(map(getSccOption), guard()),
+    ]).pipe(
+        switchMap(([releaseYear, studyPeriod, option]) =>
+            ajax<number[]>({
+                url: "/api/scc",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    from: releaseYear,
+                    to: releaseYear + (studyPeriod ?? 0),
+                    release_year: releaseYear,
+                    option,
+                },
+            }),
+        ),
+        map((response) => response.response),
+        map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
+        startWith(undefined),
+    );
+}
+
+function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<Project>]) {
+    // If OMB_NON_ENERGY, set purpose to default value, otherwise just set analysis type and keep purpose undefined.
+    if (analysisType === AnalysisType.OMB_NON_ENERGY)
+        collection.modify({
+            analysisType,
+            purpose: Purpose.INVEST_REGULATION,
+        });
+    else collection.modify({ analysisType, purpose: undefined });
+}

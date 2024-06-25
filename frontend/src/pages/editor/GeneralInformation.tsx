@@ -1,61 +1,42 @@
-import { state } from "@react-rxjs/core";
+import { state, useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
 import Title from "antd/es/typography/Title";
-import type { Collection } from "dexie";
 import { motion } from "framer-motion";
-import { map, withLatestFrom } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import { match } from "ts-pattern";
 import {
     AnalysisType,
     DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
-    type Project,
     Purpose,
     SocialCostOfGhgScenario,
 } from "../../blcc-format/Format";
-import dropdown, { Dropdown } from "../../components/Dropdown";
+import { Dropdown } from "../../components/Dropdown";
 import numberInput, { NumberInput } from "../../components/InputNumber";
 import Switch from "../../components/Switch";
 import { TextArea } from "../../components/TextArea";
 import TextInput, { TextInputType } from "../../components/TextInput";
 import { Country, State } from "../../constants/LOCATION";
 import { useDbUpdate } from "../../hooks/UseDbUpdate";
-import { useSubscribe } from "../../hooks/UseSubscribe";
 import {
-    analysisType$,
+    Model,
     analyst$,
-    city$,
     constructionPeriod$,
-    country$,
     currentProject$,
     description$,
-    discountingMethod$,
     dollarMethod$,
-    emissionsRate$,
     inflationRate$,
     name$,
     nominalDiscountRate$,
-    purpose$,
     realDiscountRate$,
-    releaseYear$,
-    releaseYears$,
     sAnalyst$,
-    sCity$,
     sDescription$,
     sDollarMethodChange$,
     sName$,
-    sStateOrProvince$,
     sStudyPeriodChange,
-    sZip$,
-    socialCostOfGhgScenario$,
-    state$,
-    stateOrProvince$,
     studyPeriod$,
-    useAnalysisType,
-    useCountry,
     useDollarMethod,
-    zip$,
 } from "../../model/Model";
 import { db } from "../../model/db";
 import { max, min } from "../../model/rules/Rules";
@@ -64,11 +45,6 @@ import { defaultValue } from "../../util/Operators";
 /*
  * rxjs components
  */
-const { change$: analysisTypeChange$, component: AnalysisTypeDropdown } = dropdown(
-    Object.values(AnalysisType),
-    analysisType$,
-);
-const { change$: purposeChange$, component: AnalysisPurposeDropdown } = dropdown(Object.values(Purpose), purpose$);
 const { onChange$: studyPeriodChange$, component: StudyPeriodInput } = numberInput(
     "Study Period *",
     "/editor#Study-Period-*",
@@ -110,60 +86,23 @@ const { onChange$: realDiscChange$, component: RealDiscRate } = numberInput(
     realDiscountRate$,
     true,
 );
-const { change$: discountingMethodChange$, component: DiscountingConvention } = dropdown(
-    Object.values(DiscountingMethod),
-    discountingMethod$,
-);
-
-const { change$: countryChange$, component: CountryDropdown } = dropdown(Object.values(Country), country$);
-const { change$: stateDDChange$, component: StateDropdown } = dropdown(Object.values(State), state$);
-const { change$: emissionsRateChange$, component: EmissionsRateDropdown } = dropdown<EmissionsRateScenario>(
-    Object.values(EmissionsRateScenario),
-    emissionsRate$,
-);
-const { change$: socialCostChange$, component: SocialCostDropdown } = dropdown<SocialCostOfGhgScenario>(
-    Object.values(SocialCostOfGhgScenario),
-    socialCostOfGhgScenario$,
-);
 
 const projectCollection$ = currentProject$.pipe(map((id) => db.projects.where("id").equals(id)));
-
-function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<Project>]) {
-    // If OMB_NON_ENERGY, set purpose to default value, otherwise just set analysis type and keep purpose undefined.
-    if (analysisType === AnalysisType.OMB_NON_ENERGY)
-        collection.modify({
-            analysisType,
-            purpose: Purpose.INVEST_REGULATION,
-        });
-    else collection.modify({ analysisType, purpose: undefined });
-}
-
-const { component: ReleaseYearDropdown, change$: releaseYearChange$ } = dropdown(releaseYears$, releaseYear$);
 
 export default function GeneralInformation() {
     const dollarMethod = useDollarMethod();
 
-    useSubscribe(analysisTypeChange$.pipe(withLatestFrom(projectCollection$)), setAnalysisType);
-    useDbUpdate(purposeChange$, projectCollection$, "purpose");
     useDbUpdate(studyPeriodChange$, projectCollection$, "studyPeriod");
     useDbUpdate(constructionPeriodChange$, projectCollection$, "constructionPeriod");
     useDbUpdate(sDollarMethodChange$, projectCollection$, "dollarMethod");
     useDbUpdate(inflationChange$.pipe(defaultValue(undefined)), projectCollection$, "inflationRate");
     useDbUpdate(nomDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "nominalDiscountRate");
     useDbUpdate(realDiscChange$.pipe(defaultValue(undefined)), projectCollection$, "realDiscountRate");
-    useDbUpdate(
-        discountingMethodChange$.pipe(defaultValue(DiscountingMethod.END_OF_YEAR)),
-        projectCollection$,
-        "discountingMethod",
-    );
-    useDbUpdate(countryChange$.pipe(defaultValue(Country.USA)), projectCollection$, "location.country");
-    useDbUpdate(stateDDChange$.pipe(defaultValue(undefined)), projectCollection$, "location.state");
-    useDbUpdate(emissionsRateChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.emissionsRateScenario");
-    useDbUpdate(socialCostChange$.pipe(defaultValue(undefined)), projectCollection$, "ghg.socialCostOfGhgScenario");
-    useDbUpdate(releaseYearChange$, projectCollection$, "releaseYear");
 
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
+
+    const country = useStateObservable(Model.Location.country$);
 
     return (
         <motion.div
@@ -183,9 +122,21 @@ export default function GeneralInformation() {
                 />
                 <TextInput label={"Analyst"} type={TextInputType.PRIMARY} value$={analyst$} wire={sAnalyst$} />
 
-                <AnalysisTypeDropdown label={"Analysis Type *"} className={"w-full"} />
-                {useAnalysisType() === "OMB Analysis, Non-Energy Project" && (
-                    <AnalysisPurposeDropdown label={"Analysis Purpose"} className={"w-full"} />
+                <Dropdown
+                    label={"Analysis Type *"}
+                    className={"w-full"}
+                    options={Object.values(AnalysisType)}
+                    wire={Model.sAnalysisType$}
+                    value$={Model.analysisType$}
+                />
+                {useStateObservable(Model.analysisType$) === "OMB Analysis, Non-Energy Project" && (
+                    <Dropdown
+                        label={"Analysis Purpose"}
+                        className={"w-full"}
+                        options={Object.values(Purpose)}
+                        wire={Model.sPurpose$}
+                        value$={Model.purpose$}
+                    />
                 )}
 
                 <span className={"col-span-2"}>
@@ -206,7 +157,13 @@ export default function GeneralInformation() {
                     />
                     <ConstructionPeriodInput addonAfter={"years"} defaultValue={0} max={40} min={0} controls={true} />
 
-                    <ReleaseYearDropdown className={"w-full"} label={"Data Release Year *"} />
+                    <Dropdown
+                        className={"w-full"}
+                        label={"Data Release Year *"}
+                        options={Model.releaseYears$}
+                        wire={Model.sReleaseYear$}
+                        value$={Model.releaseYear$}
+                    />
                 </div>
             </div>
             <div className={"pt-4"}>
@@ -232,7 +189,16 @@ export default function GeneralInformation() {
                     >
                         Discounting
                     </Divider>
-                    <div className={"col-span-2"}>{<DiscountingConvention label={"Discounting Convention *"} />}</div>
+                    <div className={"col-span-2"}>
+                        {
+                            <Dropdown
+                                label={"Discounting Convention *"}
+                                options={Object.values(DiscountingMethod)}
+                                wire={Model.sDiscountingMethod$}
+                                value$={Model.discountingMethod$}
+                            />
+                        }
+                    </div>
                     <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
                         <GenInflationRate
                             disabled={dollarMethod !== DollarMethod.CURRENT}
@@ -262,20 +228,42 @@ export default function GeneralInformation() {
                     >
                         Location
                     </Divider>
-                    <CountryDropdown label={"Country"} className={"w-full"} value={useCountry()} />
-                    <TextInput label={"City"} type={TextInputType.PRIMARY} value$={city$} wire={sCity$} />
-                    {useCountry() === Country.USA ? (
-                        <StateDropdown label={"State"} className={"w-full"} />
+                    <Dropdown
+                        label={"Country"}
+                        className={"w-full"}
+                        options={Object.values(Country)}
+                        wire={Model.Location.sCountry$}
+                        value$={Model.Location.country$}
+                    />
+                    <TextInput
+                        label={"City"}
+                        type={TextInputType.PRIMARY}
+                        value$={Model.Location.city$}
+                        wire={Model.Location.sCity$}
+                    />
+                    {country === Country.USA ? (
+                        <Dropdown
+                            label={"State"}
+                            className={"w-full"}
+                            options={Object.values(State)}
+                            wire={Model.Location.sState$}
+                            value$={Model.Location.state$}
+                        />
                     ) : (
                         <TextInput
                             label={"State"}
                             type={TextInputType.PRIMARY}
-                            value$={stateOrProvince$}
-                            wire={sStateOrProvince$}
+                            value$={Model.Location.stateOrProvince$}
+                            wire={Model.Location.sStateOrProvince$}
                         />
                     )}
-                    {useCountry() === Country.USA && (
-                        <TextInput label={"Zip *"} type={TextInputType.PRIMARY} value$={zip$} wire={sZip$} />
+                    {country === Country.USA && (
+                        <TextInput
+                            label={"Zip *"}
+                            type={TextInputType.PRIMARY}
+                            value$={Model.Location.zip$}
+                            wire={Model.Location.sZip$}
+                        />
                     )}
                 </div>
             </div>
@@ -293,8 +281,16 @@ export default function GeneralInformation() {
                     label={"Emissions Rate Scenario *"}
                     className={"w-full"}
                     options={Object.values(EmissionsRateScenario)}
+                    wire={Model.sEmissionsRateScenario$}
+                    value$={Model.emissionsRateScenario$}
                 />
-                <SocialCostDropdown label={"Social Cost of GHG Scenario *"} className={"w-full"} />
+                <Dropdown
+                    label={"Social Cost of GHG Scenario *"}
+                    className={"w-full"}
+                    options={Object.values(SocialCostOfGhgScenario)}
+                    wire={Model.sSocialCostOfGhgScenario$}
+                    value$={Model.socialCostOfGhgScenario$}
+                />
             </div>
         </motion.div>
     );

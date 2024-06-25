@@ -14,7 +14,7 @@ import {
 } from "../../blcc-format/Format";
 import { guard } from "../../util/Operators";
 import { CostModel } from "../CostModel";
-import { releaseYear$, studyPeriod$, zip$ } from "../Model";
+import { Model, studyPeriod$ } from "../Model";
 
 /**
  * Outputs a value if the current cost is an energy cost
@@ -58,7 +58,12 @@ type EscalationRateResponse = {
     sector: string;
 };
 // Gets the default escalation rate information from the api
-export const fetchEscalationRates$ = combineLatest([releaseYear$, studyPeriod$, zip$, customerSector$]).pipe(
+export const fetchEscalationRates$ = combineLatest([
+    Model.releaseYear$,
+    studyPeriod$,
+    Model.Location.zip$,
+    customerSector$,
+]).pipe(
     switchMap(([releaseYear, studyPeriod, zip, sector]) =>
         ajax<EscalationRateResponse[]>({
             url: "/api/escalation-rates",

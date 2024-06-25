@@ -8,7 +8,7 @@ import { filter, shareReplay } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { NumberInput } from "../../../../components/InputNumber";
 import Switch from "../../../../components/Switch";
-import { releaseYear$ } from "../../../../model/Model";
+import { Model } from "../../../../model/Model";
 import { useIndex$, useIndexChange } from "../../../../model/costs/EnergyCostModel";
 import { isFalse, isTrue } from "../../../../util/Operators";
 import { percentFormatter } from "../../../../util/Util";
@@ -51,7 +51,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
 
             // Converts the usage rates into the format the grid needs
             const [useUsage] = bind(
-                combineLatest([releaseYear$, useIndex$]).pipe(
+                combineLatest([Model.releaseYear$, useIndex$]).pipe(
                     map(([releaseYear, useIndex]) =>
                         match(useIndex)
                             .with(P.array(), (usage) =>

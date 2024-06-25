@@ -1,22 +1,22 @@
-import ButtonBar from "./ButtonBar";
-import { Button, ButtonType } from "./Button";
 import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
-import AppBar from "./AppBar";
 import { useNavigate } from "react-router-dom";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import HelpButtons from "./HelpButtons";
-import { defaultReleaseYear$, hash$, isDirty$, useName } from "../model/Model";
-import { db } from "../model/db";
-import { Version } from "../blcc-format/Verison";
 import { DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "../blcc-format/Format";
+import { Version } from "../blcc-format/Verison";
 import { Country } from "../constants/LOCATION";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import { Model, hash$, isDirty$, useName } from "../model/Model";
+import { db } from "../model/db";
+import AppBar from "./AppBar";
+import { Button, ButtonType } from "./Button";
+import ButtonBar from "./ButtonBar";
+import HelpButtons from "./HelpButtons";
 import "dexie-export-import";
-import { download } from "../util/DownloadFile";
-import { convert } from "../blcc-format/Converter";
-import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
-import { merge, Subject } from "rxjs";
-import saveDiscardModal from "./modal/SaveDiscardModal";
 import objectHash from "object-hash";
+import { Subject, merge } from "rxjs";
+import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
+import { convert } from "../blcc-format/Converter";
+import { download } from "../util/DownloadFile";
+import saveDiscardModal from "./modal/SaveDiscardModal";
 
 const newClick$ = new Subject<void>();
 const openClick$ = new Subject<void>();
@@ -24,26 +24,24 @@ const saveClick$ = new Subject<void>();
 
 // Actions that can open the confirmation dialog
 enum OpenDiscard {
-    NEW = 0, OPEN = 1
+    NEW = 0,
+    OPEN = 1,
 }
 
 // Click streams mapped to their respective actions
-const newOpen$ = merge(
-    newClick$.pipe(map(() => OpenDiscard.NEW)),
-    openClick$.pipe(map(() => OpenDiscard.OPEN))
-);
+const newOpen$ = merge(newClick$.pipe(map(() => OpenDiscard.NEW)), openClick$.pipe(map(() => OpenDiscard.OPEN)));
 
 // Create the confirmation dialog. Only opens if the current project is dirty.
 const {
     component: SaveDiscardModal,
     saveClick$: modalSaveClick$,
-    discardClick$
+    discardClick$,
 } = saveDiscardModal<OpenDiscard>(
     newOpen$.pipe(
         withLatestFrom(isDirty$),
         filter(([, dirty]) => dirty),
-        map(([value]) => value)
-    )
+        map(([value]) => value),
+    ),
 );
 
 /*
@@ -53,27 +51,33 @@ const {
 const confirmSave$ = modalSaveClick$.pipe(
     withLatestFrom(hash$),
     tap(async ([, hash]) => await save(hash, "download.blcc")),
-    map(([action]) => action)
+    map(([action]) => action),
 );
 
-/* 
+/*
  * Stream that represents when new project should be created. Either when the new button
  * is clicked and the current project is not dirty, or when the discard button is clicked
  * on the confirmation dialog, or when the confirmation dialog executes a save.
  */
 const new$ = merge(
-    isDirty$.pipe(sample(newClick$), filter((dirty) => !dirty)),
-    merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.NEW))
+    isDirty$.pipe(
+        sample(newClick$),
+        filter((dirty) => !dirty),
+    ),
+    merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.NEW)),
 );
 
 /*
  * Stream that represents when project should be opened. Either when the open button is
- * clicked and the current project is not dirty, or when the discard button is clicked on 
+ * clicked and the current project is not dirty, or when the discard button is clicked on
  * the confirmation dialog, or when the confirmation dialog executes a save.
  */
 const open$ = merge(
-    isDirty$.pipe(sample(openClick$), filter((dirty) => !dirty)),
-    merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.OPEN))
+    isDirty$.pipe(
+        sample(openClick$),
+        filter((dirty) => !dirty),
+    ),
+    merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.OPEN)),
 );
 
 // Saves the current project and saves the hash for dirty detection.
@@ -90,7 +94,7 @@ export default function EditorAppBar() {
     const navigate = useNavigate();
 
     useSubscribe(
-        new$.pipe(withLatestFrom(defaultReleaseYear$)),
+        new$.pipe(withLatestFrom(Model.defaultReleaseYear$)),
         async ([, releaseYear]) => {
             const defaultProject = {
                 version: Version.V1,
@@ -98,16 +102,16 @@ export default function EditorAppBar() {
                 dollarMethod: DollarMethod.CONSTANT,
                 constructionPeriod: 0,
                 location: {
-                    country: Country.USA
+                    country: Country.USA,
                 },
                 alternatives: [],
                 costs: [],
                 ghg: {
                     socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
-                    emissionsRateScenario: EmissionsRateScenario.BASELINE
+                    emissionsRateScenario: EmissionsRateScenario.BASELINE,
                 },
-                releaseYear
-            }
+                releaseYear,
+            };
 
             // Add default project to db.
             await db.delete();
@@ -120,7 +124,7 @@ export default function EditorAppBar() {
 
             navigate("/editor");
         },
-        [navigate]
+        [navigate],
     );
     useSubscribe(hash$.pipe(sample(saveClick$)), async (hash) => await save(hash, "download.blcc"));
     useSubscribe(open$, () => document.getElementById("open")?.click());
@@ -140,7 +144,7 @@ export default function EditorAppBar() {
                     type={"file"}
                     id={"open"}
                     onClick={(event) => {
-                        event.currentTarget.value = ""
+                        event.currentTarget.value = "";
                     }}
                     onChange={async (event) => {
                         if (event.currentTarget.files !== null) {
@@ -161,7 +165,12 @@ export default function EditorAppBar() {
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
                 <p className={"text-base-lightest"}>{useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
-                    <Button type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onClick={() => navigate("/results")}>
+                    <Button
+                        type={ButtonType.PRIMARY_INVERTED}
+                        icon={mdiPlay}
+                        iconSide={"right"}
+                        onClick={() => navigate("/results")}
+                    >
                         Reports and Analysis
                     </Button>
                 </div>
