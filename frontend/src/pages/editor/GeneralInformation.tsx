@@ -14,7 +14,7 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "../../blcc-format/Format";
-import dropdown from "../../components/Dropdown";
+import dropdown, { Dropdown } from "../../components/Dropdown";
 import numberInput, { NumberInput } from "../../components/InputNumber";
 import Switch from "../../components/Switch";
 import { TextArea } from "../../components/TextArea";
@@ -289,7 +289,11 @@ export default function GeneralInformation() {
                 >
                     Greenhouse Gas (GHG) Emissions and Cost Assumptions
                 </Divider>
-                <EmissionsRateDropdown label={"Emissions Rate Scenario *"} className={"w-full"} />
+                <Dropdown
+                    label={"Emissions Rate Scenario *"}
+                    className={"w-full"}
+                    options={Object.values(EmissionsRateScenario)}
+                />
                 <SocialCostDropdown label={"Social Cost of GHG Scenario *"} className={"w-full"} />
             </div>
         </motion.div>

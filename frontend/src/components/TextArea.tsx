@@ -1,72 +1,13 @@
 import { type StateObservable, bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Input, type InputProps } from "antd";
+import { Input } from "antd";
+import type { TextAreaProps as DefaultProps } from "antd/es/input";
 import Title from "antd/es/typography/Title";
 import { type PropsWithChildren, useEffect, useMemo } from "react";
-import { EMPTY, type Observable, type Subject, switchMap } from "rxjs";
+import { type Subject, switchMap } from "rxjs";
 import { startWith } from "rxjs/operators";
-import { TextInputType } from "./TextInput";
 
-export type TextAreaProps = {
-    className?: string;
-    disabled?: boolean;
-    placeholder?: string;
-    bordered?: boolean;
-    rows?: number;
-    label?: string;
-};
-
-export type TextArea = {
-    onChange$: Observable<string>;
-    component: React.FC<PropsWithChildren & TextAreaProps>;
-};
-
-export default function textArea(value$: Observable<string | undefined> = EMPTY): TextArea {
-    const [onChange$, onChange] = createSignal<string>();
-    const [focused$, focus] = createSignal<boolean>();
-
-    const [useValue] = bind(
-        focused$.pipe(
-            startWith(false),
-            switchMap((focused) => (focused ? onChange$ : value$)),
-        ),
-        undefined,
-    );
-
-    return {
-        onChange$,
-        component: ({
-            children,
-            className,
-            disabled = false,
-            bordered = true,
-            placeholder,
-            rows = 4,
-            label,
-        }: PropsWithChildren & TextAreaProps) => {
-            return (
-                <>
-                    <Title level={5}>{label}</Title>
-                    <Input.TextArea
-                        onFocus={() => focus(true)}
-                        onBlur={() => focus(false)}
-                        className={`${className ?? ""} w-44`}
-                        onChange={(event) => onChange(event.target.value)}
-                        placeholder={placeholder}
-                        variant={bordered ? "outlined" : "borderless"}
-                        disabled={disabled}
-                        rows={rows}
-                        value={useValue()}
-                    >
-                        {children}
-                    </Input.TextArea>
-                </>
-            );
-        },
-    };
-}
-
-type TextAreaProps2 = {
+type TextAreaProps = {
     label: string;
     className?: string;
     value$: StateObservable<string | undefined>;
@@ -81,7 +22,7 @@ export function TextArea({
     className,
     disabled,
     ...defaultProps
-}: PropsWithChildren<TextAreaProps2 & TextAreaProps>) {
+}: PropsWithChildren<TextAreaProps & DefaultProps>) {
     const { useValue, focus, textChange, onChange$ } = useMemo(() => {
         const [onChange$, textChange] = createSignal<string | undefined>();
         const [focused$, focus] = createSignal<boolean>();
