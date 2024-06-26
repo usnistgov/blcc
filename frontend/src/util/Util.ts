@@ -1,4 +1,7 @@
 import type { Measures } from "@lrd/e3-sdk";
+import { type DefaultedStateObservable, state } from "@react-rxjs/core";
+import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
+import { map } from "rxjs/operators";
 import { type Cost, CostTypes } from "../blcc-format/Format";
 
 // Returns true if the given cost is an energy cost.
@@ -56,4 +59,17 @@ export function getOptionalTag(measures: Measures[], tag: string) {
         acc[i.toString()] = next.totalTagFlows[tag];
         return acc;
     }, {});
+}
+
+export function stateStream<
+    B,
+    C extends keyof B,
+    D extends B[C] | undefined,
+    Result extends D extends undefined ? Observable<B[C]> : DefaultedStateObservable<B[C]>,
+>(input$: Observable<B>, property: C, initial: D = undefined as D): [Subject<B[C]>, Result] {
+    const sSubject$ = new Subject<B[C]>();
+
+    const stream$ = merge(sSubject$, input$.pipe(map((obj) => obj[property])).pipe(distinctUntilChanged()));
+
+    return [sSubject$, (initial !== undefined ? state(stream$, initial) : stream$) as Result];
 }

@@ -1,7 +1,8 @@
 import { bind } from "@react-rxjs/core";
 import { Typography } from "antd";
 import type { Collection } from "dexie";
-import { type Observable, filter } from "rxjs";
+import { useMemo } from "react";
+import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
 import {
     CostTypes,
@@ -10,7 +11,7 @@ import {
     type ResidualValue,
 } from "../../../blcc-format/Format";
 import checkbox from "../../../components/Checkbox";
-import numberInput from "../../../components/InputNumber";
+import { NumberInput } from "../../../components/InputNumber";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { CostModel } from "../../../model/CostModel";
 import { defaultValue } from "../../../util/Operators";
@@ -18,7 +19,7 @@ import { defaultValue } from "../../../util/Operators";
 const { Title } = Typography;
 
 // If we are on this page that means the cost collection can be narrowed to ReplacementCapitalCost.
-const costCollection$ = CostModel.collection$ as Observable<Collection<ReplacementCapitalCost, number>>;
+const collection$ = CostModel.collection$ as Observable<Collection<ReplacementCapitalCost, number>>;
 const replacementCapitalCost$ = CostModel.cost$.pipe(
     filter((cost): cost is ReplacementCapitalCost => cost.type === CostTypes.REPLACEMENT_CAPITAL),
 );
@@ -26,33 +27,6 @@ const replacementCapitalCost$ = CostModel.cost$.pipe(
 const [useApproach, approach$] = bind(
     replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.approach)),
     undefined,
-);
-
-const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
-    "Inital Cost (Base Year Dollars)",
-    "/",
-    replacementCapitalCost$.pipe(map((cost) => cost.initialCost)),
-);
-const { component: AnnualRateOfChangeInput, onChange$: annualRateOfChange$ } = numberInput(
-    "Annual Rate of Change",
-    "/",
-    replacementCapitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
-    true,
-);
-const { component: ExpectedLifeInput, onChange$: expectedLife$ } = numberInput(
-    "Expected Lifetime",
-    "/",
-    replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
-    true,
-);
-/*const { component: ResidualValueSwitch, onChange$: dollarOrPercentChange$ } = switchComp(
-    approach$.pipe(map((approach) => approach === DollarOrPercent.PERCENT))
-);*/
-const { component: ResidualValueInput, onChange$: residualValue$ } = numberInput(
-    "Residual Value",
-    "/",
-    replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.value)),
-    true,
 );
 
 const { component: ResidualValueCheckbox, onChange$: residualValueCheck$ } = checkbox(
@@ -65,23 +39,91 @@ const residualValueEnabled$ = residualValueCheck$.pipe(
 export default function ReplacementCapitalCostFields() {
     const approach = useApproach();
 
-    useDbUpdate(initialCost$.pipe(defaultValue(0)), costCollection$, "initialCost");
-    useDbUpdate(annualRateOfChange$, costCollection$, "annualRateOfChange");
-    useDbUpdate(expectedLife$, costCollection$, "expectedLife");
-    useDbUpdate(residualValue$, costCollection$, "residualValue.value");
+    const [
+        sInitialCost$,
+        initialCost$,
+        sAnnualRateOfChange$,
+        annualRateOfChange$,
+        sExpectedLife$,
+        expectedLife$,
+        sResidualValue$,
+        residualValue$,
+    ] = useMemo(() => {
+        const sInitialCost$ = new Subject<number>();
+        const initialCost$ = merge(sInitialCost$, replacementCapitalCost$.pipe(map((cost) => cost.initialCost))).pipe(
+            distinctUntilChanged(),
+        );
+
+        const sAnnualRateOfChange$ = new Subject<number | undefined>();
+        const annualRateOfChange$ = merge(
+            sAnnualRateOfChange$,
+            replacementCapitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
+        ).pipe(distinctUntilChanged());
+
+        const sExpectedLife$ = new Subject<number | undefined>();
+        const expectedLife$ = merge(
+            sExpectedLife$,
+            replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
+        ).pipe(distinctUntilChanged());
+
+        const sResidualValue$ = new Subject<number | undefined>();
+        const residualValue$ = merge(
+            sResidualValue$,
+            replacementCapitalCost$.pipe(map((cost) => cost.residualValue?.value)),
+        ).pipe(distinctUntilChanged());
+
+        return [
+            sInitialCost$,
+            initialCost$,
+            sAnnualRateOfChange$,
+            annualRateOfChange$,
+            sExpectedLife$,
+            expectedLife$,
+            sResidualValue$,
+            residualValue$,
+        ];
+    }, []);
+
+    useDbUpdate(sInitialCost$.pipe(defaultValue(0)), collection$, "initialCost");
+    useDbUpdate(sAnnualRateOfChange$, collection$, "annualRateOfChange");
+    useDbUpdate(sExpectedLife$, collection$, "expectedLife");
+    useDbUpdate(sResidualValue$, collection$, "residualValue.value");
     /*    useDbUpdate(
         dollarOrPercentChange$.pipe(map((value) => (value ? DollarOrPercent.PERCENT : DollarOrPercent.DOLLAR))),
         costCollection$,
         "residualValue.approach"
     );*/
-    useDbUpdate(residualValueEnabled$, costCollection$, "residualValue");
+    useDbUpdate(residualValueEnabled$, collection$, "residualValue");
 
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
-                <InitialCostInput className={"w-full"} addonBefore={"$"} controls />
-                <AnnualRateOfChangeInput className={"w-full"} addonAfter={"%"} controls />
-                <ExpectedLifeInput className={"w-full"} addonAfter={"years"} controls />
+                <NumberInput
+                    className={"w-full"}
+                    addonBefore={"$"}
+                    controls
+                    label={"Initial Cost (Base Year Dollars)"}
+                    value$={initialCost$}
+                    wire={sInitialCost$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    addonAfter={"%"}
+                    controls
+                    allowEmpty
+                    label={"Annual Rate of Change"}
+                    value$={annualRateOfChange$}
+                    wire={sAnnualRateOfChange$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    addonAfter={"years"}
+                    controls
+                    label={"Expected Lifetime"}
+                    allowEmpty
+                    value$={expectedLife$}
+                    wire={sExpectedLife$}
+                />
                 <span className={"flex flex-col"}>
                     <div className={"flex flex-row gap-2"}>
                         <ResidualValueCheckbox className={""} />
@@ -95,11 +137,15 @@ export default function ReplacementCapitalCostFields() {
                             <span>
                                 {/*<ResidualValueSwitch unCheckedChildren={"Dollar"} checkedChildren={"Percent"} />*/}
                             </span>
-                            <ResidualValueInput
+                            <NumberInput
                                 className={"py-4"}
-                                label={false}
                                 addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
                                 addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
+                                label={"Residual Value"}
+                                showLabel={false}
+                                allowEmpty
+                                value$={residualValue$}
+                                wire={sResidualValue$}
                             />
                         </>
                     )}

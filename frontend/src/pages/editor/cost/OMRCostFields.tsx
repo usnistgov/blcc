@@ -1,35 +1,59 @@
 import type { Collection } from "dexie";
-import { type Observable, filter } from "rxjs";
+import { useMemo } from "react";
+import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
 import { CostTypes, type OMRCost } from "../../../blcc-format/Format";
-import numberInput from "../../../components/InputNumber";
+import { NumberInput } from "../../../components/InputNumber";
 import Recurring from "../../../components/Recurring";
 import { useDbUpdate } from "../../../hooks/UseDbUpdate";
 import { CostModel } from "../../../model/CostModel";
 
-// If we are on this page that means the cost collection can be narrowed to OMRCost.
-const costCollection$ = CostModel.collection$ as Observable<Collection<OMRCost, number>>;
-const omrCost$ = CostModel.cost$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
-
-const { component: InitialCostInput, onChange$: initialCost$ } = numberInput(
-    "Initial Cost",
-    "/",
-    omrCost$.pipe(map((cost) => cost.initialCost)),
-);
-const { component: InitialOccurrenceInput, onChange$: initialOccurrence$ } = numberInput(
-    "Initial Occurrence",
-    "/",
-    omrCost$.pipe(map((cost) => cost.initialOccurrence)),
-);
+/**
+ * Component for the OMR fields for a cost
+ */
 export default function OMRCostFields() {
-    useDbUpdate(initialCost$, costCollection$, "initialCost");
-    useDbUpdate(initialOccurrence$, costCollection$, "initialOccurrence");
+    const [sInitialCost$, initialCost$, sInitialOccurrence$, initialOccurrence$, collection$] = useMemo(() => {
+        // If we are on this page that means the cost collection can be narrowed to OMRCost.
+        const collection$ = CostModel.collection$ as Observable<Collection<OMRCost, number>>;
+        const omrCost$ = CostModel.cost$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
+
+        const sInitialCost$ = new Subject<number>();
+        const initialCost$ = merge(sInitialCost$, omrCost$.pipe(map((cost) => cost.initialCost))).pipe(
+            distinctUntilChanged(),
+        );
+
+        const sInitialOccurrence$ = new Subject<number>();
+        const initialOccurrence$ = merge(
+            sInitialOccurrence$,
+            omrCost$.pipe(map((cost) => cost.initialOccurrence)),
+        ).pipe(distinctUntilChanged());
+
+        return [sInitialCost$, initialCost$, sInitialOccurrence$, initialOccurrence$, collection$];
+    }, []);
+
+    // Set up subscriptions to write change to IndexedDB
+    useDbUpdate(sInitialCost$, collection$, "initialCost");
+    useDbUpdate(sInitialOccurrence$, collection$, "initialOccurrence");
 
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <InitialCostInput className={"w-full"} addonBefore={"$"} controls />
-                <InitialOccurrenceInput className={"w-full"} addonAfter={"years"} controls />
+                <NumberInput
+                    className={"w-full"}
+                    addonBefore={"$"}
+                    controls
+                    label={"Initial Cost"}
+                    value$={initialCost$}
+                    wire={sInitialCost$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    addonAfter={"years"}
+                    controls
+                    label={"Initial Occurrence"}
+                    value$={initialOccurrence$}
+                    wire={sInitialOccurrence$}
+                />
                 <Recurring />
             </div>
         </div>

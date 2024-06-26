@@ -1,8 +1,9 @@
 import type { Collection } from "dexie";
-import { type Observable, map } from "rxjs";
+import { useMemo } from "react";
+import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
 import { CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "../../../../blcc-format/Format";
 import { Dropdown } from "../../../../components/Dropdown";
-import numberInput from "../../../../components/InputNumber";
+import { NumberInput } from "../../../../components/InputNumber";
 import { useDbUpdate } from "../../../../hooks/UseDbUpdate";
 import { CostModel } from "../../../../model/CostModel";
 import {
@@ -19,39 +20,57 @@ import { min } from "../../../../model/rules/Rules";
 import EscalationRates from "./EscalationRates";
 import UsageIndex from "./UsageIndex";
 
-// If we are on this page that means the cost collection can be narrowed to EnergyCost.
-const costCollection$ = CostModel.collection$ as Observable<Collection<EnergyCost, number>>;
-
-const { component: CostPerUnitInput, onChange$: costPerUnitChange$ } = numberInput(
-    "Cost per Unit",
-    "/",
-    energyCost$.pipe(map((cost) => cost.costPerUnit)),
-);
-const { component: AnnualConsumption, onChange$: annualConsumptionChange$ } = numberInput(
-    "Annual Consumption",
-    `${window.location.pathname}#Annual-Consumption`,
-    energyCost$.pipe(map((cost) => cost.annualConsumption)),
-    false,
-    [min(0)],
-);
-const { component: RebateInput, onChange$: rebateChange$ } = numberInput(
-    "Rebate",
-    "/",
-    energyCost$.pipe(map((cost) => cost.rebate)),
-    true,
-);
-const { component: DemandChargeInput, onChange$: demandChargeChange$ } = numberInput(
-    "Demand Charge",
-    "/",
-    energyCost$.pipe(map((cost) => cost.demandCharge)),
-    true,
-);
-
 export default function EnergyCostFields() {
-    useDbUpdate(costPerUnitChange$, costCollection$, "costPerUnit");
-    useDbUpdate(annualConsumptionChange$, costCollection$, "annualConsumption");
-    useDbUpdate(rebateChange$, costCollection$, "rebate");
-    useDbUpdate(demandChargeChange$, costCollection$, "demandCharge");
+    const [
+        sCostPerUnit$,
+        costPerUnit$,
+        sAnnualConsumption$,
+        annualConsumption$,
+        sRebate$,
+        rebate$,
+        sDemandCharge$,
+        demandCharge$,
+        collection$,
+    ] = useMemo(() => {
+        // If we are on this page that means the cost collection can be narrowed to EnergyCost.
+        const collection$ = CostModel.collection$ as Observable<Collection<EnergyCost, number>>;
+
+        const sCostPerUnit$ = new Subject<number>();
+        const costPerUnit$ = merge(sCostPerUnit$, energyCost$.pipe(map((cost) => cost.costPerUnit))).pipe(
+            distinctUntilChanged(),
+        );
+
+        const sAnnualConsumption$ = new Subject<number>();
+        const annualConsumption$ = merge(
+            sAnnualConsumption$,
+            energyCost$.pipe(map((cost) => cost.annualConsumption)),
+        ).pipe(distinctUntilChanged());
+
+        const sRebate$ = new Subject<number | undefined>();
+        const rebate$ = merge(sRebate$, energyCost$.pipe(map((cost) => cost.rebate))).pipe(distinctUntilChanged());
+
+        const sDemandCharge$ = new Subject<number | undefined>();
+        const demandCharge = merge(sDemandCharge$, energyCost$.pipe(map((cost) => cost.demandCharge))).pipe(
+            distinctUntilChanged(),
+        );
+
+        return [
+            sCostPerUnit$,
+            costPerUnit$,
+            sAnnualConsumption$,
+            annualConsumption$,
+            sRebate$,
+            rebate$,
+            sDemandCharge$,
+            demandCharge,
+            collection$,
+        ];
+    }, []);
+
+    useDbUpdate(sCostPerUnit$, collection$, "costPerUnit");
+    useDbUpdate(sAnnualConsumption$, collection$, "annualConsumption");
+    useDbUpdate(sRebate$, collection$, "rebate");
+    useDbUpdate(sDemandCharge$, collection$, "demandCharge");
 
     //TODO add other fields
 
@@ -75,7 +94,7 @@ export default function EnergyCostFields() {
                     showSearch
                 />
 
-                <AnnualConsumption
+                <NumberInput
                     className={"w-full"}
                     addonAfter={
                         <Dropdown
@@ -87,11 +106,37 @@ export default function EnergyCostFields() {
                         />
                     }
                     controls
+                    rules={[min(0)]}
+                    label={"Annual Consumption"}
+                    wire={sAnnualConsumption$}
+                    value$={annualConsumption$}
                 />
-                <CostPerUnitInput className={"w-full"} controls addonAfter={`per ${useUnit()}`} prefix={"$"} />
+                <NumberInput
+                    className={"w-full"}
+                    controls
+                    addonAfter={`per ${useUnit()}`}
+                    prefix={"$"}
+                    label={"Cost per Unit"}
+                    wire={sCostPerUnit$}
+                    value$={costPerUnit$}
+                />
 
-                <RebateInput className={"w-full"} addonBefore={"$"} />
-                <DemandChargeInput className={"w-full"} addonBefore={"$"} />
+                <NumberInput
+                    className={"w-full"}
+                    addonBefore={"$"}
+                    label={"Rebate"}
+                    allowEmpty
+                    wire={sRebate$}
+                    value$={rebate$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    addonBefore={"$"}
+                    label={"Demand Charge"}
+                    allowEmpty
+                    wire={sDemandCharge$}
+                    value$={demandCharge$}
+                />
 
                 <EscalationRates title={"Escalation Rates"} />
                 <UsageIndex title={"Usage Index"} />

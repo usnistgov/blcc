@@ -1,13 +1,10 @@
 import { bind } from "@react-rxjs/core";
 import { Typography } from "antd";
 import type { Collection } from "dexie";
-import { type Observable, merge } from "rxjs";
+import type { Observable } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { CostTypes, type OMRCost, type RecurringContractCost } from "../blcc-format/Format";
-import { useDbUpdate } from "../hooks/UseDbUpdate";
 import { CostModel } from "../model/CostModel";
-import numberInput from "./InputNumber";
-import switchComp from "./Switch";
 
 const { Title } = Typography;
 
@@ -23,12 +20,14 @@ const recurringCost$ = CostModel.cost$.pipe(
 const [useRecurring, recurring$] = bind(recurringCost$.pipe(map((cost) => cost.rateOfRecurrence !== undefined)), false);
 
 /*const { component: RecurrenceSwitch, onChange$: recurringChange$ } = switchComp(recurring$);*/
-const { component: RateOfRecurrenceInput, onChange$: rateOfRecurrence$ } = numberInput(
+/*const { component: RateOfRecurrenceInput, onChange$: rateOfRecurrence$ } = numberInput(
     "Recurring",
     `${window.location.pathname}#Recurring`,
     recurringCost$.pipe(map((cost) => cost.rateOfRecurrence)),
     true,
-);
+);*/
+
+// TODO replace inputs
 
 export default function Recurring() {
     /*    useDbUpdate(
@@ -41,7 +40,7 @@ export default function Recurring() {
         <div className={"flex flex-col"}>
             <Title level={5}>Recurring</Title>
             <span>{/*<RecurrenceSwitch checkedChildren={"Yes"} unCheckedChildren={"No"} />*/}</span>
-            {useRecurring() && <RateOfRecurrenceInput className={"my-4"} label={false} addonAfter={"years"} />}
+            {/*{useRecurring() && <RateOfRecurrenceInput className={"my-4"} label={false} addonAfter={"years"} />}*/}
         </div>
     );
 }

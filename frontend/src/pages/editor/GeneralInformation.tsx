@@ -84,7 +84,7 @@ export default function GeneralInformation() {
                         controls={true}
                         allowEmpty
                         rules={[max(40), min(0)]}
-                        wire={Model.sStudyPeriodChange}
+                        wire={Model.sStudyPeriod$}
                         value$={Model.studyPeriod$}
                     />
                     <NumberInput

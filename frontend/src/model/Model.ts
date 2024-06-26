@@ -124,7 +124,7 @@ export namespace Model {
             merge(sCountry$, location$.pipe(map((p) => p.country))).pipe(distinctUntilChanged()),
             Country.USA,
         );
-        country$
+        sCountry$
             .pipe(withLatestFrom(projectCollection$))
             .subscribe(([country, collection]) => collection.modify({ "location.country": country }));
 
@@ -156,7 +156,7 @@ export namespace Model {
         export const state$ = merge(sState$, usLocation$.pipe(map((usLocation) => usLocation.state))).pipe(
             distinctUntilChanged(),
         );
-        state$
+        sState$
             .pipe(withLatestFrom(projectCollection$))
             .subscribe(([state, collection]) => collection.modify({ "location.state": state }));
 
@@ -240,7 +240,7 @@ export namespace Model {
     export const releaseYear$ = merge(sReleaseYear$, dbProject$.pipe(map((p) => p.releaseYear))).pipe(
         distinctUntilChanged(),
     );
-    releaseYear$
+    sReleaseYear$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([releaseYear, collection]) => collection.modify({ releaseYear }));
     export const defaultReleaseYear$ = releaseYears$.pipe(
@@ -251,12 +251,12 @@ export namespace Model {
     /**
      * The study period of the current project.
      */
-    export const sStudyPeriodChange = new Subject<number | undefined>();
+    export const sStudyPeriod$ = new Subject<number | undefined>();
     export const studyPeriod$ = state(
-        merge(sStudyPeriodChange, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
+        merge(sStudyPeriod$, dbProject$.pipe(map((p) => p.studyPeriod))).pipe(distinctUntilChanged()),
         25,
     );
-    studyPeriod$
+    sStudyPeriod$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([studyPeriod, collection]) => collection.modify({ studyPeriod }));
 
@@ -268,7 +268,7 @@ export namespace Model {
         merge(sConstructionPeriod$, dbProject$.pipe(map((p) => p.constructionPeriod))).pipe(distinctUntilChanged()),
         0,
     );
-    constructionPeriod$
+    sConstructionPeriod$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([constructionPeriod, collection]) => collection.modify({ constructionPeriod }));
 
@@ -280,7 +280,7 @@ export namespace Model {
         merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
         AnalysisType.FEDERAL_FINANCED,
     );
-    analysisType$.pipe(withLatestFrom(projectCollection$)).subscribe((params) => setAnalysisType(params));
+    sAnalysisType$.pipe(withLatestFrom(projectCollection$)).subscribe((params) => setAnalysisType(params));
 
     /**
      * The purpose of the current project.
@@ -290,7 +290,7 @@ export namespace Model {
         merge(sPurpose$, dbProject$.pipe(map((p) => p.purpose))).pipe(distinctUntilChanged()),
         Purpose.COST_LEASE,
     );
-    purpose$
+    sPurpose$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([purpose, collection]) => collection.modify({ purpose }));
 
@@ -302,7 +302,7 @@ export namespace Model {
         merge(sInflationRate$, dbProject$.pipe(map((p) => p.inflationRate))).pipe(distinctUntilChanged()),
         undefined,
     );
-    inflationRate$
+    sInflationRate$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([inflationRate, collection]) => collection.modify({ inflationRate }));
 
@@ -314,7 +314,7 @@ export namespace Model {
         merge(sNominalDiscountRate$, dbProject$.pipe(map((p) => p.nominalDiscountRate))).pipe(distinctUntilChanged()),
         undefined,
     );
-    nominalDiscountRate$
+    sNominalDiscountRate$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([nominalDiscountRate, collection]) => collection.modify({ nominalDiscountRate }));
 
@@ -326,7 +326,7 @@ export namespace Model {
         merge(sRealDiscountRate$, dbProject$.pipe(map((p) => p.realDiscountRate))).pipe(distinctUntilChanged()),
         undefined,
     );
-    realDiscountRate$
+    sRealDiscountRate$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
 
@@ -338,7 +338,7 @@ export namespace Model {
         merge(sDollarMethod$, dbProject$.pipe(map((p) => p.dollarMethod))).pipe(distinctUntilChanged()),
         DollarMethod.CONSTANT,
     );
-    dollarMethod$
+    sDollarMethod$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([dollarMethod, collection]) => collection.modify({ dollarMethod }));
 
@@ -349,7 +349,7 @@ export namespace Model {
     export const discountingMethod$ = merge(sDiscountingMethod$, dbProject$.pipe(map((p) => p.discountingMethod))).pipe(
         distinctUntilChanged(),
     );
-    discountingMethod$
+    sDiscountingMethod$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([discountingMethod, collection]) => collection.modify({ discountingMethod }));
 
@@ -363,7 +363,7 @@ export namespace Model {
         ),
         EmissionsRateScenario.BASELINE,
     );
-    emissionsRateScenario$
+    sEmissionsRateScenario$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([emissionsRateScenario, collection]) =>
             collection.modify({ "ghg.emissionsRateScenario": emissionsRateScenario }),
@@ -403,7 +403,7 @@ export namespace Model {
             distinctUntilChanged(),
         ),
     );
-    socialCostOfGhgScenario$
+    sSocialCostOfGhgScenario$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([socialCostOfGhgScenario, collection]) =>
             collection.modify({ "ghg.socialCostOfGhgScenario": socialCostOfGhgScenario }),

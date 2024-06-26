@@ -6,7 +6,6 @@ import { CostModel } from "../model/CostModel";
 export default function useParamSync() {
     const { alternativeID, costID } = useParams();
     useLayoutEffect(() => {
-        console.log("sync");
         if (alternativeID !== undefined) AlternativeModel.sID$.next(Number.parseInt(alternativeID));
 
         if (costID !== undefined) CostModel.id$.next(Number.parseInt(costID));
