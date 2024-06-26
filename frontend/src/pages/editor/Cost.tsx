@@ -1,20 +1,21 @@
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Checkbox, Typography } from "antd";
+import { Typography } from "antd";
 import { motion } from "framer-motion";
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { CostTypes, type Cost as FormatCost, type ID } from "../../blcc-format/Format";
-import AddCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
 import { TextArea } from "../../components/TextArea";
 import TextInput, { TextInputType } from "../../components/TextInput";
+import AddCostModal from "../../components/modal/AddCostModal";
 import AppliedCheckboxes from "../../components/navigation/AppliedCheckboxes";
 import { useSubscribe } from "../../hooks/UseSubscribe";
+import useParamSync from "../../hooks/useParamSync";
 import { AlternativeModel } from "../../model/AlternativeModel";
 import { CostModel } from "../../model/CostModel";
 import { alternatives$, currentProject$, useAlternatives } from "../../model/Model";
@@ -125,6 +126,9 @@ function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean
 }
 
 export default function Cost() {
+    console.log("Here");
+    useParamSync();
+
     const id = CostModel.useID();
     const navigate = useNavigate();
     const alternatives = useAlternatives();

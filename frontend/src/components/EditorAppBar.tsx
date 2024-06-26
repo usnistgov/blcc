@@ -1,10 +1,10 @@
 import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
 import { useNavigate } from "react-router-dom";
-import { DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "../blcc-format/Format";
+import { DiscountingMethod, DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "../blcc-format/Format";
 import { Version } from "../blcc-format/Verison";
 import { Country } from "../constants/LOCATION";
 import { useSubscribe } from "../hooks/UseSubscribe";
-import { Model, hash$, isDirty$, useName } from "../model/Model";
+import { Model, hash$, isDirty$ } from "../model/Model";
 import { db } from "../model/db";
 import AppBar from "./AppBar";
 import { Button, ButtonType } from "./Button";
@@ -101,6 +101,7 @@ export default function EditorAppBar() {
                 name: "Untitled Project",
                 dollarMethod: DollarMethod.CONSTANT,
                 constructionPeriod: 0,
+                discountingMethod: DiscountingMethod.END_OF_YEAR,
                 location: {
                     country: Country.USA,
                 },
@@ -163,7 +164,7 @@ export default function EditorAppBar() {
                 </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"}>{useName() || "Untitled Project"}</p>
+                <p className={"text-base-lightest"}>{Model.useName() || "Untitled Project"}</p>
                 <div className={"pl-4"}>
                     <Button
                         type={ButtonType.PRIMARY_INVERTED}

@@ -15,12 +15,12 @@ import {
     switchMap,
 } from "rxjs";
 import { map } from "rxjs/operators";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import { currentProject$ } from "../model/Model";
-import { db } from "../model/db";
-import { guard, isFalse } from "../util/Operators";
-import { Button, ButtonType } from "./Button";
-import TextInput, { TextInputType } from "./TextInput";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { currentProject$ } from "../../model/Model";
+import { db } from "../../model/db";
+import { guard, isFalse } from "../../util/Operators";
+import { Button, ButtonType } from "../Button";
+import TextInput, { TextInputType } from "../TextInput";
 
 type AddAlternativeModalProps = {
     open$: Observable<boolean>;

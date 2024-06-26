@@ -16,7 +16,7 @@ import Switch from "../../components/Switch";
 import { TextArea } from "../../components/TextArea";
 import TextInput, { TextInputType } from "../../components/TextInput";
 import { Country, State } from "../../constants/LOCATION";
-import { Model, analyst$, description$, name$, sAnalyst$, sDescription$, sName$ } from "../../model/Model";
+import { Model } from "../../model/Model";
 import { max, min } from "../../model/rules/Rules";
 
 export default function GeneralInformation() {
@@ -39,10 +39,15 @@ export default function GeneralInformation() {
                     label={"Project Name *"}
                     type={TextInputType.PRIMARY}
                     placeholder={"Untitled Project"}
-                    value$={name$}
-                    wire={sName$}
+                    value$={Model.name$}
+                    wire={Model.sName$}
                 />
-                <TextInput label={"Analyst"} type={TextInputType.PRIMARY} value$={analyst$} wire={sAnalyst$} />
+                <TextInput
+                    label={"Analyst"}
+                    type={TextInputType.PRIMARY}
+                    value$={Model.analyst$}
+                    wire={Model.sAnalyst$}
+                />
 
                 <Dropdown
                     label={"Analysis Type *"}
@@ -62,7 +67,12 @@ export default function GeneralInformation() {
                 )}
 
                 <span className={"col-span-2"}>
-                    <TextArea label={"Description"} className={"w-full"} value$={description$} wire={sDescription$} />
+                    <TextArea
+                        label={"Description"}
+                        className={"w-full"}
+                        value$={Model.description$}
+                        wire={Model.sDescription$}
+                    />
                 </span>
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                     <NumberInput

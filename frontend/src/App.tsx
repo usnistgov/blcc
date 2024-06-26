@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { combineLatest } from "rxjs";
 import { DiscountingMethod, DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "./blcc-format/Format";
 import { Version } from "./blcc-format/Verison";
+import SyncUrlParams from "./components/SyncUrlParams";
 import messageModal, { type Message } from "./components/modal/MessageModal";
 import { Country } from "./constants/LOCATION";
 import { Model } from "./model/Model";

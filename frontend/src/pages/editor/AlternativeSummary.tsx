@@ -9,10 +9,11 @@ import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import type { Alternative, Cost, EnergyCost } from "../../blcc-format/Format";
-import AddAlternativeModal from "../../components/AddAlternativeModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
+import AddAlternativeModal from "../../components/modal/AddAlternativeModal";
 import { useSubscribe } from "../../hooks/UseSubscribe";
+import useParamSync from "../../hooks/useParamSync";
 import { alternatives$ } from "../../model/Model";
 import { db } from "../../model/db";
 import { countProperty } from "../../util/Operators";
@@ -25,6 +26,8 @@ const addAlternativeClick$ = new Subject<void>();
 const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
 
 export default function AlternativeSummary() {
+    useParamSync();
+
     const cards = useCards();
 
     return (

@@ -1,19 +1,19 @@
-import React from "react";
-import ButtonBar from "./ButtonBar";
-import { Button, ButtonType } from "./Button";
-import AppBar from "./AppBar";
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay, mdiTableArrowDown } from "@mdi/js";
-import { useNavigate } from "react-router-dom";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import HelpButtons from "./HelpButtons";
-import { E3Request, toE3Object } from "../model/E3Request";
-import { Subject, switchMap } from "rxjs";
 import { bind, shareLatest } from "@react-rxjs/core";
-import { currentProject$, hash$, useName } from "../model/Model";
-import { filter, map, tap, withLatestFrom } from "rxjs/operators";
-import { db } from "../model/db";
 import { liveQuery } from "dexie";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Subject, switchMap } from "rxjs";
+import { filter, map, tap, withLatestFrom } from "rxjs/operators";
+import { useSubscribe } from "../hooks/UseSubscribe";
+import { E3Request, toE3Object } from "../model/E3Request";
+import { Model, currentProject$, hash$ } from "../model/Model";
+import { db } from "../model/db";
 import { download } from "../util/DownloadFile";
+import AppBar from "./AppBar";
+import { Button, ButtonType } from "./Button";
+import ButtonBar from "./ButtonBar";
+import HelpButtons from "./HelpButtons";
 
 const runClick$ = new Subject<void>();
 const pdfClick$ = new Subject<void>();
@@ -38,7 +38,7 @@ const e3Result$ = runClick$.pipe(
     tap(console.log),
     E3Request(),
     tap(console.log),
-    shareLatest()
+    shareLatest(),
 );
 
 export default function ResultsAppBar() {
@@ -53,15 +53,28 @@ export default function ResultsAppBar() {
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
             <ButtonBar className={"p-2"}>
-                <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>Back to Editor</Button>
-                <Button icon={mdiContentSave} onClick={() => saveClick$.next()}>Save</Button>
-                <Button icon={mdiFileDownload} onClick={() => pdfClick$.next()}>Export PDF</Button>
-                <Button icon={mdiTableArrowDown} onClick={() => saveClick$.next()}>Export CSV</Button>
+                <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>
+                    Back to Editor
+                </Button>
+                <Button icon={mdiContentSave} onClick={() => saveClick$.next()}>
+                    Save
+                </Button>
+                <Button icon={mdiFileDownload} onClick={() => pdfClick$.next()}>
+                    Export PDF
+                </Button>
+                <Button icon={mdiTableArrowDown} onClick={() => saveClick$.next()}>
+                    Export CSV
+                </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-white"}>{useName()}</p>
+                <p className={"text-white"}>{Model.useName()}</p>
                 <div className={"pl-4"}>
-                    <Button type={ButtonType.PRIMARY_INVERTED} icon={mdiPlay} iconSide={"right"} onClick={() => runClick$.next()}>
+                    <Button
+                        type={ButtonType.PRIMARY_INVERTED}
+                        icon={mdiPlay}
+                        iconSide={"right"}
+                        onClick={() => runClick$.next()}
+                    >
                         Run
                     </Button>
                 </div>

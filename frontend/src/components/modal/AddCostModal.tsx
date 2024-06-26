@@ -3,19 +3,19 @@ import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
 import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample } from "rxjs";
 import { map } from "rxjs/operators";
-import { Button, ButtonType } from "./Button";
-import { Dropdown } from "./Dropdown";
-import TextInput, { TextInputType } from "./TextInput";
+import { Button, ButtonType } from "../Button";
+import { Dropdown } from "../Dropdown";
+import TextInput, { TextInputType } from "./../TextInput";
 
 import { mdiClose, mdiPlus } from "@mdi/js";
 import { useMemo } from "react";
-import { type Cost, CostTypes, type ID } from "../blcc-format/Format";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import { AlternativeModel } from "../model/AlternativeModel";
-import { currentProject$ } from "../model/Model";
-import { db } from "../model/db";
-import { guard } from "../util/Operators";
-import AppliedCheckboxes from "./navigation/AppliedCheckboxes";
+import { type Cost, CostTypes, type ID } from "../../blcc-format/Format";
+import { useSubscribe } from "../../hooks/UseSubscribe";
+import { AlternativeModel } from "../../model/AlternativeModel";
+import { currentProject$ } from "../../model/Model";
+import { db } from "../../model/db";
+import { guard } from "../../util/Operators";
+import AppliedCheckboxes from "../navigation/AppliedCheckboxes";
 
 type AddCostModalProps = {
     open$: Observable<boolean>;

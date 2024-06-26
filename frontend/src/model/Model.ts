@@ -30,39 +30,6 @@ const dbProject$ = currentProject$.pipe(
 
 export const [useProject, project$] = bind(dbProject$, undefined);
 
-/**
- * The name of the current project.
- */
-export const sName$ = new Subject<string | undefined>();
-const newName$ = sName$.pipe(defaultValue("Untitled Project"));
-export const [useName, name$] = bind(
-    merge(newName$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
-    undefined,
-);
-newName$.pipe(withLatestFrom(projectCollection$)).subscribe(([name, collection]) => collection.modify({ name }));
-
-/**
- * The analyst for the current project
- */
-export const sAnalyst$ = new Subject<string | undefined>();
-export const analyst$ = state(
-    merge(sAnalyst$, dbProject$.pipe(map((p) => p?.analyst))).pipe(distinctUntilChanged()),
-    undefined,
-);
-sAnalyst$.pipe(withLatestFrom(projectCollection$)).subscribe(([analyst, collection]) => collection.modify({ analyst }));
-
-/**
- * The description of the current project
- */
-export const sDescription$ = new Subject<string | undefined>();
-export const description$ = state(
-    merge(sDescription$, dbProject$.pipe(map((p) => p?.description))).pipe(distinctUntilChanged()),
-    undefined,
-);
-sDescription$
-    .pipe(withLatestFrom(projectCollection$))
-    .subscribe(([description, collection]) => collection.modify({ description }));
-
 export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
@@ -225,6 +192,41 @@ export namespace Model {
             }),
         );
     }
+
+    /**
+     * The name of the current project.
+     */
+    export const sName$ = new Subject<string | undefined>();
+    const newName$ = sName$.pipe(defaultValue("Untitled Project"));
+    export const [useName, name$] = bind(
+        merge(newName$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+    newName$.pipe(withLatestFrom(projectCollection$)).subscribe(([name, collection]) => collection.modify({ name }));
+
+    /**
+     * The analyst for the current project
+     */
+    export const sAnalyst$ = new Subject<string | undefined>();
+    export const analyst$ = state(
+        merge(sAnalyst$, dbProject$.pipe(map((p) => p?.analyst))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+    sAnalyst$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([analyst, collection]) => collection.modify({ analyst }));
+
+    /**
+     * The description of the current project
+     */
+    export const sDescription$ = new Subject<string | undefined>();
+    export const description$ = state(
+        merge(sDescription$, dbProject$.pipe(map((p) => p?.description))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+    sDescription$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([description, collection]) => collection.modify({ description }));
 
     /**
      * Get the release years of the data that are available

@@ -1,5 +1,5 @@
 import { AnimatePresence } from "framer-motion";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 import EditorAppBar from "../../components/EditorAppBar";
 import PageWrapper from "../../components/PageWrapper";
 import Statistics from "../../components/Statistics";
@@ -23,7 +23,7 @@ export default function Editor() {
                     <Routes location={location} key={location.key}>
                         <Route path={"*"} element={<Navigation />}>
                             <Route index />
-                            <Route path={"alternative/:altID"}>
+                            <Route path={"alternative/:alternativeID"}>
                                 <Route index path={"*"} element={<CostNavigation />} />
                             </Route>
                         </Route>
@@ -36,14 +36,7 @@ export default function Editor() {
                             <Route index element={<GeneralInformation />} />
                             <Route path={"alternative"}>
                                 <Route index element={<AlternativeSummary />} />
-                                <Route
-                                    path={":alternativeID/cost/:costID"}
-                                    element={
-                                        <SyncUrlParams>
-                                            <Cost />
-                                        </SyncUrlParams>
-                                    }
-                                />
+                                <Route path={":alternativeID/cost/:costID"} element={<Cost />} />
                                 <Route path={":alternativeID"} element={<Alternatives />} />
                             </Route>
                         </Route>

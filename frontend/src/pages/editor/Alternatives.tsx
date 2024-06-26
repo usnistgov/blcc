@@ -3,18 +3,19 @@ import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { Typography } from "antd";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useLayoutEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Subject, combineLatest, sample, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import type { Alternative, Cost, CostTypes, FuelType, ID } from "../../blcc-format/Format";
-import AddAlternativeModal from "../../components/AddAlternativeModal";
-import AddCostModal from "../../components/AddCostModal";
 import { Button, ButtonType } from "../../components/Button";
 import SubHeader from "../../components/SubHeader";
 import { TextArea } from "../../components/TextArea";
 import TextInput, { TextInputType } from "../../components/TextInput";
+import AddAlternativeModal from "../../components/modal/AddAlternativeModal";
+import AddCostModal from "../../components/modal/AddCostModal";
 import { useSubscribe } from "../../hooks/UseSubscribe";
+import useParamSync from "../../hooks/useParamSync";
 import { AlternativeModel } from "../../model/AlternativeModel";
 import { currentProject$, useAlternativeIDs } from "../../model/Model";
 import { db } from "../../model/db";
@@ -140,10 +141,7 @@ async function cloneAlternative([alternative, projectID]: [Alternative, number])
 export default function Alternatives() {
     // Navigate to general information page if there are no alternatives
     const navigate = useNavigate();
-    const alternatives = useAlternativeIDs();
-    useEffect(() => {
-        if (alternatives.length <= 0) navigate("/editor");
-    }, [navigate, alternatives]);
+    useParamSync();
 
     //useSubscribe(baseline$.pipe(withLatestFrom(alternativeID$)), setBaseline);
     useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
