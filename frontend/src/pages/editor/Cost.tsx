@@ -1,5 +1,5 @@
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { bind } from "@react-rxjs/core";
+import { bind, useStateObservable } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Typography } from "antd";
 import { motion } from "framer-motion";
@@ -126,20 +126,16 @@ function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean
 }
 
 export default function Cost() {
-    console.log("Here");
     useParamSync();
 
-    const id = CostModel.useID();
     const navigate = useNavigate();
-    const alternatives = useAlternatives();
-    const onlyOne = onlyOneAlternativeIncludes();
     const costType = CostModel.useType();
     const alternativeID = AlternativeModel.useID();
+    const name = useStateObservable(AlternativeModel.name$);
 
-    const [useAltName, altsThatInclude$, sCheckedAlt$] = useMemo(() => {
+    const [altsThatInclude$, sCheckedAlt$] = useMemo(() => {
         const sCheckedAlt$ = new Subject<Set<ID>>();
 
-        const [useAltName] = bind(AlternativeModel.alternative$.pipe(map((alt) => alt.name)));
         const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
             map(
                 ([alternatives, id]) =>
@@ -147,10 +143,8 @@ export default function Cost() {
             ),
         );
 
-        return [useAltName, altsThatInclude$, sCheckedAlt$];
+        return [altsThatInclude$, sCheckedAlt$];
     }, []);
-
-    const alternativeName = useAltName();
 
     /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     //useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
@@ -176,7 +170,7 @@ export default function Cost() {
                             icon={mdiArrowLeft}
                             onClick={() => navigate(`/editor/alternative/${alternativeID}`, { replace: true })}
                         >
-                            {alternativeName}
+                            {name}
                         </Button>
                     </div>
                     <div>
