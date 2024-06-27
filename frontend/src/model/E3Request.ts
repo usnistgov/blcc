@@ -14,8 +14,6 @@ import {
     TimestepValue,
     VarRate,
 } from "@lrd/e3-sdk";
-import { type Observable, type UnaryFunction, pipe, switchMap } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
 import {
     type CapitalCost,
     type Cost,
@@ -33,10 +31,12 @@ import {
     type ReplacementCapitalCost,
     type ResidualValue,
     type WaterCost,
-} from "../blcc-format/Format";
-import { toMWh } from "../util/UnitConversion";
-import { Model } from "./Model";
-import { db } from "./db";
+} from "blcc-format/Format";
+import { Model } from "model/Model";
+import { db } from "model/db";
+import { type Observable, type UnaryFunction, pipe, switchMap } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
+import { toMWh } from "util/UnitConversion";
 
 /**
  * RXJS operator to take the project and create an E3 request.

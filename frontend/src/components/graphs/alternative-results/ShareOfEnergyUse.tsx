@@ -1,11 +1,11 @@
-import { useSubscribe } from "../../../hooks/UseSubscribe";
-import { useEffect } from "react";
-import { bb, type Chart } from "billboard.js";
 import { createSignal } from "@react-rxjs/utils";
+import { type Chart, bb } from "billboard.js";
+import { FuelType } from "blcc-format/Format";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { selectedMeasure$ } from "model/ResultModel";
+import { useEffect } from "react";
 import { combineLatest } from "rxjs";
-import { selectedMeasure$ } from "../../../model/ResultModel";
 import { debounceTime } from "rxjs/operators";
-import { FuelType } from "../../../blcc-format/Format";
 
 const GRAPH_ID = "share-of-energy-use-chart";
 
@@ -19,11 +19,11 @@ export default function ShareOfEnergyUse() {
             FuelType.NATURAL_GAS,
             FuelType.DISTILLATE_OIL,
             FuelType.RESIDUAL_OIL,
-            FuelType.PROPANE
+            FuelType.PROPANE,
         ].map((fuelType) => [fuelType, measure.totalTagFlows[fuelType] ?? 0]);
 
         chart.unload({
-            done: () => chart.load({ columns: categories })
+            done: () => chart.load({ columns: categories }),
         });
     });
 
@@ -31,9 +31,9 @@ export default function ShareOfEnergyUse() {
         const chart = bb.generate({
             data: {
                 columns: [],
-                type: "pie"
+                type: "pie",
             },
-            bindto: `#${GRAPH_ID}`
+            bindto: `#${GRAPH_ID}`,
         });
 
         setChart(chart);

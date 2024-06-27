@@ -1,15 +1,15 @@
-import AppBar from "./AppBar";
-import { useAlternativeIDs, useCostIDs } from "../model/Model";
-import { from, map, sample } from "rxjs";
-import { liveQuery } from "dexie";
-import { db } from "../model/db";
-import Icon from "@mdi/react";
 import { mdiCheck, mdiWindowClose } from "@mdi/js";
+import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { useSubscribe } from "../hooks/UseSubscribe";
+import AppBar from "components/AppBar";
+import { liveQuery } from "dexie";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { useAlternativeIDs, useCostIDs } from "model/Model";
+import { db } from "model/db";
 import { useNavigate } from "react-router-dom";
-import { guard } from "../util/Operators";
+import { from, map, sample } from "rxjs";
+import { guard } from "util/Operators";
 
 // Signal for when an error message is click to navigate to error location
 const [errorClick$, errorClick] = createSignal();
@@ -20,7 +20,7 @@ const [useError, error$] = bind(from(liveQuery(() => db.errors.limit(1).first())
 // The number of errors after the first so we can display how many total errors there are
 const [useExtraErrorCount] = bind(
     from(liveQuery(() => db.errors.count())).pipe(map((count) => (count - 1 < 0 ? 0 : count - 1))),
-    0
+    0,
 );
 
 // True if the project is valid, otherwise false

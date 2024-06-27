@@ -1,10 +1,10 @@
 import { createSignal } from "@react-rxjs/utils";
-import { bb, type Chart } from "billboard.js";
-import { combineLatest } from "rxjs";
-import { selectedMeasure$ } from "../../../model/ResultModel";
-import { debounceTime } from "rxjs/operators";
+import { type Chart, bb } from "billboard.js";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { selectedMeasure$ } from "model/ResultModel";
 import { useEffect } from "react";
-import { useSubscribe } from "../../../hooks/UseSubscribe";
+import { combineLatest } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 const GRAPH_ID = "share-of-lcc-chart";
 
@@ -22,9 +22,9 @@ export default function ShareOfLcc() {
                         ["Water", measure.totalTagFlows.Water ?? 0],
                         ["OMR", measure.totalTagFlows.OMR ?? 0],
                         ["Replacement", measure.totalTagFlows.Replacement ?? 0],
-                        ["Residual Value", measure.totalTagFlows["Residual Value"] ?? 0]
-                    ]
-                })
+                        ["Residual Value", measure.totalTagFlows["Residual Value"] ?? 0],
+                    ],
+                }),
         });
     });
 
@@ -32,9 +32,9 @@ export default function ShareOfLcc() {
         const chart = bb.generate({
             data: {
                 columns: [],
-                type: "pie"
+                type: "pie",
             },
-            bindto: `#${GRAPH_ID}`
+            bindto: `#${GRAPH_ID}`,
         });
 
         setChart(chart);

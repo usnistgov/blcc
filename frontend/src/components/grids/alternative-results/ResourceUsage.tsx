@@ -1,9 +1,9 @@
 import { bind } from "@react-rxjs/core";
+import { FuelType } from "blcc-format/Format";
+import { selectedMeasure$ } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
-import { FuelType } from "../../../blcc-format/Format";
-import { selectedMeasure$ } from "../../../model/ResultModel";
-import { dollarFormatter } from "../../../util/Util";
+import { dollarFormatter } from "util/Util";
 
 type Row = {
     category: string;

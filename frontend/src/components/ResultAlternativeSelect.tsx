@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import { selectAlternative, useOptions, useSelection } from "../model/ResultModel";
 import Title from "antd/es/typography/Title";
+import { selectAlternative, useOptions, useSelection } from "model/ResultModel";
 
 export default function ResultAlternativeSelect() {
     return (

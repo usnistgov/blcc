@@ -1,9 +1,9 @@
 import { bind } from "@react-rxjs/core";
+import { optionalsByTag$, required$, selection$ } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest, from, switchMap, zip } from "rxjs";
 import { map, toArray } from "rxjs/operators";
-import { optionalsByTag$, required$, selection$ } from "../../../model/ResultModel";
-import { dollarFormatter } from "../../../util/Util";
+import { dollarFormatter } from "util/Util";
 
 type Row = {
     year: number;

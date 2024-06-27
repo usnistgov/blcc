@@ -1,6 +1,6 @@
-import ButtonBar from "./ButtonBar";
-import { Button, ButtonType } from "./Button";
 import { mdiFileDocument, mdiHelp } from "@mdi/js";
+import ButtonBar from "components/ButtonBar";
+import { Button, ButtonType } from "components/input/Button";
 import { Link } from "react-router-dom";
 
 export default function HelpButtons() {

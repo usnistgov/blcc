@@ -1,14 +1,7 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
 import { createSignal } from "@react-rxjs/utils";
-import { XMLParser } from "fast-xml-parser";
-import objectHash from "object-hash";
-import { Subject, map, switchMap } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
-import { showMessage } from "../App";
-import { Country, stateToAbbreviation } from "../constants/LOCATION";
-import { Model } from "../model/Model";
-import { db } from "../model/db";
+import { showMessage } from "App";
 import {
     AnalysisType,
     type CapitalCost,
@@ -37,8 +30,15 @@ import {
     type Unit,
     type WaterCost,
     WeightUnit,
-} from "./Format";
-import { Version } from "./Verison";
+} from "blcc-format/Format";
+import { Version } from "blcc-format/Verison";
+import { Country, stateToAbbreviation } from "constants/LOCATION";
+import { XMLParser } from "fast-xml-parser";
+import { Model } from "model/Model";
+import { db } from "model/db";
+import objectHash from "object-hash";
+import { Subject, map, switchMap } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();

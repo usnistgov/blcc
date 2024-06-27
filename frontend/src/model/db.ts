@@ -1,6 +1,6 @@
 import type { Output } from "@lrd/e3-sdk";
+import type { Alternative, Cost, Project } from "blcc-format/Format";
 import Dexie, { type Table } from "dexie";
-import type { Alternative, Cost, Project } from "../blcc-format/Format";
 
 export class BlccDexie extends Dexie {
     projects!: Table<Project, number>;

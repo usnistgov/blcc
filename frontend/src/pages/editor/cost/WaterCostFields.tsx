@@ -1,6 +1,6 @@
+import { LiquidUnit } from "blcc-format/Format";
+import { Dropdown } from "components/input/Dropdown";
 import { Subject } from "rxjs";
-import { LiquidUnit } from "../../../blcc-format/Format";
-import { Dropdown } from "../../../components/Dropdown";
 
 export default function WaterCostFields() {
     return (

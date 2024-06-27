@@ -1,20 +1,13 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
+import { CostTypes, type CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "blcc-format/Format";
+import { CostModel } from "model/CostModel";
+import { Model } from "model/Model";
 import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, combineLatestWith, filter, shareReplay } from "rxjs/operators";
 import { match } from "ts-pattern";
-import {
-    CostTypes,
-    type CustomerSector,
-    type EnergyCost,
-    EnergyUnit,
-    FuelType,
-    type Unit,
-} from "../../blcc-format/Format";
-import { guard } from "../../util/Operators";
-import { CostModel } from "../CostModel";
-import { Model } from "../Model";
+import { guard } from "util/Operators";
 
 /**
  * Outputs a value if the current cost is an energy cost

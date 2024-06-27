@@ -1,11 +1,11 @@
+import { CostTypes, type ImplementationContractCost } from "blcc-format/Format";
+import { NumberInput } from "components/input/InputNumber";
 import type { Collection } from "dexie";
+import { useDbUpdate } from "hooks/UseDbUpdate";
+import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import { filter, map } from "rxjs/operators";
-import { CostTypes, type ImplementationContractCost } from "../../../blcc-format/Format";
-import { NumberInput } from "../../../components/InputNumber";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { CostModel } from "../../../model/CostModel";
 
 /**
  * Component for the implementation contract fields in the cost pages

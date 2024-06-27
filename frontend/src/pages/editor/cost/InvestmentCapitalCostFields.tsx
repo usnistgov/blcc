@@ -1,11 +1,11 @@
+import { type CapitalCost, CostTypes } from "blcc-format/Format";
+import { NumberInput } from "components/input/InputNumber";
 import type { Collection } from "dexie";
+import { useDbUpdate } from "hooks/UseDbUpdate";
+import { CostModel } from "model/CostModel";
 import React, { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
-import { type CapitalCost, CostTypes } from "../../../blcc-format/Format";
-import { NumberInput } from "../../../components/InputNumber";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { CostModel } from "../../../model/CostModel";
 
 export default function InvestmentCapitalCostFields() {
     const [

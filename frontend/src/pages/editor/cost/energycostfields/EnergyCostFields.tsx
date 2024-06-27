@@ -1,11 +1,9 @@
+import { CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "blcc-format/Format";
+import { Dropdown } from "components/input/Dropdown";
+import { NumberInput } from "components/input/InputNumber";
 import type { Collection } from "dexie";
-import { useMemo } from "react";
-import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
-import { CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "../../../../blcc-format/Format";
-import { Dropdown } from "../../../../components/Dropdown";
-import { NumberInput } from "../../../../components/InputNumber";
-import { useDbUpdate } from "../../../../hooks/UseDbUpdate";
-import { CostModel } from "../../../../model/CostModel";
+import { useDbUpdate } from "hooks/UseDbUpdate";
+import { CostModel } from "model/CostModel";
 import {
     customerSector$,
     energyCost$,
@@ -15,10 +13,12 @@ import {
     sUnitChange$,
     unit$,
     useUnit,
-} from "../../../../model/costs/EnergyCostModel";
-import { min } from "../../../../model/rules/Rules";
-import EscalationRates from "./EscalationRates";
-import UsageIndex from "./UsageIndex";
+} from "model/costs/EnergyCostModel";
+import { min } from "model/rules/Rules";
+import EscalationRates from "pages/editor/cost/energycostfields/EscalationRates";
+import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
+import { useMemo } from "react";
+import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
 
 export default function EnergyCostFields() {
     const [

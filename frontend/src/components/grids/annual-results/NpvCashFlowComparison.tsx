@@ -4,11 +4,11 @@ import { type Observable, from, switchMap, zip } from "rxjs";
 import { map, toArray } from "rxjs/operators";
 import "react-data-grid/lib/styles.css";
 import type { Required } from "@lrd/e3-sdk";
-import type { Alternative } from "../../../blcc-format/Format";
-import { alternatives$ } from "../../../model/Model";
-import { required$ } from "../../../model/ResultModel";
-import { db } from "../../../model/db";
-import { dollarFormatter } from "../../../util/Util";
+import type { Alternative } from "blcc-format/Format";
+import { alternatives$ } from "model/Model";
+import { required$ } from "model/ResultModel";
+import { db } from "model/db";
+import { dollarFormatter } from "util/Util";
 
 type Row = {
     key: number;

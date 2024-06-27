@@ -2,13 +2,13 @@ import type { Optional } from "@lrd/e3-sdk";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { bar, pie } from "billboard.js";
+import { result$ } from "components/ResultsAppBar";
 import { liveQuery } from "dexie";
+import { alternatives$ } from "model/Model";
+import { db } from "model/db";
 import { combineLatest, merge, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
-import { result$ } from "../components/ResultsAppBar";
-import { guard } from "../util/Operators";
-import { alternatives$ } from "./Model";
-import { db } from "./db";
+import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 
 /**

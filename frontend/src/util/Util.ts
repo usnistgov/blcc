@@ -1,8 +1,8 @@
 import type { Measures } from "@lrd/e3-sdk";
 import { type DefaultedStateObservable, state } from "@react-rxjs/core";
+import { type Cost, CostTypes } from "blcc-format/Format";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import { map } from "rxjs/operators";
-import { type Cost, CostTypes } from "../blcc-format/Format";
 
 // Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {

@@ -1,7 +1,7 @@
 import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEditOutline } from "@mdi/js";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useActiveLink } from "../../hooks/UseActiveLink";
-import { Button } from "../Button";
+import { Button } from "../input/Button";
 
 export default function ResultNavigation() {
     const navigate = useNavigate();

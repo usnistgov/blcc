@@ -1,7 +1,7 @@
 import { Divider } from "antd";
-import ResultsInput from "../../components/ResultsInput";
-import { useProject } from "../../model/Model";
-import type { USLocation } from "../../blcc-format/Format";
+import type { USLocation } from "blcc-format/Format";
+import ResultsInput from "components/ResultsInput";
+import { useProject } from "model/Model";
 
 export default function Inputs() {
     const project = useProject();

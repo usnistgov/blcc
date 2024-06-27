@@ -1,10 +1,10 @@
 import { bind } from "@react-rxjs/core";
+import { alternatives$ } from "model/Model";
+import { alternativeNames$, measures$ } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
-import { alternatives$ } from "../../../model/Model";
-import { alternativeNames$, measures$ } from "../../../model/ResultModel";
-import { dollarFormatter, getOptionalTag } from "../../../util/Util";
+import { dollarFormatter, getOptionalTag } from "util/Util";
 
 type Row = {
     category: string;

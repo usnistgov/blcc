@@ -1,11 +1,11 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import "../nist-header-footer.sass";
-import NistHeaderFooter from "../components/NistHeaderFooter";
-import { Button } from "../components/Button";
+import "nist-header-footer.sass";
 import { mdiArrowRight } from "@mdi/js";
+import NistHeaderFooter from "components/NistHeaderFooter";
+import { Button } from "components/input/Button";
+import Logo from "images/logo.svg?react";
 import { useNavigate } from "react-router-dom";
-import Logo from "../images/logo.svg?react";
 
 export default function Index() {
     const navigate = useNavigate();

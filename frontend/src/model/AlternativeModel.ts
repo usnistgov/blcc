@@ -1,10 +1,10 @@
 import { bind, state } from "@react-rxjs/core";
 import { liveQuery } from "dexie";
+import { db } from "model/db";
 import { BehaviorSubject, Subject, distinctUntilChanged, merge, switchMap } from "rxjs";
 import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
-import { arrayFilter, defaultValue, guard } from "../util/Operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "../util/Util";
-import { db } from "./db";
+import { arrayFilter, defaultValue, guard } from "util/Operators";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
 
 export namespace AlternativeModel {
     /**

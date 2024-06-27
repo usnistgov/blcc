@@ -1,20 +1,15 @@
 import { bind } from "@react-rxjs/core";
 import { Typography } from "antd";
+import { CostTypes, DollarOrPercent, type ReplacementCapitalCost, type ResidualValue } from "blcc-format/Format";
+import checkbox from "components/input/Checkbox";
+import { NumberInput } from "components/input/InputNumber";
 import type { Collection } from "dexie";
+import { useDbUpdate } from "hooks/UseDbUpdate";
+import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
-import {
-    CostTypes,
-    DollarOrPercent,
-    type ReplacementCapitalCost,
-    type ResidualValue,
-} from "../../../blcc-format/Format";
-import checkbox from "../../../components/Checkbox";
-import { NumberInput } from "../../../components/InputNumber";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { CostModel } from "../../../model/CostModel";
-import { defaultValue } from "../../../util/Operators";
+import { defaultValue } from "util/Operators";
 
 const { Title } = Typography;
 

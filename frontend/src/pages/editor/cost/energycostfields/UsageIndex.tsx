@@ -1,17 +1,17 @@
 import { bind, state } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
+import { NumberInput } from "components/input/InputNumber";
+import Switch from "components/input/Switch";
+import { Model } from "model/Model";
+import { useIndex$, useIndexChange } from "model/costs/EnergyCostModel";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, textEditor } from "react-data-grid";
-import { Subject, combineLatest, map, merge, switchMap } from "rxjs";
+import { Subject, combineLatest, map, merge } from "rxjs";
 import { filter, shareReplay } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import { NumberInput } from "../../../../components/InputNumber";
-import Switch from "../../../../components/Switch";
-import { Model } from "../../../../model/Model";
-import { useIndex$, useIndexChange } from "../../../../model/costs/EnergyCostModel";
-import { isFalse, isTrue } from "../../../../util/Operators";
-import { percentFormatter } from "../../../../util/Util";
+import { isFalse, isTrue } from "util/Operators";
+import { percentFormatter } from "util/Util";
 
 type UsageIndexProps = {
     title: string;

@@ -1,9 +1,9 @@
 import { bind } from "@react-rxjs/core";
+import { selectedAlternative$, selectedMeasure$ } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
-import { selectedAlternative$, selectedMeasure$ } from "../../../model/ResultModel";
-import { dollarFormatter } from "../../../util/Util";
+import { dollarFormatter } from "util/Util";
 
 type Row = {
     category: string;

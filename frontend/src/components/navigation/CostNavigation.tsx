@@ -1,12 +1,12 @@
 import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiWater } from "@mdi/js";
 import Icon from "@mdi/react";
 import { type StateObservable, useStateObservable } from "@react-rxjs/core";
+import type { Cost } from "blcc-format/Format";
+import { Button, ButtonType } from "components/input/Button";
+import { useActiveLink } from "hooks/UseActiveLink";
+import { AlternativeModel } from "model/AlternativeModel";
+import { CostModel } from "model/CostModel";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { Cost } from "../../blcc-format/Format";
-import { useActiveLink } from "../../hooks/UseActiveLink";
-import { AlternativeModel } from "../../model/AlternativeModel";
-import { CostModel } from "../../model/CostModel";
-import { Button, ButtonType } from "../Button";
 
 type MenuItem = {
     title: string;

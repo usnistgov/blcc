@@ -1,19 +1,19 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import { bind, shareLatest } from "@react-rxjs/core";
+import AppBar from "components/AppBar";
+import ButtonBar from "components/ButtonBar";
+import HelpButtons from "components/HelpButtons";
+import { Button, ButtonType } from "components/input/Button";
 import { liveQuery } from "dexie";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { E3Request, toE3Object } from "model/E3Request";
+import { Model, currentProject$, hash$ } from "model/Model";
+import { db } from "model/db";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, switchMap } from "rxjs";
 import { filter, map, tap, withLatestFrom } from "rxjs/operators";
-import { useSubscribe } from "../hooks/UseSubscribe";
-import { E3Request, toE3Object } from "../model/E3Request";
-import { Model, currentProject$, hash$ } from "../model/Model";
-import { db } from "../model/db";
-import { download } from "../util/DownloadFile";
-import AppBar from "./AppBar";
-import { Button, ButtonType } from "./Button";
-import ButtonBar from "./ButtonBar";
-import HelpButtons from "./HelpButtons";
+import { download } from "util/DownloadFile";
 
 const runClick$ = new Subject<void>();
 const pdfClick$ = new Subject<void>();

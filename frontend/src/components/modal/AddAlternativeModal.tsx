@@ -2,6 +2,11 @@ import { mdiClose, mdiPlus } from "@mdi/js";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
+import { Button, ButtonType } from "components/input/Button";
+import TextInput, { TextInputType } from "components/input/TextInput";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { currentProject$ } from "model/Model";
+import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,12 +20,7 @@ import {
     switchMap,
 } from "rxjs";
 import { map } from "rxjs/operators";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import { currentProject$ } from "../../model/Model";
-import { db } from "../../model/db";
-import { guard, isFalse } from "../../util/Operators";
-import { Button, ButtonType } from "../Button";
-import TextInput, { TextInputType } from "../TextInput";
+import { guard, isFalse } from "util/Operators";
 
 type AddAlternativeModalProps = {
     open$: Observable<boolean>;

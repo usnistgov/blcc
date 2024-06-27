@@ -1,4 +1,4 @@
-import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, type Unit } from "../blcc-format/Format";
+import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, type Unit } from "blcc-format/Format";
 import convert from "convert";
 
 export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => number } => {
@@ -7,7 +7,7 @@ export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => 
         [EnergyUnit.THERM]: thermToMWh,
         [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("MWh"),
         [EnergyUnit.MJ]: (mj: number) => convert(mj, "megajoules").to("MWh"),
-        [EnergyUnit.MBTU]: mbtuToMWh
+        [EnergyUnit.MBTU]: mbtuToMWh,
     };
 
     switch (fuelType) {
@@ -17,7 +17,7 @@ export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => 
             return {
                 ...energyConversions,
                 [CubicUnit.CUBIC_METERS]: naturalGasCubicMetersToMWh,
-                [CubicUnit.CUBIC_FEET]: naturalGasCubicFeetToMWh
+                [CubicUnit.CUBIC_FEET]: naturalGasCubicFeetToMWh,
             };
         case FuelType.PROPANE:
             return {
@@ -27,12 +27,12 @@ export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => 
                 [LiquidUnit.GALLON]: propaneGallonToMWh,
                 [LiquidUnit.K_GALLON]: propaneThousandGallonToMWh,
                 [CubicUnit.CUBIC_FEET]: propaneCubicFeetToMWh,
-                [CubicUnit.CUBIC_METERS]: propaneCubicMetersToMWh
+                [CubicUnit.CUBIC_METERS]: propaneCubicMetersToMWh,
             };
         case FuelType.DISTILLATE_OIL:
         case FuelType.RESIDUAL_OIL:
             return {
-                ...energyConversions
+                ...energyConversions,
             };
         default:
             return {};

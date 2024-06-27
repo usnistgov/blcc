@@ -1,5 +1,5 @@
-import type { Country, State } from "../constants/LOCATION";
-import type { Version } from "./Verison";
+import type { Version } from "blcc-format/Verison";
+import type { Country, State } from "constants/LOCATION";
 
 export type Project = {
     id?: number;

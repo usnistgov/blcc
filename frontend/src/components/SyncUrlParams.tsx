@@ -1,7 +1,7 @@
+import { AlternativeModel } from "model/AlternativeModel";
+import { CostModel } from "model/CostModel";
 import { type PropsWithChildren, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { AlternativeModel } from "../model/AlternativeModel";
-import { CostModel } from "../model/CostModel";
 
 export default function SyncUrlParams({ children }: PropsWithChildren) {
     const { alternativeID, costID } = useParams();

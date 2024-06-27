@@ -1,10 +1,10 @@
 import { bind } from "@react-rxjs/core";
+import { FuelType } from "blcc-format/Format";
+import { alternatives$ } from "model/Model";
+import { measures$ } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
-import { FuelType } from "../../../blcc-format/Format";
-import { alternatives$ } from "../../../model/Model";
-import { measures$ } from "../../../model/ResultModel";
-import { dollarFormatter, getOptionalTag, numberFormatter } from "../../../util/Util";
+import { dollarFormatter, getOptionalTag, numberFormatter } from "util/Util";
 
 type Row = {
     category: string;

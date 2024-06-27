@@ -1,18 +1,17 @@
 import { Subscribe } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
+import { DiscountingMethod, DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "blcc-format/Format";
+import { Version } from "blcc-format/Verison";
+import messageModal, { type Message } from "components/modal/MessageModal";
+import { Country } from "constants/LOCATION";
 import { liveQuery } from "dexie";
+import { Model } from "model/Model";
+import { db } from "model/db";
+import Index from "pages/Index";
+import Editor from "pages/editor/Editor";
+import Results from "pages/results/Results";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { combineLatest } from "rxjs";
-import { DiscountingMethod, DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "./blcc-format/Format";
-import { Version } from "./blcc-format/Verison";
-import SyncUrlParams from "./components/SyncUrlParams";
-import messageModal, { type Message } from "./components/modal/MessageModal";
-import { Country } from "./constants/LOCATION";
-import { Model } from "./model/Model";
-import { db } from "./model/db";
-import Index from "./pages/Index";
-import Editor from "./pages/editor/Editor";
-import Results from "./pages/results/Results";
 
 const defaultProject$ = liveQuery(() => db.projects.where("id").equals(1).first());
 combineLatest([defaultProject$, Model.defaultReleaseYear$]).subscribe(([p, releaseYear]) => {

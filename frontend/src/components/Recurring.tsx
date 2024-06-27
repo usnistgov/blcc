@@ -1,10 +1,10 @@
 import { bind } from "@react-rxjs/core";
 import { Typography } from "antd";
+import { CostTypes, type OMRCost, type RecurringContractCost } from "blcc-format/Format";
 import type { Collection } from "dexie";
+import { CostModel } from "model/CostModel";
 import type { Observable } from "rxjs";
 import { filter, map } from "rxjs/operators";
-import { CostTypes, type OMRCost, type RecurringContractCost } from "../blcc-format/Format";
-import { CostModel } from "../model/CostModel";
 
 const { Title } = Typography;
 

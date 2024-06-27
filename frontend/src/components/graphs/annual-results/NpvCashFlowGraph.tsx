@@ -1,10 +1,10 @@
-import { useSubscribe } from "../../../hooks/UseSubscribe";
-import { useEffect } from "react";
-import { bb, type Chart } from "billboard.js";
-import { dollarFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
-import { alternativeNames$, required$ } from "../../../model/ResultModel";
+import { type Chart, bb } from "billboard.js";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { alternativeNames$, required$ } from "model/ResultModel";
+import { useEffect } from "react";
 import { combineLatestWith } from "rxjs/operators";
+import { dollarFormatter } from "util/Util";
 
 const [chart$, setChart] = createSignal<Chart>();
 const loadData$ = required$.pipe(combineLatestWith(alternativeNames$, chart$));
@@ -24,28 +24,28 @@ export default function NpvCashFlowGraph() {
         const chart = bb.generate({
             data: {
                 columns: [],
-                type: "bar"
+                type: "bar",
             },
             bindto: `#${GRAPH_ID}`,
             axis: {
                 y: {
                     tick: {
-                        format: dollarFormatter.format
-                    }
+                        format: dollarFormatter.format,
+                    },
                 },
                 x: {
                     label: {
                         text: "Year",
-                        position: "outer-center"
-                    }
-                }
+                        position: "outer-center",
+                    },
+                },
             },
             tooltip: {
                 format: {
                     title: (x) => `Year ${x}`,
-                    value: dollarFormatter.format
-                }
-            }
+                    value: dollarFormatter.format,
+                },
+            },
         });
 
         setChart(chart);

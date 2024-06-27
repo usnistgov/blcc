@@ -1,9 +1,9 @@
-import ResultAlternativeSelect from "../../components/ResultAlternativeSelect";
-import Header from "../../components/Header";
-import AlternativeNpvCashFlow from "../../components/grids/alternative-results/AlternativeNpvCashFlow";
-import ShareOfEnergyUse from "../../components/graphs/alternative-results/ShareOfEnergyUse";
-import ShareOfLcc from "../../components/graphs/alternative-results/ShareOfLcc";
-import ResourceUsage from "../../components/grids/alternative-results/ResourceUsage";
+import Header from "components/Header";
+import ResultAlternativeSelect from "components/ResultAlternativeSelect";
+import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
+import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
+import AlternativeNpvCashFlow from "components/grids/alternative-results/AlternativeNpvCashFlow";
+import ResourceUsage from "components/grids/alternative-results/ResourceUsage";
 
 export default function AlternativeResults() {
     return (

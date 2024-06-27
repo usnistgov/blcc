@@ -1,11 +1,11 @@
 import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
 import Icon from "@mdi/react";
+import { Button, ButtonType } from "components/input/Button";
+import { useActiveLink } from "hooks/UseActiveLink";
+import { AlternativeModel } from "model/AlternativeModel";
+import { useAlternatives } from "model/Model";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { match } from "ts-pattern";
-import { useActiveLink } from "../../hooks/UseActiveLink";
-import { AlternativeModel } from "../../model/AlternativeModel";
-import { useAlternatives } from "../../model/Model";
-import { Button, ButtonType } from "../Button";
 
 /*
  *  Component representing the navigation button for an alternative

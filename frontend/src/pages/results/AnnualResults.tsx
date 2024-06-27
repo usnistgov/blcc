@@ -1,10 +1,10 @@
-import ResultAlternativeSelect from "../../components/ResultAlternativeSelect";
-import Header from "../../components/Header";
-import NpvCashFlowComparison from "../../components/grids/annual-results/NpvCashFlowComparison";
-import NpvCashFlowGraph from "../../components/graphs/annual-results/NpvCashFlowGraph";
-import AlternativeNpvCashFlowGrid from "../../components/grids/annual-results/AlternativeNpvCashFlowGrid";
-import AlternativeNpvCashFlowGraph from "../../components/graphs/annual-results/AlternativeNpvCashFlowGraph";
-import TagObjectByYearGraph from "../../components/graphs/annual-results/TagObjectByYearGraph";
+import Header from "components/Header";
+import ResultAlternativeSelect from "components/ResultAlternativeSelect";
+import AlternativeNpvCashFlowGraph from "components/graphs/annual-results/AlternativeNpvCashFlowGraph";
+import NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
+import TagObjectByYearGraph from "components/graphs/annual-results/TagObjectByYearGraph";
+import AlternativeNpvCashFlowGrid from "components/grids/annual-results/AlternativeNpvCashFlowGrid";
+import NpvCashFlowComparison from "components/grids/annual-results/NpvCashFlowComparison";
 
 export default function AnnualResults() {
     return (

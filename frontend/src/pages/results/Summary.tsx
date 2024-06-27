@@ -1,8 +1,8 @@
-import Header from "../../components/Header";
-import LifecycleResultsComparison from "../../components/grids/summary/LifeCycleResultsComparison";
-import LifecycleResultsToBaseline from "../../components/grids/summary/LifeCycleResultsToBaseline";
-import NpvCostsBySubcategory from "../../components/grids/summary/NpvCostsBySubcategory";
-import LifeCycleResourceComparison from "../../components/grids/summary/LifeCycleResourceComparison";
+import Header from "components/Header";
+import LifeCycleResourceComparison from "components/grids/summary/LifeCycleResourceComparison";
+import LifecycleResultsComparison from "components/grids/summary/LifeCycleResultsComparison";
+import LifecycleResultsToBaseline from "components/grids/summary/LifeCycleResultsToBaseline";
+import NpvCostsBySubcategory from "components/grids/summary/NpvCostsBySubcategory";
 
 export default function Summary() {
     return (

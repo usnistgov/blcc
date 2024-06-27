@@ -3,12 +3,12 @@ import { createSignal } from "@react-rxjs/utils";
 import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import Title from "antd/es/typography/Title";
+import { type Rule, type ValidationResult, validate } from "model/rules/Rules";
 import { type PropsWithChildren, useEffect, useMemo } from "react";
 import { type Observable, type Subject, iif, map, merge, of, sample, switchMap } from "rxjs";
 import { combineLatestWith, shareReplay, startWith } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import { type Rule, type ValidationResult, validate } from "../model/rules/Rules";
-import { guard, isTrue } from "../util/Operators";
+import { guard, isTrue } from "util/Operators";
 
 type Conditional<T> = T extends true ? number | undefined : number;
 

@@ -1,9 +1,4 @@
 import { bind, state } from "@react-rxjs/core";
-import { type Collection, liveQuery } from "dexie";
-import objectHash from "object-hash";
-import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
-import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import {
     AnalysisType,
     type DiscountingMethod,
@@ -14,10 +9,15 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
     type USLocation,
-} from "../blcc-format/Format";
-import { Country, type State } from "../constants/LOCATION";
-import { defaultValue, guard } from "../util/Operators";
-import { db } from "./db";
+} from "blcc-format/Format";
+import { Country, type State } from "constants/LOCATION";
+import { type Collection, liveQuery } from "dexie";
+import { db } from "model/db";
+import objectHash from "object-hash";
+import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
+import { ajax } from "rxjs/internal/ajax/ajax";
+import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { defaultValue, guard } from "util/Operators";
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 

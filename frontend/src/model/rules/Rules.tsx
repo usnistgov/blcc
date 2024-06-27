@@ -1,4 +1,3 @@
-import type { PropsWithChildren } from "react";
 import { type Observable, type UnaryFunction, map, pipe } from "rxjs";
 
 export type RuleContext = {

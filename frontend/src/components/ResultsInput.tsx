@@ -1,9 +1,7 @@
 /**
  * Creates a common component to display data for the Input page.
  */
-import { Typography } from "antd";
-
-const { Title } = Typography;
+import Title from "antd/es/typography/Title";
 
 export type InputProps = {
     label: string;

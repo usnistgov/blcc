@@ -1,12 +1,12 @@
-import { useSubscribe } from "../../../hooks/UseSubscribe";
-import { useEffect } from "react";
-import { bb, type Chart } from "billboard.js";
-import { dollarFormatter } from "../../../util/Util";
 import { createSignal } from "@react-rxjs/utils";
-import { required$, selection$ } from "../../../model/ResultModel";
-import { debounceTime } from "rxjs/operators";
-import { alternatives$ } from "../../../model/Model";
+import { type Chart, bb } from "billboard.js";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { alternatives$ } from "model/Model";
+import { required$, selection$ } from "model/ResultModel";
+import { useEffect } from "react";
 import { combineLatest } from "rxjs";
+import { debounceTime } from "rxjs/operators";
+import { dollarFormatter } from "util/Util";
 
 const [chart$, setChart] = createSignal<Chart>();
 const loadData$ = combineLatest([selection$, chart$, alternatives$, required$]).pipe(debounceTime(1));
@@ -19,7 +19,7 @@ export default function AlternativeNpvCashFlowGraph() {
         const required = allRequired.find((req) => req.altId === selection);
 
         chart.unload({
-            done: () => chart.load({ columns: [[alternative?.name ?? "", ...(required?.totalCostsDiscounted ?? [])]] })
+            done: () => chart.load({ columns: [[alternative?.name ?? "", ...(required?.totalCostsDiscounted ?? [])]] }),
         });
     });
 
@@ -27,34 +27,34 @@ export default function AlternativeNpvCashFlowGraph() {
         const chart = bb.generate({
             data: {
                 columns: [],
-                type: "bar"
+                type: "bar",
             },
             bindto: `#${GRAPH_ID}`,
             axis: {
                 y: {
                     tick: {
-                        format: dollarFormatter.format
-                    }
+                        format: dollarFormatter.format,
+                    },
                 },
                 x: {
                     label: {
                         text: "Year",
-                        position: "outer-center"
-                    }
-                }
+                        position: "outer-center",
+                    },
+                },
             },
             bar: {
-                padding: 0
+                padding: 0,
             },
             legend: {
-                show: false
+                show: false,
             },
             tooltip: {
                 format: {
                     title: (x) => `Year ${x}`,
-                    value: dollarFormatter.format
-                }
-            }
+                    value: dollarFormatter.format,
+                },
+            },
         });
 
         setChart(chart);

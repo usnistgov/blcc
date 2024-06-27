@@ -1,13 +1,13 @@
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox } from "antd";
+import type { ID } from "blcc-format/Format";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { useAlternatives } from "model/Model";
 import { useMemo } from "react";
-import { EMPTY, type Observable, type Subject, iif, switchMap } from "rxjs";
+import { EMPTY, type Observable, type Subject, iif } from "rxjs";
 import { startWith } from "rxjs/operators";
-import type { ID } from "../../blcc-format/Format";
-import { useSubscribe } from "../../hooks/UseSubscribe";
-import { useAlternatives } from "../../model/Model";
-import { gatherSet } from "../../util/Operators";
+import { gatherSet } from "util/Operators";
 
 type AppliedCheckboxesProps = {
     defaults?: ID[];

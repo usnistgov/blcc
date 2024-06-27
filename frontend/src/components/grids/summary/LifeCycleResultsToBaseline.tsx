@@ -1,12 +1,12 @@
 import { mdiCheck } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
+import { baselineID$ } from "model/Model";
+import { alternativeNames$, measures$ } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
-import { baselineID$ } from "../../../model/Model";
-import { alternativeNames$, measures$ } from "../../../model/ResultModel";
-import { dollarFormatter, numberFormatter } from "../../../util/Util";
+import { dollarFormatter, numberFormatter } from "util/Util";
 
 type Row = {
     name: string;

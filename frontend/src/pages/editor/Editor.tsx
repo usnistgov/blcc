@@ -1,15 +1,14 @@
+import EditorAppBar from "components/EditorAppBar";
+import PageWrapper from "components/PageWrapper";
+import Statistics from "components/Statistics";
+import CostNavigation from "components/navigation/CostNavigation";
+import Navigation from "components/navigation/Navigation";
 import { AnimatePresence } from "framer-motion";
-import { Route, Routes, useLocation, useParams } from "react-router-dom";
-import EditorAppBar from "../../components/EditorAppBar";
-import PageWrapper from "../../components/PageWrapper";
-import Statistics from "../../components/Statistics";
-import SyncUrlParams from "../../components/SyncUrlParams";
-import CostNavigation from "../../components/navigation/CostNavigation";
-import Navigation from "../../components/navigation/Navigation";
-import AlternativeSummary from "./AlternativeSummary";
-import Alternatives from "./Alternatives";
-import Cost from "./Cost";
-import GeneralInformation from "./GeneralInformation";
+import AlternativeSummary from "pages/editor/AlternativeSummary";
+import Alternatives from "pages/editor/Alternatives";
+import Cost from "pages/editor/Cost";
+import GeneralInformation from "pages/editor/GeneralInformation";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 export default function Editor() {
     const location = useLocation();

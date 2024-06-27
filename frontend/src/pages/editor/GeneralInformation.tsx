@@ -1,7 +1,6 @@
 import { useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
 import Title from "antd/es/typography/Title";
-import { motion } from "framer-motion";
 import {
     AnalysisType,
     DiscountingMethod,
@@ -9,15 +8,16 @@ import {
     EmissionsRateScenario,
     Purpose,
     SocialCostOfGhgScenario,
-} from "../../blcc-format/Format";
-import { Dropdown } from "../../components/Dropdown";
-import { NumberInput } from "../../components/InputNumber";
-import Switch from "../../components/Switch";
-import { TextArea } from "../../components/TextArea";
-import TextInput, { TextInputType } from "../../components/TextInput";
-import { Country, State } from "../../constants/LOCATION";
-import { Model } from "../../model/Model";
-import { max, min } from "../../model/rules/Rules";
+} from "blcc-format/Format";
+import { Dropdown } from "components/input/Dropdown";
+import { NumberInput } from "components/input/InputNumber";
+import Switch from "components/input/Switch";
+import { TextArea } from "components/input/TextArea";
+import TextInput, { TextInputType } from "components/input/TextInput";
+import { Country, State } from "constants/LOCATION";
+import { motion } from "framer-motion";
+import { Model } from "model/Model";
+import { max, min } from "model/rules/Rules";
 
 export default function GeneralInformation() {
     //TODO make ghg values removable

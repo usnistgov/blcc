@@ -1,12 +1,12 @@
+import { CostTypes, type OMRCost } from "blcc-format/Format";
+import Recurring from "components/Recurring";
+import { NumberInput } from "components/input/InputNumber";
 import type { Collection } from "dexie";
+import { useDbUpdate } from "hooks/UseDbUpdate";
+import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
-import { CostTypes, type OMRCost } from "../../../blcc-format/Format";
-import { NumberInput } from "../../../components/InputNumber";
-import Recurring from "../../../components/Recurring";
-import { useDbUpdate } from "../../../hooks/UseDbUpdate";
-import { CostModel } from "../../../model/CostModel";
 
 /**
  * Component for the OMR fields for a cost
