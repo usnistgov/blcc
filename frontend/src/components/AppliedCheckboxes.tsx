@@ -12,26 +12,34 @@ import { gatherSet } from "util/Operators";
 type AppliedCheckboxesProps = {
     defaults?: ID[];
     value$?: Observable<Set<ID>>;
-    wire: Subject<Set<ID>>;
+    sToggle$?: Subject<ID>;
+    wire?: Subject<Set<ID>>;
 };
 
-export default function AppliedCheckboxes({ defaults = [], value$, wire }: AppliedCheckboxesProps) {
-    const [useState, state$, toggle] = useMemo(() => {
+/**
+ * Displays a list of all alternatives as checkboxes for when a cost needs to be applied to specific alts. Can either
+ * handle its own state or accept a list of alternatives to display as initial values.
+ */
+export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: AppliedCheckboxesProps) {
+    console.log("Rerender", defaults, value$, wire, sToggle$);
+    const [internalState, state$, toggle, toggle$] = useMemo(() => {
         const [toggle$, toggle] = createSignal<ID>();
         const state$ = iif(
             () => value$ === undefined,
-            toggle$.pipe(gatherSet(...defaults), startWith(new Set(defaults))),
+            toggle$.pipe(gatherSet(...(defaults ?? [])), startWith(new Set(defaults))),
             value$ ?? EMPTY,
         ).pipe(shareLatest());
         const [useState] = bind(state$, new Set());
 
-        return [useState, state$, toggle];
+        return [useState, state$, toggle, toggle$];
     }, [defaults, value$]);
 
+    // Hook up output streams
     useSubscribe(state$, wire);
+    useSubscribe(toggle$, sToggle$);
 
     const alternatives = useAlternatives();
-    const state = useState();
+    const state = internalState();
 
     return (
         <div className={"grid gap-2"}>

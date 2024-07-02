@@ -131,11 +131,6 @@ function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean
 export default function Cost() {
     useParamSync();
 
-    const navigate = useNavigate();
-    const costType = CostModel.useType();
-    const alternativeID = AlternativeModel.useID();
-    const name = useStateObservable(AlternativeModel.name$);
-
     const [altsThatInclude$, sCheckedAlt$] = useMemo(() => {
         const sCheckedAlt$ = new Subject<Set<ID>>();
 
@@ -149,11 +144,18 @@ export default function Cost() {
         return [altsThatInclude$, sCheckedAlt$];
     }, []);
 
+    const navigate = useNavigate();
+    const costType = CostModel.useType();
+    const alternativeID = AlternativeModel.useID();
+    const name = useStateObservable(AlternativeModel.name$);
+
     /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     //useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
     useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
     //useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
+
+    console.log("Rerender cost");
 
     return (
         <motion.div
@@ -200,7 +202,7 @@ export default function Cost() {
                     />
                     <div className={"flex flex-col"}>
                         <Title level={5}>Alternatives applied to</Title>
-                        <AppliedCheckboxes value$={altsThatInclude$} wire={sToggleAlt$} />
+                        <AppliedCheckboxes value$={altsThatInclude$} sToggle$={sToggleAlt$} />
                         {/*{alternatives.map((alt) => (
                             <Checkbox
                                 key={alt.id}
