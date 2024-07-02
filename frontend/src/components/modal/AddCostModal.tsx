@@ -3,10 +3,10 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
 import { type Cost, CostTypes, type ID } from "blcc-format/Format";
+import AppliedCheckboxes from "components/AppliedCheckboxes";
 import { Button, ButtonType } from "components/input/Button";
 import { Dropdown } from "components/input/Dropdown";
 import TextInput, { TextInputType } from "components/input/TextInput";
-import AppliedCheckboxes from "components/navigation/AppliedCheckboxes";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
 import { currentProject$ } from "model/Model";
@@ -21,6 +21,8 @@ type AddCostModalProps = {
 };
 
 function createCostInDB([projectID, name, type, alts]: [number, string, CostTypes, Set<number>]): Promise<void> {
+    console.log(type);
+
     return db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
         // Add new cost to DB and get new ID
         const newID = await db.costs.add({ name, type } as Cost);
@@ -131,7 +133,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             <br />
             <div>
                 <Typography.Title level={5}>Cost Category</Typography.Title>
-                <Dropdown options={Object.values(CostTypes)} wire={sType$} />
+                <Dropdown className={"w-full"} options={Object.values(CostTypes)} wire={sType$} />
             </div>
         </Modal>
     );

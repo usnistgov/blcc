@@ -3,12 +3,12 @@ import { bind, useStateObservable } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Typography } from "antd";
 import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
+import AppliedCheckboxes from "components/AppliedCheckboxes";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
-import AppliedCheckboxes from "components/navigation/AppliedCheckboxes";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
@@ -28,7 +28,10 @@ import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostField
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
+import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import sToggleAlt$ = CostModel.sToggleAlt$;
 
 const { Title } = Typography;
 const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
@@ -197,7 +200,7 @@ export default function Cost() {
                     />
                     <div className={"flex flex-col"}>
                         <Title level={5}>Alternatives applied to</Title>
-                        <AppliedCheckboxes value$={altsThatInclude$} wire={sCheckedAlt$} />
+                        <AppliedCheckboxes value$={altsThatInclude$} wire={sToggleAlt$} />
                         {/*{alternatives.map((alt) => (
                             <Checkbox
                                 key={alt.id}

@@ -55,10 +55,17 @@ export function isFalse(): UnaryFunction<Observable<boolean>, Observable<boolean
     return pipe(filter((bool) => !bool));
 }
 
-export function gatherSet<T>(...seed: T[]): UnaryFunction<Observable<[T, boolean]>, Observable<Set<T>>> {
+export function toggle<T>(set: Set<T>, value: T): Set<T> {
+    if (set.has(value)) set.delete(value);
+    else set.add(value);
+
+    return set;
+}
+
+export function gatherSet<T>(...seed: T[]): UnaryFunction<Observable<T>, Observable<Set<T>>> {
     return pipe(
-        scan((acc, [value, shouldAdd]) => {
-            if (shouldAdd) acc.add(value);
+        scan((acc, value) => {
+            if (!acc.has(value)) acc.add(value);
             else acc.delete(value);
 
             return new Set(acc.values());

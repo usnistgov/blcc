@@ -1,10 +1,11 @@
 import { bind, state } from "@react-rxjs/core";
-import { CostTypes } from "blcc-format/Format";
+import { CostTypes, type ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
 import { db } from "model/db";
 import { Subject, distinctUntilChanged, map, merge, switchMap } from "rxjs";
 import { shareReplay, withLatestFrom } from "rxjs/operators";
-import { defaultValue, guard } from "util/Operators";
+import { defaultValue, guard, toggle } from "util/Operators";
+import { AlternativeModel } from "./AlternativeModel";
 
 export namespace CostModel {
     /**
@@ -71,6 +72,17 @@ export namespace CostModel {
         .pipe(withLatestFrom(collection$))
         .subscribe(([description, collection]) => collection.modify({ description }));
 
+    export const sToggleAlt$ = new Subject<ID>();
+    sToggleAlt$.pipe(withLatestFrom(id$)).subscribe(([altID, id]) => {
+        console.log("Toggle cost", altID, id);
+
+        db.alternatives
+            .where("id")
+            .equals(altID)
+            .modify((alt) => {
+                alt.costs = [...toggle(new Set(alt.costs), id)];
+            });
+    });
     //export const [sDescription$, description$] = costModelState((cost) => cost?.description, "description");
 }
 
