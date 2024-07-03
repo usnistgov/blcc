@@ -141,6 +141,8 @@ export default function Cost() {
             ),
         );
 
+        altsThatInclude$.subscribe((alts) => console.log("Alts that include", alts));
+
         return [altsThatInclude$, sCheckedAlt$];
     }, []);
 

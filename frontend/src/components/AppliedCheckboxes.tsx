@@ -21,7 +21,6 @@ type AppliedCheckboxesProps = {
  * handle its own state or accept a list of alternatives to display as initial values.
  */
 export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: AppliedCheckboxesProps) {
-    console.log("Rerender", defaults, value$, wire, sToggle$);
     const [internalState, state$, toggle, toggle$] = useMemo(() => {
         const [toggle$, toggle] = createSignal<ID>();
         const state$ = iif(
@@ -30,6 +29,8 @@ export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: 
             value$ ?? EMPTY,
         ).pipe(shareLatest());
         const [useState] = bind(state$, new Set());
+
+        state$.subscribe((state) => console.log(state));
 
         return [useState, state$, toggle, toggle$];
     }, [defaults, value$]);

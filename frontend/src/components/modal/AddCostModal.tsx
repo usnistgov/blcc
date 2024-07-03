@@ -82,8 +82,6 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
 
     //Clear fields when modal closes
     useSubscribe(isOpen$, (open) => {
-        console.log("Reset", open);
-
         if (open) return;
 
         sName$.next(undefined);
