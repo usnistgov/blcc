@@ -1,4 +1,4 @@
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Checkbox } from "antd";
 import type { ID } from "blcc-format/Format";
@@ -23,7 +23,7 @@ type AppliedCheckboxesProps = {
 export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: AppliedCheckboxesProps) {
     const [internalState, state$, toggle, toggle$] = useMemo(() => {
         const [toggle$, toggle] = createSignal<ID>();
-        const [useState, state$] = bind(
+        const [internalState, state$] = bind(
             iif(
                 () => value$ === undefined,
                 toggle$.pipe(gatherSet(...(defaults ?? [])), startWith(new Set(defaults))),
@@ -32,9 +32,7 @@ export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: 
             new Set(),
         );
 
-        //state$.subscribe((state) => console.log(state));
-
-        return [useState, state$, toggle, toggle$];
+        return [internalState, state$, toggle, toggle$];
     }, [defaults, value$]);
 
     // Hook up output streams
@@ -43,6 +41,8 @@ export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: 
 
     const alternatives = useAlternatives();
     const state = internalState();
+
+    console.log("state", state);
 
     return (
         <div className={"grid gap-2"}>

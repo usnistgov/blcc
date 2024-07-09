@@ -1,4 +1,4 @@
-import { bind, state } from "@react-rxjs/core";
+import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
     AnalysisType,
     type DiscountingMethod,
@@ -35,7 +35,7 @@ export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
 export const alternatives$ = alternativeIDs$.pipe(
     switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray())),
-    shareReplay(1),
+    shareLatest(),
 );
 export const [useAlternatives, alt$] = bind(alternatives$, []);
 

@@ -1,6 +1,5 @@
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { bind, useStateObservable } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
+import { shareLatest, state, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
 import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
@@ -31,6 +30,7 @@ import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import Switch from "../../components/input/Switch";
 import sToggleAlt$ = CostModel.sToggleAlt$;
+import { tap } from "rxjs/operators";
 
 const { Title } = Typography;
 
@@ -95,37 +95,23 @@ async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
     });
 }
 
-function toggleAlternativeCost([id, [alternativeID, applied]]: [ID, [ID, boolean]]) {
-    db.alternatives
-        .where("id")
-        .equals(alternativeID)
-        .modify((alternative) => {
-            if (applied) alternative.costs.push(id);
-            else {
-                const index = alternative.costs.indexOf(id);
-                if (index > -1) {
-                    alternative.costs.splice(index, 1);
-                }
-            }
-        });
-}
-
 export default function Cost() {
     useParamSync();
 
-    const [altsThatInclude$, sCheckedAlt$] = useMemo(() => {
-        const sCheckedAlt$ = new Subject<Set<ID>>();
-
+    const [altsThatInclude$] = useMemo(() => {
         const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
             map(
                 ([alternatives, id]) =>
                     new Set(alternatives.filter((alt) => alt.costs.includes(id)).map((alt) => alt.id ?? -1)),
             ),
+            tap((x) => console.log("alts that include", x)),
+            shareLatest(),
         );
 
+        // FIXME: Removing this causes the checkboxes not to work
         altsThatInclude$.subscribe((alts) => console.log("Alts that include", alts));
 
-        return [altsThatInclude$, sCheckedAlt$];
+        return [altsThatInclude$];
     }, []);
 
     const navigate = useNavigate();
@@ -138,8 +124,6 @@ export default function Cost() {
     useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
     //useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
-
-    console.log("Rerender cost");
 
     return (
         <motion.div
