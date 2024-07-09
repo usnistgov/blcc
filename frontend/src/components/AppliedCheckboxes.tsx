@@ -23,14 +23,16 @@ type AppliedCheckboxesProps = {
 export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: AppliedCheckboxesProps) {
     const [internalState, state$, toggle, toggle$] = useMemo(() => {
         const [toggle$, toggle] = createSignal<ID>();
-        const state$ = iif(
-            () => value$ === undefined,
-            toggle$.pipe(gatherSet(...(defaults ?? [])), startWith(new Set(defaults))),
-            value$ ?? EMPTY,
-        ).pipe(shareLatest());
-        const [useState] = bind(state$, new Set());
+        const [useState, state$] = bind(
+            iif(
+                () => value$ === undefined,
+                toggle$.pipe(gatherSet(...(defaults ?? [])), startWith(new Set(defaults))),
+                value$ ?? EMPTY,
+            ),
+            new Set(),
+        );
 
-        state$.subscribe((state) => console.log(state));
+        //state$.subscribe((state) => console.log(state));
 
         return [useState, state$, toggle, toggle$];
     }, [defaults, value$]);

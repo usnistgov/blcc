@@ -28,36 +28,18 @@ import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostField
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
-import { useDbUpdate } from "../../hooks/UseDbUpdate";
+import Switch from "../../components/input/Switch";
 import sToggleAlt$ = CostModel.sToggleAlt$;
 
 const { Title } = Typography;
-const [toggleAlt$, toggleAlt] = createSignal<[ID, boolean]>();
 
 const openCostModal$ = new Subject<void>();
 const cloneClick$ = new Subject<void>();
 const removeClick$ = new Subject<void>();
 
-//const { component: DescriptionInput, onChange$: description$ } = textArea(
-//    CostModel.cost$.pipe(map((cost) => cost.description)),
-//);
-/*const { component: CostSavingSwitch, onChange$: costSavingsChange$ } = switchComp(
-    cost$.pipe(map((cost) => cost.costSavings ?? false))
-);*/
-
 const remove$ = combineLatest([CostModel.id$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
 const clone$ = combineLatest([CostModel.cost$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
-
-// True if only one alternative contains this cost.
-// In which case we disable the user from removing the cost from all alternatives, so it does not become orphaned.
-const [onlyOneAlternativeIncludes] = bind(
-    combineLatest([alternatives$, CostModel.id$]).pipe(
-        map(([alternatives, id]) => alternatives.filter((alt) => alt.costs.includes(id)).length <= 1),
-    ),
-    true,
-);
 
 function removeCost([costID, projectID]: [number, number]) {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
@@ -205,16 +187,6 @@ export default function Cost() {
                     <div className={"flex flex-col"}>
                         <Title level={5}>Alternatives applied to</Title>
                         <AppliedCheckboxes value$={altsThatInclude$} sToggle$={sToggleAlt$} />
-                        {/*{alternatives.map((alt) => (
-                            <Checkbox
-                                key={alt.id}
-                                disabled={onlyOne && alt.costs.includes(id)}
-                                checked={alt.costs.includes(id)}
-                                onChange={(e) => toggleAlt([alt.id ?? 0, e.target.checked])}
-                            >
-                                {alt.name}
-                            </Checkbox>
-                        )) || "No Alternatives"}*/}
                     </div>
                     <span className={"col-span-2"}>
                         <TextArea
@@ -226,7 +198,12 @@ export default function Cost() {
                     </span>
                     <span>
                         <Title level={5}>Cost or Savings</Title>
-                        {/*<CostSavingSwitch checkedChildren={"Savings"} unCheckedChildren={"Cost"} />*/}
+                        <Switch
+                            value$={CostModel.costSavings$}
+                            wire={CostModel.sCostSavings$}
+                            checkedChildren={"Savings"}
+                            unCheckedChildren={"Cost"}
+                        />
                     </span>
                 </div>
             </div>

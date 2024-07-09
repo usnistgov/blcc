@@ -84,6 +84,18 @@ export namespace CostModel {
             });
     });
     //export const [sDescription$, description$] = costModelState((cost) => cost?.description, "description");
+
+    /**
+     * The cost/savings value for this cost
+     */
+    export const sCostSavings$ = new Subject<boolean>();
+    export const costSavings$ = state(
+        merge(sCostSavings$, cost$.pipe(map((cost) => cost?.costSavings ?? false))).pipe(distinctUntilChanged()),
+        false,
+    );
+    sCostSavings$
+        .pipe(withLatestFrom(collection$))
+        .subscribe(([costSavings, collection]) => collection.modify({ costSavings }));
 }
 
 /*function createModelState<A, B, Default = undefined>(
