@@ -21,7 +21,6 @@ export default function Editor() {
                 <AnimatePresence mode={"wait"}>
                     <Routes location={location} key={location.key}>
                         <Route path={"*"} element={<Navigation />}>
-                            <Route index />
                             <Route path={"alternative/:alternativeID"}>
                                 <Route index path={"*"} element={<CostNavigation />} />
                             </Route>
