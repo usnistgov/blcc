@@ -1,4 +1,4 @@
-import { bind, state } from "@react-rxjs/core";
+import { bind, shareLatest, state } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
@@ -10,15 +10,15 @@ import { combineLatestWith, shareReplay, startWith } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { guard, isTrue } from "util/Operators";
 
-type Conditional<T> = T extends true ? number | undefined : number;
+type NumberOrUndefined<T> = T extends true ? number | undefined : number;
 
 type NumberInputProps<T extends true | false = false> = {
     label: string;
     showLabel?: boolean;
     allowEmpty?: T | false;
     rules?: Rule<number>[];
-    value$: Observable<Conditional<T>>;
-    wire?: Subject<Conditional<T>>;
+    value$: Observable<NumberOrUndefined<T>>;
+    wire?: Subject<NumberOrUndefined<T>>;
 };
 
 export function NumberInput<T extends true | false = false>({
@@ -36,7 +36,7 @@ export function NumberInput<T extends true | false = false>({
 
     // Get the value from the observable
     const { change, focus, output$, useValue, hasErrors } = useMemo(() => {
-        const replayed$ = value$.pipe(shareReplay(1));
+        const replayed$ = value$.pipe(shareLatest());
 
         const [onChange$, change] = createSignal<number | undefined>();
         const [focused$, focus] = createSignal<boolean>();
@@ -48,7 +48,7 @@ export function NumberInput<T extends true | false = false>({
             map(([snapshot, newValue]) => (newValue === undefined ? snapshot : newValue)),
         );
 
-        const [useValue] = bind<number | ValidationResult<number> | undefined>(
+        const [useValue, v2$] = bind<number | ValidationResult<number> | undefined>(
             focused$.pipe(
                 startWith(false),
                 switchMap((focused) => (focused ? onChange$ : replayed$)),
@@ -56,7 +56,10 @@ export function NumberInput<T extends true | false = false>({
             undefined,
         );
 
-        const output$ = iif(() => allowEmpty, onChange$, resetIfUndefined$) as Observable<Conditional<T>>;
+        // FIXME Required to show some values
+        v2$.subscribe(() => {});
+
+        const output$ = iif(() => allowEmpty, onChange$, resetIfUndefined$) as Observable<NumberOrUndefined<T>>;
         const [hasErrors, errors$] = bind(
             (merge(replayed$, output$) as Observable<number | undefined>).pipe(guard(), validate(...rules)),
             undefined,

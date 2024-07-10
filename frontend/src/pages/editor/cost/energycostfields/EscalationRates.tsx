@@ -1,4 +1,4 @@
-import { bind, shareLatest, state } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
@@ -6,8 +6,7 @@ import Switch from "components/input/Switch";
 import { Model } from "model/Model";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { Subject, combineLatest, map, merge, switchMap } from "rxjs";
-import { filter } from "rxjs/operators";
+import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter } from "util/Util";
@@ -53,75 +52,70 @@ const COLUMNS = [
 ];
 
 export default function EscalationRates({ title }: EscalationRatesProps) {
-    const {
-        useEscalation,
-        newRates,
-        escalationRateChange$,
-        sIsConstant$,
-        constantEscalation$,
-        sConstantChange$,
-        newRate$,
-    } = useMemo(() => {
-        const sIsConstant$ = new Subject<boolean>();
-        const isConstant$ = sIsConstant$.pipe(shareLatest());
+    const { useEscalation, newRates, escalationRateChange$, sIsConstant$, isConstant$, sConstantChange$, newRate$ } =
+        useMemo(() => {
+            const sIsConstant$ = new Subject<boolean>();
+            const isConstant$ = EnergyCostModel.escalation$.pipe(
+                map((escalation) => !Array.isArray(escalation)),
+                distinctUntilChanged(),
+                shareLatest(),
+            );
 
-        const [gridRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
-        const sConstantChange$ = new Subject<number>();
-        const escalationRateChange$ = gridRatesChange$.pipe(
-            map((newRates) => newRates.map((rate) => rate.escalationRate)),
-        );
+            const [gridRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
+            const sConstantChange$ = new Subject<number>();
+            const escalationRateChange$ = gridRatesChange$.pipe(
+                map((newRates) => newRates.map((rate) => rate.escalationRate)),
+            );
 
-        // Converts the escalation rates into the format the grid needs
-        const [useEscalation] = bind(
-            combineLatest([Model.releaseYear$, EnergyCostModel.escalation$]).pipe(
-                map(([releaseYear, escalation]) =>
-                    match(escalation)
-                        .with(P.array(), (escalation) =>
-                            escalation.map((rate, i) => ({
-                                year: releaseYear + i,
-                                escalationRate: rate,
-                            })),
-                        )
-                        .otherwise((constant) => constant),
+            // Converts the escalation rates into the format the grid needs
+            const [useEscalation] = bind(
+                combineLatest([Model.releaseYear$, EnergyCostModel.escalation$]).pipe(
+                    map(([releaseYear, escalation]) =>
+                        match(escalation)
+                            .with(P.array(), (escalation) =>
+                                escalation.map((rate, i) => ({
+                                    year: releaseYear + i,
+                                    escalationRate: rate,
+                                })),
+                            )
+                            .otherwise((constant) => constant),
+                    ),
                 ),
-            ),
-            [],
-        );
+                [],
+            );
 
-        const constantEscalation$ = state(
-            EnergyCostModel.escalation$.pipe(filter((rate): rate is number => !Array.isArray(rate))),
-            0.0,
-        );
+            const newRate$ = merge(
+                // Set to default constant
+                sIsConstant$.pipe(
+                    isTrue(),
+                    map(() => 0.0),
+                ),
 
-        const newRate$ = merge(
-            // Set to default constant
-            isConstant$.pipe(
-                isTrue(),
-                map(() => 0.0),
-            ),
+                sIsConstant$.pipe(
+                    isFalse(),
+                    map(() => []),
+                ),
 
-            // Fetch and set to default escalation rates
-            isConstant$.pipe(
-                isFalse(),
-                switchMap(() => EnergyCostModel.fetchEscalationRates$),
-            ),
+                // Fetch and set to default escalation rates
+                sIsConstant$.pipe(
+                    isFalse(),
+                    switchMap(() => EnergyCostModel.fetchEscalationRates$),
+                ),
 
-            escalationRateChange$,
-            sConstantChange$,
-        );
+                escalationRateChange$,
+                sConstantChange$,
+            );
 
-        constantEscalation$.subscribe(console.log);
-
-        return {
-            useEscalation,
-            newRates,
-            escalationRateChange$,
-            sIsConstant$,
-            constantEscalation$,
-            sConstantChange$,
-            newRate$,
-        };
-    }, []);
+            return {
+                useEscalation,
+                newRates,
+                escalationRateChange$,
+                sIsConstant$,
+                isConstant$,
+                sConstantChange$,
+                newRate$,
+            };
+        }, []);
 
     useEffect(() => {
         const sub = newRate$.subscribe(EnergyCostModel.rateChange);
@@ -136,7 +130,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
             <Title level={5}>{title}</Title>
             <span className={"flex flex-row items-center gap-2 pb-2"}>
                 <p className={"text-md pb-1"}>Constant</p>
-                <Switch wire={sIsConstant$} checkedChildren={"Yes"} unCheckedChildren={"No"} />
+                <Switch value$={isConstant$} wire={sIsConstant$} checkedChildren={"Yes"} unCheckedChildren={"No"} />
             </span>
 
             {match(rates)
@@ -151,8 +145,9 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
                             className={"w-full"}
                             label={"Constant Escalation Rate"}
                             showLabel={false}
-                            value$={constantEscalation$}
+                            value$={EnergyCostModel.escalation$ as Observable<number>}
                             wire={sConstantChange$}
+                            addonAfter={"%"}
                         />
                     </div>
                 ))}

@@ -1,4 +1,4 @@
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind, shareLatest, state } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { CostTypes, type CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
@@ -97,10 +97,10 @@ export namespace EnergyCostModel {
         shareLatest(),
     );
     export const [rateChange$, rateChange] = createSignal<number | number[]>();
-    export const escalation$ = merge(
-        rateChange$,
-        cost$.pipe(switchMap((cost) => (cost.escalation !== undefined ? of(cost.escalation) : fetchEscalationRates$))),
-    ).pipe(distinctUntilChanged(), shareLatest());
+    export const escalation$ = state(
+        merge(rateChange$, cost$.pipe(map((cost) => cost.escalation))).pipe(distinctUntilChanged()),
+        0,
+    );
     rateChange$
         .pipe(withLatestFrom(CostModel.collection$))
         .subscribe(([escalation, collection]) => collection.modify({ escalation }));
