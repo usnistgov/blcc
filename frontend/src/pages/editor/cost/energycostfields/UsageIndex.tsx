@@ -6,11 +6,11 @@ import Switch from "components/input/Switch";
 import { Model } from "model/Model";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, textEditor } from "react-data-grid";
-import { Subject, combineLatest, map, merge } from "rxjs";
-import { filter, shareReplay } from "rxjs/operators";
+import { type Observable, Subject, combineLatest, map, merge } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
-import { percentFormatter } from "util/Util";
+import { array, percentFormatter } from "util/Util";
 import { EnergyCostModel } from "../../../../model/costs/EnergyCostModel";
 
 type UsageIndexProps = {
@@ -32,75 +32,66 @@ const COLUMNS = [
         key: "usage",
         renderEditCell: textEditor,
         renderCell: (info: RenderCellProps<UsageIndexInfo>) => {
-            return percentFormatter.format(info.row.usage);
+            return percentFormatter.format(info.row.usage / 100);
         },
     },
 ];
 
 export default function UsageIndex({ title }: UsageIndexProps) {
-    const { useUsage, sIsConstant$, isConstant$, sConstantChange$, newRates, constantUsage$, newRate$ } =
-        useMemo(() => {
-            const sIsConstant$ = new Subject<boolean>();
+    const { useUsage, sIsConstant$, isConstant$, sConstantChange$, newRates, newRate$ } = useMemo(() => {
+        const sIsConstant$ = new Subject<boolean>();
 
-            const [gridChange$, newRates] = createSignal<UsageIndexInfo[]>();
-            const sConstantChange$ = new Subject<number>();
-            const usageRateChange$ = gridChange$.pipe(map((newRates) => newRates.map((rate) => rate.usage)));
+        const [gridChange$, newRates] = createSignal<UsageIndexInfo[]>();
+        const sConstantChange$ = new Subject<number>();
+        const usageRateChange$ = gridChange$.pipe(map((newRates) => newRates.map((rate) => rate.usage)));
 
-            // Represents whether the escalation rates is a constant value or an array
-            const isConstant$ = state(EnergyCostModel.useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
+        // Represents whether the escalation rates is a constant value or an array
+        const isConstant$ = state(EnergyCostModel.useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
 
-            // Converts the usage rates into the format the grid needs
-            const [useUsage] = bind(
-                combineLatest([Model.releaseYear$, EnergyCostModel.useIndex$]).pipe(
-                    map(([releaseYear, useIndex]) =>
-                        match(useIndex)
-                            .with(P.array(), (usage) =>
-                                usage.map((use, i) => ({
-                                    year: releaseYear + i,
-                                    usage: use,
-                                })),
-                            )
-                            .otherwise((constant) => constant),
-                    ),
+        // Converts the usage rates into the format the grid needs
+        const [useUsage] = bind(
+            combineLatest([Model.releaseYear$, EnergyCostModel.useIndex$]).pipe(
+                map(([releaseYear, useIndex]) =>
+                    match(useIndex)
+                        .with(P.array(), (usage) =>
+                            usage.map((use, i) => ({
+                                year: releaseYear + i,
+                                usage: use,
+                            })),
+                        )
+                        .otherwise((constant) => constant),
                 ),
-                [],
-            );
+            ),
+            [],
+        );
 
-            const constantUsage$ = state(
-                EnergyCostModel.useIndex$.pipe(
-                    filter((rate): rate is number => !Array.isArray(rate)),
-                    shareReplay(1),
-                ),
-                0.0,
-            );
+        const newRate$ = merge(
+            // Set to default constant
+            sIsConstant$.pipe(
+                isTrue(),
+                map(() => 100.0),
+            ),
 
-            const newRate$ = merge(
-                // Set to default constant
-                sIsConstant$.pipe(
-                    isTrue(),
-                    map(() => 0.0),
-                ),
+            // Fetch and set to default escalation rates
+            sIsConstant$.pipe(
+                isFalse(),
+                withLatestFrom(Model.studyPeriod$),
+                map(([_, studyPeriod]) => Array((studyPeriod ?? 1) + 1).fill(100)),
+            ),
 
-                // Fetch and set to default escalation rates
-                sIsConstant$.pipe(
-                    isFalse(),
-                    map(() => [] as number[]),
-                ),
+            usageRateChange$,
+            sConstantChange$,
+        );
 
-                usageRateChange$,
-                sConstantChange$,
-            );
-
-            return {
-                useUsage,
-                newRates,
-                sIsConstant$,
-                isConstant$,
-                sConstantChange$,
-                constantUsage$,
-                newRate$,
-            };
-        }, []);
+        return {
+            useUsage,
+            newRates,
+            sIsConstant$,
+            isConstant$,
+            sConstantChange$,
+            newRate$,
+        };
+    }, []);
 
     useEffect(() => {
         const sub = newRate$.subscribe(EnergyCostModel.useIndexChange);
@@ -130,8 +121,9 @@ export default function UsageIndex({ title }: UsageIndexProps) {
                             className={"w-full"}
                             label={"Constant Escalation Rate"}
                             showLabel={false}
-                            value$={constantUsage$}
+                            value$={EnergyCostModel.useIndex$ as Observable<number>}
                             wire={sConstantChange$}
+                            addonAfter={"%"}
                         />
                     </div>
                 ))}
