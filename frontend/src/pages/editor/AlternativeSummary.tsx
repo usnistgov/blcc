@@ -48,7 +48,7 @@ export default function AlternativeSummary() {
             </SubHeader>
             <div className={"flex h-full w-full flex-col items-center"}>
                 <br />
-                {(cards.length !== 0 && cards.map((card) => <card.component key={card.component.name} />)) || (
+                {(cards.length !== 0 && cards.map((card) => <card.component key={card.id} />)) || (
                     <div className={"w-full p-8 text-center text-base-dark"}>
                         <p className={"text-2xl"}>No Alternatives</p>
                         <p className={"text-lg"}>Create an alternative or load a saved file</p>
@@ -113,6 +113,7 @@ export function createAlternativeCard(alternative: Alternative) {
         },
     ];
     return {
+        id: alternative.id,
         component: function AltCard() {
             const navigate = useNavigate();
             useSubscribe(cardClick$, () => navigate(`/editor/alternative/${alternative.id}`));
