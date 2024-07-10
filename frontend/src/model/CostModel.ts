@@ -1,4 +1,4 @@
-import { bind, state } from "@react-rxjs/core";
+import { bind, shareLatest, state } from "@react-rxjs/core";
 import { CostTypes, type ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
 import { db } from "model/db";
@@ -11,7 +11,8 @@ export namespace CostModel {
     /**
      * The ID of the currently selected cost
      */
-    export const id$ = new Subject<number>();
+    export const sId$ = new Subject<number>();
+    export const id$ = sId$.pipe(shareLatest());
 
     export const collection$ = id$.pipe(
         distinctUntilChanged(),

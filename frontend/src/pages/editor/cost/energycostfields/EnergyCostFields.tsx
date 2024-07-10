@@ -4,21 +4,12 @@ import { NumberInput } from "components/input/InputNumber";
 import type { Collection } from "dexie";
 import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
-import {
-    customerSector$,
-    energyCost$,
-    fuelType$,
-    sFuelTypeChange$,
-    sSectorChange$,
-    sUnitChange$,
-    unit$,
-    useUnit,
-} from "model/costs/EnergyCostModel";
 import { min } from "model/rules/Rules";
 import EscalationRates from "pages/editor/cost/energycostfields/EscalationRates";
 import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
+import { EnergyCostModel } from "../../../../model/costs/EnergyCostModel";
 
 export default function EnergyCostFields() {
     const [
@@ -36,21 +27,23 @@ export default function EnergyCostFields() {
         const collection$ = CostModel.collection$ as Observable<Collection<EnergyCost, number>>;
 
         const sCostPerUnit$ = new Subject<number>();
-        const costPerUnit$ = merge(sCostPerUnit$, energyCost$.pipe(map((cost) => cost.costPerUnit))).pipe(
+        const costPerUnit$ = merge(sCostPerUnit$, EnergyCostModel.cost$.pipe(map((cost) => cost.costPerUnit))).pipe(
             distinctUntilChanged(),
         );
 
         const sAnnualConsumption$ = new Subject<number>();
         const annualConsumption$ = merge(
             sAnnualConsumption$,
-            energyCost$.pipe(map((cost) => cost.annualConsumption)),
+            EnergyCostModel.cost$.pipe(map((cost) => cost.annualConsumption)),
         ).pipe(distinctUntilChanged());
 
         const sRebate$ = new Subject<number | undefined>();
-        const rebate$ = merge(sRebate$, energyCost$.pipe(map((cost) => cost.rebate))).pipe(distinctUntilChanged());
+        const rebate$ = merge(sRebate$, EnergyCostModel.cost$.pipe(map((cost) => cost.rebate))).pipe(
+            distinctUntilChanged(),
+        );
 
         const sDemandCharge$ = new Subject<number | undefined>();
-        const demandCharge = merge(sDemandCharge$, energyCost$.pipe(map((cost) => cost.demandCharge))).pipe(
+        const demandCharge = merge(sDemandCharge$, EnergyCostModel.cost$.pipe(map((cost) => cost.demandCharge))).pipe(
             distinctUntilChanged(),
         );
 
@@ -81,16 +74,16 @@ export default function EnergyCostFields() {
                     className={"w-full"}
                     label={"Fuel Type"}
                     options={Object.values(FuelType)}
-                    value$={fuelType$}
-                    wire={sFuelTypeChange$}
+                    value$={EnergyCostModel.fuelType$}
+                    wire={EnergyCostModel.sFuelTypeChange$}
                     showSearch
                 />
                 <Dropdown
                     className={"w-full"}
                     label={"Customer Sector"}
                     options={Object.values(CustomerSector)}
-                    value$={customerSector$}
-                    wire={sSectorChange$}
+                    value$={EnergyCostModel.customerSector$}
+                    wire={EnergyCostModel.sSectorChange$}
                     showSearch
                 />
 
@@ -101,8 +94,8 @@ export default function EnergyCostFields() {
                             className={"min-w-[75px]"}
                             placeholder={EnergyUnit.KWH}
                             options={Object.values(EnergyUnit) as Unit[]}
-                            value$={unit$}
-                            wire={sUnitChange$}
+                            value$={EnergyCostModel.unit$}
+                            wire={EnergyCostModel.sUnitChange$}
                         />
                     }
                     controls
@@ -114,7 +107,7 @@ export default function EnergyCostFields() {
                 <NumberInput
                     className={"w-full"}
                     controls
-                    addonAfter={`per ${useUnit()}`}
+                    addonAfter={`per ${EnergyCostModel.useUnit()}`}
                     prefix={"$"}
                     label={"Cost per Unit"}
                     wire={sCostPerUnit$}

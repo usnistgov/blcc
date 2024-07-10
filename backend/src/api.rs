@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::DbPool;
 use crate::models::*;
+use crate::schema::escalation_rates::release_year;
 
 #[derive(Serialize)]
 pub struct ErrorResponse {
@@ -21,6 +22,7 @@ struct EscalationRateRequest {
     to: i32,
     zip: i32,
     sector: String,
+    release_year: i32,
 }
 
 #[post("/escalation-rates")]
@@ -45,6 +47,7 @@ async fn post_escalation_rates(
         )
         .filter(
             year.between(from, to)
+                .and(release_year.eq(request.release_year))
                 .and(zip.eq(request.zip))
                 .and(sector.eq(request.sector.clone()))
         )

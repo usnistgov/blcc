@@ -4,7 +4,6 @@ import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Model } from "model/Model";
-import { useIndex$, useIndexChange } from "model/costs/EnergyCostModel";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, textEditor } from "react-data-grid";
 import { Subject, combineLatest, map, merge } from "rxjs";
@@ -12,6 +11,7 @@ import { filter, shareReplay } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter } from "util/Util";
+import { EnergyCostModel } from "../../../../model/costs/EnergyCostModel";
 
 type UsageIndexProps = {
     title: string;
@@ -47,11 +47,11 @@ export default function UsageIndex({ title }: UsageIndexProps) {
             const usageRateChange$ = gridChange$.pipe(map((newRates) => newRates.map((rate) => rate.usage)));
 
             // Represents whether the escalation rates is a constant value or an array
-            const isConstant$ = state(useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
+            const isConstant$ = state(EnergyCostModel.useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
 
             // Converts the usage rates into the format the grid needs
             const [useUsage] = bind(
-                combineLatest([Model.releaseYear$, useIndex$]).pipe(
+                combineLatest([Model.releaseYear$, EnergyCostModel.useIndex$]).pipe(
                     map(([releaseYear, useIndex]) =>
                         match(useIndex)
                             .with(P.array(), (usage) =>
@@ -67,7 +67,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
             );
 
             const constantUsage$ = state(
-                useIndex$.pipe(
+                EnergyCostModel.useIndex$.pipe(
                     filter((rate): rate is number => !Array.isArray(rate)),
                     shareReplay(1),
                 ),
@@ -103,7 +103,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
         }, []);
 
     useEffect(() => {
-        const sub = newRate$.subscribe(useIndexChange);
+        const sub = newRate$.subscribe(EnergyCostModel.useIndexChange);
 
         return () => sub.unsubscribe();
     }, [newRate$]);

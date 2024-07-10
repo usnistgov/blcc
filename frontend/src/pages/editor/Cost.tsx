@@ -104,12 +104,8 @@ export default function Cost() {
                 ([alternatives, id]) =>
                     new Set(alternatives.filter((alt) => alt.costs.includes(id)).map((alt) => alt.id ?? -1)),
             ),
-            tap((x) => console.log("alts that include", x)),
             shareLatest(),
         );
-
-        // FIXME: Removing this causes the checkboxes not to work
-        altsThatInclude$.subscribe((alts) => console.log("Alts that include", alts));
 
         return [altsThatInclude$];
     }, []);
