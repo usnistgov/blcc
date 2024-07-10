@@ -10,7 +10,7 @@ import { type Observable, Subject, combineLatest, map, merge } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
-import { array, percentFormatter } from "util/Util";
+import { percentFormatter } from "util/Util";
 import { EnergyCostModel } from "../../../../model/costs/EnergyCostModel";
 
 type UsageIndexProps = {

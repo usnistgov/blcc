@@ -8,6 +8,6 @@ export default function useParamSync() {
     useLayoutEffect(() => {
         if (alternativeID !== undefined) AlternativeModel.sID$.next(Number.parseInt(alternativeID));
 
-        if (costID !== undefined) CostModel.id$.next(Number.parseInt(costID));
+        if (costID !== undefined) CostModel.sId$.next(Number.parseInt(costID));
     }, [alternativeID, costID]);
 }

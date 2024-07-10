@@ -52,7 +52,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
             className={useActiveLink(`/editor/alternative/:alternativeID/cost/${costID}`)}
             type={ButtonType.PRIMARY_DARK}
             onClick={() => {
-                CostModel.id$.next(costID ?? 0);
+                CostModel.sId$.next(costID ?? 0);
 
                 if (!location.pathname.endsWith(`cost/${costID}`)) navigate(`cost/${costID}`);
             }}
