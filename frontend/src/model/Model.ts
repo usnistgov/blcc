@@ -183,14 +183,22 @@ export namespace Model {
          */
         export const sZip$ = new Subject<string | undefined>();
         export const zip$ = state(
-            merge(sZip$, usLocation$.pipe(map((p) => p.zipcode))).pipe(distinctUntilChanged()),
+            merge(sZip$.pipe(filter((zip) => /^\d+$/.test(zip ?? ""))), usLocation$.pipe(map((p) => p.zipcode))).pipe(
+                distinctUntilChanged(),
+            ),
             undefined,
         );
-        sZip$.pipe(withLatestFrom(projectCollection$)).subscribe(([zipcode, collection]) =>
-            collection.modify((project) => {
-                (project.location as USLocation).zipcode = zipcode;
-            }),
-        );
+        zip$.subscribe((x) => console.log("zip is now ", x));
+        sZip$
+            .pipe(
+                filter((zip) => /^\d+$/.test(zip ?? "")),
+                withLatestFrom(projectCollection$),
+            )
+            .subscribe(([zipcode, collection]) =>
+                collection.modify((project) => {
+                    (project.location as USLocation).zipcode = zipcode;
+                }),
+            );
     }
 
     /**

@@ -52,11 +52,6 @@ export namespace EnergyCostModel {
         sector: string;
     };
 
-    Model.releaseYear$.subscribe((x) => console.log("Release year changed", x));
-    Model.studyPeriod$.subscribe((x) => console.log("study period changed", x));
-    Model.Location.zip$.subscribe((x) => console.log("zip changed", x));
-    customerSector$.subscribe((x) => console.log("customer sector changed", x));
-
     // Gets the default escalation rate information from the api
     export const fetchEscalationRates$ = combineLatest([
         Model.releaseYear$,

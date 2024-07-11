@@ -222,6 +222,7 @@ export default function GeneralInformation() {
                             type={TextInputType.PRIMARY}
                             value$={Model.Location.zip$}
                             wire={Model.Location.sZip$}
+                            maxLength={5}
                         />
                     )}
                 </div>
