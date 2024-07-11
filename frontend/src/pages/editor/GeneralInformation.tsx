@@ -1,6 +1,7 @@
 import { useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
 import Title from "antd/es/typography/Title";
+import { Defaults } from "blcc-format/Defaults";
 import {
     AnalysisType,
     DiscountingMethod,
@@ -25,6 +26,7 @@ export default function GeneralInformation() {
 
     const dollarMethod = useStateObservable(Model.dollarMethod$);
     const country = useStateObservable(Model.Location.country$);
+    const constructionPeriod = useStateObservable(Model.constructionPeriod$);
 
     return (
         <motion.div
@@ -80,23 +82,25 @@ export default function GeneralInformation() {
                         label={"Study Period*"}
                         addonAfter={"years"}
                         defaultValue={0}
-                        max={40}
+                        max={Defaults.STUDY_PERIOD + constructionPeriod}
                         min={0}
                         controls={true}
                         allowEmpty
-                        rules={[max(40), min(0)]}
+                        rules={[max(Defaults.STUDY_PERIOD + constructionPeriod), min(0)]}
                         wire={Model.sStudyPeriod$}
                         value$={Model.studyPeriod$}
+                        parser={(input) => (input ? Math.trunc(Number.parseInt(input)) : 0)}
                     />
                     <NumberInput
                         label={"Construction Period*"}
                         addonAfter={"years"}
                         defaultValue={0}
-                        max={40}
+                        max={Defaults.CONSTRUCTION_PERIOD}
                         min={0}
                         controls={true}
                         wire={Model.sConstructionPeriod$}
                         value$={Model.constructionPeriod$}
+                        parser={(input) => (input ? Math.trunc(Number.parseInt(input)) : 0)}
                     />
 
                     <Dropdown

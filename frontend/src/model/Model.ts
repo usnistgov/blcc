@@ -257,7 +257,10 @@ export namespace Model {
         25,
     );
     sStudyPeriod$
-        .pipe(withLatestFrom(projectCollection$))
+        .pipe(
+            //map((studyPeriod) => (studyPeriod ? Math.trunc(studyPeriod) : undefined)),
+            withLatestFrom(projectCollection$),
+        )
         .subscribe(([studyPeriod, collection]) => collection.modify({ studyPeriod }));
 
     /**

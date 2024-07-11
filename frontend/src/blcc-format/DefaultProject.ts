@@ -1,4 +1,4 @@
-import { Country } from "../constants/LOCATION";
+import { Country } from "constants/LOCATION";
 import { DollarMethod, EmissionsRateScenario, type Project, SocialCostOfGhgScenario } from "./Format";
 import { Version } from "./Verison";
 
