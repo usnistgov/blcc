@@ -17,6 +17,7 @@ import objectHash from "object-hash";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { download } from "util/DownloadFile";
+import { defaultProject } from "../blcc-format/DefaultProject";
 
 const newClick$ = new Subject<void>();
 const openClick$ = new Subject<void>();
@@ -96,32 +97,16 @@ export default function EditorAppBar() {
     useSubscribe(
         new$.pipe(withLatestFrom(Model.defaultReleaseYear$)),
         async ([, releaseYear]) => {
-            const defaultProject = {
-                version: Version.V1,
-                name: "Untitled Project",
-                dollarMethod: DollarMethod.CONSTANT,
-                constructionPeriod: 0,
-                discountingMethod: DiscountingMethod.END_OF_YEAR,
-                location: {
-                    country: Country.USA,
-                },
-                alternatives: [],
-                costs: [],
-                ghg: {
-                    socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
-                    emissionsRateScenario: EmissionsRateScenario.BASELINE,
-                },
-                releaseYear,
-            };
+            const project = defaultProject(releaseYear);
 
             // Add default project to db.
             await db.delete();
             await db.open();
-            await db.projects.add(defaultProject);
+            await db.projects.add(project);
 
             // Save hash so we can overwrite a project that has not changed defaults.
             await db.dirty.clear();
-            await db.dirty.add({ hash: objectHash({ project: defaultProject, alternatives: [], costs: [] }) });
+            await db.dirty.add({ hash: objectHash({ project, alternatives: [], costs: [] }) });
 
             navigate("/editor");
         },
