@@ -12,7 +12,7 @@ export type Project = {
     dollarMethod: DollarMethod;
     studyPeriod?: number;
     constructionPeriod: number;
-    discountingMethod: DiscountingMethod;
+    discountingMethod?: DiscountingMethod;
     realDiscountRate?: number;
     nominalDiscountRate?: number;
     inflationRate?: number;

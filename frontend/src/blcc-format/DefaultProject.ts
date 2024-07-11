@@ -1,11 +1,5 @@
 import { Country } from "../constants/LOCATION";
-import {
-    DiscountingMethod,
-    DollarMethod,
-    EmissionsRateScenario,
-    type Project,
-    SocialCostOfGhgScenario,
-} from "./Format";
+import { DollarMethod, EmissionsRateScenario, type Project, SocialCostOfGhgScenario } from "./Format";
 import { Version } from "./Verison";
 
 /**
@@ -17,7 +11,6 @@ export function defaultProject(releaseYear: number): Project {
         version: Version.V1,
         name: "Untitled Project",
         dollarMethod: DollarMethod.CONSTANT,
-        discountingMethod: DiscountingMethod.END_OF_YEAR,
         constructionPeriod: 0,
         location: {
             country: Country.USA,

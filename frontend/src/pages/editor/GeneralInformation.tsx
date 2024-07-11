@@ -52,6 +52,7 @@ export default function GeneralInformation() {
                 <Dropdown
                     label={"Analysis Type *"}
                     className={"w-full"}
+                    placeholder={"Please select an analysis type"}
                     options={Object.values(AnalysisType)}
                     wire={Model.sAnalysisType$}
                     value$={Model.analysisType$}
@@ -134,6 +135,7 @@ export default function GeneralInformation() {
                         {
                             <Dropdown
                                 label={"Discounting Convention *"}
+                                placeholder={"Please select a discounting convention"}
                                 options={Object.values(DiscountingMethod)}
                                 wire={Model.sDiscountingMethod$}
                                 value$={Model.discountingMethod$}
