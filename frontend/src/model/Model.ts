@@ -278,7 +278,7 @@ export namespace Model {
     export const sAnalysisType$ = new Subject<AnalysisType>();
     export const analysisType$ = state(
         merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
-        AnalysisType.FEDERAL_FINANCED,
+        undefined,
     );
     sAnalysisType$.pipe(withLatestFrom(projectCollection$)).subscribe((params) => setAnalysisType(params));
 
