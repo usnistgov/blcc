@@ -13,7 +13,7 @@ import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
 import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 import { guard } from "util/Operators";
 
 type AddCostModalProps = {
@@ -54,8 +54,10 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             const sType$ = new BehaviorSubject<CostTypes>(CostTypes.ENERGY);
             const sCheckAlt$ = new Subject<Set<ID>>();
 
+            // Create the new cost in the DB
             const newCost$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
                 sample(sAddClick$),
+                tap(createCostInDB),
             );
 
             const [modalCancel$, cancel] = createSignal();
@@ -87,8 +89,6 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         sName$.next(undefined);
         sType$.next(CostTypes.ENERGY);
     });
-    // Create the new costs in the database
-    useSubscribe(newCost$, createCostInDB);
 
     return (
         <Modal

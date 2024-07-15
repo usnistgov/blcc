@@ -42,8 +42,6 @@ export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: 
     const alternatives = useAlternatives();
     const state = internalState();
 
-    console.log("state", state);
-
     return (
         <div className={"grid gap-2"}>
             {alternatives.map((alt) => (

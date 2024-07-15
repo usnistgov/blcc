@@ -1,6 +1,6 @@
+import { DollarMethod, EmissionsRateScenario, type Project, SocialCostOfGhgScenario } from "blcc-format/Format";
+import { Version } from "blcc-format/Verison";
 import { Country } from "constants/LOCATION";
-import { DollarMethod, EmissionsRateScenario, type Project, SocialCostOfGhgScenario } from "./Format";
-import { Version } from "./Verison";
 
 /**
  * Creates a project object with default values given a release year.

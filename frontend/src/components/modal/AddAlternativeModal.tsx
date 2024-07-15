@@ -5,7 +5,7 @@ import { Modal, Typography } from "antd";
 import { Button, ButtonType } from "components/input/Button";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { currentProject$ } from "model/Model";
+import { alternatives$, currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ import {
     sample,
     switchMap,
 } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { guard, isFalse } from "util/Operators";
 
 type AddAlternativeModalProps = {
@@ -66,6 +66,15 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
             const sName$ = new BehaviorSubject<string | undefined>(undefined);
             const addClick$ = new Subject<void>();
             const cancelClick$ = new Subject<void>();
+            const isUnique$ = bind(
+                sName$.pipe(
+                    withLatestFrom(alternatives$),
+                    map(
+                        ([name, alts]) => alts.map((alt) => alt.name).find((altName) => altName === name) === undefined,
+                    ),
+                ),
+                false,
+            );
             const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), false);
 
             const newAlternativeID$ = combineLatest([currentProject$, sName$.pipe(guard())]).pipe(
