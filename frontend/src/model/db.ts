@@ -15,7 +15,7 @@ export class BlccDexie extends Dexie {
 
         this.version(1).stores({
             projects: "++id, name",
-            costs: "++id, name",
+            costs: "++id, name, type",
             alternatives: "++id, name, baseline",
             results: "&hash",
             errors: "&id",

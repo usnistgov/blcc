@@ -260,7 +260,7 @@ export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> &
 export type OtherCost = Type<CostTypes.OTHER> &
     BaseCost & {
         costOrBenefit: CostBenefit;
-        tag: string;
+        tags: string[];
         initialOccurrence: number;
         valuePerUnit: number;
         numberOfUnits: number;
@@ -277,7 +277,7 @@ export enum CostBenefit {
 
 export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
     BaseCost & {
-        tag: string;
+        tags: string[];
         initialOccurrence: number;
         numberOfUnits: number;
         unit: string | Unit;
