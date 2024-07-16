@@ -46,41 +46,52 @@ function createCostInDB([projectID, name, type, alts]: [number, string, CostType
 }
 
 export default function AddCostModal({ open$ }: AddCostModalProps) {
-    const [useOpen, cancel, disableAdd, sCheckAlt$, sName$, sType$, sAddClick$, sCancelClick$, newCost$, isOpen$] =
-        useMemo(() => {
-            const sName$ = new BehaviorSubject<string | undefined>(undefined);
-            const sAddClick$ = new Subject<void>();
-            const sCancelClick$ = new Subject<void>();
-            const sType$ = new BehaviorSubject<CostTypes>(CostTypes.ENERGY);
-            const sCheckAlt$ = new Subject<Set<ID>>();
+    const [
+        useOpen,
+        cancel,
+        disableAdd,
+        sCheckAlt$,
+        sName$,
+        sType$,
+        sAddClick$,
+        sCancelClick$,
+        isOpen$,
+        defaultChecked,
+    ] = useMemo(() => {
+        const sName$ = new BehaviorSubject<string | undefined>(undefined);
+        const sAddClick$ = new Subject<void>();
+        const sCancelClick$ = new Subject<void>();
+        const sType$ = new BehaviorSubject<CostTypes>(CostTypes.ENERGY);
+        const sCheckAlt$ = new Subject<Set<ID>>();
 
-            // Create the new cost in the DB
-            const newCost$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
-                sample(sAddClick$),
-                tap(createCostInDB),
-            );
+        // Create the new cost in the DB
+        const newCost$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
+            sample(sAddClick$),
+            tap(createCostInDB),
+        );
 
-            const [modalCancel$, cancel] = createSignal();
-            const [useOpen, isOpen$] = bind(
-                merge(open$, merge(sCancelClick$, newCost$, modalCancel$).pipe(map(() => false))),
-                false,
-            );
+        const [modalCancel$, cancel] = createSignal();
+        const [useOpen, isOpen$] = bind(
+            merge(open$, merge(sCancelClick$, newCost$, modalCancel$).pipe(map(() => false))),
+            false,
+        );
 
-            const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), true);
+        const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), true);
+        const [defaultChecked] = bind(AlternativeModel.sID$.pipe(map((id) => [id])), []);
 
-            return [
-                useOpen,
-                cancel,
-                disableAdd,
-                sCheckAlt$,
-                sName$,
-                sType$,
-                sAddClick$,
-                sCancelClick$,
-                newCost$,
-                isOpen$,
-            ];
-        }, [open$]);
+        return [
+            useOpen,
+            cancel,
+            disableAdd,
+            sCheckAlt$,
+            sName$,
+            sType$,
+            sAddClick$,
+            sCancelClick$,
+            isOpen$,
+            defaultChecked,
+        ];
+    }, [open$]);
 
     //Clear fields when modal closes
     useSubscribe(isOpen$, (open) => {
@@ -113,20 +124,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             <br />
             <div className="w-full">
                 <Typography.Title level={5}>Add to Alternatives</Typography.Title>
-                <AppliedCheckboxes defaults={[AlternativeModel.useID()]} wire={sCheckAlt$} />
-                {/*<Checkbox.Group
-                    style={{ width: "100%" }}
-                    value={useChecked()}
-                    onChange={(values) => setCheckedAlts(values as number[])}
-                >
-                    <Row>
-                        {useAlternatives().map((alt) => (
-                            <Col span={16} key={alt.id}>
-                                <Checkbox value={alt.id}>{alt.name}</Checkbox>
-                            </Col>
-                        )) || "No Alternatives"}
-                    </Row>
-                </Checkbox.Group>*/}
+                <AppliedCheckboxes defaults={defaultChecked()} wire={sCheckAlt$} />
             </div>
             <br />
             <div>
