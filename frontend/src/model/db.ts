@@ -13,7 +13,7 @@ export class BlccDexie extends Dexie {
     constructor() {
         super("BlccDatabase");
 
-        this.version(1).stores({
+        this.version(4).stores({
             projects: "++id, name",
             costs: "++id, name, type",
             alternatives: "++id, name, baseline",
