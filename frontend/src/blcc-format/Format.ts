@@ -260,14 +260,14 @@ export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> &
 export type OtherCost = Type<CostTypes.OTHER> &
     BaseCost & {
         costOrBenefit: CostBenefit;
-        tags: string[];
+        tags?: string[];
         initialOccurrence: number;
         valuePerUnit: number;
         numberOfUnits: number;
         unit: string | Unit;
         recurring: boolean;
-        rateOfChangeValue: number | number[];
-        rateOfChangeUnits: number | number[];
+        rateOfChangeValue?: number | number[];
+        rateOfChangeUnits?: number | number[];
     };
 
 export enum CostBenefit {
@@ -277,14 +277,14 @@ export enum CostBenefit {
 
 export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
     BaseCost & {
-        tags: string[];
+        tags?: string[];
         initialOccurrence: number;
         numberOfUnits: number;
         unit: string | Unit;
         recurring: boolean;
-        rateOfRecurrence: number;
-        rateOfChangeValue: number | number[];
-        rateOfChangeUnits: number | number[];
+        rateOfRecurrence?: number;
+        rateOfChangeValue?: number | number[];
+        rateOfChangeUnits?: number | number[];
     };
 
 export type Type<T> = {

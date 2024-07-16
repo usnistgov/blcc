@@ -42,4 +42,16 @@ export namespace OtherCostModel {
     export const sTags$ = new Subject<string[]>();
     export const tags$ = state(merge(sTags$, cost$.pipe(map((cost) => cost.tags))).pipe(distinctUntilChanged()), []);
     sTags$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([tags, collection]) => collection.modify({ tags }));
+
+    /**
+     * The initial occurrence for the current other cost
+     */
+    export const sInitialOccurrence$ = new Subject<number>();
+    export const initialOccurrence$ = state(
+        merge(sInitialOccurrence$, cost$.pipe(map((cost) => cost.initialOccurrence))).pipe(distinctUntilChanged()),
+        0,
+    );
+    sInitialOccurrence$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([initialOccurrence, collection]) => collection.modify({ initialOccurrence }));
 }

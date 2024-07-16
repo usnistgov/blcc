@@ -24,7 +24,12 @@ export default function OtherCostFields() {
                         value={tags}
                     />
                 </div>
-                <NumberInput className={"w-full"} label={"Initial Occurrence"} value$={EMPTY} />
+                <NumberInput
+                    className={"w-full"}
+                    label={"Initial Occurrence"}
+                    value$={OtherCostModel.initialOccurrence$}
+                    wire={OtherCostModel.sInitialOccurrence$}
+                />
                 <TextInput className={"w-full"} label={"Unit Name"} type={TextInputType.PRIMARY} wire={new Subject()} />
                 <NumberInput className={"w-full"} label={"Number of Units"} value$={EMPTY} />
                 <Recurring />
