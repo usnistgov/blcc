@@ -272,7 +272,7 @@ export type OtherCost = Type<CostTypes.OTHER> &
 
 export enum CostBenefit {
     COST = "Cost",
-    Benefit = "Benefit",
+    BENEFIT = "Benefit",
 }
 
 export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &

@@ -1,11 +1,22 @@
-import { state } from "@react-rxjs/core";
+import { shareLatest, state } from "@react-rxjs/core";
 import type { SelectProps } from "antd";
-import { CostTypes, type OtherCost, type OtherNonMonetary } from "blcc-format/Format";
+import {
+    CostTypes,
+    CubicUnit,
+    EnergyUnit,
+    LiquidUnit,
+    type OtherCost,
+    type OtherNonMonetary,
+    type Unit,
+    WeightUnit,
+} from "blcc-format/Format";
+import type { OptionType } from "components/SelectOrCreate";
 import { liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
+import { OtherNonMonetaryCostModel } from "model/costs/OtherNonMonetaryCostModel";
 import { db } from "model/db";
-import { Subject, distinctUntilChanged, from, merge } from "rxjs";
-import { filter, map, withLatestFrom } from "rxjs/operators";
+import { type Observable, Subject, distinctUntilChanged, from, merge } from "rxjs";
+import { filter, map, tap, withLatestFrom } from "rxjs/operators";
 
 export namespace OtherCostModel {
     /**
@@ -54,4 +65,46 @@ export namespace OtherCostModel {
     sInitialOccurrence$
         .pipe(withLatestFrom(CostModel.collection$))
         .subscribe(([initialOccurrence, collection]) => collection.modify({ initialOccurrence }));
+
+    const defaultUnits = [
+        ...Object.values(EnergyUnit),
+        ...Object.values(CubicUnit),
+        ...Object.values(LiquidUnit),
+        ...Object.values(WeightUnit),
+    ];
+    export const allUnits$: Observable<OptionType[]> = from(
+        liveQuery(() =>
+            db.costs.where("type").equals(CostTypes.OTHER).or("type").equals(CostTypes.OTHER_NON_MONETARY).toArray(),
+        ),
+    ).pipe(
+        map(
+            (costs) =>
+                new Set([...(costs as (OtherCost | OtherNonMonetary)[]).map((cost) => cost.unit), ...defaultUnits]),
+        ),
+        map((units) => [...units].map((unit) => ({ value: unit, label: unit }))),
+    );
+
+    /**
+     * The unit of the current cost
+     */
+    export const sUnit$ = new Subject<string | Unit>();
+    export const unit$ = state(
+        merge(sUnit$, cost$.pipe(map((cost) => cost.unit))).pipe(distinctUntilChanged()),
+        EnergyUnit.KWH,
+    );
+    sUnit$
+        .pipe(withLatestFrom(CostModel.collection$), tap(console.log))
+        .subscribe(([unit, collection]) => collection.modify({ unit }));
+
+    /**
+     *  The number of units in the current other cost
+     */
+    export const sNumberOfUnits$ = new Subject<number>();
+    export const numberOfUnits$ = state(
+        merge(sNumberOfUnits$, cost$.pipe(map((cost) => cost.numberOfUnits))).pipe(distinctUntilChanged()),
+        0,
+    );
+    sNumberOfUnits$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([numberOfUnits, collection]) => collection.modify({ numberOfUnits }));
 }

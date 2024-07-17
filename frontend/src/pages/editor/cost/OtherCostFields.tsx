@@ -2,10 +2,11 @@ import { useStateObservable } from "@react-rxjs/core";
 import { Select } from "antd";
 import Title from "antd/es/typography/Title";
 import Recurring from "components/Recurring";
+import SelectOrCreate from "components/SelectOrCreate";
 import { NumberInput } from "components/input/InputNumber";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
-import { EMPTY, Subject } from "rxjs";
+import { Subject } from "rxjs";
 
 export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);
@@ -30,8 +31,20 @@ export default function OtherCostFields() {
                     value$={OtherCostModel.initialOccurrence$}
                     wire={OtherCostModel.sInitialOccurrence$}
                 />
-                <TextInput className={"w-full"} label={"Unit Name"} type={TextInputType.PRIMARY} wire={new Subject()} />
-                <NumberInput className={"w-full"} label={"Number of Units"} value$={EMPTY} />
+                <TextInput className={"w-full"} label={"Unit"} type={TextInputType.PRIMARY} wire={new Subject()} />
+                <NumberInput
+                    className={"w-full"}
+                    label={"Number of Units"}
+                    value$={OtherCostModel.numberOfUnits$}
+                    wire={OtherCostModel.sNumberOfUnits$}
+                    addonAfter={
+                        <SelectOrCreate
+                            value$={OtherCostModel.unit$}
+                            wire$={OtherCostModel.sUnit$}
+                            options$={OtherCostModel.allUnits$}
+                        />
+                    }
+                />
                 <Recurring />
             </div>
         </div>
