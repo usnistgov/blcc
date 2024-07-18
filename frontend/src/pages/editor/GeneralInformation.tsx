@@ -10,6 +10,7 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
+import YearDisplay from "components/YearDisplay";
 import { Dropdown } from "components/input/Dropdown";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
@@ -111,6 +112,10 @@ export default function GeneralInformation() {
                         value$={Model.releaseYear$}
                     />
                 </div>
+
+                <span className={"col-span-2"}>
+                    <YearDisplay />
+                </span>
             </div>
             <div className={"pt-4"}>
                 <Title level={5}>Dollar Analysis</Title>

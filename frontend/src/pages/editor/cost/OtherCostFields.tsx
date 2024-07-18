@@ -45,7 +45,9 @@ export default function OtherCostFields() {
                         />
                     }
                 />
-                <Recurring />
+                <span className={"col-span-2"}>
+                    <Recurring />
+                </span>
             </div>
         </div>
     );
