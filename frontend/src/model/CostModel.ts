@@ -3,9 +3,8 @@ import { CostTypes, type ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
 import { db } from "model/db";
 import { Subject, distinctUntilChanged, map, merge, switchMap } from "rxjs";
-import { shareReplay, withLatestFrom } from "rxjs/operators";
+import { shareReplay, tap, withLatestFrom } from "rxjs/operators";
 import { defaultValue, guard, toggle } from "util/Operators";
-import { AlternativeModel } from "./AlternativeModel";
 
 export namespace CostModel {
     /**
@@ -19,12 +18,6 @@ export namespace CostModel {
         map((id) => db.costs.where("id").equals(id)),
         shareReplay(1),
     );
-
-    export const [useID] = bind(id$, -1);
-
-    /*function costModelState<B>(mapper: (cost: Cost) => B, key: keyof Cost) {
-        return createModelState(cost$.pipe(map((cost) => mapper(cost))), collection$, key);
-    }*/
 
     /**
      * The currently selected cost object as specified by the URL parameter.

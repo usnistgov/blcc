@@ -188,7 +188,6 @@ export namespace Model {
             ),
             undefined,
         );
-        zip$.subscribe((x) => console.log("zip is now ", x));
         sZip$
             .pipe(
                 filter((zip) => /^\d+$/.test(zip ?? "")),
