@@ -92,9 +92,7 @@ export namespace OtherCostModel {
         merge(sUnit$, cost$.pipe(map((cost) => cost.unit))).pipe(distinctUntilChanged()),
         EnergyUnit.KWH,
     );
-    sUnit$
-        .pipe(withLatestFrom(CostModel.collection$), tap(console.log))
-        .subscribe(([unit, collection]) => collection.modify({ unit }));
+    sUnit$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
 
     /**
      *  The number of units in the current other cost
@@ -107,4 +105,16 @@ export namespace OtherCostModel {
     sNumberOfUnits$
         .pipe(withLatestFrom(CostModel.collection$))
         .subscribe(([numberOfUnits, collection]) => collection.modify({ numberOfUnits }));
+
+    /**
+     * The value of each unit
+     */
+    export const sValuePerUnit$ = new Subject<number>();
+    export const valuePerUnit$ = state(
+        merge(sValuePerUnit$, cost$.pipe(map((cost) => cost.valuePerUnit))).pipe(distinctUntilChanged()),
+        0,
+    );
+    sValuePerUnit$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([valuePerUnit, collection]) => collection.modify({ valuePerUnit }));
 }

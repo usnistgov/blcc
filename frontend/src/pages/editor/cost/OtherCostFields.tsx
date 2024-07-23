@@ -11,6 +11,7 @@ import { Subject } from "rxjs";
 export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);
     const allTags = useStateObservable(OtherCostModel.allTags$);
+    const unit = useStateObservable(OtherCostModel.unit$);
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -31,7 +32,13 @@ export default function OtherCostFields() {
                     value$={OtherCostModel.initialOccurrence$}
                     wire={OtherCostModel.sInitialOccurrence$}
                 />
-                <TextInput className={"w-full"} label={"Unit"} type={TextInputType.PRIMARY} wire={new Subject()} />
+                <NumberInput
+                    className={"w-full"}
+                    label={"Unit Value"}
+                    addonAfter={`per ${unit}`}
+                    value$={OtherCostModel.valuePerUnit$}
+                    wire={OtherCostModel.sValuePerUnit$}
+                />
                 <NumberInput
                     className={"w-full"}
                     label={"Number of Units"}

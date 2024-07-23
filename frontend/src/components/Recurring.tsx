@@ -1,6 +1,6 @@
 import { mdiMenuDown } from "@mdi/js";
 import Icon from "@mdi/react";
-import { shareLatest, state, useStateObservable } from "@react-rxjs/core";
+import { bind, shareLatest, state, useStateObservable } from "@react-rxjs/core";
 import Title from "antd/es/typography/Title";
 import {
     type Cost,
@@ -19,11 +19,37 @@ import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { useMemo } from "react";
 import { EMPTY, type Observable, Subject, combineLatest, distinctUntilChanged, merge } from "rxjs";
-import { map, tap, withLatestFrom } from "rxjs/operators";
+import { combineLatestWith, map, tap, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import constructionPeriod$ = Model.constructionPeriod$;
+import DataGrid from "react-data-grid";
+import { RecurringModel } from "../model/RecurringModel";
 
 type RecurringCost = OMRCost | RecurringContractCost | OtherCost | OtherNonMonetary;
+
+const VALUE_COLUMNS = [
+    {
+        name: "Year",
+        key: "year",
+    },
+    {
+        name: "Value Rate of Change",
+        key: "rateOfChangeValue",
+        editable: true,
+    },
+];
+
+const UNIT_COLUMNS = [
+    {
+        name: "Year",
+        key: "year",
+    },
+    {
+        name: "Unit Rate of Change",
+        key: "rateOfChangeUnits",
+        editable: true,
+    },
+];
 
 function recurringPredicate(cost: Cost) {
     return match(cost)
@@ -50,6 +76,8 @@ export default function Recurring() {
         rateOfChangeValue$,
         rateOfChangeUnits$,
         indicators$,
+        useRateOfChangeValue,
+        useRateOfChangeUnits,
     ] = useMemo(() => {
         const sToggle$ = new Subject<boolean>();
         const isRecurring$ = state(
@@ -69,21 +97,49 @@ export default function Recurring() {
             ),
             0,
         );
-        const rateOfChangeValue$ = recurring$.pipe(map((recurring) => recurring.rateOfChangeValue));
-        const rateOfChangeUnits$ = recurring$.pipe(map((recurring) => recurring.rateOfChangeUnits));
+        const [useRateOfChangeValue, rateOfChangeValue$] = bind(
+            recurring$.pipe(
+                map((recurring) => recurring.rateOfChangeValue),
+                combineLatestWith(Model.releaseYear$),
+                map(([change, releaseYear]) =>
+                    match(change)
+                        .with(P.array(), (changes) =>
+                            changes.map((rate, i) => ({
+                                year: releaseYear + i,
+                                rateOfChangeValue: rate,
+                            })),
+                        )
+                        .otherwise((constant) => constant),
+                ),
+            ),
+            [],
+        );
+        const [useRateOfChangeUnits, rateOfChangeUnits$] = bind(
+            recurring$.pipe(
+                map((recurring) => recurring.rateOfChangeUnits),
+                combineLatestWith(Model.releaseYear$),
+                map(([change, releaseYear]) =>
+                    match(change)
+                        .with(P.array(), (changes) =>
+                            changes.map((rate, i) => ({
+                                year: releaseYear + i,
+                                rateOfChangeUnits: rate,
+                            })),
+                        )
+                        .otherwise((constant) => constant),
+                ),
+            ),
+            [],
+        );
 
         const indicators$ = state(
             combineLatest([rateOfRecurrence$, Model.studyPeriod$, Model.constructionPeriod$]).pipe(
                 map(([rateOfRecurrence, studyPeriod, constructionPeriod]) => {
                     return Array.from(Array((studyPeriod ?? 0) + constructionPeriod)).map((_, i) => {
                         if (i < constructionPeriod || (i - constructionPeriod) % rateOfRecurrence !== 0)
-                            return <div key={i} className={"table-cell"} />;
+                            return <div key={i} />;
 
-                        return (
-                            <div key={i} className={"table-cell"}>
-                                <Icon size={0.6} path={mdiMenuDown} />
-                            </div>
-                        );
+                        return <Icon key={i} size={0.6} path={mdiMenuDown} />;
                     });
                 }),
             ),
@@ -98,6 +154,8 @@ export default function Recurring() {
             rateOfChangeValue$,
             rateOfChangeUnits$,
             indicators$,
+            useRateOfChangeValue,
+            useRateOfChangeUnits,
         ];
     }, []);
 
@@ -111,6 +169,8 @@ export default function Recurring() {
 
     const isRecurring = useStateObservable(isRecurring$);
     const indicators = useStateObservable(indicators$);
+    const rateOfChangeValue = useRateOfChangeValue();
+    const rateOfChangeUnits = useRateOfChangeUnits();
 
     return (
         <div className={"flex flex-col w-full"}>
@@ -133,7 +193,70 @@ export default function Recurring() {
                         />
                     </div>
 
-                    <YearDisplay above={indicators} />
+                    <div className={"mb-4"}>
+                        <YearDisplay above={indicators} />
+                    </div>
+
+                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                        <div>
+                            <Title level={5}>Value Rate of Change</Title>
+                            <span className={"flex flex-row items-center gap-2 pb-2"}>
+                                <p className={"text-md pb-1"}>Constant</p>
+                                <Switch
+                                    value$={RecurringModel.isValueChangeConstant$}
+                                    wire={RecurringModel.sIsValueChangeConstant$}
+                                    checkedChildren={"Yes"}
+                                    unCheckedChildren={"No"}
+                                />
+                            </span>
+                            {match(rateOfChangeValue)
+                                .with(P.array(), (rateOfChangeValue) => (
+                                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                                        <DataGrid columns={VALUE_COLUMNS} rows={rateOfChangeValue} />
+                                    </div>
+                                ))
+                                .otherwise(() => (
+                                    <div>
+                                        <NumberInput
+                                            className={"w-full"}
+                                            label={"Constant Value Change"}
+                                            showLabel={false}
+                                            value$={EMPTY}
+                                            wire={new Subject<number>()}
+                                            addonAfter={"%"}
+                                        />
+                                    </div>
+                                ))}
+                        </div>
+                        <div>
+                            <Title level={5}>Unit Rate of Change</Title>
+                            <span className={"flex flex-row items-center gap-2 pb-2"}>
+                                <p className={"text-md pb-1"}>Constant</p>
+                                <Switch
+                                    value$={EMPTY}
+                                    wire={new Subject<boolean>()}
+                                    checkedChildren={"Yes"}
+                                    unCheckedChildren={"No"}
+                                />
+                            </span>
+                            {match(rateOfChangeUnits)
+                                .with(P.array(), (rateOfChangeUnits) => (
+                                    <DataGrid columns={UNIT_COLUMNS} rows={rateOfChangeUnits} />
+                                ))
+                                .otherwise(() => (
+                                    <div>
+                                        <NumberInput
+                                            className={"w-full"}
+                                            label={"Constant Unit Change"}
+                                            showLabel={false}
+                                            value$={EMPTY}
+                                            wire={new Subject<number>()}
+                                            addonAfter={"%"}
+                                        />
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
                 </>
             )}
         </div>

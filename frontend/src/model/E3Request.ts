@@ -373,8 +373,8 @@ function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
         .quantityValue(cost.initialCost)
         .quantity(1);
 
-    if (cost.rateOfRecurrence) {
-        builder.addTag("OMR Recurring").recur(new RecurBuilder().interval(cost.rateOfRecurrence)); //TODO rate of change
+    if (cost.recurring?.rateOfRecurrence) {
+        builder.addTag("OMR Recurring").recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 0)); //TODO rate of change
     } else {
         builder.addTag("OMR Non-Recurring");
     }
@@ -406,7 +406,7 @@ function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder
             .addTag("Recurring Contract Cost", "LCC")
             .real()
             .invest()
-            .recur(new RecurBuilder().interval(cost.rateOfRecurrence ?? 1))
+            .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
             .initialOccurrence(cost.initialOccurrence)
             .quantity(1)
             .quantityValue(cost.initialOccurrence + 1),
@@ -422,7 +422,7 @@ function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
         .type(cost.costOrBenefit === CostBenefit.COST ? BcnType.COST : BcnType.BENEFIT)
         .subType(BcnSubType.DIRECT)
         .addTag("Other", "LCC")
-        .addTag(cost.tag)
+        .addTag(...(cost.tags ?? []))
         .addTag(cost.unit)
         .quantityValue(cost.valuePerUnit)
         .quantity(cost.numberOfUnits)
@@ -438,7 +438,7 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
         .name(cost.name)
         .addTag("Other Non-Monetary")
         .addTag(cost.unit)
-        .addTag(cost.tag)
+        .addTag(...(cost.tags ?? []))
         .initialOccurrence(cost.initialOccurrence)
         .type(BcnType.NON_MONETARY)
         .subType(BcnSubType.DIRECT)
@@ -451,20 +451,26 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
 }
 
 function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary) {
-    if (cost.rateOfChangeUnits)
+    if (cost.recurring?.rateOfChangeUnits)
         builder
             .quantityVarRate(VarRate.YEAR_BY_YEAR)
             .quantityVarValue(
-                Array.isArray(cost.rateOfChangeUnits) ? cost.rateOfChangeUnits : [cost.rateOfChangeUnits],
+                Array.isArray(cost.recurring.rateOfChangeUnits)
+                    ? cost.recurring.rateOfChangeUnits
+                    : [cost.recurring.rateOfChangeUnits],
             );
 
     if (cost.recurring) {
         const recurBuilder = new RecurBuilder().interval(1);
 
-        if (cost.rateOfChangeValue) {
+        if (cost.recurring.rateOfChangeValue) {
             recurBuilder
                 .varRate(VarRate.YEAR_BY_YEAR)
-                .varValue(Array.isArray(cost.rateOfChangeValue) ? cost.rateOfChangeValue : [cost.rateOfChangeValue]);
+                .varValue(
+                    Array.isArray(cost.recurring.rateOfChangeValue)
+                        ? cost.recurring.rateOfChangeValue
+                        : [cost.recurring.rateOfChangeValue],
+                );
         }
 
         builder.recur(recurBuilder);

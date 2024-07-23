@@ -110,7 +110,6 @@ namespace DefaultCosts {
         valuePerUnit: 0,
         numberOfUnits: 0,
         unit: EnergyUnit.KWH,
-        recurring: false,
     };
 
     export const OTHER_NON_MONETARY: Props<OtherNonMonetary, CostTypes.OTHER_NON_MONETARY> = {
@@ -118,7 +117,6 @@ namespace DefaultCosts {
         initialOccurrence: 0,
         numberOfUnits: 0,
         unit: EnergyUnit.KWH,
-        recurring: false,
     };
 }
 

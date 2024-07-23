@@ -16,22 +16,18 @@ export default function YearDisplay({ above }: YearDisplayProps) {
 
                 for (let i = 0; i < constructionPeriod; i++) {
                     result.push(
-                        <div className={"table-cell"}>
-                            <p className={"text-blue-500"}>
-                                {i === 0 && "(20)"}
-                                {(releaseYear + i).toString().substring(2)}
-                            </p>
-                        </div>,
+                        <p className={"text-blue-500 basis-0"}>
+                            {i === 0 && "(20)"}
+                            {(releaseYear + i).toString().substring(2)}
+                        </p>,
                     );
                 }
 
                 for (let i = 0; i < (studyPeriod ?? 0); i++) {
                     result.push(
-                        <div className={"table-cell"}>
-                            <p className={"text-green-500"}>
-                                {(releaseYear + constructionPeriod + i).toString().substring(2)}
-                            </p>
-                        </div>,
+                        <p className={"text-green-500 basis-0"}>
+                            {(releaseYear + constructionPeriod + i).toString().substring(2)}
+                        </p>,
                     );
                 }
 
@@ -45,11 +41,10 @@ export default function YearDisplay({ above }: YearDisplayProps) {
     const years = useStateObservable(years$);
 
     return (
-        <div className={"table text-xs w-full"}>
-            <div className={"table-row-group"}>
-                <div className={"table-row"}>{above}</div>
-                <div className={"table-row"}>{years}</div>
-            </div>
+        <div className={"grid text-xs w-full justify-between auto-cols-auto grid-flow-col"}>
+            {above}
+            <div className={"h-0 col-span-full"} />
+            {years}
         </div>
     );
 }
