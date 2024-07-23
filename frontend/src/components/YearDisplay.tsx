@@ -1,8 +1,8 @@
 import { state, useStateObservable } from "@react-rxjs/core";
 import { Model } from "model/Model";
 import { type ReactNode, useMemo } from "react";
-import { combineLatest } from "rxjs";
-import { map } from "rxjs/operators";
+import { combineLatest, from, mergeAll, zip } from "rxjs";
+import { map, toArray } from "rxjs/operators";
 
 type YearDisplayProps = {
     above?: ReactNode[];
@@ -15,17 +15,12 @@ export default function YearDisplay({ above }: YearDisplayProps) {
                 const result = [];
 
                 for (let i = 0; i < constructionPeriod; i++) {
-                    result.push(
-                        <p className={"text-blue-500 basis-0"}>
-                            {i === 0 && "(20)"}
-                            {(releaseYear + i).toString().substring(2)}
-                        </p>,
-                    );
+                    result.push(<p className={"text-blue-500"}>{(releaseYear + i).toString().substring(2)}</p>);
                 }
 
                 for (let i = 0; i < (studyPeriod ?? 0); i++) {
                     result.push(
-                        <p className={"text-green-500 basis-0"}>
+                        <p className={"text-green-500"}>
                             {(releaseYear + constructionPeriod + i).toString().substring(2)}
                         </p>,
                     );
@@ -36,15 +31,17 @@ export default function YearDisplay({ above }: YearDisplayProps) {
         );
 
         return [state(years$, [])];
-    }, []);
+    }, [above]);
 
     const years = useStateObservable(years$);
 
     return (
-        <div className={"grid text-xs w-full justify-between auto-cols-auto grid-flow-col"}>
-            {above}
-            <div className={"h-0 col-span-full"} />
-            {years}
+        <div className={"flex text-xs w-full justify-between flex-col flex-wrap h-8"}>
+            {above?.flatMap((above, i) => [
+                above,
+                years[i],
+                <div key={`column-break-${i}`} className={"basis-full"} />,
+            ])}
         </div>
     );
 }

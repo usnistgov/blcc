@@ -66,7 +66,7 @@ export function NumberInput<T extends true | false = false>({
         );
 
         return { change, focus, output$, useValue, hasErrors };
-    }, [rules, allowEmpty, value$]);
+    }, [allowEmpty, value$]);
 
     useEffect(() => {
         const sub = output$.subscribe(wire);

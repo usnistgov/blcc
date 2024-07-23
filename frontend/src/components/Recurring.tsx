@@ -17,15 +17,19 @@ import Switch from "components/input/Switch";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
+import { RecurringModel } from "model/RecurringModel";
 import { useMemo } from "react";
-import { EMPTY, type Observable, Subject, combineLatest, distinctUntilChanged, merge } from "rxjs";
-import { combineLatestWith, map, tap, withLatestFrom } from "rxjs/operators";
+import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
+import { type Observable, Subject, combineLatest, distinctUntilChanged, merge } from "rxjs";
+import { combineLatestWith, map, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import constructionPeriod$ = Model.constructionPeriod$;
-import DataGrid from "react-data-grid";
-import { RecurringModel } from "../model/RecurringModel";
+import { percentFormatter } from "util/Util";
 
 type RecurringCost = OMRCost | RecurringContractCost | OtherCost | OtherNonMonetary;
+type RateChangeInfo = {
+    year: number;
+    rate: number;
+};
 
 const VALUE_COLUMNS = [
     {
@@ -34,8 +38,26 @@ const VALUE_COLUMNS = [
     },
     {
         name: "Value Rate of Change",
-        key: "rateOfChangeValue",
+        key: "rate",
+        renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<RateChangeInfo>) => {
+            return (
+                <input
+                    className={"w-full pl-4"}
+                    type={"number"}
+                    defaultValue={row.rate}
+                    onChange={(event) =>
+                        onRowChange({
+                            ...row,
+                            [column.key]: Number.parseFloat(event.currentTarget.value),
+                        })
+                    }
+                />
+            );
+        },
         editable: true,
+        renderCell: (info: RenderCellProps<RateChangeInfo>) => {
+            return percentFormatter.format(info.row.rate / 100);
+        },
     },
 ];
 
@@ -46,8 +68,26 @@ const UNIT_COLUMNS = [
     },
     {
         name: "Unit Rate of Change",
-        key: "rateOfChangeUnits",
+        key: "rate",
+        renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<RateChangeInfo>) => {
+            return (
+                <input
+                    className={"w-full pl-4"}
+                    type={"number"}
+                    defaultValue={row.rate}
+                    onChange={(event) =>
+                        onRowChange({
+                            ...row,
+                            [column.key]: Number.parseFloat(event.currentTarget.value),
+                        })
+                    }
+                />
+            );
+        },
         editable: true,
+        renderCell: (info: RenderCellProps<RateChangeInfo>) => {
+            return percentFormatter.format(info.row.rate / 100);
+        },
     },
 ];
 
@@ -98,16 +138,18 @@ export default function Recurring() {
             0,
         );
         const [useRateOfChangeValue, rateOfChangeValue$] = bind(
-            recurring$.pipe(
-                map((recurring) => recurring.rateOfChangeValue),
+            RecurringModel.rateOfChangeValue$.pipe(
                 combineLatestWith(Model.releaseYear$),
                 map(([change, releaseYear]) =>
                     match(change)
                         .with(P.array(), (changes) =>
-                            changes.map((rate, i) => ({
-                                year: releaseYear + i,
-                                rateOfChangeValue: rate,
-                            })),
+                            changes.map(
+                                (rate, i) =>
+                                    ({
+                                        year: releaseYear + i,
+                                        rate,
+                                    }) as RateChangeInfo,
+                            ),
                         )
                         .otherwise((constant) => constant),
                 ),
@@ -115,16 +157,18 @@ export default function Recurring() {
             [],
         );
         const [useRateOfChangeUnits, rateOfChangeUnits$] = bind(
-            recurring$.pipe(
-                map((recurring) => recurring.rateOfChangeUnits),
+            RecurringModel.rateOfChangeUnits$.pipe(
                 combineLatestWith(Model.releaseYear$),
                 map(([change, releaseYear]) =>
                     match(change)
                         .with(P.array(), (changes) =>
-                            changes.map((rate, i) => ({
-                                year: releaseYear + i,
-                                rateOfChangeUnits: rate,
-                            })),
+                            changes.map(
+                                (rate, i) =>
+                                    ({
+                                        year: releaseYear + i,
+                                        rate,
+                                    }) as RateChangeInfo,
+                            ),
                         )
                         .otherwise((constant) => constant),
                 ),
@@ -137,7 +181,7 @@ export default function Recurring() {
                 map(([rateOfRecurrence, studyPeriod, constructionPeriod]) => {
                     return Array.from(Array((studyPeriod ?? 0) + constructionPeriod)).map((_, i) => {
                         if (i < constructionPeriod || (i - constructionPeriod) % rateOfRecurrence !== 0)
-                            return <div key={i} />;
+                            return <div key={i} className={"grow min-h-2"} />;
 
                         return <Icon key={i} size={0.6} path={mdiMenuDown} />;
                     });
@@ -198,6 +242,7 @@ export default function Recurring() {
                     </div>
 
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                        {/* Value Rate of Change */}
                         <div>
                             <Title level={5}>Value Rate of Change</Title>
                             <span className={"flex flex-row items-center gap-2 pb-2"}>
@@ -212,7 +257,13 @@ export default function Recurring() {
                             {match(rateOfChangeValue)
                                 .with(P.array(), (rateOfChangeValue) => (
                                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                                        <DataGrid columns={VALUE_COLUMNS} rows={rateOfChangeValue} />
+                                        <DataGrid
+                                            columns={VALUE_COLUMNS}
+                                            rows={rateOfChangeValue}
+                                            onRowsChange={(rows: RateChangeInfo[]) =>
+                                                RecurringModel.sRateOfChangeValue$.next(rows.map((row) => row.rate))
+                                            }
+                                        />
                                     </div>
                                 ))
                                 .otherwise(() => (
@@ -221,27 +272,35 @@ export default function Recurring() {
                                             className={"w-full"}
                                             label={"Constant Value Change"}
                                             showLabel={false}
-                                            value$={EMPTY}
-                                            wire={new Subject<number>()}
+                                            value$={RecurringModel.rateOfChangeValue$ as Observable<number>}
+                                            wire={RecurringModel.sRateOfChangeValue$ as Subject<number>}
                                             addonAfter={"%"}
                                         />
                                     </div>
                                 ))}
                         </div>
+
+                        {/* Unit Rate of Change */}
                         <div>
                             <Title level={5}>Unit Rate of Change</Title>
                             <span className={"flex flex-row items-center gap-2 pb-2"}>
                                 <p className={"text-md pb-1"}>Constant</p>
                                 <Switch
-                                    value$={EMPTY}
-                                    wire={new Subject<boolean>()}
+                                    value$={RecurringModel.isUnitChangeConstant$}
+                                    wire={RecurringModel.sIsUnitChangeConstant$}
                                     checkedChildren={"Yes"}
                                     unCheckedChildren={"No"}
                                 />
                             </span>
                             {match(rateOfChangeUnits)
                                 .with(P.array(), (rateOfChangeUnits) => (
-                                    <DataGrid columns={UNIT_COLUMNS} rows={rateOfChangeUnits} />
+                                    <DataGrid
+                                        columns={UNIT_COLUMNS}
+                                        rows={rateOfChangeUnits}
+                                        onRowsChange={(rows: RateChangeInfo[]) =>
+                                            RecurringModel.sRateOfChangeUnits$.next(rows.map((row) => row.rate))
+                                        }
+                                    />
                                 ))
                                 .otherwise(() => (
                                     <div>
@@ -249,8 +308,8 @@ export default function Recurring() {
                                             className={"w-full"}
                                             label={"Constant Unit Change"}
                                             showLabel={false}
-                                            value$={EMPTY}
-                                            wire={new Subject<number>()}
+                                            value$={RecurringModel.rateOfChangeUnits$ as Observable<number>}
+                                            wire={RecurringModel.sRateOfChangeUnits$ as Subject<number>}
                                             addonAfter={"%"}
                                         />
                                     </div>
