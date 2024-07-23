@@ -4,9 +4,7 @@ import Title from "antd/es/typography/Title";
 import Recurring from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
 import { NumberInput } from "components/input/InputNumber";
-import TextInput, { TextInputType } from "components/input/TextInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
-import { Subject } from "rxjs";
 
 export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);

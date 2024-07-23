@@ -7,6 +7,7 @@ import TextInput, { TextInputType } from "components/input/TextInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
 import { OtherNonMonetaryCostModel } from "model/costs/OtherNonMonetaryCostModel";
 import { EMPTY, Subject } from "rxjs";
+import SelectOrCreate from "../../../components/SelectOrCreate";
 
 export default function OtherNonMonetaryCostFields() {
     const tags = useStateObservable(OtherNonMonetaryCostModel.tags$);
@@ -25,10 +26,29 @@ export default function OtherNonMonetaryCostFields() {
                         value={tags}
                     />
                 </div>
-                <NumberInput className={"w-full"} label={"Initial Occurrence"} value$={EMPTY} />
-                <TextInput className={"w-full"} label={"Unit Name"} type={TextInputType.PRIMARY} wire={new Subject()} />
-                <NumberInput className={"w-full"} label={"Number of Units"} value$={EMPTY} />
-                <Recurring />
+                <NumberInput
+                    className={"w-full"}
+                    label={"Initial Occurrence"}
+                    value$={OtherNonMonetaryCostModel.initialOccurrence$}
+                    wire={OtherNonMonetaryCostModel.sInitialOccurrence$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    label={"Number of Units"}
+                    value$={OtherNonMonetaryCostModel.numberOfUnits$}
+                    wire={OtherNonMonetaryCostModel.sNumberOfUnits$}
+                    addonAfter={
+                        <SelectOrCreate
+                            value$={OtherNonMonetaryCostModel.unit$}
+                            wire$={OtherNonMonetaryCostModel.sUnit$}
+                            options$={OtherCostModel.allUnits$}
+                        />
+                    }
+                />
+
+                <span className={"col-span-2"}>
+                    <Recurring />
+                </span>
             </div>
         </div>
     );
