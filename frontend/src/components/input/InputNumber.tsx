@@ -26,7 +26,7 @@ export function NumberInput<T extends true | false = false>({
     showLabel = true,
     children,
     allowEmpty = false,
-    rules = [],
+    rules,
     value$ = state(of(0)),
     wire,
     ...inputProps
@@ -61,12 +61,12 @@ export function NumberInput<T extends true | false = false>({
 
         const output$ = iif(() => allowEmpty, onChange$, resetIfUndefined$) as Observable<NumberOrUndefined<T>>;
         const [hasErrors, errors$] = bind(
-            (merge(replayed$, output$) as Observable<number | undefined>).pipe(guard(), validate(...rules)),
+            (merge(replayed$, output$) as Observable<number | undefined>).pipe(guard(), validate(...(rules ?? []))),
             undefined,
         );
 
         return { change, focus, output$, useValue, hasErrors };
-    }, [allowEmpty, value$]);
+    }, [rules, allowEmpty, value$]);
 
     useEffect(() => {
         const sub = output$.subscribe(wire);
