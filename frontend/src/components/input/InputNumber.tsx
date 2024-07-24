@@ -1,12 +1,12 @@
-import { bind, shareLatest, state } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import Title from "antd/es/typography/Title";
 import { type Rule, type ValidationResult, validate } from "model/rules/Rules";
 import { type PropsWithChildren, useEffect, useMemo } from "react";
-import { type Observable, type Subject, iif, map, merge, of, sample, switchMap } from "rxjs";
-import { combineLatestWith, shareReplay, startWith } from "rxjs/operators";
+import { type Observable, type Subject, iif, map, merge, sample, switchMap } from "rxjs";
+import { combineLatestWith, startWith } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { guard, isTrue } from "util/Operators";
 
@@ -27,7 +27,7 @@ export function NumberInput<T extends true | false = false>({
     children,
     allowEmpty = false,
     rules,
-    value$ = state(of(0)),
+    value$,
     wire,
     ...inputProps
 }: PropsWithChildren<NumberInputProps<T> & InputNumberProps<number>>) {
