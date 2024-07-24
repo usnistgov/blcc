@@ -17,7 +17,7 @@ import Switch from "components/input/Switch";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
-import { RecurringModel } from "model/RecurringModel";
+import { RecurringModel } from "model/costs/RecurringModel";
 import { useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, merge } from "rxjs";

@@ -5,11 +5,11 @@ import {
     type OtherNonMonetary,
     type RecurringContractCost,
 } from "blcc-format/Format";
+import { CostModel } from "model/CostModel";
+import { Model } from "model/Model";
 import { Subject, distinctUntilChanged, merge } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
-import { CostModel } from "./CostModel";
-import { Model } from "./Model";
 
 type RecurringTypes = RecurringContractCost | OtherCost | OtherNonMonetary | OMRCost;
 
