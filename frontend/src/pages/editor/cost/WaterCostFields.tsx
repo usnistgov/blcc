@@ -38,23 +38,27 @@ export default function WaterCostFields() {
                         optionType={"button"}
                     />
                     <div className={"grid grid-cols-[auto,_1fr,_1fr] pt-4"}>
-                        {usage.map((season) => (
+                        {usage.map((season, i) => (
                             <Fragment key={season.season}>
                                 <p className={"pr-4"}>{season.season}</p>
-                                <NumberInput
+                                <InputNumber
                                     className={"w-full pr-4"}
-                                    label={""}
-                                    showLabel={false}
-                                    value$={EMPTY}
-                                    wire={new Subject<number>()}
+                                    value={season.amount}
+                                    onChange={(value) => {
+                                        if (value === null) return;
+
+                                        WaterCostModel.sUsageAmount$.next([i, value as number]);
+                                    }}
                                     addonAfter={unit}
                                 />
-                                <NumberInput
+                                <InputNumber
                                     className={"w-full"}
-                                    label={""}
-                                    showLabel={false}
-                                    value$={EMPTY}
-                                    wire={new Subject<number>()}
+                                    value={season.costPerUnit}
+                                    onChange={(value) => {
+                                        if (value === null) return;
+
+                                        WaterCostModel.sUsageCost$.next([i, value as number]);
+                                    }}
                                     addonAfter={`$/${unit}`}
                                 />
                             </Fragment>
@@ -72,23 +76,25 @@ export default function WaterCostFields() {
                         optionType={"button"}
                     />
                     <div className={"grid grid-cols-[auto,_1fr,_1fr] pt-4"}>
-                        {disposal.map((season) => (
+                        {disposal.map((season, i) => (
                             <Fragment key={season.season}>
                                 <p className={"pr-4"}>{season.season}</p>
-                                <NumberInput
+                                <InputNumber
                                     className={"w-full pr-4"}
-                                    label={""}
-                                    showLabel={false}
-                                    value$={EMPTY}
-                                    wire={new Subject<number>()}
+                                    value={season.amount}
+                                    onChange={(value) => {
+                                        if (value === null) return;
+                                        WaterCostModel.sDisposalAmount$.next([i, value as number]);
+                                    }}
                                     addonAfter={unit}
                                 />
-                                <NumberInput
+                                <InputNumber
                                     className={"w-full"}
-                                    label={""}
-                                    showLabel={false}
-                                    value$={EMPTY}
-                                    wire={new Subject<number>()}
+                                    value={season.costPerUnit}
+                                    onChange={(value) => {
+                                        if (value === null) return;
+                                        WaterCostModel.sDisposalCost$.next([i, value as number]);
+                                    }}
                                     addonAfter={`$/${unit}`}
                                 />
                             </Fragment>

@@ -36,6 +36,20 @@ export namespace WaterCostModel {
         .pipe(withLatestFrom(CostModel.collection$, usage$))
         .subscribe(([seasonNum, collection, usage]) => collection.modify({ usage: newSeasons(usage) }));
 
+    export const sUsageAmount$ = new Subject<[number, number]>();
+    sUsageAmount$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, usage], collection]) =>
+        collection.modify((obj) => {
+            (obj as WaterCost).usage[index].amount = usage;
+        }),
+    );
+
+    export const sUsageCost$ = new Subject<[number, number]>();
+    sUsageCost$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, cost], collection]) => {
+        collection.modify((obj) => {
+            (obj as WaterCost).usage[index].costPerUnit = cost;
+        });
+    });
+
     export const disposal$ = state(
         merge(cost$.pipe(map((cost) => cost.disposal ?? []))).pipe(distinctUntilChanged()),
         [],
@@ -52,6 +66,20 @@ export namespace WaterCostModel {
     disposal$
         .pipe(withLatestFrom(CostModel.collection$), sample(sDisposalSeasonNum$))
         .subscribe(([disposal, collection]) => collection.modify({ disposal: newSeasons(disposal) }));
+
+    export const sDisposalAmount$ = new Subject<[number, number]>();
+    sDisposalAmount$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, disposal], collection]) => {
+        collection.modify((obj) => {
+            (obj as WaterCost).disposal[index].amount = disposal;
+        });
+    });
+
+    export const sDisposalCost$ = new Subject<[number, number]>();
+    sDisposalCost$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, cost], collection]) => {
+        collection.modify((obj) => {
+            (obj as WaterCost).disposal[index].costPerUnit = cost;
+        });
+    });
 
     function newSeasons(seasons: SeasonUsage[]): SeasonUsage[] {
         if (seasons.length === 4) return [seasons[1], seasons[3]];
