@@ -18,6 +18,7 @@ import { db } from "model/db";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, sample, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
+import { cloneName } from "util/Util";
 
 const { Title } = Typography;
 
@@ -118,7 +119,7 @@ async function cloneAlternative([alternative, projectID]: [Alternative, number])
         ...alternative,
         id: undefined,
         baseline: false,
-        name: `${alternative.name} Copy`,
+        name: cloneName(alternative.name),
     } as Alternative;
 
     return db.transaction("rw", db.alternatives, db.projects, async () => {

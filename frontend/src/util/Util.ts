@@ -73,3 +73,20 @@ export function stateStream<
 
     return [sSubject$, (initial !== undefined ? state(stream$, initial) : stream$) as Result];
 }
+
+const COPY_REGEX = /^(.*)( Copy)(?:\((\d+)\))?$/;
+
+/**
+ * Returns the new name for variable that is cloned. The first one has "... Copy" appended onto it, with each
+ * successive copy being given a number: "... Copy(1)", "... Copy(2)", etc.
+ * @param name The name to copy.
+ */
+export function cloneName(name: string): string {
+    if (COPY_REGEX.test(name))
+        return name.replace(
+            COPY_REGEX,
+            (_, name, copyString, num) => `${name}${copyString}(${Number.parseInt(num ?? "0") + 1})`,
+        );
+
+    return `${name} Copy`;
+}

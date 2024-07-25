@@ -1,5 +1,5 @@
 import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import { shareLatest, state, useStateObservable } from "@react-rxjs/core";
+import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
 import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
@@ -28,9 +28,9 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
+import { cloneName } from "util/Util";
 import Switch from "../../components/input/Switch";
 import sToggleAlt$ = CostModel.sToggleAlt$;
-import { tap } from "rxjs/operators";
 
 const { Title } = Typography;
 
@@ -69,23 +69,6 @@ function removeCost([costID, projectID]: [number, number]) {
     });
 }
 
-const COPY_REGEX = /^(.*)( Copy)(?:\((\d+)\))?$/;
-
-/**
- * Returns the new name for a cloned cost. The first one has "... Copy" appended onto it, with each successive copy
- * being given a number: "... Copy(1)", "... Copy(2)", etc.
- * @param name The name to copy.
- */
-function clonedCostName(name: string): string {
-    if (COPY_REGEX.test(name))
-        return name.replace(
-            COPY_REGEX,
-            (_, name, copyString, num) => `${name}${copyString}(${Number.parseInt(num ?? "0") + 1})`,
-        );
-
-    return `${name} Copy`;
-}
-
 /**
  * Clones the current cost, gives it a new name, and adds it to the database.
  * @param cost The cost to clone.
@@ -93,7 +76,7 @@ function clonedCostName(name: string): string {
  */
 async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        const newCost = { ...cost, id: undefined, name: clonedCostName(cost.name) } as FormatCost;
+        const newCost = { ...cost, id: undefined, name: cloneName(cost.name) } as FormatCost;
 
         // Create new clone cost
         const newID = await db.costs.add(newCost);
