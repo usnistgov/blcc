@@ -49,7 +49,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
     return (
         <Button
             key={costID}
-            className={useActiveLink(`/editor/alternative/:alternativeID/cost/${costID}`)}
+            className={`${useActiveLink(`/editor/alternative/:alternativeID/cost/${costID}`)} text-left text-nowrap overflow-hidden text-ellipsis`}
             type={ButtonType.PRIMARY_DARK}
             onClick={() => {
                 CostModel.sId$.next(costID ?? 0);
@@ -82,7 +82,7 @@ function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: 
 
 export default function CostNavigation() {
     return (
-        <nav className="flex h-full max-w-32 w-fit min-w-fit flex-col gap-2 overflow-y-auto whitespace-nowrap bg-primary-dark p-2 text-base-lightest">
+        <nav className="flex h-full max-w-80 w-fit flex-col gap-2 overflow-y-auto bg-primary-dark p-2 text-base-lightest ">
             {items.map((item) => (
                 <CostButtons key={item.title} item={item} costs$={item.costs$} />
             ))}

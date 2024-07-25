@@ -17,7 +17,7 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
     return (
         <Button
             key={altID}
-            className={useActiveLink(`/editor/alternative/${altID}/*`)}
+            className={`${useActiveLink(`/editor/alternative/${altID}/*`)} text-left text-nowrap text-ellipsis overflow-hidden`}
             type={ButtonType.PRIMARY}
             icon={icon}
             onClick={() => {
@@ -27,7 +27,7 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
                     navigate(`/editor/alternative/${altID}`);
             }}
         >
-            {name}
+            <p className={"min-w-0 overflow-hidden"}>{name}</p>
         </Button>
     );
 }
@@ -41,7 +41,7 @@ export default function Navigation() {
 
     return (
         <>
-            <nav className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
+            <nav className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg max-w-80">
                 {/* Top level buttons */}
                 <Button
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}
