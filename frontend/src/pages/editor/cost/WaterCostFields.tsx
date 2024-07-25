@@ -37,7 +37,7 @@ export default function WaterCostFields() {
                         buttonStyle={"solid"}
                         optionType={"button"}
                     />
-                    <div className={"grid grid-cols-[auto,_1fr,_1fr] pt-4"}>
+                    <div className={"grid grid-cols-[auto,_1fr,_1fr] pt-4 gap-y-2"}>
                         {usage.map((season, i) => (
                             <Fragment key={season.season}>
                                 <p className={"pr-4"}>{season.season}</p>
@@ -75,7 +75,7 @@ export default function WaterCostFields() {
                         buttonStyle={"solid"}
                         optionType={"button"}
                     />
-                    <div className={"grid grid-cols-[auto,_1fr,_1fr] pt-4"}>
+                    <div className={"grid grid-cols-[auto,_1fr,_1fr] pt-4 gap-y-2"}>
                         {disposal.map((season, i) => (
                             <Fragment key={season.season}>
                                 <p className={"pr-4"}>{season.season}</p>
