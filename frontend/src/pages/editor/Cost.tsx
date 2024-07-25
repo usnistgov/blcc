@@ -69,9 +69,31 @@ function removeCost([costID, projectID]: [number, number]) {
     });
 }
 
+const COPY_REGEX = /^(.*)( Copy)(?:\((\d+)\))?$/;
+
+/**
+ * Returns the new name for a cloned cost. The first one has "... Copy" appended onto it, with each successive copy
+ * being given a number: "... Copy(1)", "... Copy(2)", etc.
+ * @param name The name to copy.
+ */
+function clonedCostName(name: string): string {
+    if (COPY_REGEX.test(name))
+        return name.replace(
+            COPY_REGEX,
+            (_, name, copyString, num) => `${name}${copyString}(${Number.parseInt(num ?? "0") + 1})`,
+        );
+
+    return `${name} Copy`;
+}
+
+/**
+ * Clones the current cost, gives it a new name, and adds it to the database.
+ * @param cost The cost to clone.
+ * @param projectID The ID of the project to add the new cloned cost to.
+ */
 async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        const newCost = { ...cost, id: undefined, name: `${cost.name} Copy` } as FormatCost;
+        const newCost = { ...cost, id: undefined, name: clonedCostName(cost.name) } as FormatCost;
 
         // Create new clone cost
         const newID = await db.costs.add(newCost);
