@@ -1,10 +1,13 @@
 import { bind, state } from "@react-rxjs/core";
+import type { ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
+import { CostModel } from "model/CostModel";
 import { db } from "model/db";
 import { BehaviorSubject, Subject, distinctUntilChanged, merge, switchMap } from "rxjs";
 import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
 import { arrayFilter, defaultValue, guard } from "util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
+import { al } from "vitest/dist/reporters-5f784f42";
 
 export namespace AlternativeModel {
     /**
@@ -77,4 +80,24 @@ export namespace AlternativeModel {
     sDescription$
         .pipe(withLatestFrom(collection$))
         .subscribe(([description, collection]) => collection.modify({ description }));
+
+    export const sBaseline$ = new Subject<boolean>();
+    export const isBaseline$ = state(
+        merge(sBaseline$, alternative$.pipe(map((alternative) => alternative?.baseline ?? false))).pipe(
+            distinctUntilChanged(),
+        ),
+        false,
+    );
+    sBaseline$
+        .pipe(withLatestFrom(alternative$))
+        .subscribe(([baseline, alternative]) => setBaseline(baseline, alternative.id ?? 0));
+}
+
+function setBaseline(baseline: boolean, id: ID) {
+    db.transaction("rw", db.alternatives, async () => {
+        db.alternatives.where("id").equals(id).modify({ baseline });
+
+        // If we are setting the current alternatives baseline to true, set all other alternative baselines to false.
+        if (baseline) db.alternatives.where("id").notEqual(id).modify({ baseline: false });
+    });
 }

@@ -5,6 +5,7 @@ import { Typography } from "antd";
 import type { Alternative, Cost, CostTypes, FuelType, ID } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
+import Switch from "components/input/Switch";
 import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
@@ -16,7 +17,7 @@ import { AlternativeModel } from "model/AlternativeModel";
 import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useNavigate } from "react-router-dom";
-import { Subject, combineLatest, sample, switchMap } from "rxjs";
+import { EMPTY, Subject, combineLatest, sample, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import { cloneName } from "util/Util";
 
@@ -26,10 +27,6 @@ const cloneAlternativeClick$ = new Subject<void>();
 const removeAlternativeClick$ = new Subject<void>();
 const openAltModal$ = new Subject<void>();
 const openCostModal$ = new Subject<void>();
-
-/*const { onChange$: baseline$, component: BaselineSwitch } = switchComp(
-    alternative$.pipe(map((alt) => alt?.baseline ?? false))
-);*/
 
 const removeAlternative$ = combineLatest([AlternativeModel.sID$, currentProject$]).pipe(
     sample(removeAlternativeClick$),
@@ -83,15 +80,6 @@ const [otherCategories] = bind(
     ),
     {} as Subcategories<CostTypes>,
 );
-
-function setBaseline([baseline, id]: [boolean, ID]) {
-    db.transaction("rw", db.alternatives, async () => {
-        db.alternatives.where("id").equals(id).modify({ baseline });
-
-        // If we are setting the current alternatives baseline to true, set all other alternative baselines to false.
-        if (baseline) db.alternatives.where("id").notEqual(id).modify({ baseline: false });
-    });
-}
 
 function removeAlternative([alternativeID, projectID]: [number, number]) {
     return db.transaction("rw", db.alternatives, db.projects, async () => {
@@ -213,7 +201,7 @@ export default function Alternatives() {
                         <span className={"w-1/2"}>
                             <Title level={5}>Baseline Alternative</Title>
                             <p>Only one alternative can be the baseline.</p>
-                            {/*<BaselineSwitch />*/}
+                            <Switch value$={AlternativeModel.isBaseline$} wire={AlternativeModel.sBaseline$} />
                         </span>
 
                         <span className={"col-span-2"}>

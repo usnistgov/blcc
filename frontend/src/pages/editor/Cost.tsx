@@ -176,7 +176,7 @@ export default function Cost() {
                     <span className={"col-span-2"}>
                         <TextArea
                             label={"Description"}
-                            className={"w-full"}
+                            className={"w-full max-h-36"}
                             value$={CostModel.description$}
                             wire={CostModel.sDescription$}
                         />
