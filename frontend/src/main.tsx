@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "index.css";
 import "ant-overridden.css";
 import { StrictMode } from "react";
+import "styles/scrollbar.sass";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <StrictMode>

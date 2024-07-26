@@ -17,7 +17,9 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
     return (
         <Button
             key={altID}
-            className={`${useActiveLink(`/editor/alternative/${altID}/*`)} text-left text-nowrap text-ellipsis overflow-hidden`}
+            className={`${useActiveLink(
+                `/editor/alternative/${altID}/*`,
+            )} text-left text-nowrap text-ellipsis overflow-hidden`}
             type={ButtonType.PRIMARY}
             icon={icon}
             onClick={() => {
@@ -65,22 +67,24 @@ export default function Navigation() {
                     <Icon className={"mr-1 min-w-[24px]"} path={mdiFileTree} size={0.8} />
                     Alternatives
                 </span>
-                <div className={"flex flex-col gap-2 pl-8"}>
-                    {match([...useAlternatives().values()])
-                        .when(
-                            (alts) => alts.length <= 0,
-                            () => <p className={"text-base-light"}>No Alternatives</p>,
-                        )
-                        .otherwise((alts) =>
-                            alts.map((alt) => (
-                                <AltButton
-                                    key={alt.id}
-                                    altID={alt.id ?? 0}
-                                    name={alt.name}
-                                    icon={alt.baseline ? mdiAlphaBBox : undefined}
-                                />
-                            )),
-                        )}
+                <div className={"overflow-y-auto custom-scrollbar"}>
+                    <div className={"flex flex-col gap-2 pl-8"}>
+                        {match([...useAlternatives().values()])
+                            .when(
+                                (alts) => alts.length <= 0,
+                                () => <p className={"text-base-light"}>No Alternatives</p>,
+                            )
+                            .otherwise((alts) =>
+                                alts.map((alt) => (
+                                    <AltButton
+                                        key={alt.id}
+                                        altID={alt.id ?? 0}
+                                        name={alt.name}
+                                        icon={alt.baseline ? mdiAlphaBBox : undefined}
+                                    />
+                                )),
+                            )}
+                    </div>
                 </div>
             </nav>
             <Outlet />
