@@ -26,11 +26,12 @@ import WaterCostFields from "pages/editor/cost/WaterCostFields";
 import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostFields";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
+import { Subject, combineLatest, map, of, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import Switch from "../../components/input/Switch";
 import sToggleAlt$ = CostModel.sToggleAlt$;
+import ConfirmationModal from "components/modal/ConfirmationModal";
 
 const { Title } = Typography;
 
@@ -103,7 +104,7 @@ async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
 export default function Cost() {
     useParamSync();
 
-    const [altsThatInclude$] = useMemo(() => {
+    const [altsThatInclude$, sConfirmBaselineChange$] = useMemo(() => {
         const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
             map(
                 ([alternatives, id]) =>
@@ -112,8 +113,12 @@ export default function Cost() {
             shareLatest(),
         );
 
-        return [altsThatInclude$];
+        const sConfirmBaselineChange$ = new Subject<boolean>();
+
+        return [altsThatInclude$, sConfirmBaselineChange$];
     }, []);
+
+    useSubscribe(sConfirmBaselineChange$);
 
     const navigate = useNavigate();
     const costType = CostModel.useType();
@@ -134,6 +139,12 @@ export default function Cost() {
             animate={{ opacity: 1, speed: 0.5 }}
             transition={{ duration: 0.2 }}
         >
+            <ConfirmationModal
+                title={"Change Baseline"}
+                message={"Only one alternative can be the baseline. Changing this will disable the current baseline."}
+                open$={of(true)}
+                confirm$={new Subject()}
+            />
             <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
             <SubHeader>

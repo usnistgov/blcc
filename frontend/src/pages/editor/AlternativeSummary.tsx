@@ -13,6 +13,7 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { alternatives$ } from "model/Model";
 import { db } from "model/db";
+import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -135,21 +136,19 @@ export function createAlternativeCard(alternative: Alternative) {
                     <div className={"flex flex-row justify-between gap-6"}>
                         {/* Render each category */}
                         {categories.map((category) => (
-                            <div className={"flex flex-col"} key={category.label}>
-                                <div className={"flex gap-6"}>
-                                    <Title level={5}>{category.label}</Title>
-                                    <p>{category.hook().length}</p>
-                                </div>
-                                <Divider className={"m-0"} />
+                            <div className={"grid grid-cols-[auto,_1fr] gap-x-4"} key={category.label}>
+                                <Title level={5}>{category.label}</Title>
+                                <p>{category.hook().length}</p>
+                                <div className={"border-b-2 col-span-2 w-full h-0 mb-2"} />
 
                                 {/* Render each subcategory */}
                                 {category.children?.().map(([type, count]) => (
-                                    <div className={"flex gap-6"} key={type}>
+                                    <Fragment key={type}>
                                         <p className={"grow"}>{type}</p>
                                         <div className={"w-fit"}>
                                             <p>{count}</p>
                                         </div>
-                                    </div>
+                                    </Fragment>
                                 ))}
                             </div>
                         ))}
