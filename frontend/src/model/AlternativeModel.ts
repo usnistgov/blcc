@@ -2,6 +2,7 @@ import { bind, state } from "@react-rxjs/core";
 import type { ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
+import { alternatives$ } from "model/Model";
 import { db } from "model/db";
 import { BehaviorSubject, Subject, distinctUntilChanged, merge, switchMap } from "rxjs";
 import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
@@ -81,6 +82,7 @@ export namespace AlternativeModel {
         .pipe(withLatestFrom(collection$))
         .subscribe(([description, collection]) => collection.modify({ description }));
 
+    export const sSetBaseline$ = new Subject<void>();
     export const sBaseline$ = new Subject<boolean>();
     export const isBaseline$ = state(
         merge(sBaseline$, alternative$.pipe(map((alternative) => alternative?.baseline ?? false))).pipe(
@@ -88,9 +90,10 @@ export namespace AlternativeModel {
         ),
         false,
     );
-    sBaseline$
+    merge(sBaseline$, sSetBaseline$.pipe(map(() => true)))
         .pipe(withLatestFrom(alternative$))
         .subscribe(([baseline, alternative]) => setBaseline(baseline, alternative.id ?? 0));
+    export const hasBaseline$ = alternatives$.pipe(map((alts) => alts.find((alt) => alt.baseline) !== undefined));
 }
 
 function setBaseline(baseline: boolean, id: ID) {

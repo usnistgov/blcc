@@ -139,12 +139,6 @@ export default function Cost() {
             animate={{ opacity: 1, speed: 0.5 }}
             transition={{ duration: 0.2 }}
         >
-            <ConfirmationModal
-                title={"Change Baseline"}
-                message={"Only one alternative can be the baseline. Changing this will disable the current baseline."}
-                open$={of(true)}
-                confirm$={new Subject()}
-            />
             <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
             <SubHeader>

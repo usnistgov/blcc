@@ -1,7 +1,7 @@
 import { state, useStateObservable } from "@react-rxjs/core";
 import { Modal } from "antd";
 import { useMemo } from "react";
-import type { Observable, Subject } from "rxjs";
+import { type Observable, Subject, merge } from "rxjs";
 import { map } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 
@@ -13,25 +13,38 @@ type ConfirmationModalProps = {
 };
 
 export default function ConfirmationModal({ message, title, open$, confirm$ }: ConfirmationModalProps) {
-    const [isOpen$] = useMemo(() => {
+    const [isOpen$, sClose$] = useMemo(() => {
+        const sClose$ = new Subject<void>();
         const isOpen$ = state(
-            open$.pipe(
-                map((value) =>
-                    match(value)
-                        .with(P.boolean, (bool) => bool)
-                        .otherwise(() => true),
+            merge(
+                sClose$.pipe(map(() => false)),
+                open$.pipe(
+                    map((value) =>
+                        match(value)
+                            .with(P.boolean, (bool) => bool)
+                            .otherwise(() => true),
+                    ),
                 ),
             ),
             false,
         );
 
-        return [isOpen$];
+        return [isOpen$, sClose$];
     }, [open$]);
 
     const isOpen = useStateObservable(isOpen$);
 
     return (
-        <Modal title={title} closable={true} onOk={() => confirm$.next()} open={isOpen}>
+        <Modal
+            title={title}
+            closable={true}
+            onOk={() => {
+                confirm$.next();
+                sClose$.next();
+            }}
+            onCancel={() => sClose$.next()}
+            open={isOpen}
+        >
             {message}
         </Modal>
     );

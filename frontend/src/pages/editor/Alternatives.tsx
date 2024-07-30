@@ -10,16 +10,19 @@ import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
 import AddCostModal from "components/modal/AddCostModal";
+import ConfirmationModal from "components/modal/ConfirmationModal";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import { currentProject$ } from "model/Model";
 import { db } from "model/db";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { EMPTY, Subject, combineLatest, sample, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { EMPTY, Subject, combineLatest, merge, of, sample, switchMap } from "rxjs";
+import { filter, map, withLatestFrom } from "rxjs/operators";
 import { cloneName } from "util/Util";
+import sBaseline$ = AlternativeModel.sBaseline$;
 
 const { Title } = Typography;
 
@@ -131,7 +134,32 @@ export default function Alternatives() {
     const navigate = useNavigate();
     useParamSync();
 
-    //useSubscribe(baseline$.pipe(withLatestFrom(alternativeID$)), setBaseline);
+    const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$] = useMemo(() => {
+        // Stream of baseline switch change events.
+        const sBaselineChange$ = new Subject<boolean>();
+
+        // If we are changing the baseline to true, and we already have a baseline, show the confirmation modal.
+        const confirmBaselineChange$ = sBaselineChange$.pipe(
+            withLatestFrom(AlternativeModel.hasBaseline$),
+            filter(([value, hasBaseline]) => value && hasBaseline),
+            map(() => true),
+        );
+
+        // If we are disabling a baseline allow this without showing the modal.
+        const disableBaseline$ = sBaselineChange$.pipe(filter((value) => !value));
+        //If we are enabling a baseline when one does not already exist, allow this without showing the modal
+        const enableBaselineWithoutModal$ = sBaselineChange$.pipe(
+            withLatestFrom(AlternativeModel.hasBaseline$),
+            filter(([value, hasBaseline]) => value && !hasBaseline),
+            map(() => true),
+        );
+
+        const baselineChangeNoConfirm$ = merge(disableBaseline$, enableBaselineWithoutModal$);
+
+        return [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$];
+    }, []);
+
+    useSubscribe(baselineChangeNoConfirm$, AlternativeModel.sBaseline$);
     useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
         // Navigate to last alternative after deletion of current one
         const lastAlternative = await db.alternatives.reverse().first();
@@ -171,6 +199,12 @@ export default function Alternatives() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
+            <ConfirmationModal
+                title={"Change Baseline?"}
+                message={"Only one alternative can be the baseline. Changing this will disable the current baseline."}
+                open$={confirmBaselineChange$}
+                confirm$={AlternativeModel.sSetBaseline$}
+            />
             <AddAlternativeModal open$={openAltModal$.pipe(map(() => true))} />
             <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
@@ -201,7 +235,7 @@ export default function Alternatives() {
                         <span className={"w-1/2"}>
                             <Title level={5}>Baseline Alternative</Title>
                             <p>Only one alternative can be the baseline.</p>
-                            <Switch value$={AlternativeModel.isBaseline$} wire={AlternativeModel.sBaseline$} />
+                            <Switch value$={AlternativeModel.isBaseline$} wire={sBaselineChange$} />
                         </span>
 
                         <span className={"col-span-2"}>

@@ -1,3 +1,4 @@
+import type { Alternative } from "blcc-format/Format";
 import { type Observable, type UnaryFunction, map, pipe } from "rxjs";
 
 export type RuleContext = {
@@ -44,7 +45,13 @@ export function max(maxValue: number): Rule<number> {
 export function min(minValue: number): Rule<number> {
     return {
         name: "Min value rule",
-        message: (x: number) => `${x} is lower than the minium allowed value ${minValue}`,
+        message: (x: number) => `${x} is lower than the minimum allowed value ${minValue}`,
         test: (x: number) => x >= minValue,
     };
 }
+
+const HAS_BASELINE: Rule<Alternative[]> = {
+    name: "At least one baseline alternative",
+    test: (alts) => alts.find((alt) => alt.baseline) !== undefined,
+    message: () => "Must have at least one baseline alternative",
+};
