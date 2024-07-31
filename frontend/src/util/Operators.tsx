@@ -1,4 +1,17 @@
-import { type Observable, type UnaryFunction, count, from, groupBy, mergeMap, of, pipe, scan } from "rxjs";
+import { confirm as modalConfirm } from "components/modal/ConfirmationModal";
+import {
+    type Observable,
+    Subject,
+    type UnaryFunction,
+    count,
+    from,
+    groupBy,
+    mergeMap,
+    of,
+    pipe,
+    scan,
+    switchMap,
+} from "rxjs";
 import { catchError, filter, map, shareReplay, toArray } from "rxjs/operators";
 
 /**
@@ -85,5 +98,15 @@ export function gatherArray<T>(...seed: T[]): UnaryFunction<Observable<T>, Obser
             },
             [...seed],
         ),
+    );
+}
+
+export function confirm<T>(title: string, message: string): UnaryFunction<Observable<T>, Observable<T>> {
+    return pipe(
+        switchMap((value) => {
+            const confirm$ = new Subject<void>();
+            modalConfirm(title, message, confirm$);
+            return confirm$.pipe(map(() => value));
+        }),
     );
 }

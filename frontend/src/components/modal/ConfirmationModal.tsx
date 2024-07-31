@@ -1,37 +1,33 @@
 import { state, useStateObservable } from "@react-rxjs/core";
 import { Modal } from "antd";
 import { useMemo } from "react";
-import { type Observable, Subject, merge } from "rxjs";
+import { Subject, merge } from "rxjs";
 import { map } from "rxjs/operators";
-import { P, match } from "ts-pattern";
 
-type ConfirmationModalProps = {
-    title: string;
-    message: string;
-    open$: Observable<unknown | boolean>;
-    confirm$: Subject<void>;
-};
+const sTitle$ = new Subject<string>();
+const title$ = state(sTitle$, "");
+const sMessage$ = new Subject<string>();
+const message$ = state(sMessage$, "");
+const sOutputs$ = new Subject<Subject<void>>();
+const output$ = state(sOutputs$, undefined);
 
-export default function ConfirmationModal({ message, title, open$, confirm$ }: ConfirmationModalProps) {
+export function confirm(title: string, message: string, output$: Subject<void>) {
+    sTitle$.next(title);
+    sMessage$.next(message);
+    sOutputs$.next(output$);
+}
+
+export default function ConfirmationModal() {
     const [isOpen$, sClose$] = useMemo(() => {
         const sClose$ = new Subject<void>();
-        const isOpen$ = state(
-            merge(
-                sClose$.pipe(map(() => false)),
-                open$.pipe(
-                    map((value) =>
-                        match(value)
-                            .with(P.boolean, (bool) => bool)
-                            .otherwise(() => true),
-                    ),
-                ),
-            ),
-            false,
-        );
+        const isOpen$ = state(merge(sClose$.pipe(map(() => false)), sTitle$.pipe(map(() => true))), false);
 
         return [isOpen$, sClose$];
-    }, [open$]);
+    }, []);
 
+    const title = useStateObservable(title$);
+    const message = useStateObservable(message$);
+    const output = useStateObservable(output$);
     const isOpen = useStateObservable(isOpen$);
 
     return (
@@ -39,7 +35,7 @@ export default function ConfirmationModal({ message, title, open$, confirm$ }: C
             title={title}
             closable={true}
             onOk={() => {
-                confirm$.next();
+                output?.next();
                 sClose$.next();
             }}
             onCancel={() => sClose$.next()}

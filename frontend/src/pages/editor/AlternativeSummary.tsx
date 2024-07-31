@@ -1,9 +1,9 @@
-import { mdiAlphaBBox, mdiPlus } from "@mdi/js";
+import { mdiAlphaBBox, mdiContentCopy, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Divider, Typography } from "antd";
-import type { Alternative, Cost, EnergyCost } from "blcc-format/Format";
+import { Typography } from "antd";
+import type { Alternative, Cost, EnergyCost, ID } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
@@ -11,25 +11,42 @@ import { liveQuery } from "dexie";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
+import { AlternativeModel } from "model/AlternativeModel";
 import { alternatives$ } from "model/Model";
 import { db } from "model/db";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
-import { countProperty } from "util/Operators";
+import { confirm, countProperty } from "util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
 
 const { Title } = Typography;
 
 const addAlternativeClick$ = new Subject<void>();
 
+const confirmBaselineChange$ = new Subject<ID>();
 const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
 
 export default function AlternativeSummary() {
+    const navigate = useNavigate();
     useParamSync();
 
     const cards = useCards();
+
+    const [changeBaseline$] = useMemo(() => {
+        const changeBaseline$ = confirmBaselineChange$.pipe(
+            confirm(
+                "Change Baseline?",
+                "Only one alternative can be the baseline. Changing this will disable the current baseline.",
+            ),
+        );
+
+        return [changeBaseline$];
+    }, []);
+
+    useSubscribe(changeBaseline$, AlternativeModel.sMakeBaseline$);
+    useSubscribe(AlternativeModel.Actions.clonedAlternative$, (id) => navigate(`/editor/alternative/${id}`));
 
     return (
         <motion.div
@@ -47,6 +64,12 @@ export default function AlternativeSummary() {
                     </Button>
                 </div>
             </SubHeader>
+            {/*<ConfirmationModal
+                title={"Change Baseline?"}
+                message={"Only one alternative can be the baseline. Changing this will disable the current baseline."}
+                open$={confirmBaselineChange$}
+                confirm$={AlternativeModel.sMakeBaseline$}
+            />*/}
             <div className={"flex h-full w-full flex-col items-center"}>
                 <br />
                 {(cards.length !== 0 && cards.map((card) => <card.component key={card.id} />)) || (
@@ -127,9 +150,35 @@ export function createAlternativeCard(alternative: Alternative) {
                     onClick={click}
                     onKeyDown={click}
                 >
-                    <div className={"flex flex-row gap-1"}>
-                        {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
-                        <Title level={4}>{alternative.name}</Title>
+                    <div className={"flex flex-row gap-1 justify-between flex-nowrap"}>
+                        <div className={"flex flex-row gap-2"}>
+                            {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
+                            <Title level={4}>{alternative.name}</Title>
+                        </div>
+                        <div className={"flex flex-row gap-2"}>
+                            {!alternative.baseline && (
+                                <Button
+                                    type={ButtonType.LINK}
+                                    icon={mdiAlphaBBox}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        confirmBaselineChange$.next(alternative.id ?? 0);
+                                    }}
+                                >
+                                    Set as Baseline
+                                </Button>
+                            )}
+                            <Button
+                                type={ButtonType.LINK}
+                                icon={mdiContentCopy}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    AlternativeModel.Actions.clone(alternative.id ?? 0);
+                                }}
+                            >
+                                Clone
+                            </Button>
+                        </div>
                     </div>
                     <p>{alternative.description}</p>
                     <br />

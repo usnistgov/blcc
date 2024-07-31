@@ -1,5 +1,7 @@
 import { Subscribe } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
+import { defaultProject } from "blcc-format/DefaultProject";
+import ConfirmationModal from "components/modal/ConfirmationModal";
 import messageModal, { type Message } from "components/modal/MessageModal";
 import { liveQuery } from "dexie";
 import { Model } from "model/Model";
@@ -9,7 +11,6 @@ import Editor from "pages/editor/Editor";
 import Results from "pages/results/Results";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { combineLatest } from "rxjs";
-import { defaultProject } from "./blcc-format/DefaultProject";
 
 const defaultProject$ = liveQuery(() => db.projects.where("id").equals(1).first());
 combineLatest([defaultProject$, Model.defaultReleaseYear$]).subscribe(([p, releaseYear]) => {
@@ -29,6 +30,7 @@ export default function App() {
             <BrowserRouter>
                 <div className={"flex h-full flex-col"}>
                     <MessageModal />
+                    <ConfirmationModal />
 
                     {/* App bars */}
                     <Routes>

@@ -37,7 +37,14 @@ export function Button({
             type={"button"}
             className={`${className ? className : ""} ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`}
             disabled={disabled}
-            onClick={wire ? () => wire.next() : undefined}
+            onClick={
+                wire
+                    ? (e) => {
+                          e.stopPropagation();
+                          wire.next();
+                      }
+                    : undefined
+            }
             {...buttonProps}
         >
             <span className={"flex flex-row place-items-center"}>

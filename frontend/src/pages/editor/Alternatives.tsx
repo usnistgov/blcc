@@ -2,7 +2,7 @@ import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { Typography } from "antd";
-import type { Alternative, Cost, CostTypes, FuelType, ID } from "blcc-format/Format";
+import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import Switch from "components/input/Switch";
@@ -10,7 +10,6 @@ import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
 import AddCostModal from "components/modal/AddCostModal";
-import ConfirmationModal from "components/modal/ConfirmationModal";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
@@ -19,23 +18,18 @@ import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { EMPTY, Subject, combineLatest, merge, of, sample, switchMap } from "rxjs";
+import { Subject, combineLatest, merge, sample, switchMap } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
-import { cloneName } from "util/Util";
-import sBaseline$ = AlternativeModel.sBaseline$;
+import { confirm } from "util/Operators";
 
 const { Title } = Typography;
 
-const cloneAlternativeClick$ = new Subject<void>();
 const removeAlternativeClick$ = new Subject<void>();
 const openAltModal$ = new Subject<void>();
 const openCostModal$ = new Subject<void>();
 
 const removeAlternative$ = combineLatest([AlternativeModel.sID$, currentProject$]).pipe(
     sample(removeAlternativeClick$),
-);
-const cloneAlternative$ = combineLatest([AlternativeModel.alternative$, currentProject$]).pipe(
-    sample(cloneAlternativeClick$),
 );
 
 type Subcategories<T> = {
@@ -104,31 +98,6 @@ function removeAlternative([alternativeID, projectID]: [number, number]) {
     });
 }
 
-async function cloneAlternative([alternative, projectID]: [Alternative, number]): Promise<ID> {
-    // Clone copies everything besides the baseline value and the name is changed for differentiation
-    const newAlternative = {
-        ...alternative,
-        id: undefined,
-        baseline: false,
-        name: cloneName(alternative.name),
-    } as Alternative;
-
-    return db.transaction("rw", db.alternatives, db.projects, async () => {
-        // Add cloned alternative
-        const newID = await db.alternatives.add(newAlternative);
-
-        // Add copy to project
-        db.projects
-            .where("id")
-            .equals(projectID)
-            .modify((project) => {
-                project.alternatives.push(newID);
-            });
-
-        return newID;
-    });
-}
-
 export default function Alternatives() {
     // Navigate to general information page if there are no alternatives
     const navigate = useNavigate();
@@ -143,6 +112,10 @@ export default function Alternatives() {
             withLatestFrom(AlternativeModel.hasBaseline$),
             filter(([value, hasBaseline]) => value && hasBaseline),
             map(() => true),
+            confirm(
+                "Change Baseline?",
+                "Only one alternative can be the baseline. Changing this will disable the current baseline.",
+            ),
         );
 
         // If we are disabling a baseline allow this without showing the modal.
@@ -159,6 +132,7 @@ export default function Alternatives() {
         return [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$];
     }, []);
 
+    useSubscribe(confirmBaselineChange$, AlternativeModel.sBaseline$);
     useSubscribe(baselineChangeNoConfirm$, AlternativeModel.sBaseline$);
     useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
         // Navigate to last alternative after deletion of current one
@@ -166,7 +140,7 @@ export default function Alternatives() {
         if (lastAlternative !== undefined) navigate(`/editor/alternative/${lastAlternative.id}`);
         else navigate("/editor/alternative");
     });
-    useSubscribe(cloneAlternative$.pipe(switchMap(cloneAlternative)), (id) => navigate(`/editor/alternative/${id}`));
+    useSubscribe(AlternativeModel.Actions.clonedAlternative$, (id) => navigate(`/editor/alternative/${id}`));
 
     const categories = [
         {
@@ -191,6 +165,8 @@ export default function Alternatives() {
         },
     ];
 
+    const id = AlternativeModel.useID();
+
     return (
         <motion.div
             className="h-full w-full"
@@ -199,12 +175,6 @@ export default function Alternatives() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
-            <ConfirmationModal
-                title={"Change Baseline?"}
-                message={"Only one alternative can be the baseline. Changing this will disable the current baseline."}
-                open$={confirmBaselineChange$}
-                confirm$={AlternativeModel.sSetBaseline$}
-            />
             <AddAlternativeModal open$={openAltModal$.pipe(map(() => true))} />
             <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
@@ -214,7 +184,7 @@ export default function Alternatives() {
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
                     </Button>
-                    <Button type={ButtonType.LINK} onClick={() => cloneAlternativeClick$.next()}>
+                    <Button type={ButtonType.LINK} onClick={() => AlternativeModel.Actions.cloneCurrent()}>
                         <Icon path={mdiContentCopy} size={1} /> Clone
                     </Button>
                     <Button type={ButtonType.LINKERROR} onClick={() => removeAlternativeClick$.next()}>

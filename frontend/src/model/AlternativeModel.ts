@@ -1,14 +1,13 @@
 import { bind, state } from "@react-rxjs/core";
-import type { ID } from "blcc-format/Format";
+import type { Alternative, ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
-import { CostModel } from "model/CostModel";
-import { alternatives$ } from "model/Model";
+import { alternatives$, currentProject$ } from "model/Model";
 import { db } from "model/db";
-import { BehaviorSubject, Subject, distinctUntilChanged, merge, switchMap } from "rxjs";
+import { BehaviorSubject, type Observable, Subject, distinctUntilChanged, iif, merge, of, switchMap } from "rxjs";
 import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
+import { P, match } from "ts-pattern";
 import { arrayFilter, defaultValue, guard } from "util/Operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
-import { al } from "vitest/dist/reporters-5f784f42";
+import { cloneName, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
 
 export namespace AlternativeModel {
     /**
@@ -84,6 +83,7 @@ export namespace AlternativeModel {
 
     export const sSetBaseline$ = new Subject<void>();
     export const sBaseline$ = new Subject<boolean>();
+    export const sMakeBaseline$ = new Subject<ID>();
     export const isBaseline$ = state(
         merge(sBaseline$, alternative$.pipe(map((alternative) => alternative?.baseline ?? false))).pipe(
             distinctUntilChanged(),
@@ -93,7 +93,75 @@ export namespace AlternativeModel {
     merge(sBaseline$, sSetBaseline$.pipe(map(() => true)))
         .pipe(withLatestFrom(alternative$))
         .subscribe(([baseline, alternative]) => setBaseline(baseline, alternative.id ?? 0));
+    sMakeBaseline$.subscribe((id) => setBaseline(true, id));
     export const hasBaseline$ = alternatives$.pipe(map((alts) => alts.find((alt) => alt.baseline) !== undefined));
+
+    export namespace Actions {
+        /**
+         * Clones the current alternative
+         */
+        export function cloneCurrent() {
+            sCloneAlternative$.next(undefined);
+        }
+
+        /**
+         * Clones the alternative denoted by the given ID.
+         *
+         * @param id the ID of the alternative to clone.
+         */
+        export function clone(id: ID) {
+            sCloneAlternative$.next(id);
+        }
+
+        // Subject to initiate cloning
+        const sCloneAlternative$ = new Subject<ID | undefined>();
+
+        // Stream that returns the ID of the newly created clone.
+        export const clonedAlternative$: Observable<number | Alternative> = sCloneAlternative$.pipe(
+            switchMap((value) => iif(() => value === undefined, alternative$, of(value as number))),
+            withLatestFrom(currentProject$),
+            switchMap(cloneAlternative),
+        );
+
+        /**
+         * Clones the specified alternative.
+         *
+         * @param alternativeIDOrObj The alternative object or alternative ID to clone.
+         * @param projectID The id of the current project to store the clone in.
+         * @private
+         */
+        async function cloneAlternative([alternativeIDOrObj, projectID]: [ID | Alternative, ID]): Promise<ID> {
+            // Get the alternative from the db if necessary
+            const alternative = await match(alternativeIDOrObj)
+                .with(P.number, async (id) => await db.alternatives.where("id").equals(id).first())
+                .otherwise(async (obj) => obj);
+
+            if (alternative === undefined) return 0;
+
+            // Clone copies everything besides the baseline value and the name is changed for differentiation
+            const newAlternative = {
+                ...alternative,
+                id: undefined,
+                baseline: false,
+                name: cloneName(alternative.name),
+            } as Alternative;
+
+            return db.transaction("rw", db.alternatives, db.projects, async () => {
+                // Add cloned alternative
+                const newID = await db.alternatives.add(newAlternative);
+
+                // Add copy to project
+                db.projects
+                    .where("id")
+                    .equals(projectID)
+                    .modify((project) => {
+                        project.alternatives.push(newID);
+                    });
+
+                return newID;
+            });
+        }
+    }
 }
 
 function setBaseline(baseline: boolean, id: ID) {
