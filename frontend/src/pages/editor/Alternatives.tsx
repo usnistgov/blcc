@@ -192,7 +192,7 @@ export default function Alternatives() {
                     </Button>
                 </div>
             </SubHeader>
-            <div className={"p-6"}>
+            <div className={"p-6 h-full overflow-y-auto"}>
                 <div className={"max-w-screen-lg"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <TextInput

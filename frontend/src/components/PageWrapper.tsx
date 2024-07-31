@@ -6,9 +6,7 @@ import { Outlet } from "react-router-dom";
 export default function PageWrapper() {
     return (
         <div className={"h-full w-full bg-off-white"}>
-            <div className={"h-full w-full overflow-y-auto border-l border-t border-base-light shadow-md"}>
-                <Outlet />
-            </div>
+            <Outlet />
         </div>
     );
 }

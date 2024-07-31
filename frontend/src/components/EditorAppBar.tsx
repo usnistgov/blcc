@@ -1,23 +1,20 @@
 import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
-import { DiscountingMethod, DollarMethod, EmissionsRateScenario, SocialCostOfGhgScenario } from "blcc-format/Format";
-import { Version } from "blcc-format/Verison";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
-import { Country } from "constants/LOCATION";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { Model, hash$, isDirty$ } from "model/Model";
 import { db } from "model/db";
 import { useNavigate } from "react-router-dom";
 import "dexie-export-import";
 import { convert } from "blcc-format/Converter";
+import { defaultProject } from "blcc-format/DefaultProject";
 import saveDiscardModal from "components/modal/SaveDiscardModal";
 import objectHash from "object-hash";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { download } from "util/DownloadFile";
-import { defaultProject } from "../blcc-format/DefaultProject";
 
 const newClick$ = new Subject<void>();
 const openClick$ = new Subject<void>();
