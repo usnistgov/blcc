@@ -1,6 +1,6 @@
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { bind } from "@react-rxjs/core";
+import { bind, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
 import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
@@ -166,6 +166,7 @@ export default function Alternatives() {
     ];
 
     const id = AlternativeModel.useID();
+    const name = useStateObservable(AlternativeModel.name$);
 
     return (
         <motion.div
@@ -179,17 +180,20 @@ export default function Alternatives() {
             <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
             <SubHeader>
-                <div className={"self-end"}>
-                    <Button type={ButtonType.LINK} onClick={() => openAltModal$.next()}>
-                        <Icon path={mdiPlus} size={1} />
-                        Add Alternative
-                    </Button>
-                    <Button type={ButtonType.LINK} onClick={() => AlternativeModel.Actions.cloneCurrent()}>
-                        <Icon path={mdiContentCopy} size={1} /> Clone
-                    </Button>
-                    <Button type={ButtonType.LINKERROR} onClick={() => removeAlternativeClick$.next()}>
-                        <Icon path={mdiMinus} size={1} /> Remove
-                    </Button>
+                <div className="flex justify-between">
+                    <p className={"self-center px-6 text-ink"}>{name}</p>
+                    <div className={"px-6"}>
+                        <Button type={ButtonType.LINK} onClick={() => openAltModal$.next()}>
+                            <Icon path={mdiPlus} size={1} />
+                            Add Alternative
+                        </Button>
+                        <Button type={ButtonType.LINK} onClick={() => AlternativeModel.Actions.cloneCurrent()}>
+                            <Icon path={mdiContentCopy} size={1} /> Clone
+                        </Button>
+                        <Button type={ButtonType.LINKERROR} onClick={() => removeAlternativeClick$.next()}>
+                            <Icon path={mdiMinus} size={1} /> Remove
+                        </Button>
+                    </div>
                 </div>
             </SubHeader>
             <div className={"p-6 h-full overflow-y-auto"}>
@@ -227,7 +231,7 @@ export default function Alternatives() {
                         Add Cost
                     </Button>
                 </div>
-                <div className={"flex flex-wrap gap-16 py-6"}>
+                <div className={"flex flex-wrap gap-16 py-6 mb-32"}>
                     {categories.map((category) => {
                         const children: [string, Cost[]][] = Object.entries(category.children);
 

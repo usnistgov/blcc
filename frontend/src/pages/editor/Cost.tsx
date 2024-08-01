@@ -1,4 +1,4 @@
-import { mdiArrowLeft, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
+import { mdiArrowLeft, mdiChevronRight, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
 import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
@@ -31,6 +31,7 @@ import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import Switch from "../../components/input/Switch";
 import sToggleAlt$ = CostModel.sToggleAlt$;
+import Icon from "@mdi/react";
 import ConfirmationModal from "components/modal/ConfirmationModal";
 
 const { Title } = Typography;
@@ -123,7 +124,8 @@ export default function Cost() {
     const navigate = useNavigate();
     const costType = CostModel.useType();
     const alternativeID = AlternativeModel.useID();
-    const name = useStateObservable(AlternativeModel.name$);
+    const alternativeName = useStateObservable(AlternativeModel.name$);
+    const costName = useStateObservable(CostModel.name$);
 
     /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     //useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
@@ -143,16 +145,18 @@ export default function Cost() {
 
             <SubHeader>
                 <div className="flex justify-between">
-                    <div>
+                    <div className={"flex flex-row items-center"}>
                         <Button
                             type={ButtonType.LINK}
                             icon={mdiArrowLeft}
                             onClick={() => navigate(`/editor/alternative/${alternativeID}`, { replace: true })}
                         >
-                            {name}
+                            {alternativeName}
                         </Button>
+                        <Icon path={mdiChevronRight} size={0.8} className={"text-ink"} />
+                        <p className={"px-2 text-ink"}>{costName}</p>
                     </div>
-                    <div>
+                    <div className={"px-6"}>
                         <Button type={ButtonType.LINK} icon={mdiPlus} onClick={() => openCostModal$.next()}>
                             Add Cost
                         </Button>
@@ -198,7 +202,7 @@ export default function Cost() {
                         </span>
                     </div>
                 </div>
-                <div className={"border-t border-base-lighter"}>
+                <div className={"border-t border-base-lighter mb-32"}>
                     {match(costType)
                         .with(CostTypes.ENERGY, () => <EnergyCostFields />)
                         .with(CostTypes.WATER, () => <WaterCostFields />)

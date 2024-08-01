@@ -74,6 +74,8 @@ export default function AlternativeSummary() {
                         <p className={"text-lg"}>Create an alternative or load a saved file</p>
                     </div>
                 )}
+                {/* scroll off spacer */}
+                <div id={"spacer"} className={"mb-32"} />
             </div>
         </motion.div>
     );

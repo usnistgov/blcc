@@ -37,7 +37,7 @@ export default function GeneralInformation() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
-            <div className={"max-w-screen-lg p-6 h-full mb-8"}>
+            <div className={"max-w-screen-lg p-6 mb-16"}>
                 <div className={" grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <TextInput
                         label={"Project Name *"}
