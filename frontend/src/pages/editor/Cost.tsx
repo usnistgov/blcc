@@ -133,7 +133,7 @@ export default function Cost() {
 
     return (
         <motion.div
-            className={"w-full"}
+            className={"w-full h-full"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, speed: 0.5 }}
@@ -166,49 +166,51 @@ export default function Cost() {
                 </div>
             </SubHeader>
 
-            <div className={"max-w-screen-lg p-6"}>
-                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    <TextInput
-                        type={TextInputType.PRIMARY}
-                        label={"Name"}
-                        value$={CostModel.name$}
-                        wire={CostModel.sName$}
-                    />
-                    <div className={"flex flex-col"}>
-                        <Title level={5}>Alternatives applied to</Title>
-                        <AppliedCheckboxes value$={altsThatInclude$} sToggle$={sToggleAlt$} />
+            <div className={"w-full h-full overflow-y-auto"}>
+                <div className={"max-w-screen-lg p-6"}>
+                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                        <TextInput
+                            type={TextInputType.PRIMARY}
+                            label={"Name"}
+                            value$={CostModel.name$}
+                            wire={CostModel.sName$}
+                        />
+                        <div className={"flex flex-col"}>
+                            <Title level={5}>Alternatives applied to</Title>
+                            <AppliedCheckboxes value$={altsThatInclude$} sToggle$={sToggleAlt$} />
+                        </div>
+                        <span className={"col-span-2"}>
+                            <TextArea
+                                label={"Description"}
+                                className={"w-full max-h-36"}
+                                value$={CostModel.description$}
+                                wire={CostModel.sDescription$}
+                            />
+                        </span>
+                        <span>
+                            <Title level={5}>Cost or Savings</Title>
+                            <Switch
+                                value$={CostModel.costSavings$}
+                                wire={CostModel.sCostSavings$}
+                                checkedChildren={"Savings"}
+                                unCheckedChildren={"Cost"}
+                            />
+                        </span>
                     </div>
-                    <span className={"col-span-2"}>
-                        <TextArea
-                            label={"Description"}
-                            className={"w-full max-h-36"}
-                            value$={CostModel.description$}
-                            wire={CostModel.sDescription$}
-                        />
-                    </span>
-                    <span>
-                        <Title level={5}>Cost or Savings</Title>
-                        <Switch
-                            value$={CostModel.costSavings$}
-                            wire={CostModel.sCostSavings$}
-                            checkedChildren={"Savings"}
-                            unCheckedChildren={"Cost"}
-                        />
-                    </span>
                 </div>
-            </div>
-            <div className={"border-t border-base-lighter"}>
-                {match(costType)
-                    .with(CostTypes.ENERGY, () => <EnergyCostFields />)
-                    .with(CostTypes.WATER, () => <WaterCostFields />)
-                    .with(CostTypes.CAPITAL, () => <InvestmentCapitalCostFields />)
-                    .with(CostTypes.REPLACEMENT_CAPITAL, () => <ReplacementCapitalCostFields />)
-                    .with(CostTypes.OMR, () => <OMRCostFields />)
-                    .with(CostTypes.IMPLEMENTATION_CONTRACT, () => <ImplementationContractCostFields />)
-                    .with(CostTypes.RECURRING_CONTRACT, () => <RecurringContractCostFields />)
-                    .with(CostTypes.OTHER, () => <OtherCostFields />)
-                    .with(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />)
-                    .exhaustive()}
+                <div className={"border-t border-base-lighter"}>
+                    {match(costType)
+                        .with(CostTypes.ENERGY, () => <EnergyCostFields />)
+                        .with(CostTypes.WATER, () => <WaterCostFields />)
+                        .with(CostTypes.CAPITAL, () => <InvestmentCapitalCostFields />)
+                        .with(CostTypes.REPLACEMENT_CAPITAL, () => <ReplacementCapitalCostFields />)
+                        .with(CostTypes.OMR, () => <OMRCostFields />)
+                        .with(CostTypes.IMPLEMENTATION_CONTRACT, () => <ImplementationContractCostFields />)
+                        .with(CostTypes.RECURRING_CONTRACT, () => <RecurringContractCostFields />)
+                        .with(CostTypes.OTHER, () => <OtherCostFields />)
+                        .with(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />)
+                        .exhaustive()}
+                </div>
             </div>
         </motion.div>
     );

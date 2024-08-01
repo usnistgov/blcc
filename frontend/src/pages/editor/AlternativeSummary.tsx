@@ -50,6 +50,7 @@ export default function AlternativeSummary() {
 
     return (
         <motion.div
+            className={"h-full w-full flex flex-col"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -64,13 +65,8 @@ export default function AlternativeSummary() {
                     </Button>
                 </div>
             </SubHeader>
-            {/*<ConfirmationModal
-                title={"Change Baseline?"}
-                message={"Only one alternative can be the baseline. Changing this will disable the current baseline."}
-                open$={confirmBaselineChange$}
-                confirm$={AlternativeModel.sMakeBaseline$}
-            />*/}
-            <div className={"flex h-full w-full flex-col items-center"}>
+
+            <div className={"flex h-full w-full flex-col items-center overflow-y-auto"}>
                 <br />
                 {(cards.length !== 0 && cards.map((card) => <card.component key={card.id} />)) || (
                     <div className={"w-full p-8 text-center text-base-dark"}>
