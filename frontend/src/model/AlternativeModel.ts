@@ -6,7 +6,7 @@ import { db } from "model/db";
 import { BehaviorSubject, type Observable, Subject, distinctUntilChanged, iif, merge, of, switchMap } from "rxjs";
 import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import { arrayFilter, defaultValue, guard } from "util/Operators";
+import { arrayFilter, confirm, defaultValue, guard } from "util/Operators";
 import { cloneName, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
 
 export namespace AlternativeModel {
@@ -97,6 +97,38 @@ export namespace AlternativeModel {
     export const hasBaseline$ = alternatives$.pipe(map((alts) => alts.find((alt) => alt.baseline) !== undefined));
 
     export namespace Actions {
+        export function deleteCurrent() {
+            sRemoveAlternative$.next();
+        }
+
+        const sRemoveAlternative$ = new Subject<void>();
+        export const removeAlternative$ = sRemoveAlternative$.pipe(
+            confirm("Delete Alternative?", "This action cannot be undone", { okText: "Delete", okType: "danger" }),
+            withLatestFrom(AlternativeModel.sID$, currentProject$),
+            map(([_, id, project]) => [id, project] as [number, number]),
+            switchMap(removeAlternative),
+        );
+
+        function removeAlternative([alternativeID, projectID]: [number, number]) {
+            return db.transaction("rw", db.alternatives, db.projects, async () => {
+                // Remove alternative
+                db.alternatives.where("id").equals(alternativeID).delete();
+
+                // Remove alternative ID from project
+                db.projects
+                    .where("id")
+                    .equals(projectID)
+                    .modify((project) => {
+                        const index = project.alternatives.indexOf(alternativeID);
+                        if (index > -1) {
+                            project.alternatives.splice(index, 1);
+                        }
+                    });
+
+                //TODO remove costs only associated with this alternative?
+            });
+        }
+
         /**
          * Clones the current alternative
          */

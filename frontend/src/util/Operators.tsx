@@ -1,4 +1,4 @@
-import { confirm as modalConfirm } from "components/modal/ConfirmationModal";
+import { type ConfirmConfig, confirm as modalConfirm } from "components/modal/ConfirmationModal";
 import {
     type Observable,
     Subject,
@@ -101,11 +101,15 @@ export function gatherArray<T>(...seed: T[]): UnaryFunction<Observable<T>, Obser
     );
 }
 
-export function confirm<T>(title: string, message: string): UnaryFunction<Observable<T>, Observable<T>> {
+export function confirm<T>(
+    title: string,
+    message: string,
+    config?: ConfirmConfig,
+): UnaryFunction<Observable<T>, Observable<T>> {
     return pipe(
         switchMap((value) => {
             const confirm$ = new Subject<void>();
-            modalConfirm(title, message, confirm$);
+            modalConfirm(title, message, confirm$, config);
             return confirm$.pipe(map(() => value));
         }),
     );

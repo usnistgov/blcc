@@ -1,36 +1,23 @@
-import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
+import { mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { bind, useStateObservable } from "@react-rxjs/core";
-import { Typography } from "antd";
+import { bind } from "@react-rxjs/core";
+import Title from "antd/es/typography/Title";
 import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
-import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import Switch from "components/input/Switch";
 import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
-import AddAlternativeModal from "components/modal/AddAlternativeModal";
 import AddCostModal from "components/modal/AddCostModal";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
-import { currentProject$ } from "model/Model";
-import { db } from "model/db";
+import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject, combineLatest, merge, sample, switchMap } from "rxjs";
+import { Subject, merge } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
 import { confirm } from "util/Operators";
-
-const { Title } = Typography;
-
-const removeAlternativeClick$ = new Subject<void>();
-const openAltModal$ = new Subject<void>();
-const openCostModal$ = new Subject<void>();
-
-const removeAlternative$ = combineLatest([AlternativeModel.sID$, currentProject$]).pipe(
-    sample(removeAlternativeClick$),
-);
 
 type Subcategories<T> = {
     [key in keyof T]: Cost[];
@@ -78,32 +65,14 @@ const [otherCategories] = bind(
     {} as Subcategories<CostTypes>,
 );
 
-function removeAlternative([alternativeID, projectID]: [number, number]) {
-    return db.transaction("rw", db.alternatives, db.projects, async () => {
-        // Remove alternative
-        db.alternatives.where("id").equals(alternativeID).delete();
-
-        // Remove alternative ID from project
-        db.projects
-            .where("id")
-            .equals(projectID)
-            .modify((project) => {
-                const index = project.alternatives.indexOf(alternativeID);
-                if (index > -1) {
-                    project.alternatives.splice(index, 1);
-                }
-            });
-
-        //TODO remove costs only associated with this alternative?
-    });
-}
-
 export default function Alternatives() {
-    // Navigate to general information page if there are no alternatives
     const navigate = useNavigate();
     useParamSync();
 
-    const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$] = useMemo(() => {
+    // Set up streams
+    const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$, openCostModal$] = useMemo(() => {
+        const openCostModal$ = new Subject<void>();
+
         // Stream of baseline switch change events.
         const sBaselineChange$ = new Subject<boolean>();
 
@@ -129,18 +98,11 @@ export default function Alternatives() {
 
         const baselineChangeNoConfirm$ = merge(disableBaseline$, enableBaselineWithoutModal$);
 
-        return [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$];
+        return [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$, openCostModal$];
     }, []);
 
-    useSubscribe(confirmBaselineChange$, AlternativeModel.sBaseline$);
-    useSubscribe(baselineChangeNoConfirm$, AlternativeModel.sBaseline$);
-    useSubscribe(removeAlternative$.pipe(switchMap(removeAlternative)), async () => {
-        // Navigate to last alternative after deletion of current one
-        const lastAlternative = await db.alternatives.reverse().first();
-        if (lastAlternative !== undefined) navigate(`/editor/alternative/${lastAlternative.id}`);
-        else navigate("/editor/alternative");
-    });
-    useSubscribe(AlternativeModel.Actions.clonedAlternative$, (id) => navigate(`/editor/alternative/${id}`));
+    // Listen for regular baseline change or baseline change confirmation
+    useSubscribe(merge(confirmBaselineChange$, baselineChangeNoConfirm$), AlternativeModel.sBaseline$);
 
     const categories = [
         {
@@ -165,9 +127,6 @@ export default function Alternatives() {
         },
     ];
 
-    const id = AlternativeModel.useID();
-    const name = useStateObservable(AlternativeModel.name$);
-
     return (
         <motion.div
             className="h-full w-full"
@@ -176,26 +135,10 @@ export default function Alternatives() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
-            <AddAlternativeModal open$={openAltModal$.pipe(map(() => true))} />
             <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
 
-            <SubHeader>
-                <div className="flex justify-between">
-                    <p className={"self-center px-6 text-ink"}>{name}</p>
-                    <div className={"px-6"}>
-                        <Button type={ButtonType.LINK} onClick={() => openAltModal$.next()}>
-                            <Icon path={mdiPlus} size={1} />
-                            Add Alternative
-                        </Button>
-                        <Button type={ButtonType.LINK} onClick={() => AlternativeModel.Actions.cloneCurrent()}>
-                            <Icon path={mdiContentCopy} size={1} /> Clone
-                        </Button>
-                        <Button type={ButtonType.LINKERROR} onClick={() => removeAlternativeClick$.next()}>
-                            <Icon path={mdiMinus} size={1} /> Remove
-                        </Button>
-                    </div>
-                </div>
-            </SubHeader>
+            <AlternativeSubHeader />
+
             <div className={"p-6 h-full overflow-y-auto"}>
                 <div className={"max-w-screen-lg"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
