@@ -129,7 +129,7 @@ export default function Alternatives() {
 
     return (
         <motion.div
-            className="h-full w-full"
+            className="h-full w-full flex flex-col"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -139,7 +139,7 @@ export default function Alternatives() {
 
             <AlternativeSubHeader />
 
-            <div className={"p-6 h-full overflow-y-auto"}>
+            <div className={"flex flex-col p-6 h-full overflow-y-auto"}>
                 <div className={"max-w-screen-lg"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <TextInput

@@ -135,7 +135,7 @@ export default function Cost() {
 
     return (
         <motion.div
-            className={"w-full h-full"}
+            className={"w-full h-full flex flex-col"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, speed: 0.5 }}
