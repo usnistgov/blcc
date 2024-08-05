@@ -21,3 +21,8 @@ html {
   width: 100%;
   height: 100%;
 }
+
+.rdg-header-row {
+  background-color: #005EA2;
+  color: #FAFAFA;
+}

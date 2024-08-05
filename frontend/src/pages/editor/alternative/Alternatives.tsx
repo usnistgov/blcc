@@ -157,7 +157,7 @@ export default function Alternatives() {
 
                         <span className={"col-span-2"}>
                             <TextArea
-                                className={"w-full"}
+                                className={"w-full max-h-36"}
                                 label={"Description"}
                                 value$={AlternativeModel.description$}
                                 wire={AlternativeModel.sDescription$}

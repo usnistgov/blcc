@@ -258,6 +258,7 @@ export default function Recurring() {
                                 .with(P.array(), (rateOfChangeValue) => (
                                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
                                         <DataGrid
+                                            className={"rdg-light"}
                                             columns={VALUE_COLUMNS}
                                             rows={rateOfChangeValue}
                                             onRowsChange={(rows: RateChangeInfo[]) =>
@@ -294,13 +295,16 @@ export default function Recurring() {
                             </span>
                             {match(rateOfChangeUnits)
                                 .with(P.array(), (rateOfChangeUnits) => (
-                                    <DataGrid
-                                        columns={UNIT_COLUMNS}
-                                        rows={rateOfChangeUnits}
-                                        onRowsChange={(rows: RateChangeInfo[]) =>
-                                            RecurringModel.sRateOfChangeUnits$.next(rows.map((row) => row.rate))
-                                        }
-                                    />
+                                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                                        <DataGrid
+                                            className={"rdg-light"}
+                                            columns={UNIT_COLUMNS}
+                                            rows={rateOfChangeUnits}
+                                            onRowsChange={(rows: RateChangeInfo[]) =>
+                                                RecurringModel.sRateOfChangeUnits$.next(rows.map((row) => row.rate))
+                                            }
+                                        />
+                                    </div>
                                 ))
                                 .otherwise(() => (
                                     <div>

@@ -4,13 +4,13 @@ import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Model } from "model/Model";
+import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter } from "util/Util";
-import { EnergyCostModel } from "../../../../model/costs/EnergyCostModel";
 
 type EscalationRatesProps = {
     title: string;
@@ -136,7 +136,12 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
             {match(rates)
                 .with(P.array(), (rates) => (
                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                        <DataGrid className={"h-full"} rows={rates} columns={COLUMNS} onRowsChange={newRates} />
+                        <DataGrid
+                            className={"h-full rdg-light"}
+                            rows={rates}
+                            columns={COLUMNS}
+                            onRowsChange={newRates}
+                        />
                     </div>
                 ))
                 .otherwise(() => (
