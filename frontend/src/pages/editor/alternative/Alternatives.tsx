@@ -1,8 +1,7 @@
 import { mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { bind } from "@react-rxjs/core";
 import Title from "antd/es/typography/Title";
-import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
+import { type Cost, CostTypes, type EnergyCost, FuelType, WaterCost } from "blcc-format/Format";
 import { Button, ButtonType } from "components/input/Button";
 import Switch from "components/input/Switch";
 import { TextArea } from "components/input/TextArea";
@@ -13,57 +12,56 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
-import { CategoryTable } from "pages/editor/alternative/CategoryTable";
+import CategoryTable, { type Subcategories } from "pages/editor/alternative/CategoryTable";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, merge } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
 import { confirm } from "util/Operators";
 
-type Subcategories<T> = {
-    [key in keyof T]: Cost[];
-};
+function group<T extends string>(costs: Cost[], keys: T[], extractor: (cost: Cost) => T): Subcategories<T> {
+    const result = {};
+
+    for (const key of keys) {
+        // @ts-ignore
+        result[key] = [];
+    }
+
+    for (const cost of costs) {
+        // @ts-ignore
+        result[extractor(cost)].push(cost);
+    }
+
+    return result as Subcategories<T>;
+}
 
 // Count all energy costs, and the count of its subcategories
-const [energyCategories] = bind(
-    AlternativeModel.energyCosts$.pipe(
-        // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ fuelType }) => fuelType) as Subcategories<FuelType>),
-    ),
-    {} as Subcategories<FuelType>,
+const energyCategories$ = AlternativeModel.energyCosts$.pipe(
+    map((costs) => group(costs, Object.values(FuelType), (cost) => (cost as EnergyCost).fuelType)),
 );
 
 // Count all water costs
-const [waterCosts] = bind(
-    AlternativeModel.waterCosts$.pipe(map((costs) => (costs.length > 0 ? { "Water Costs": costs } : {}))),
-    {},
+const waterCosts$ = AlternativeModel.waterCosts$.pipe(
+    map((costs) => ({ [CostTypes.WATER]: costs }) as unknown as Subcategories<CostTypes>),
 );
 
 // Count all capital costs and its subcategories
-const [capitalCategories] = bind(
-    AlternativeModel.capitalCosts$.pipe(
-        // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
+const capitalCategories$ = AlternativeModel.capitalCosts$.pipe(
+    map((costs) =>
+        group(costs, [CostTypes.CAPITAL, CostTypes.REPLACEMENT_CAPITAL, CostTypes.OMR], (cost) => cost.type),
     ),
-    {} as Subcategories<CostTypes>,
 );
 
 // Count all contract costs and its subcategories
-const [contractCategories] = bind(
-    AlternativeModel.contractCosts$.pipe(
-        // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
+const contractCategories$ = AlternativeModel.contractCosts$.pipe(
+    map((costs) =>
+        group(costs, [CostTypes.IMPLEMENTATION_CONTRACT, CostTypes.RECURRING_CONTRACT], (cost) => cost.type),
     ),
-    {} as Subcategories<CostTypes>,
 );
 
 // Count all other costs and its subcategories
-const [otherCategories] = bind(
-    AlternativeModel.otherCosts$.pipe(
-        // @ts-expect-error groupBy is linted by mistake
-        map((costs) => Object.groupBy(costs, ({ type }) => type) as Subcategories<CostTypes>),
-    ),
-    {} as Subcategories<CostTypes>,
+const otherCategories$ = AlternativeModel.otherCosts$.pipe(
+    map((costs) => group(costs, [CostTypes.OTHER, CostTypes.OTHER_NON_MONETARY], (cost) => cost.type)),
 );
 
 export default function Alternatives() {
@@ -72,7 +70,7 @@ export default function Alternatives() {
 
     // Set up streams
     const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$, openCostModal$] = useMemo(() => {
-        const openCostModal$ = new Subject<void>();
+        const openCostModal$ = new Subject<CostTypes>();
 
         // Stream of baseline switch change events.
         const sBaselineChange$ = new Subject<boolean>();
@@ -108,23 +106,23 @@ export default function Alternatives() {
     const categories = [
         {
             label: "Energy Costs",
-            children: energyCategories(),
+            children: energyCategories$,
         },
         {
             label: "Water Costs",
-            children: waterCosts(),
+            children: waterCosts$,
         },
         {
             label: "Capital Costs",
-            children: capitalCategories(),
+            children: capitalCategories$,
         },
         {
             label: "Contract Costs",
-            children: contractCategories(),
+            children: contractCategories$,
         },
         {
             label: "Other Costs",
-            children: otherCategories(),
+            children: otherCategories$,
         },
     ];
 
@@ -136,7 +134,7 @@ export default function Alternatives() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.1 }}
         >
-            <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
+            <AddCostModal open$={openCostModal$} />
 
             <AlternativeSubHeader />
 
@@ -170,36 +168,20 @@ export default function Alternatives() {
                 <br />
                 <div className={"flex justify-between border-b-2 border-base-lightest"}>
                     <Title level={4}>Alternative Costs</Title>
-                    <Button type={ButtonType.LINK} onClick={() => openCostModal$.next()}>
+                    <Button type={ButtonType.LINK} onClick={() => openCostModal$.next(CostTypes.CAPITAL)}>
                         <Icon path={mdiPlus} size={1} />
                         Add Cost
                     </Button>
                 </div>
                 <div className={"flex flex-wrap gap-16 py-6 mb-32"}>
-                    {categories.map((category) => {
-                        const children: [string, Cost[]][] = Object.entries(category.children);
-
-                        return (
-                            <div className={"min-w-[20rem] max-w-xl"} key={category.label}>
-                                <div className={"flex justify-between"}>
-                                    <Title level={5}>{category.label}</Title>
-                                </div>
-                                {children.length > 0 ? (
-                                    <div
-                                        className={
-                                            "flex flex-col overflow-hidden rounded-md border border-base-lightest shadow-md"
-                                        }
-                                    >
-                                        {children.map(([name, costs]) => (
-                                            <CategoryTable key={name} name={name} costs={costs} />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className={"text-base-dark"}>No {category.label}</p>
-                                )}
-                            </div>
-                        );
-                    })}
+                    {categories.map((category) => (
+                        <CategoryTable
+                            key={category.label}
+                            name={category.label}
+                            category$={category.children}
+                            sAddCostModal$={openCostModal$}
+                        />
+                    ))}
                     <div />
                 </div>
             </div>

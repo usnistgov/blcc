@@ -38,7 +38,7 @@ import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 
 type AddCostModalProps = {
-    open$: Observable<boolean>;
+    open$: Observable<CostTypes>;
 };
 
 namespace DefaultCosts {
@@ -188,7 +188,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
 
         const [modalCancel$, cancel] = createSignal();
         const [useOpen, isOpen$] = bind(
-            merge(open$, merge(sCancelClick$, newCost$, modalCancel$).pipe(map(() => false))),
+            merge(open$.pipe(map(() => true)), merge(sCancelClick$, newCost$, modalCancel$).pipe(map(() => false))),
             false,
         );
 
@@ -208,6 +208,8 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             defaultChecked,
         ];
     }, [open$]);
+
+    useSubscribe(open$, sType$);
 
     //Clear fields when modal closes
     useSubscribe(isOpen$, (open) => {
