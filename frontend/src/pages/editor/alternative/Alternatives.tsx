@@ -13,6 +13,7 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
+import { CategoryTable } from "pages/editor/alternative/CategoryTable";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, merge } from "rxjs";
@@ -190,29 +191,7 @@ export default function Alternatives() {
                                         }
                                     >
                                         {children.map(([name, costs]) => (
-                                            <span key={name}>
-                                                <div className={"bg-primary px-2 py-1.5 text-center text-white"}>
-                                                    {name}
-                                                </div>
-                                                <ul className={"hover:cursor-pointer"}>
-                                                    {costs.map((item: Cost) => {
-                                                        const navigateToItem = () => navigate(`cost/${item.id}`);
-                                                        return (
-                                                            <li
-                                                                key={item.id}
-                                                                className={
-                                                                    "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary"
-                                                                }
-                                                                onClick={navigateToItem}
-                                                                onKeyDown={navigateToItem}
-                                                            >
-                                                                {/*FIXME switch to button so keyboard navigation works*/}
-                                                                {item?.name || "Unknown"}
-                                                            </li>
-                                                        );
-                                                    })}
-                                                </ul>
-                                            </span>
+                                            <CategoryTable key={name} name={name} costs={costs} />
                                         ))}
                                     </div>
                                 ) : (
