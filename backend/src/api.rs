@@ -607,6 +607,7 @@ async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data
     }
 }
 
+
 pub fn config_api(config: &mut ServiceConfig) {
     config.service(
         scope("/api")

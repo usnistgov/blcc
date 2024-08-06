@@ -1,7 +1,7 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
     AnalysisType,
-    type DiscountingMethod,
+    DiscountingMethod,
     DollarMethod,
     EmissionsRateScenario,
     type NonUSLocation,
@@ -17,6 +17,7 @@ import objectHash from "object-hash";
 import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { match } from "ts-pattern";
 import { defaultValue, guard } from "util/Operators";
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
@@ -446,11 +447,38 @@ export namespace Model {
 }
 
 function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<Project>]) {
-    // If OMB_NON_ENERGY, set purpose to default value, otherwise just set analysis type and keep purpose undefined.
-    if (analysisType === AnalysisType.OMB_NON_ENERGY)
-        collection.modify({
-            analysisType,
-            purpose: Purpose.INVEST_REGULATION,
+    match(analysisType)
+        .with(AnalysisType.FEDERAL_FINANCED, (analysisType) => {
+            collection.modify({
+                analysisType,
+                purpose: undefined,
+                dollarMethod: DollarMethod.CURRENT,
+                discountingMethod: DiscountingMethod.END_OF_YEAR,
+                nominalDiscountRate: 0.032,
+            } as Project);
+        })
+        .with(AnalysisType.FEMP_ENERGY, (analysisType) => {
+            collection.modify({
+                analysisType,
+                purpose: undefined,
+                dollarMethod: DollarMethod.CONSTANT,
+                discountingMethod: DiscountingMethod.END_OF_YEAR,
+                realDiscountRate: 0.03,
+            } as Project);
+        })
+        .with(AnalysisType.OMB_NON_ENERGY, (analysisType) => {
+            collection.modify({
+                analysisType,
+                purpose: Purpose.COST_LEASE,
+            } as Project);
+        })
+        .otherwise(() => {
+            // If OMB_NON_ENERGY, set purpose to default value, otherwise just set analysis type and keep purpose undefined.
+            if (analysisType === AnalysisType.OMB_NON_ENERGY)
+                collection.modify({
+                    analysisType,
+                    purpose: Purpose.INVEST_REGULATION,
+                });
+            else collection.modify({ analysisType, purpose: undefined });
         });
-    else collection.modify({ analysisType, purpose: undefined });
 }

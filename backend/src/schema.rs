@@ -1,6 +1,17 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    discount_rates (release_year, rate, year) {
+        release_year -> Int4,
+        rate -> Text,
+        year -> Int4,
+        real -> Float8,
+        nominal -> Float8,
+        inflation -> Float8,
+    }
+}
+
+diesel::table! {
     energy_price_indices (release_year, year, division, sector) {
         release_year -> Int4,
         year -> Int4,
@@ -136,6 +147,7 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
+    discount_rates,
     energy_price_indices,
     energy_prices,
     escalation_rates,

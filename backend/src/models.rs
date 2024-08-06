@@ -2,6 +2,18 @@ use diesel::prelude::*;
 use serde::Serialize;
 
 #[derive(Queryable, Selectable, Serialize)]
+#[diesel(table_name = crate::schema::discount_rates)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct DiscountRates {
+    pub release_year: i32,
+    pub rate: String,
+    pub year: i32,
+    pub real: f64,
+    pub nominal: f64,
+    pub inflation: f64
+}
+
+#[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::state_division_region)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Division {
