@@ -19,6 +19,7 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { defaultValue, guard } from "util/Operators";
+import releaseYear$ = Model.releaseYear$;
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
@@ -444,6 +445,31 @@ export namespace Model {
         map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
         startWith(undefined),
     );
+
+    type DiscountRateResponse = {
+        release_year: number;
+        rate: string;
+        year: number;
+        real: number;
+        nominal: number;
+        inflation: number;
+    };
+    export const discountRates$ = releaseYear$.pipe(
+        switchMap((releaseYear) =>
+            ajax<DiscountRateResponse[]>({
+                url: "/api/discount_rates",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    release_year: releaseYear,
+                },
+            }),
+        ),
+        map((response) => response.response),
+    );
+    discountRates$.subscribe((rates) => console.log("Discount rates", rates));
 }
 
 function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<Project>]) {

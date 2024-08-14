@@ -2,6 +2,9 @@ import type { Output } from "@lrd/e3-sdk";
 import type { Alternative, Cost, Project } from "blcc-format/Format";
 import Dexie, { type Table } from "dexie";
 
+/**
+ * Class describing the Dexie database tables.
+ */
 export class BlccDexie extends Dexie {
     projects!: Table<Project, number>;
     costs!: Table<Cost, number>;
@@ -24,4 +27,7 @@ export class BlccDexie extends Dexie {
     }
 }
 
+/**
+ * The global BLCC database instance
+ */
 export const db = new BlccDexie();
