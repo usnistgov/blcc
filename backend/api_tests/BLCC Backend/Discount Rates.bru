@@ -1,0 +1,17 @@
+meta {
+  name: Discount Rates
+  type: http
+  seq: 14
+}
+
+post {
+  url: http://localhost:8080/api/discount_rates
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "release_year": 2024
+  }
+}

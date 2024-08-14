@@ -141,7 +141,7 @@ export default function Cost() {
             animate={{ opacity: 1, speed: 0.5 }}
             transition={{ duration: 0.2 }}
         >
-            <AddCostModal open$={openCostModal$.pipe(map(() => true))} />
+            <AddCostModal open$={openCostModal$.pipe(map(() => costType))} />
 
             <SubHeader>
                 <div className="flex justify-between">

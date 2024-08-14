@@ -97,8 +97,8 @@ export enum CostTypes {
     OMR = "OMR",
     IMPLEMENTATION_CONTRACT = "Contract Implementation",
     RECURRING_CONTRACT = "Recurring Contract",
-    OTHER = "Other",
-    OTHER_NON_MONETARY = "Non-Monetary",
+    OTHER = "Other Monetary",
+    OTHER_NON_MONETARY = "Other Non-Monetary",
 }
 
 export type Cost =

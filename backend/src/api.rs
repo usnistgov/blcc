@@ -413,6 +413,8 @@ struct ReleaseYearResponse {
     pub min: Option<i32>,
 }
 
+type RegionCaseResult = QueryResult<Vec<(i32, Option<i32>, Option<i32>)>>;
+
 #[get("/release_year")]
 async fn get_release_years(data: Data<DbPool>) -> impl Responder {
     let mut db = data.get().expect("Failed to get a connection");
@@ -420,7 +422,7 @@ async fn get_release_years(data: Data<DbPool>) -> impl Responder {
     use crate::schema::region_case_ba::dsl::*;
     use crate::schema::region_case_ba::*;
 
-    let query: QueryResult<Vec<(i32, Option<i32>, Option<i32>)>> = region_case_ba
+    let query: RegionCaseResult = region_case_ba
         .group_by(release_year)
         .select((release_year, max(year), min(year)))
         .load(&mut db);
@@ -607,6 +609,32 @@ async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data
     }
 }
 
+#[derive(Deserialize)]
+struct DiscountRateRequest {
+    release_year: i32,
+}
+
+#[post("/discount_rates")]
+async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<DbPool>) -> impl Responder {
+    let mut db = data.get().expect("Failed to get a connection");
+
+    use crate::schema::discount_rates::dsl::*;
+    use crate::schema::discount_rates::*;
+
+    let result = discount_rates
+        .filter(
+            release_year.eq(request.release_year)
+        )
+        .select(DiscountRates::as_select())
+        .load(&mut db);
+
+    match result {
+        Ok(rates) => HttpResponse::Ok().json(rates),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: "Could not get discount rates".to_string()
+        })
+    }
+}
 
 pub fn config_api(config: &mut ServiceConfig) {
     config.service(
@@ -625,5 +653,6 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(post_region_case_reeds)
             .service(post_energy_prices)
             .service(post_energy_price_indices)
+            .service(post_discount_rates)
     );
 }
