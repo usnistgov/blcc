@@ -6,8 +6,8 @@ import Navigation from "components/navigation/Navigation";
 import { AnimatePresence } from "framer-motion";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
-import GeneralInformation from "pages/editor/GeneralInformation";
 import Alternatives from "pages/editor/alternative/Alternatives";
+import GeneralInformation from "pages/editor/general_information/GeneralInformation";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 export default function Editor() {

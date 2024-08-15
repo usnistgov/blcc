@@ -9,6 +9,7 @@ import { type Observable, type Subject, iif, map, merge, sample, switchMap } fro
 import { combineLatestWith, startWith } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { guard, isTrue } from "util/Operators";
+import { percentFormatter } from "util/Util";
 
 type NumberOrUndefined<T> = T extends true ? number | undefined : number;
 
@@ -19,6 +20,7 @@ type NumberInputProps<T extends true | false = false> = {
     rules?: Rule<number>[];
     value$: Observable<NumberOrUndefined<T>>;
     wire?: Subject<NumberOrUndefined<T>>;
+    percent?: boolean;
 };
 
 export function NumberInput<T extends true | false = false>({
@@ -29,6 +31,7 @@ export function NumberInput<T extends true | false = false>({
     rules,
     value$,
     wire,
+    percent,
     ...inputProps
 }: PropsWithChildren<NumberInputProps<T> & InputNumberProps<number>>) {
     // Convert name to an ID so we can reference this element later
@@ -85,11 +88,15 @@ export function NumberInput<T extends true | false = false>({
             id={id}
             onFocus={() => focus(true)}
             onBlur={() => focus(false)}
-            onChange={(value) => change(value === null ? undefined : value)}
+            onChange={(value) => {
+                if (value === null) change(undefined);
+                else if (percent) change(Number.parseFloat((value / 100).toFixed(4)));
+                else change(value);
+            }}
             // Display the value directly or get it out of the validation result
             value={match(value)
-                .with(P.number, (value) => value)
-                .with({ value: P.select() }, (value) => value)
+                .with(P.number, (value) => (percent ? Number.parseFloat((value * 100).toFixed(2)) : value))
+                .with({ value: P.select() }, (value) => (percent ? Number.parseFloat((value * 100).toFixed(2)) : value))
                 .otherwise(() => undefined)}
             status={error === undefined ? "" : "error"}
             {...inputProps}

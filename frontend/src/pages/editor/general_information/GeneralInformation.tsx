@@ -20,12 +20,12 @@ import { Country, State } from "constants/LOCATION";
 import { motion } from "framer-motion";
 import { Model } from "model/Model";
 import { max, min } from "model/rules/Rules";
+import DiscountRates from "pages/editor/general_information/DiscountRates";
 
 export default function GeneralInformation() {
     //TODO make ghg values removable
     //TODO make location reset when switching to US vs non-US
 
-    const dollarMethod = useStateObservable(Model.dollarMethod$);
     const country = useStateObservable(Model.Location.country$);
     const constructionPeriod = useStateObservable(Model.constructionPeriod$);
 
@@ -152,37 +152,7 @@ export default function GeneralInformation() {
                                 />
                             }
                         </div>
-                        <div className={"col-span-2 grid grid-cols-3 items-end gap-x-16 gap-y-4"}>
-                            <NumberInput
-                                label={"Inflation Rate*"}
-                                disabled={dollarMethod !== DollarMethod.CURRENT}
-                                addonAfter={"%"}
-                                allowEmpty={true}
-                                controls={false}
-                                wire={Model.sInflationRate$}
-                                value$={Model.inflationRate$}
-                            />
-                            <NumberInput
-                                label={"Nominal Discount Rate*"}
-                                disabled={dollarMethod !== DollarMethod.CURRENT}
-                                addonAfter={"%"}
-                                allowEmpty={true}
-                                controls={false}
-                                min={0.0}
-                                wire={Model.sNominalDiscountRate$}
-                                value$={Model.nominalDiscountRate$}
-                            />
-                            <NumberInput
-                                label={"Real Discount Rate*"}
-                                disabled={dollarMethod !== DollarMethod.CONSTANT}
-                                addonAfter={"%"}
-                                allowEmpty={true}
-                                controls={false}
-                                min={0.0}
-                                wire={Model.sRealDiscountRate$}
-                                value$={Model.realDiscountRate$}
-                            />
-                        </div>
+                        <DiscountRates />
                     </div>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <Divider

@@ -19,7 +19,7 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { defaultValue, guard } from "util/Operators";
-import releaseYear$ = Model.releaseYear$;
+import { calculateNominalDiscountRate, calculateRealDiscountRate, closest } from "util/Util";
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
@@ -257,6 +257,31 @@ export namespace Model {
         catchError(() => of(new Date().getFullYear())),
     );
 
+    type DiscountRateResponse = {
+        release_year: number;
+        rate: string;
+        year: number;
+        real: number;
+        nominal: number;
+        inflation: number;
+    };
+    export const discountRates$ = releaseYear$.pipe(
+        switchMap((releaseYear) =>
+            ajax<DiscountRateResponse[]>({
+                url: "/api/discount_rates",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    release_year: releaseYear,
+                },
+            }),
+        ),
+        map((response) => response.response),
+    );
+    discountRates$.subscribe((rates) => console.log("Discount rates", rates));
+
     /**
      * The study period of the current project.
      */
@@ -285,16 +310,6 @@ export namespace Model {
         .subscribe(([constructionPeriod, collection]) => collection.modify({ constructionPeriod }));
 
     /**
-     * The analysis type of the current project.
-     */
-    export const sAnalysisType$ = new Subject<AnalysisType>();
-    export const analysisType$ = state(
-        merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
-        undefined,
-    );
-    sAnalysisType$.pipe(withLatestFrom(projectCollection$)).subscribe((params) => setAnalysisType(params));
-
-    /**
      * The purpose of the current project.
      */
     export const sPurpose$ = new Subject<Purpose>();
@@ -307,40 +322,16 @@ export namespace Model {
         .subscribe(([purpose, collection]) => collection.modify({ purpose }));
 
     /**
-     * Inflation rate of the current project
+     * The analysis type of the current project.
      */
-    export const sInflationRate$ = new Subject<number | undefined>();
-    export const inflationRate$ = state(
-        merge(sInflationRate$, dbProject$.pipe(map((p) => p.inflationRate))).pipe(distinctUntilChanged()),
+    export const sAnalysisType$ = new Subject<AnalysisType>();
+    export const analysisType$ = state(
+        merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
         undefined,
     );
-    sInflationRate$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([inflationRate, collection]) => collection.modify({ inflationRate }));
-
-    /**
-     * Nominal Discount Rate of the current project
-     */
-    export const sNominalDiscountRate$ = new Subject<number | undefined>();
-    export const nominalDiscountRate$ = state(
-        merge(sNominalDiscountRate$, dbProject$.pipe(map((p) => p.nominalDiscountRate))).pipe(distinctUntilChanged()),
-        undefined,
-    );
-    sNominalDiscountRate$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([nominalDiscountRate, collection]) => collection.modify({ nominalDiscountRate }));
-
-    /**
-     * Real discount rate of the current project
-     */
-    export const sRealDiscountRate$ = new Subject<number | undefined>();
-    export const realDiscountRate$ = state(
-        merge(sRealDiscountRate$, dbProject$.pipe(map((p) => p.realDiscountRate))).pipe(distinctUntilChanged()),
-        undefined,
-    );
-    sRealDiscountRate$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
+    sAnalysisType$
+        .pipe(withLatestFrom(projectCollection$, discountRates$, studyPeriod$.pipe(guard()), purpose$))
+        .subscribe((params) => setAnalysisType(params));
 
     /**
      * The dollar method of the current project
@@ -353,6 +344,68 @@ export namespace Model {
     sDollarMethod$
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([dollarMethod, collection]) => collection.modify({ dollarMethod }));
+
+    /**
+     * Inflation rate of the current project
+     */
+    export const sInflationRate$ = new Subject<number | undefined>();
+    export const inflationRate$ = state(
+        merge(sInflationRate$, dbProject$.pipe(map((p) => p.inflationRate))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+
+    /**
+     * Nominal Discount Rate of the current project
+     */
+    export const sNominalDiscountRate$ = new Subject<number | undefined>();
+    export const nominalDiscountRate$ = state(
+        merge(sNominalDiscountRate$, dbProject$.pipe(map((p) => p.nominalDiscountRate))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+
+    /**
+     * Real discount rate of the current project
+     */
+    export const sRealDiscountRate$ = new Subject<number | undefined>();
+    export const realDiscountRate$ = state(
+        merge(sRealDiscountRate$, dbProject$.pipe(map((p) => p.realDiscountRate))).pipe(distinctUntilChanged()),
+        undefined,
+    );
+
+    // Inflation rate subscription
+    sInflationRate$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([inflationRate, collection]) => collection.modify({ inflationRate }));
+
+    // Nominal discount rate subscription
+    dollarMethod$
+        .pipe(
+            switchMap((method) => {
+                if (method === DollarMethod.CURRENT) return sNominalDiscountRate$;
+
+                return combineLatest([realDiscountRate$, inflationRate$]).pipe(
+                    map(([real, inflation]) => calculateNominalDiscountRate(real ?? 0, inflation ?? 0)),
+                );
+            }),
+            withLatestFrom(projectCollection$),
+        )
+        .subscribe(([nominalDiscountRate, collection]) => collection.modify({ nominalDiscountRate }));
+
+    // Real discount rate subscription
+    dollarMethod$
+        .pipe(
+            // If the dollar method is current, calculate the real discount rate from the nominal and inflation rates
+            // otherwise just set the real rate
+            switchMap((method) => {
+                if (method === DollarMethod.CONSTANT) return sRealDiscountRate$;
+
+                return combineLatest([nominalDiscountRate$, inflationRate$]).pipe(
+                    map(([nominal, inflation]) => calculateRealDiscountRate(nominal ?? 0, inflation ?? 0)),
+                );
+            }),
+            withLatestFrom(projectCollection$),
+        )
+        .subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
 
     /**
      * The discounting method of the current project
@@ -446,65 +499,95 @@ export namespace Model {
         startWith(undefined),
     );
 
-    type DiscountRateResponse = {
-        release_year: number;
-        rate: string;
-        year: number;
-        real: number;
-        nominal: number;
-        inflation: number;
-    };
-    export const discountRates$ = releaseYear$.pipe(
-        switchMap((releaseYear) =>
-            ajax<DiscountRateResponse[]>({
-                url: "/api/discount_rates",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    release_year: releaseYear,
-                },
-            }),
-        ),
-        map((response) => response.response),
-    );
-    discountRates$.subscribe((rates) => console.log("Discount rates", rates));
-}
-
-function setAnalysisType([analysisType, collection]: [AnalysisType, Collection<Project>]) {
-    match(analysisType)
-        .with(AnalysisType.FEDERAL_FINANCED, (analysisType) => {
-            collection.modify({
-                analysisType,
-                purpose: undefined,
-                dollarMethod: DollarMethod.CURRENT,
-                discountingMethod: DiscountingMethod.END_OF_YEAR,
-                nominalDiscountRate: 0.032,
-            } as Project);
-        })
-        .with(AnalysisType.FEMP_ENERGY, (analysisType) => {
-            collection.modify({
-                analysisType,
-                purpose: undefined,
-                dollarMethod: DollarMethod.CONSTANT,
-                discountingMethod: DiscountingMethod.END_OF_YEAR,
-                realDiscountRate: 0.03,
-            } as Project);
-        })
-        .with(AnalysisType.OMB_NON_ENERGY, (analysisType) => {
-            collection.modify({
-                analysisType,
-                purpose: Purpose.COST_LEASE,
-            } as Project);
-        })
-        .otherwise(() => {
-            // If OMB_NON_ENERGY, set purpose to default value, otherwise just set analysis type and keep purpose undefined.
-            if (analysisType === AnalysisType.OMB_NON_ENERGY)
+    function setAnalysisType([analysisType, collection, discountRates, studyPeriod, purpose]: [
+        AnalysisType,
+        Collection<Project>,
+        DiscountRateResponse[],
+        number | undefined,
+        Purpose | undefined,
+    ]) {
+        match(analysisType)
+            .with(AnalysisType.FEDERAL_FINANCED, (analysisType) => {
                 collection.modify({
                     analysisType,
-                    purpose: Purpose.INVEST_REGULATION,
-                });
-            else collection.modify({ analysisType, purpose: undefined });
-        });
+                    purpose: undefined,
+                    dollarMethod: DollarMethod.CURRENT,
+                    discountingMethod: DiscountingMethod.END_OF_YEAR,
+                    // real discount rate will automatically be set
+                    nominalDiscountRate: 0.032, // 3.2%
+                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                } as Project);
+            })
+            .with(AnalysisType.FEMP_ENERGY, (analysisType) => {
+                collection.modify({
+                    analysisType,
+                    purpose: undefined,
+                    dollarMethod: DollarMethod.CONSTANT,
+                    discountingMethod: DiscountingMethod.END_OF_YEAR,
+                    realDiscountRate: 0.03, // 3%
+                    // nominal discount rate will automatically be set
+                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                } as Project);
+            })
+            .with(AnalysisType.OMB_NON_ENERGY, (analysisType) => {
+                const rate = closest(discountRates, (rate) => rate.year, studyPeriod ?? 3);
+
+                if (purpose === Purpose.INVEST_REGULATION)
+                    collection.modify({
+                        analysisType,
+                        purpose,
+                        dollarMethod: DollarMethod.CONSTANT,
+                        discountingMethod: DiscountingMethod.END_OF_YEAR,
+                        realDiscountRate: 0.07, //7%,
+                        //nominal discount rate will automatically be set
+                        inflationRate: rate.inflation,
+                    } as Project);
+                else
+                    collection.modify({
+                        analysisType,
+                        purpose: Purpose.COST_LEASE,
+                        dollarMethod: DollarMethod.CONSTANT,
+                        discountingMethod: DiscountingMethod.END_OF_YEAR,
+                        realDiscountRate: rate.real,
+                        // nominal discount rate will automatically be set
+                        inflationRate: rate.inflation,
+                    } as Project);
+            })
+            .with(AnalysisType.MILCON_ENERGY, (analysisType) => {
+                collection.modify({
+                    analysisType,
+                    purpose: undefined,
+                    dollarMethod: DollarMethod.CONSTANT,
+                    discountingMethod: DiscountingMethod.MID_YEAR,
+                    realDiscountRate: 0.03, // 3%
+                    // nominal discount rate will be automatically set
+                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                } as Project);
+            })
+            .with(AnalysisType.MILCON_NON_ENERGY, (analysisType) => {
+                const rate = closest(discountRates, (rate) => rate.year, studyPeriod ?? 3);
+
+                collection.modify({
+                    analysisType,
+                    purpose: undefined,
+                    dollarMethod: DollarMethod.CONSTANT,
+                    discountingMethod: DiscountingMethod.MID_YEAR,
+                    realDiscountRate: rate.real,
+                    //nominal discount rate will automatically be set
+                    inflationRate: rate.inflation,
+                } as Project);
+            })
+            .with(AnalysisType.MILCON_ECIP, (analysisType) => {
+                collection.modify({
+                    analysisType,
+                    purpose: undefined,
+                    dollarMethod: DollarMethod.CONSTANT,
+                    discountingMethod: DiscountingMethod.MID_YEAR,
+                    realDiscountRate: 0.03, // 3%
+                    //nominal discount rate will automatically be set
+                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                } as Project);
+            })
+            .exhaustive();
+    }
 }

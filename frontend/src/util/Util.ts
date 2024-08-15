@@ -90,3 +90,32 @@ export function cloneName(name: string): string {
 
     return `${name} Copy`;
 }
+
+/**
+ * Calculates the nominal discount rate from the given real and inflation rates.
+ *
+ * @param real The real discount rate.
+ * @param inflation The inflation rate.
+ */
+export function calculateNominalDiscountRate(real: number, inflation: number): number {
+    return (1 + real) * (1 + inflation) - 1;
+}
+
+/**
+ * Calculates the real discount rate from the given nominal and inflation rates.
+ *
+ * @param nominal The nominal discount rate.
+ * @param inflation The inflation rate.
+ */
+export function calculateRealDiscountRate(nominal: number, inflation: number): number {
+    return (1 + nominal) / (1 + inflation) - 1;
+}
+
+export function closest<T>(array: T[], extractor: (t: T) => number, value: number): T {
+    return array.reduce((current, next) => {
+        const nextValue = extractor(next);
+        const currentValue = extractor(current);
+
+        return Math.abs(nextValue - value) < Math.abs(currentValue - value) ? next : current;
+    });
+}
