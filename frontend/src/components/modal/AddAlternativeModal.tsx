@@ -61,47 +61,56 @@ function createAlternativeInDB([projectID, name]: [number, string]): Promise<num
  */
 export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeModalProps) {
     const navigate = useNavigate();
-    const [modalCancel$, cancel, useOpen, isOpen$, sName$, cancelClick$, addClick$, newAlternativeID$, disableAdd] =
-        useMemo(() => {
-            const sName$ = new BehaviorSubject<string | undefined>(undefined);
-            const addClick$ = new Subject<void>();
-            const cancelClick$ = new Subject<void>();
-            const isUnique$ = bind(
-                sName$.pipe(
-                    withLatestFrom(alternatives$),
-                    map(
-                        ([name, alts]) => alts.map((alt) => alt.name).find((altName) => altName === name) === undefined,
-                    ),
-                ),
-                false,
-            );
-            const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), false);
+    const [
+        modalCancel$,
+        cancel,
+        useOpen,
+        isOpen$,
+        sName$,
+        cancelClick$,
+        addClick$,
+        newAlternativeID$,
+        disableAdd,
+        isUnique,
+    ] = useMemo(() => {
+        const sName$ = new BehaviorSubject<string | undefined>(undefined);
+        const addClick$ = new Subject<void>();
+        const cancelClick$ = new Subject<void>();
+        const [isUnique] = bind(
+            sName$.pipe(
+                withLatestFrom(alternatives$),
+                map(([name, alts]) => alts.map((alt) => alt.name).find((altName) => altName === name) === undefined),
+            ),
+            true,
+        );
+        const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), false);
 
-            const newAlternativeID$ = combineLatest([currentProject$, sName$.pipe(guard())]).pipe(
-                sample(addClick$),
-                distinctUntilChanged(),
-                switchMap(createAlternativeInDB),
-                shareLatest(),
-            );
+        const newAlternativeID$ = combineLatest([currentProject$, sName$.pipe(guard())]).pipe(
+            sample(addClick$),
+            distinctUntilChanged(),
+            switchMap(createAlternativeInDB),
+            shareLatest(),
+        );
 
-            const [modalCancel$, cancel] = createSignal();
-            const [useOpen, isOpen$] = bind(
-                merge(open$, merge(cancelClick$, newAlternativeID$, modalCancel$).pipe(map(() => false))),
-                false,
-            );
+        const [modalCancel$, cancel] = createSignal();
+        const [useOpen, isOpen$] = bind(
+            merge(open$, merge(cancelClick$, newAlternativeID$, modalCancel$).pipe(map(() => false))),
+            false,
+        );
 
-            return [
-                modalCancel$,
-                cancel,
-                useOpen,
-                isOpen$,
-                sName$,
-                cancelClick$,
-                addClick$,
-                newAlternativeID$,
-                disableAdd,
-            ];
-        }, [open$]);
+        return [
+            modalCancel$,
+            cancel,
+            useOpen,
+            isOpen$,
+            sName$,
+            cancelClick$,
+            addClick$,
+            newAlternativeID$,
+            disableAdd,
+            isUnique,
+        ];
+    }, [open$]);
 
     // Set name field to nothing when the modal closes
     useSubscribe(isOpen$.pipe(isFalse()), () => sName$.next(undefined));
@@ -109,6 +118,8 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
     useSubscribe(modalCancel$, cancel$);
     // Navigate to newly created alternative
     useSubscribe(newAlternativeID$, (newID) => navigate(`/editor/alternative/${newID}`), [navigate]);
+
+    const unique = isUnique();
 
     return (
         <Modal
@@ -122,7 +133,12 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
                     <Button type={ButtonType.ERROR} icon={mdiClose} wire={cancelClick$}>
                         Cancel
                     </Button>
-                    <Button disabled={disableAdd()} type={ButtonType.PRIMARY} icon={mdiPlus} wire={addClick$}>
+                    <Button
+                        disabled={disableAdd() || !unique}
+                        type={ButtonType.PRIMARY}
+                        icon={mdiPlus}
+                        wire={addClick$}
+                    >
                         Add
                     </Button>
                 </div>
@@ -130,9 +146,16 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
         >
             <div>
                 <Typography.Title level={5}>Alternative Name</Typography.Title>
-                <TextInput type={TextInputType.PRIMARY} wire={sName$} />
+                <TextInput type={TextInputType.PRIMARY} wire={sName$} status={!unique ? "error" : undefined} />
+                {!unique && (
+                    <p className={"text-error"}>
+                        An alternative with that name already exists.
+                        <br />
+                        Alternative names must be unique.
+                    </p>
+                )}
             </div>
-            <p>Further changes can be made in the associated alternative page.</p>
+            <p className={"mt-2"}>Further changes can be made in the associated alternative page.</p>
         </Modal>
     );
 }
