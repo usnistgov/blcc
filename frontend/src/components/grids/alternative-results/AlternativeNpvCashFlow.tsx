@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { selectedAlternative$, selectedMeasure$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
@@ -17,7 +17,7 @@ const cellClasses = {
 };
 
 const [useColumns] = bind(
-    selectedAlternative$.pipe(
+    ResultModel.selectedAlternative$.pipe(
         map((alternative) => [
             {
                 name: "Cost Type",
@@ -44,7 +44,7 @@ const [useColumns] = bind(
 );
 
 const [useRows] = bind(
-    combineLatest([selectedMeasure$]).pipe(
+    combineLatest([ResultModel.selectedMeasure$]).pipe(
         map(([measure]) => {
             return [
                 { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },

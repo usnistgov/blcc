@@ -6,7 +6,7 @@ import "react-data-grid/lib/styles.css";
 import type { Required } from "@lrd/e3-sdk";
 import type { Alternative } from "blcc-format/Format";
 import { alternatives$ } from "model/Model";
-import { required$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
 import { dollarFormatter } from "util/Util";
 
@@ -22,7 +22,7 @@ type SummaryRow = {
     [key: string]: number;
 };
 
-const requiredWithAlternative$: Observable<[Required, Alternative | undefined][]> = required$.pipe(
+const requiredWithAlternative$: Observable<[Required, Alternative | undefined][]> = ResultModel.required$.pipe(
     switchMap(async (required) => {
         return await Promise.all(
             required.map(async (req) => {
@@ -75,12 +75,14 @@ const [useColumns] = bind(
 );
 
 const [useRows] = bind(
-    required$.pipe(
+    ResultModel.required$.pipe(
         switchMap((required) =>
             zip(required.map((required) => from(required.totalCostsDiscounted))).pipe(
                 map((values, year) => {
                     const result = { key: year, year } as Row;
-                    values.forEach((value, i) => (result[i.toString()] = value));
+                    values.forEach((value, i) => {
+                        result[i.toString()] = value;
+                    });
                     return result;
                 }),
                 toArray(),

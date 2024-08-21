@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { optionalsByTag$, required$, selection$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest, from, switchMap, zip } from "rxjs";
 import { map, toArray } from "rxjs/operators";
@@ -133,7 +133,7 @@ const columns = [
 ];
 
 const [useRows] = bind(
-    combineLatest([required$, optionalsByTag$, selection$]).pipe(
+    combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
         switchMap(([allRequired, optionals, selectedID]) => {
             const required = allRequired.find((req) => req.altId === selectedID);
 

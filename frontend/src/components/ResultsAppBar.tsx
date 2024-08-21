@@ -8,6 +8,7 @@ import { liveQuery } from "dexie";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { E3Request, toE3Object } from "model/E3Request";
 import { Model, currentProject$, hash$ } from "model/Model";
+import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,31 +21,12 @@ const pdfClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
 const csvClick$ = new Subject<void>();
 
-// Result stream that pulls from cache if available.
-const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
-const [useResult] = bind(result$, undefined);
-export { result$, useResult };
-
-// True if the project has been run before, if anything has changed since, false.
-const isCached$ = result$.pipe(map((result) => result !== undefined));
-
-// Only send E3 request if we don't have the results cached
-const e3Result$ = runClick$.pipe(
-    withLatestFrom(isCached$),
-    filter(([, cached]) => !cached),
-    withLatestFrom(currentProject$),
-    map(([, id]) => id),
-    toE3Object(),
-    tap(console.log),
-    E3Request(),
-    tap(console.log),
-    shareLatest(),
-);
-
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) => db.results.add({ hash, ...result }));
+    useSubscribe(ResultModel.e3Result$.pipe(withLatestFrom(hash$)), ([result, hash]) =>
+        db.results.add({ hash, ...result }),
+    );
     useSubscribe(pdfClick$, () => console.log("TODO: save pdf"));
     useSubscribe(csvClick$, () => console.log("TODO: save csv"));
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
@@ -73,7 +55,7 @@ export default function ResultsAppBar() {
                         type={ButtonType.PRIMARY_INVERTED}
                         icon={mdiPlay}
                         iconSide={"right"}
-                        onClick={() => runClick$.next()}
+                        onClick={() => ResultModel.Actions.run()}
                     >
                         Run
                     </Button>

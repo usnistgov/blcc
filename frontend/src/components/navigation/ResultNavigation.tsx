@@ -7,7 +7,7 @@ export default function ResultNavigation() {
     const navigate = useNavigate();
     return (
         <>
-            <nav className="flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest">
+            <nav className="z-40 shadow-lg flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest">
                 <Button
                     className={useActiveLink("/results")}
                     icon={mdiFormatListText}

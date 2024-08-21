@@ -2,7 +2,7 @@ import { mdiCheck } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { baselineID$ } from "model/Model";
-import { alternativeNames$, measures$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
@@ -120,7 +120,7 @@ const columns = [
 ];
 
 const [useRows] = bind(
-    combineLatest([measures$, alternativeNames$, baselineID$]).pipe(
+    combineLatest([ResultModel.measures$, ResultModel.alternativeNames$, baselineID$]).pipe(
         map(([measures, names, baselineID]) => {
             const baseline = measures.find((measure) => measure.altId === baselineID);
 

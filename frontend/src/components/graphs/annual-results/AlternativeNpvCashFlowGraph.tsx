@@ -2,14 +2,16 @@ import { createSignal } from "@react-rxjs/utils";
 import { type Chart, bb } from "billboard.js";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { alternatives$ } from "model/Model";
-import { required$, selection$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import { useEffect } from "react";
 import { combineLatest } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import { dollarFormatter } from "util/Util";
 
 const [chart$, setChart] = createSignal<Chart>();
-const loadData$ = combineLatest([selection$, chart$, alternatives$, required$]).pipe(debounceTime(1));
+const loadData$ = combineLatest([ResultModel.selection$, chart$, alternatives$, ResultModel.required$]).pipe(
+    debounceTime(1),
+);
 
 const GRAPH_ID = "alternative-npv-cash-flow-chart";
 

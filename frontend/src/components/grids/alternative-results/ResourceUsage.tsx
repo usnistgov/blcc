@@ -1,6 +1,6 @@
 import { bind } from "@react-rxjs/core";
 import { FuelType } from "blcc-format/Format";
-import { selectedMeasure$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
 import { dollarFormatter } from "util/Util";
@@ -48,7 +48,7 @@ const columns = [
 ];
 
 const [useRows] = bind(
-    selectedMeasure$.pipe(
+    ResultModel.selectedMeasure$.pipe(
         map((measure) => {
             const consumption = [
                 FuelType.ELECTRICITY,

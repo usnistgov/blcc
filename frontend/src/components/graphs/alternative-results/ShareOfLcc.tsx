@@ -1,7 +1,7 @@
 import { createSignal } from "@react-rxjs/utils";
 import { type Chart, bb } from "billboard.js";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { selectedMeasure$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import { useEffect } from "react";
 import { combineLatest } from "rxjs";
 import { debounceTime } from "rxjs/operators";
@@ -9,7 +9,7 @@ import { debounceTime } from "rxjs/operators";
 const GRAPH_ID = "share-of-lcc-chart";
 
 const [chart$, setChart] = createSignal<Chart>();
-const loadData$ = combineLatest([selectedMeasure$, chart$]).pipe(debounceTime(1));
+const loadData$ = combineLatest([ResultModel.selectedMeasure$, chart$]).pipe(debounceTime(1));
 
 export default function ShareOfLcc() {
     useSubscribe(loadData$, ([measure, chart]) => {

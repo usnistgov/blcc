@@ -1,6 +1,6 @@
 import { bind } from "@react-rxjs/core";
 import { alternatives$ } from "model/Model";
-import { alternativeNames$, measures$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
@@ -54,7 +54,7 @@ const [useColumns] = bind(
 );
 
 const [useRows] = bind(
-    combineLatest([measures$, alternativeNames$]).pipe(
+    combineLatest([ResultModel.measures$, ResultModel.alternativeNames$]).pipe(
         map(([measures]) => {
             return [
                 { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },

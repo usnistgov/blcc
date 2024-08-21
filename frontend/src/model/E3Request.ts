@@ -65,7 +65,7 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
                         ? TimestepComp.END_OF_YEAR
                         : TimestepComp.MID_YEAR,
                 )
-                .real() // TODO add interest rate
+                .real()
                 .discountRateReal(project.realDiscountRate ?? 0)
                 .discountRateNominal(project.nominalDiscountRate ?? 0)
                 .inflationRate(project.inflationRate ?? 0)

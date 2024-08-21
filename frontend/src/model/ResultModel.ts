@@ -1,15 +1,15 @@
 import type { Optional } from "@lrd/e3-sdk";
-import { bind } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { bar, pie } from "billboard.js";
-import { result$ } from "components/ResultsAppBar";
 import { liveQuery } from "dexie";
-import { alternatives$ } from "model/Model";
+import { alternatives$, currentProject$, hash$ } from "model/Model";
 import { db } from "model/db";
-import { combineLatest, merge, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { Subject, combineLatest, merge, switchMap } from "rxjs";
+import { filter, map, tap, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
+import { E3Request, toE3Object } from "model/E3Request";
 
 /**
  * Initializes all Billboard.js elements.
@@ -20,44 +20,75 @@ function initializeBillboardJS() {
 }
 initializeBillboardJS();
 
-export const required$ = result$.pipe(map((data) => data?.required ?? []));
+export namespace ResultModel {
+    export const sRun$ = new Subject<void>();
 
-export const alternativeNames$ = alternatives$.pipe(
-    map((alternatives) => new Map(alternatives.map((x) => [x.id ?? 0, x.name]))),
-);
+    export namespace Actions {
+        export function run() {
+            sRun$.next();
+        }
+    }
 
-export const [selectChange$, selectAlternative] = createSignal<number>();
-export const selection$ = merge(selectChange$, alternatives$.pipe(map((alternatives) => alternatives[0].id ?? 0)));
+    // Result stream that pulls from cache if available.
+    export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
+    export const [useResult] = bind(result$, undefined);
+    export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
 
-export const selectedAlternative$ = selection$.pipe(
-    switchMap((id) => liveQuery(() => db.alternatives.get(id))),
-    guard(),
-);
-export const selectedRequired$ = combineLatest([required$, selection$]).pipe(
-    map(([required, id]) => required.find((value) => value.altId === id)),
-    guard(),
-);
-export const [useOptions] = bind(
-    alternatives$.pipe(
-        map((alternatives) =>
-            alternatives.map((alternative) => ({ value: alternative.id ?? 0, label: alternative.name })),
+    // True if the project has been run before, if anything has changed since, false.
+    export const isCached$ = result$.pipe(map((result) => result !== undefined));
+
+    // Only send E3 request if we don't have the results cached
+    export const e3Result$ = sRun$.pipe(
+        withLatestFrom(ResultModel.isCached$),
+        filter(([, cached]) => !cached),
+        withLatestFrom(currentProject$),
+        map(([, id]) => id),
+        toE3Object(),
+        tap(console.log),
+        E3Request(),
+        tap(console.log),
+        shareLatest(),
+    );
+
+    export const required$ = result$.pipe(map((data) => data?.required ?? []));
+
+    export const alternativeNames$ = alternatives$.pipe(
+        map((alternatives) => new Map(alternatives.map((x) => [x.id ?? 0, x.name]))),
+    );
+
+    export const [selectChange$, selectAlternative] = createSignal<number>();
+    export const selection$ = merge(selectChange$, alternatives$.pipe(map((alternatives) => alternatives[0].id ?? 0)));
+
+    export const selectedAlternative$ = selection$.pipe(
+        switchMap((id) => liveQuery(() => db.alternatives.get(id))),
+        guard(),
+    );
+    export const selectedRequired$ = combineLatest([required$, selection$]).pipe(
+        map(([required, id]) => required.find((value) => value.altId === id)),
+        guard(),
+    );
+    export const [useOptions] = bind(
+        alternatives$.pipe(
+            map((alternatives) =>
+                alternatives.map((alternative) => ({ value: alternative.id ?? 0, label: alternative.name })),
+            ),
         ),
-    ),
-    [],
-);
-export const [useSelection] = bind(selection$, 0);
+        [],
+    );
+    export const [useSelection] = bind(selection$, 0);
 
-export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
+    export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
 
-export const selectedMeasure$ = combineLatest([measures$, selection$]).pipe(
-    map(([measures, selection]) => measures.find((measure) => measure.altId === selection)),
-    guard(),
-);
+    export const selectedMeasure$ = combineLatest([measures$, selection$]).pipe(
+        map(([measures, selection]) => measures.find((measure) => measure.altId === selection)),
+        guard(),
+    );
 
-export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));
-export const optionalsByTag$ = optionals$.pipe(
-    map(
-        (optionals) =>
-            new Map<string, Optional>(optionals.map((optional) => [`${optional.altId} ${optional.tag}`, optional])),
-    ),
-);
+    export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));
+    export const optionalsByTag$ = optionals$.pipe(
+        map(
+            (optionals) =>
+                new Map<string, Optional>(optionals.map((optional) => [`${optional.altId} ${optional.tag}`, optional])),
+        ),
+    );
+}

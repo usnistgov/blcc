@@ -1,4 +1,4 @@
-import { mdiContentSave, mdiFileDocumentPlus, mdiFolder, mdiPlay } from "@mdi/js";
+import { mdiArrowRight, mdiContentSave, mdiFileDocumentPlus, mdiFolder } from "@mdi/js";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -150,7 +150,7 @@ export default function EditorAppBar() {
                 <div className={"pl-4"}>
                     <Button
                         type={ButtonType.PRIMARY_INVERTED}
-                        icon={mdiPlay}
+                        icon={mdiArrowRight}
                         iconSide={"right"}
                         onClick={() => navigate("/results")}
                     >

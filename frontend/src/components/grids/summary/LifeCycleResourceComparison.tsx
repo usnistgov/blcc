@@ -1,7 +1,7 @@
 import { bind } from "@react-rxjs/core";
 import { FuelType } from "blcc-format/Format";
 import { alternatives$ } from "model/Model";
-import { measures$ } from "model/ResultModel";
+import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
 import { dollarFormatter, getOptionalTag, numberFormatter } from "util/Util";
@@ -60,7 +60,7 @@ const [useColumns] = bind(
 );
 
 const [useRows] = bind(
-    measures$.pipe(
+    ResultModel.measures$.pipe(
         map((measures) => {
             const consumption = [
                 FuelType.ELECTRICITY,
