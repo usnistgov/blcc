@@ -29,15 +29,15 @@ export type GHG = {
 };
 
 export enum EmissionsRateScenario {
-    BASELINE = "2023 – EIA - Baseline Scenario",
-    LOW_RENEWABLE = "2023 – EIA – Low Renewable Cost Scenario",
+    BASELINE = "EIA Baseline Scenario",
+    LOW_RENEWABLE = "EIA Low Renewable Cost Scenario",
 }
 
 export enum SocialCostOfGhgScenario {
-    SCC = "SCC = $0 / ton",
-    LOW = "2023 – 5% Discount Rate – Average (“Low”)",
-    MEDIUM = "2023 – 3% Discount Rate – Average (“Medium”)",
-    HIGH = "2023 – 3% Discount Rate – 95th Percentile (“High”)",
+    NONE = "$0 / ton",
+    LOW = "5% Discount Rate – Average (“Low”)",
+    MEDIUM = "3% Discount Rate – Average (“Medium”)",
+    HIGH = "3% Discount Rate – 95th Percentile (“High”)",
 }
 
 export type Location = USLocation | NonUSLocation;

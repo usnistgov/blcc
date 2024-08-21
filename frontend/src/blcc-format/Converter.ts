@@ -98,7 +98,7 @@ converted$
             alternatives: newAlternatives,
             costs: newCosts,
             ghg: {
-                socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+                socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
                 emissionsRateScenario: EmissionsRateScenario.BASELINE,
             },
             releaseYear,

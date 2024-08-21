@@ -18,7 +18,7 @@ export function defaultProject(releaseYear: number): Project {
         alternatives: [],
         costs: [],
         ghg: {
-            socialCostOfGhgScenario: SocialCostOfGhgScenario.SCC,
+            socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
             emissionsRateScenario: EmissionsRateScenario.BASELINE,
         },
         releaseYear,

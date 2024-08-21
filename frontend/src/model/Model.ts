@@ -499,6 +499,9 @@ export namespace Model {
         startWith(undefined),
     );
 
+    /**
+     * Sets variables associated with changing the analysis type.
+     */
     function setAnalysisType([analysisType, collection, discountRates, studyPeriod, purpose]: [
         AnalysisType,
         Collection<Project>,

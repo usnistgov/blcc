@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 import { Model } from "model/Model";
 import { max, min } from "model/rules/Rules";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
+import GhgInput from "pages/editor/general_information/GhgInput";
 
 export default function GeneralInformation() {
     //TODO make ghg values removable
@@ -204,30 +205,7 @@ export default function GeneralInformation() {
                     </div>
                 </div>
 
-                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    <Divider
-                        className={"col-span-2"}
-                        style={{ fontSize: "20px" }}
-                        orientation={"left"}
-                        orientationMargin={"0"}
-                    >
-                        Greenhouse Gas (GHG) Emissions and Cost Assumptions
-                    </Divider>
-                    <Dropdown
-                        label={"Emissions Rate Scenario *"}
-                        className={"w-full"}
-                        options={Object.values(EmissionsRateScenario)}
-                        wire={Model.sEmissionsRateScenario$}
-                        value$={Model.emissionsRateScenario$}
-                    />
-                    <Dropdown
-                        label={"Social Cost of GHG Scenario *"}
-                        className={"w-full"}
-                        options={Object.values(SocialCostOfGhgScenario)}
-                        wire={Model.sSocialCostOfGhgScenario$}
-                        value$={Model.socialCostOfGhgScenario$}
-                    />
-                </div>
+                <GhgInput />
             </div>
         </motion.div>
     );
