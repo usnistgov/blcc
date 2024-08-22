@@ -7,6 +7,10 @@ import { Button } from "components/input/Button";
 import Logo from "images/logo.svg?react";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * Top level index page that shows information about BLCC and a button to open the editor.
+ * @constructor
+ */
 export default function Index() {
     const navigate = useNavigate();
 

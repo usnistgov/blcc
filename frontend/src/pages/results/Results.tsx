@@ -9,6 +9,9 @@ import Inputs from "pages/results/Inputs";
 import Summary from "pages/results/Summary";
 import { Route, Routes } from "react-router-dom";
 
+/**
+ * Top level page that displays the E3 results of the project.
+ */
 export default function Results() {
     return (
         <>
@@ -18,6 +21,7 @@ export default function Results() {
                 <ResultNavigation />
 
                 {(ResultModel.noResult() && (
+                    // If there are no results, display a message telling the user to run the project.
                     <div className={"w-full p-8 flex flex-col items-center text-center text-base-dark gap-4"}>
                         <p className={"text-2xl"}>No Results to Display</p>
                         <div className={"flex flex-row"}>
@@ -33,6 +37,7 @@ export default function Results() {
                         </div>
                     </div>
                 )) || (
+                    // If we do have results, display the corresponding route page.
                     <Routes>
                         <Route index element={<Summary />} />
                         <Route path={"alternative"} element={<AlternativeResults />} />

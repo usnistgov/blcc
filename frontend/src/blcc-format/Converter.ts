@@ -1,7 +1,6 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
 import { createSignal } from "@react-rxjs/utils";
-import { showMessage } from "App";
 import {
     AnalysisType,
     type CapitalCost,
@@ -32,6 +31,7 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
+import { showMessage } from "components/modal/MessageModal";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
 import { XMLParser } from "fast-xml-parser";
 import { Model } from "model/Model";
@@ -104,11 +104,10 @@ converted$
             releaseYear,
         });
 
-        showMessage({
-            title: "Old Format Conversion",
-            message:
-                "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
-        });
+        showMessage(
+            "Old Format Conversion",
+            "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
+        );
     });
 
 function parseStudyPeriod(studyPeriod: DateDiff) {

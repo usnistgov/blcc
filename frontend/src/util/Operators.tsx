@@ -101,6 +101,14 @@ export function gatherArray<T>(...seed: T[]): UnaryFunction<Observable<T>, Obser
     );
 }
 
+/**
+ * Operator that opens a confirmation modal with the given title and message and waits until the modal is confirmed
+ * before outputting a value
+ *
+ * @param title The title of the modal
+ * @param message The message to display inside the modal
+ * @param config Extra configuration options to pass to the confirmation modal component.
+ */
 export function confirm<T>(
     title: string,
     message: string,
