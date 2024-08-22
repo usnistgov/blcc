@@ -9,14 +9,14 @@ export class BlccDexie extends Dexie {
     projects!: Table<Project, number>;
     costs!: Table<Cost, number>;
     alternatives!: Table<Alternative, number>;
-    results!: Table<Output & { hash: string }, string>;
+    results!: Table<Output & { hash: string; timestamp: Date }, string>;
     errors!: Table<{ id: string; url: string; messages: string[] }, string>;
     dirty!: Table<{ hash: string }, string>;
 
     constructor() {
         super("BlccDatabase");
 
-        this.version(4).stores({
+        this.version(5).stores({
             projects: "++id, name",
             costs: "++id, name, type",
             alternatives: "++id, name, baseline",

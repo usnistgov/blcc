@@ -50,6 +50,22 @@ export namespace ResultModel {
         shareLatest(),
     );
 
+    // Store the E3 result into the database with the hash of the project file to identify it.
+    ResultModel.e3Result$.pipe(withLatestFrom(hash$)).subscribe(([result, hash]) => {
+        const timestamp = new Date();
+        db.results.add({ hash, timestamp, ...result });
+    });
+
+    /**
+     * The timestamp that the result was received at.
+     */
+    export const [useTimestamp] = bind(result$.pipe(map((result) => result?.timestamp)), undefined);
+
+    /**
+     * True if a request has been sent but not response has been received yet, otherwise false.
+     */
+    export const [isLoading] = bind(merge(sRun$.pipe(map(() => true)), e3Result$.pipe(map(() => false))), false);
+
     export const required$ = result$.pipe(map((data) => data?.required ?? []));
 
     export const alternativeNames$ = alternatives$.pipe(
