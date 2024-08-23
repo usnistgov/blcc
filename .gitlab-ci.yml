@@ -25,8 +25,8 @@ frontend-build:
   extends: .nix
   stage: build
   script:
-    - echo VITE_REQUEST_URL=$VITE_REQUEST_URL >> frontend/.env
-    - echo VITE_API_TOKEN=$VITE_API_TOKEN >> frontend/.env
+    - echo VITE_REQUEST_URL=$VITE_REQUEST_URL >> .env
+    - echo VITE_API_TOKEN=$VITE_API_TOKEN >> .env
     - nix build .#frontend
 
 docker-build:
