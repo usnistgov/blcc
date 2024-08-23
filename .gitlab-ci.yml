@@ -18,15 +18,15 @@ stages:
 backend-build:
   extends: .nix
   stage: build
-  before_script:
-    - chmod +x ./setup-frontend-env.sh
-    - ./setup-frontend-env.sh
   script:
     - nix build .#backend
 
 frontend-build:
   extends: .nix
   stage: build
+  before_script:
+    - echo VITE_REQUEST_URL=$VITE_REQUEST_URL >> /frontend/.env
+    - echo VITE_API_TOKEN=$VITE_API_TOKEN >> /frontend/.env
   script:
     - nix build .#frontend
 
