@@ -18,6 +18,9 @@ stages:
 backend-build:
   extends: .nix
   stage: build
+  before_script:
+    - chmod +x ./setup-frontend-env.sh
+    - ./setup-frontend-env.sh
   script:
     - nix build .#backend
 
