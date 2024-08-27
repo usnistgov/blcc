@@ -1,7 +1,9 @@
+use std::env;
 use std::fmt::Display;
 
 use actix_web::{get, HttpResponse, post, Responder};
 use actix_web::web::{Data, Json, scope, ServiceConfig};
+use awc::Client;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use diesel::dsl::{max, min};
 use diesel::prelude::*;
@@ -636,6 +638,33 @@ async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<DbPo
     }
 }
 
+#[derive(Deserialize)]
+struct E3Request {
+    request: String,
+}
+
+#[post("/e3_request")]
+async fn post_e3_request(request: Json<E3Request>) -> impl Responder {
+    let client = Client::default();
+
+    let response = client
+        .post(env::var("E3_URL").expect("E3 URL not set"))
+        .insert_header((
+            "API_KEY",
+            format!(
+                "Authorization: {}",
+                env::var("E3_API_KEY").expect("E3 API KEY not set")
+            )
+        ))
+        .send_body("{}")
+        .await
+        .unwrap();
+    
+    println!("{}", response.status());
+    
+    HttpResponse::Ok()
+}
+
 pub fn config_api(config: &mut ServiceConfig) {
     config.service(
         scope("/api")
@@ -654,5 +683,6 @@ pub fn config_api(config: &mut ServiceConfig) {
             .service(post_energy_prices)
             .service(post_energy_price_indices)
             .service(post_discount_rates)
+            .service(post_e3_request)
     );
 }

@@ -1,0 +1,17 @@
+meta {
+  name: E3 Request
+  type: http
+  seq: 15
+}
+
+post {
+  url: http://localhost:8080/api/e3_request
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "request": "{}"
+  }
+}
