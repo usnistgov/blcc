@@ -5,6 +5,7 @@ import { CubicUnit, LiquidUnit, type WaterUnit } from "blcc-format/Format";
 import { Dropdown } from "components/input/Dropdown";
 import { NumberInput } from "components/input/InputNumber";
 import { WaterCostModel } from "model/costs/WaterCostModel";
+import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 import { Fragment, useMemo } from "react";
 import { EMPTY, Subject } from "rxjs";
 
@@ -101,6 +102,7 @@ export default function WaterCostFields() {
                         ))}
                     </div>
                 </div>
+                <UsageIndex title={"Usage Index"} />
             </div>
         </div>
     );

@@ -4,7 +4,7 @@ import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Model } from "model/Model";
-import { EnergyCostModel } from "model/costs/EnergyCostModel";
+import { UsageIndexModel } from "model/UsageIndexModel";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, textEditor } from "react-data-grid";
 import { type Observable, Subject, combineLatest, map, merge } from "rxjs";
@@ -46,11 +46,11 @@ export default function UsageIndex({ title }: UsageIndexProps) {
         const usageRateChange$ = gridChange$.pipe(map((newRates) => newRates.map((rate) => rate.usage)));
 
         // Represents whether the escalation rates is a constant value or an array
-        const isConstant$ = state(EnergyCostModel.useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
+        const isConstant$ = state(UsageIndexModel.useIndex$.pipe(map((rates) => !Array.isArray(rates))), true);
 
         // Converts the usage rates into the format the grid needs
         const [useUsage] = bind(
-            combineLatest([Model.releaseYear$, EnergyCostModel.useIndex$]).pipe(
+            combineLatest([Model.releaseYear$, UsageIndexModel.useIndex$]).pipe(
                 map(([releaseYear, useIndex]) =>
                     match(useIndex)
                         .with(P.array(), (usage) =>
@@ -94,7 +94,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
     }, []);
 
     useEffect(() => {
-        const sub = newRate$.subscribe(EnergyCostModel.useIndexChange);
+        const sub = newRate$.subscribe(UsageIndexModel.useIndexChange);
 
         return () => sub.unsubscribe();
     }, [newRate$]);
@@ -126,7 +126,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
                             className={"w-full"}
                             label={"Constant Escalation Rate"}
                             showLabel={false}
-                            value$={EnergyCostModel.useIndex$ as Observable<number>}
+                            value$={UsageIndexModel.useIndex$ as Observable<number>}
                             wire={sConstantChange$}
                             addonAfter={"%"}
                         />

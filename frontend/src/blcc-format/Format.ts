@@ -101,6 +101,14 @@ export enum CostTypes {
     OTHER_NON_MONETARY = "Other Non-Monetary",
 }
 
+export type UseIndex = {
+    useIndex?: number | number[];
+};
+
+export type EscalationRate = {
+    escalation?: number | number[];
+};
+
 export type Cost =
     | CapitalCost
     | EnergyCost
@@ -151,7 +159,9 @@ export enum FuelType {
 }
 
 export type EnergyCost = Type<CostTypes.ENERGY> &
-    BaseCost & {
+    BaseCost &
+    UseIndex &
+    EscalationRate & {
         fuelType: FuelType;
         customerSector?: CustomerSector;
         location?: Location;
@@ -160,8 +170,6 @@ export type EnergyCost = Type<CostTypes.ENERGY> &
         unit: Unit;
         demandCharge?: number;
         rebate?: number;
-        escalation?: number | number[];
-        useIndex?: number | number[];
     };
 
 export enum CustomerSector {
@@ -205,12 +213,12 @@ export type LiquefiedPetroleumGasUnit = EnergyUnit | CubicUnit | LiquidUnit;
 export type CoalUnit = EnergyUnit | WeightUnit;
 
 export type WaterCost = Type<CostTypes.WATER> &
-    BaseCost & {
+    BaseCost &
+    UseIndex &
+    EscalationRate & {
         unit: WaterUnit;
         usage: SeasonUsage[]; //Default to summer and winter, can only have one of each season
         disposal: SeasonUsage[];
-        escalation?: number | number[];
-        useIndex?: number | number[];
     };
 
 export type SeasonUsage = {
