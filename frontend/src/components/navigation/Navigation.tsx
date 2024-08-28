@@ -29,7 +29,7 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
                     navigate(`/editor/alternative/${altID}`);
             }}
         >
-            <p className={"min-w-0 overflow-hidden"}>{name}</p>
+            <p className={"w-full overflow-hidden text-ellipsis"}>{name}</p>
         </Button>
     );
 }

@@ -59,7 +59,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
                 if (!location.pathname.endsWith(`cost/${costID}`)) navigate(`cost/${costID}`);
             }}
         >
-            {name}
+            <p className={"w-full text-ellipsis overflow-hidden"}>{name}</p>
         </Button>
     );
 }
