@@ -9,7 +9,7 @@ import { BehaviorSubject, type Observable, Subject, combineLatest } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 
 type SelectOrCreateProps<T> = {
-    value$: StateObservable<T>;
+    value$: StateObservable<T | undefined>;
     wire$: Subject<T>;
     options$: Observable<OptionType[]>;
 };

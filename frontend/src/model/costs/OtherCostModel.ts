@@ -90,7 +90,7 @@ export namespace OtherCostModel {
     export const sUnit$ = new Subject<string | Unit>();
     export const unit$ = state(
         merge(sUnit$, cost$.pipe(map((cost) => cost.unit))).pipe(distinctUntilChanged()),
-        EnergyUnit.KWH,
+        undefined,
     );
     sUnit$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
 

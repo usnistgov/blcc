@@ -278,7 +278,7 @@ export type OtherCost = Type<CostTypes.OTHER> &
         initialOccurrence: number;
         valuePerUnit: number;
         numberOfUnits: number;
-        unit: string | Unit;
+        unit?: string | Unit;
         recurring?: Recurring;
     };
 
@@ -292,7 +292,7 @@ export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
         tags?: string[];
         initialOccurrence: number;
         numberOfUnits: number;
-        unit: string | Unit;
+        unit?: string | Unit;
         recurring?: Recurring;
     };
 

@@ -32,23 +32,25 @@ export default function OtherCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
-                    label={"Unit Value"}
-                    addonAfter={`per ${unit}`}
-                    value$={OtherCostModel.valuePerUnit$}
-                    wire={OtherCostModel.sValuePerUnit$}
-                />
-                <NumberInput
-                    className={"w-full"}
                     label={"Number of Units"}
                     value$={OtherCostModel.numberOfUnits$}
                     wire={OtherCostModel.sNumberOfUnits$}
                     addonAfter={
                         <SelectOrCreate
+                            placeholder={"Select Unit"}
                             value$={OtherCostModel.unit$}
                             wire$={OtherCostModel.sUnit$}
                             options$={OtherCostModel.allUnits$}
                         />
                     }
+                />
+                <NumberInput
+                    className={"w-full"}
+                    label={"Unit Value"}
+                    addonBefore={"$"}
+                    addonAfter={unit === undefined ? undefined : `per ${unit}`}
+                    value$={OtherCostModel.valuePerUnit$}
+                    wire={OtherCostModel.sValuePerUnit$}
                 />
                 <span className={"col-span-2"}>
                     <Recurring />

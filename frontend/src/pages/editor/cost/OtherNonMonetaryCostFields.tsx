@@ -39,6 +39,7 @@ export default function OtherNonMonetaryCostFields() {
                     wire={OtherNonMonetaryCostModel.sNumberOfUnits$}
                     addonAfter={
                         <SelectOrCreate
+                            placeholder={"Select Unit"}
                             value$={OtherNonMonetaryCostModel.unit$}
                             wire$={OtherNonMonetaryCostModel.sUnit$}
                             options$={OtherCostModel.allUnits$}
