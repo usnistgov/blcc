@@ -1,5 +1,5 @@
 import { mdiClose, mdiPlus } from "@mdi/js";
-import { bind } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
 import {
@@ -32,8 +32,9 @@ import { AlternativeModel } from "model/AlternativeModel";
 import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
-import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { useNavigate } from "react-router-dom";
+import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
+import { map, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 
@@ -118,9 +119,7 @@ namespace DefaultCosts {
     };
 }
 
-function createCostInDB([projectID, name, type, alts]: [number, string, CostTypes, Set<number>]): Promise<void> {
-    console.log(type);
-
+function createCostInDB([projectID, name, type, alts]: [number, string, CostTypes, Set<number>]): Promise<ID> {
     return db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
         const newCost = {
             name,
@@ -156,10 +155,14 @@ function createCostInDB([projectID, name, type, alts]: [number, string, CostType
             .modify((alt) => {
                 alt.costs.push(newID);
             });
+
+        return newID;
     });
 }
 
 export default function AddCostModal({ open$ }: AddCostModalProps) {
+    const navigate = useNavigate();
+
     const [
         useOpen,
         cancel,
@@ -171,6 +174,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         sCancelClick$,
         isOpen$,
         defaultChecked,
+        newCostID$,
     ] = useMemo(() => {
         const sName$ = new BehaviorSubject<string | undefined>(undefined);
         const sAddClick$ = new Subject<void>();
@@ -179,14 +183,16 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         const sCheckAlt$ = new Subject<Set<ID>>();
 
         // Create the new cost in the DB
-        const newCost$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
+        const newCostID$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
             sample(sAddClick$),
-            tap(createCostInDB),
+            switchMap(createCostInDB),
+            shareLatest(),
+            withLatestFrom(AlternativeModel.ID$),
         );
 
         const [modalCancel$, cancel] = createSignal();
         const [useOpen, isOpen$] = bind(
-            merge(open$.pipe(map(() => true)), merge(sCancelClick$, newCost$, modalCancel$).pipe(map(() => false))),
+            merge(open$.pipe(map(() => true)), merge(sCancelClick$, newCostID$, modalCancel$).pipe(map(() => false))),
             false,
         );
 
@@ -204,6 +210,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             sCancelClick$,
             isOpen$,
             defaultChecked,
+            newCostID$,
         ];
     }, [open$]);
 
@@ -216,6 +223,9 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         sName$.next(undefined);
         sType$.next(CostTypes.ENERGY);
     });
+
+    // Navigate to new cost page after creation
+    useSubscribe(newCostID$, ([newID, altID]) => navigate(`/editor/alternative/${altID}/cost/${newID}`), [navigate]);
 
     return (
         <Modal

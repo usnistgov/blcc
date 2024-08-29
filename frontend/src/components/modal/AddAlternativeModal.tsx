@@ -34,8 +34,6 @@ type AddAlternativeModalProps = {
  */
 function createAlternativeInDB([projectID, name]: [number, string]): Promise<number> {
     return db.transaction("rw", db.alternatives, db.projects, async () => {
-        console.log("hello");
-
         // Add new alternative and get its ID
         const newID = await db.alternatives.add({
             name,
