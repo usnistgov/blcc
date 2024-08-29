@@ -79,7 +79,12 @@ export namespace OtherCostModel {
     ).pipe(
         map(
             (costs) =>
-                new Set([...(costs as (OtherCost | OtherNonMonetary)[]).map((cost) => cost.unit), ...defaultUnits]),
+                new Set([
+                    ...(costs as (OtherCost | OtherNonMonetary)[])
+                        .filter((cost) => cost.unit !== undefined)
+                        .map((cost) => cost.unit ?? ""),
+                    ...defaultUnits,
+                ]),
         ),
         map((units) => [...units].map((unit) => ({ value: unit, label: unit }))),
     );
