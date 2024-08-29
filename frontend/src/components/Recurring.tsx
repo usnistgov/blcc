@@ -11,7 +11,6 @@ import {
     type RecurringContractCost,
     type Recurring as RecurringType,
 } from "blcc-format/Format";
-import YearDisplay from "components/YearDisplay";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { useSubscribe } from "hooks/UseSubscribe";
@@ -235,10 +234,6 @@ export default function Recurring() {
                             value$={rateOfRecurrence$}
                             wire={sRateOfRecurrence$}
                         />
-                    </div>
-
-                    <div className={"mb-4"}>
-                        <YearDisplay above={indicators} />
                     </div>
 
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>

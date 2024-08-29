@@ -4,7 +4,6 @@ import Title from "antd/es/typography/Title";
 import { Defaults } from "blcc-format/Defaults";
 import { AnalysisType, DiscountingMethod, DollarMethod, Purpose } from "blcc-format/Format";
 import Location from "components/Location";
-import YearDisplay from "components/YearDisplay";
 import { Dropdown } from "components/input/Dropdown";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
