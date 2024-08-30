@@ -1,20 +1,14 @@
 import { mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { type Cost, CostTypes, FuelType } from "blcc-format/Format";
+import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import { useNavigate } from "react-router-dom";
 import type { Subject } from "rxjs";
 
 type CategoryTableProps = {
     name: string;
     costs: Cost[];
-    sAddCostModal$: Subject<CostTypes>;
+    sAddCostModal$: Subject<CostTypes | FuelType>;
 };
-
-function getCostType(name: string) {
-    if (Object.values(FuelType).includes(name as FuelType)) return CostTypes.ENERGY;
-
-    return name as CostTypes;
-}
 
 export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableProps) {
     const navigate = useNavigate();
@@ -24,7 +18,10 @@ export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableP
             <div className={"bg-primary px-2 py-1.5 text-center text-white flex justify-between"}>
                 <div />
                 <p>{name}</p>
-                <div onClick={() => sAddCostModal$.next(getCostType(name))}>
+                <div
+                    onClick={() => sAddCostModal$.next(name as FuelType | CostTypes)}
+                    onKeyUp={() => sAddCostModal$.next(name as FuelType | CostTypes)}
+                >
                     <Icon
                         className={"self-center hover:bg-primary-light active:bg-primary-dark cursor-pointer rounded"}
                         path={mdiPlus}

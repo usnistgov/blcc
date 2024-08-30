@@ -33,9 +33,9 @@ export namespace EnergyCostModel {
         guard(),
         distinctUntilChanged(),
     );
-    combineLatest([sSectorChange$, CostModel.collection$]).subscribe(([customerSector, costCollection]) =>
-        costCollection.modify({ customerSector }),
-    );
+    sSectorChange$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([customerSector, costCollection]) => costCollection.modify({ customerSector }));
 
     /**
      * Fuel type streams
@@ -44,9 +44,9 @@ export namespace EnergyCostModel {
     export const fuelType$ = merge(sFuelTypeChange$, cost$.pipe(map((cost) => cost.fuelType))).pipe(
         distinctUntilChanged(),
     );
-    combineLatest([sFuelTypeChange$, CostModel.collection$]).subscribe(([fuelType, costCollection]) =>
-        costCollection.modify({ fuelType }),
-    );
+    sFuelTypeChange$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([fuelType, costCollection]) => costCollection.modify({ fuelType }));
 
     type EscalationRateResponse = {
         case: string;
@@ -119,9 +119,9 @@ export namespace EnergyCostModel {
         shareReplay(1),
     );
     export const [useUnit] = bind(unit$, EnergyUnit.KWH);
-    combineLatest([sUnitChange$, CostModel.collection$]).subscribe(([unit, costCollection]) =>
-        costCollection.modify({ unit }),
-    );
+    sUnitChange$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
     // Location override
     export namespace Location {

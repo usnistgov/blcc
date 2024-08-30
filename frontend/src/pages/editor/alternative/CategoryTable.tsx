@@ -12,7 +12,7 @@ export type Subcategories<T> = {
 type CategoryTableProps = {
     name: string;
     category$: Observable<Subcategories<FuelType | CostTypes>>;
-    sAddCostModal$: Subject<CostTypes>;
+    sAddCostModal$: Subject<CostTypes | FuelType>;
 };
 
 export default function CategoryTable({ name, category$, sAddCostModal$ }: CategoryTableProps) {

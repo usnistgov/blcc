@@ -1,7 +1,7 @@
 import { mdiClose, mdiPlus } from "@mdi/js";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Modal, Typography } from "antd";
+import { Modal, Select, Typography } from "antd";
 import {
     type BaseCost,
     type CapitalCost,
@@ -25,7 +25,6 @@ import {
 } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
 import { Button, ButtonType } from "components/input/Button";
-import { Dropdown } from "components/input/Dropdown";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
@@ -34,29 +33,75 @@ import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
-import { map, tap, withLatestFrom } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 
 type AddCostModalProps = {
-    open$: Observable<CostTypes>;
+    open$: Observable<CostTypes | FuelType>;
 };
 
-namespace DefaultCosts {
-    type Props<T, K extends CostTypes> = Omit<T, keyof BaseCost | keyof Type<K>>;
+function toOption(value: string) {
+    return {
+        label: <span>{value}</span>,
+        value,
+    };
+}
 
-    export const CAPITAL: Props<CapitalCost, CostTypes.CAPITAL> = {
+enum OptionHeader {
+    ENERGY = 0,
+    WATER = 1,
+    CAPITAL = 2,
+    CONTRACT = 3,
+    OTHER = 4,
+}
+
+const Options = [
+    {
+        label: <span>Energy</span>,
+        value: OptionHeader.ENERGY,
+        options: Object.values(FuelType).map((value) => toOption(value)),
+    },
+    {
+        label: <span>Water</span>,
+        value: OptionHeader.WATER,
+        options: [{ label: <span key={"water-option"}>Water</span>, value: CostTypes.WATER }],
+    },
+    {
+        label: <span>Capital</span>,
+        value: OptionHeader.CAPITAL,
+        options: [CostTypes.CAPITAL, CostTypes.REPLACEMENT_CAPITAL, CostTypes.OMR].map((value) => toOption(value)),
+    },
+    {
+        label: <span>Contract</span>,
+        value: OptionHeader.CONTRACT,
+        options: [CostTypes.IMPLEMENTATION_CONTRACT, CostTypes.RECURRING_CONTRACT].map(toOption),
+    },
+    {
+        label: <span>Other</span>,
+        value: OptionHeader.OTHER,
+        options: [CostTypes.OTHER, CostTypes.OTHER_NON_MONETARY].map(toOption),
+    },
+];
+
+namespace DefaultCosts {
+    type Props<T> = Omit<T, keyof BaseCost>;
+
+    export const CAPITAL: Props<CapitalCost> = {
+        type: CostTypes.CAPITAL,
         expectedLife: 0,
     };
 
-    export const ENERGY: Props<EnergyCost, CostTypes.ENERGY> = {
-        fuelType: FuelType.ELECTRICITY,
+    export const ENERGY: (fuelType: FuelType) => Props<EnergyCost> = (fuelType: FuelType) => ({
+        type: CostTypes.ENERGY,
+        fuelType,
         costPerUnit: 0,
         annualConsumption: 0,
         unit: EnergyUnit.KWH,
-    };
+    });
 
-    export const WATER: Props<WaterCost, CostTypes.WATER> = {
+    export const WATER: Props<WaterCost> = {
+        type: CostTypes.WATER,
         unit: LiquidUnit.GALLON,
         usage: [
             {
@@ -84,27 +129,32 @@ namespace DefaultCosts {
         ],
     };
 
-    export const REPLACEMENT_CAPITAL: Props<ReplacementCapitalCost, CostTypes.REPLACEMENT_CAPITAL> = {
+    export const REPLACEMENT_CAPITAL: Props<ReplacementCapitalCost> = {
+        type: CostTypes.REPLACEMENT_CAPITAL,
         initialCost: 0,
     };
 
-    export const OMR: Props<OMRCost, CostTypes.OMR> = {
+    export const OMR: Props<OMRCost> = {
+        type: CostTypes.OMR,
         initialCost: 0,
         initialOccurrence: 0,
     };
 
-    export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost, CostTypes.IMPLEMENTATION_CONTRACT> = {
+    export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost> = {
+        type: CostTypes.IMPLEMENTATION_CONTRACT,
         occurrence: 0,
         cost: 0,
     };
 
-    export const RECURRING_CONTRACT: Props<RecurringContractCost, CostTypes.RECURRING_CONTRACT> = {
+    export const RECURRING_CONTRACT: Props<RecurringContractCost> = {
+        type: CostTypes.RECURRING_CONTRACT,
         initialCost: 0,
         initialOccurrence: 0,
         annualRateOfChange: 0,
     };
 
-    export const OTHER: Props<OtherCost, CostTypes.OTHER> = {
+    export const OTHER: Props<OtherCost> = {
+        type: CostTypes.OTHER,
         tags: ["Other"],
         costOrBenefit: CostBenefit.COST,
         initialOccurrence: 0,
@@ -112,21 +162,33 @@ namespace DefaultCosts {
         numberOfUnits: 0,
     };
 
-    export const OTHER_NON_MONETARY: Props<OtherNonMonetary, CostTypes.OTHER_NON_MONETARY> = {
+    export const OTHER_NON_MONETARY: Props<OtherNonMonetary> = {
+        type: CostTypes.OTHER_NON_MONETARY,
         tags: ["Other Non Monetary"],
         initialOccurrence: 0,
         numberOfUnits: 0,
     };
 }
 
-function createCostInDB([projectID, name, type, alts]: [number, string, CostTypes, Set<number>]): Promise<ID> {
+/**
+ * Creates the new cost and adds it to the database. Returns the ID of the newly created cost.
+ *
+ * @param projectID The project ID to add the cost to.
+ * @param name The name of the new cost.
+ * @param type The type of the new cost, either a CostType or a FuelType for energy costs.
+ * @param alts A list of alternatives to add the cost to.
+ */
+function createCostInDB([projectID, name, type, alts]: [
+    number,
+    string,
+    CostTypes | FuelType,
+    Set<number>,
+]): Promise<ID> {
     return db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
         const newCost = {
             name,
-            type,
             ...match(type)
                 .with(CostTypes.CAPITAL, () => DefaultCosts.CAPITAL)
-                .with(CostTypes.ENERGY, () => DefaultCosts.ENERGY)
                 .with(CostTypes.WATER, () => DefaultCosts.WATER)
                 .with(CostTypes.REPLACEMENT_CAPITAL, () => DefaultCosts.REPLACEMENT_CAPITAL)
                 .with(CostTypes.OMR, () => DefaultCosts.OMR)
@@ -134,7 +196,8 @@ function createCostInDB([projectID, name, type, alts]: [number, string, CostType
                 .with(CostTypes.RECURRING_CONTRACT, () => DefaultCosts.RECURRING_CONTRACT)
                 .with(CostTypes.OTHER, () => DefaultCosts.OTHER)
                 .with(CostTypes.OTHER_NON_MONETARY, () => DefaultCosts.OTHER_NON_MONETARY)
-                .exhaustive(),
+                .with(CostTypes.ENERGY, () => DefaultCosts.ENERGY(FuelType.ELECTRICITY))
+                .otherwise((fuelType) => DefaultCosts.ENERGY(fuelType)),
         } as Cost;
 
         // Add new cost to DB and get new ID
@@ -175,11 +238,12 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         isOpen$,
         defaultChecked,
         newCostID$,
+        useType,
     ] = useMemo(() => {
         const sName$ = new BehaviorSubject<string | undefined>(undefined);
         const sAddClick$ = new Subject<void>();
         const sCancelClick$ = new Subject<void>();
-        const sType$ = new BehaviorSubject<CostTypes>(CostTypes.ENERGY);
+        const sType$ = new BehaviorSubject<CostTypes | FuelType>(CostTypes.CAPITAL);
         const sCheckAlt$ = new Subject<Set<ID>>();
 
         // Create the new cost in the DB
@@ -198,6 +262,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
 
         const [disableAdd] = bind(sName$.pipe(map((name) => name === "" || name === undefined)), true);
         const [defaultChecked] = bind(AlternativeModel.sID$.pipe(map((id) => [id])), []);
+        const [useType] = bind(sType$, CostTypes.CAPITAL);
 
         return [
             useOpen,
@@ -211,6 +276,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             isOpen$,
             defaultChecked,
             newCostID$,
+            useType,
         ];
     }, [open$]);
 
@@ -226,6 +292,8 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
 
     // Navigate to new cost page after creation
     useSubscribe(newCostID$, ([newID, altID]) => navigate(`/editor/alternative/${altID}/cost/${newID}`), [navigate]);
+
+    const costOrFuel = useType();
 
     return (
         <Modal
@@ -255,7 +323,12 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             <br />
             <div>
                 <Typography.Title level={5}>Cost Category</Typography.Title>
-                <Dropdown className={"w-full"} options={Object.values(CostTypes)} wire={sType$} />
+                <Select
+                    className={"w-full"}
+                    options={Options}
+                    onSelect={(costOrFuel: CostTypes | FuelType) => sType$.next(costOrFuel)}
+                    value={costOrFuel}
+                />
             </div>
         </Modal>
     );
