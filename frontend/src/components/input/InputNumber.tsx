@@ -3,6 +3,7 @@ import { createSignal } from "@react-rxjs/utils";
 import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import Title from "antd/es/typography/Title";
+import Info from "components/Info";
 import { type Rule, type ValidationResult, validate } from "model/rules/Rules";
 import { type PropsWithChildren, useEffect, useMemo } from "react";
 import { type Observable, type Subject, iif, map, merge, sample, switchMap } from "rxjs";
@@ -21,6 +22,7 @@ type NumberInputProps<T extends true | false = false> = {
     value$: Observable<NumberOrUndefined<T>>;
     wire?: Subject<NumberOrUndefined<T>>;
     percent?: boolean;
+    info?: string;
 };
 
 export function NumberInput<T extends true | false = false>({
@@ -32,6 +34,7 @@ export function NumberInput<T extends true | false = false>({
     value$,
     wire,
     percent,
+    info,
     ...inputProps
 }: PropsWithChildren<NumberInputProps<T> & InputNumberProps<number>>) {
     // Convert name to an ID so we can reference this element later
@@ -109,7 +112,11 @@ export function NumberInput<T extends true | false = false>({
         <div>
             {(showLabel && (
                 <>
-                    <Title level={5}>{label}</Title>
+                    {(info && (
+                        <Title level={5}>
+                            <Info text={info}>{label}</Info>
+                        </Title>
+                    )) || <Title level={5}>{label}</Title>}
                     {input}
                 </>
             )) ||

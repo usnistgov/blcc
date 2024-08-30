@@ -74,6 +74,7 @@ export default function GeneralInformation() {
                     <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                         <NumberInput
                             label={"Study Period*"}
+                            info={"The Study Period"}
                             addonAfter={"years"}
                             defaultValue={0}
                             max={Defaults.STUDY_PERIOD + constructionPeriod}
