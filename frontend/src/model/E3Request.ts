@@ -423,10 +423,10 @@ function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
         .subType(BcnSubType.DIRECT)
         .addTag("Other", "LCC")
         .addTag(...(cost.tags ?? []))
-        .addTag(cost.unit)
+        .addTag(cost.unit ?? "")
         .quantityValue(cost.valuePerUnit)
         .quantity(cost.numberOfUnits)
-        .quantityUnit(cost.unit); //TODO rate of change
+        .quantityUnit(cost.unit ?? ""); //TODO rate of change
 
     applyRateOfChange(builder, cost);
 
@@ -437,7 +437,7 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Other Non-Monetary")
-        .addTag(cost.unit)
+        .addTag(cost.unit ?? "")
         .addTag(...(cost.tags ?? []))
         .initialOccurrence(cost.initialOccurrence)
         .type(BcnType.NON_MONETARY)
