@@ -38,7 +38,7 @@ fn run_migrations(connection: &mut impl MigrationHarness<Pg>) {
 async fn spa() -> actix_web::Result<NamedFile> {
     let public_folder = env::var("PUBLIC_FOLDER")
         .unwrap_or_else(|_| { "public/" }.parse().unwrap());
-    let path: PathBuf = PathBuf::from(public_folder);
+    let path: PathBuf = PathBuf::from(public_folder + "index.html");
     Ok(NamedFile::open(path)?)
 }
 
