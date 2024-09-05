@@ -3,10 +3,10 @@ extern crate diesel_migrations; // Openssl declaration must be first
 extern crate openssl;
 
 use std::env;
-
+use std::path::PathBuf;
 use actix_cors::Cors;
-use actix_files::Files;
-use actix_web::{App, HttpServer, middleware};
+use actix_files::{Files, NamedFile};
+use actix_web::{App, HttpServer, middleware, web};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use diesel::pg::Pg;
@@ -33,6 +33,13 @@ fn run_migrations(connection: &mut impl MigrationHarness<Pg>) {
     connection
         .run_pending_migrations(MIGRATIONS)
         .expect("Could not run migrations");
+}
+
+async fn spa() -> actix_web::Result<NamedFile> {
+    let public_folder = env::var("PUBLIC_FOLDER")
+        .unwrap_or_else(|_| { "public/" }.parse().unwrap());
+    let path: PathBuf = PathBuf::from(public_folder);
+    Ok(NamedFile::open(path)?)
 }
 
 #[actix_web::main]
@@ -64,7 +71,7 @@ async fn main() -> std::io::Result<()> {
             .split(",")
             .fold(
                 Cors::default().allowed_methods(vec!["GET", "POST"]),
-                |cors, origin| cors.allowed_origin(&*origin)
+                |cors, origin| cors.allowed_origin(&*origin),
             );
 
         App::new()
@@ -86,6 +93,9 @@ async fn main() -> std::io::Result<()> {
             )
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
+            .route("/", web::get().to(spa))
+            .route("/editor", web::get().to(spa))
+            .route("/results", web::get().to(spa))
             .configure(config_api)
             .configure(config_paginated)
             .default_service(Files::new("/", public_folder.clone()).index_file("index.html"))
