@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { Strings } from "constants/Strings";
+import { useStateObservable } from "@react-rxjs/core";
 
 /**
  * Component for the implementation contract fields in the cost pages
@@ -35,6 +36,8 @@ export default function ImplementationContractCostFields() {
     useDbUpdate(sCost$, collection$, "cost");
     useDbUpdate(sOccurrence$, collection$, "occurrence");
 
+    const isSavings = useStateObservable(CostModel.costSavings$);
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -50,7 +53,7 @@ export default function ImplementationContractCostFields() {
                 <NumberInput
                     className={"w-full"}
                     addonBefore={"$"}
-                    label={"Cost"}
+                    label={isSavings ? "Savings" : "Cost"}
                     allowEmpty={true}
                     value$={cost$}
                     wire={sCost$}

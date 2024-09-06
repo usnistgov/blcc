@@ -1,4 +1,4 @@
-import { bind } from "@react-rxjs/core";
+import { bind, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
 import { CostTypes, DollarOrPercent, type ReplacementCapitalCost, type ResidualValue } from "blcc-format/Format";
 import checkbox from "components/input/Checkbox";
@@ -91,6 +91,8 @@ export default function ReplacementCapitalCostFields() {
     );*/
     useDbUpdate(residualValueEnabled$, collection$, "residualValue");
 
+    const isSavings = useStateObservable(CostModel.costSavings$);
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
@@ -98,7 +100,9 @@ export default function ReplacementCapitalCostFields() {
                     className={"w-full"}
                     addonBefore={"$"}
                     controls
-                    label={"Initial Cost (Base Year Dollars)"}
+                    label={
+                        isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"
+                    }
                     value$={initialCost$}
                     wire={sInitialCost$}
                 />

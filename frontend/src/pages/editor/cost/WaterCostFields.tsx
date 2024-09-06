@@ -10,6 +10,7 @@ import { Fragment, useMemo } from "react";
 import { EMPTY, Subject } from "rxjs";
 import { Strings } from "constants/Strings";
 import Info from "components/Info";
+import { CostModel } from "model/CostModel";
 
 export default function WaterCostFields() {
     const unitOptions: WaterUnit[] = useMemo(() => [...Object.values(LiquidUnit), ...Object.values(CubicUnit)], []);
@@ -18,6 +19,7 @@ export default function WaterCostFields() {
     const disposalNum = useStateObservable(WaterCostModel.disposalSeasonNum$);
     const usage = useStateObservable(WaterCostModel.usage$);
     const disposal = useStateObservable(WaterCostModel.disposal$);
+    const isSavings = useStateObservable(CostModel.costSavings$);
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -34,7 +36,7 @@ export default function WaterCostFields() {
 
                 <div>
                     <Title level={5}>
-                        <Info text={Strings.USAGE}>Usage</Info>
+                        <Info text={Strings.USAGE}>Usage {isSavings && "Savings"}</Info>
                     </Title>
                     <Radio.Group
                         options={Object.values(WaterCostModel.SeasonOption)}
@@ -74,7 +76,7 @@ export default function WaterCostFields() {
 
                 <div>
                     <Title level={5}>
-                        <Info text={Strings.DISPOSAL}>Disposal</Info>
+                        <Info text={Strings.DISPOSAL}>Disposal {isSavings && "Savings"}</Info>
                     </Title>
                     <Radio.Group
                         options={Object.values(WaterCostModel.SeasonOption)}

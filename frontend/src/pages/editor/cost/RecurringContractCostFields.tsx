@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
 import { filter } from "rxjs/operators";
 import { Strings } from "constants/Strings";
+import { useStateObservable } from "@react-rxjs/core";
 
 export default function RecurringContractCostFields() {
     const [
@@ -57,6 +58,8 @@ export default function RecurringContractCostFields() {
     useDbUpdate(sInitialOccurrence$, collection$, "initialOccurrence");
     useDbUpdate(sRateOfChange$, collection$, "annualRateOfChange");
 
+    const isSavings = useStateObservable(CostModel.costSavings$);
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
@@ -64,7 +67,7 @@ export default function RecurringContractCostFields() {
                     className={"w-full"}
                     info={Strings.INITIAL_COST}
                     addonBefore={"$"}
-                    label={"Initial Cost"}
+                    label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
                     wire={sInitialCost$}
                     value$={initialCost$}
                 />
@@ -84,8 +87,9 @@ export default function RecurringContractCostFields() {
                     wire={sRateOfChange$}
                     value$={rateOfChange$}
                 />
-                <Recurring />
             </div>
+
+            <Recurring />
         </div>
     );
 }

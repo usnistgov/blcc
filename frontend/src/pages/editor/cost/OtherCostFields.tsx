@@ -7,11 +7,13 @@ import { NumberInput } from "components/input/InputNumber";
 import { Strings } from "constants/Strings";
 import { OtherCostModel } from "model/costs/OtherCostModel";
 import Info from "components/Info";
+import { CostModel } from "model/CostModel";
 
 export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);
     const allTags = useStateObservable(OtherCostModel.allTags$);
     const unit = useStateObservable(OtherCostModel.unit$);
+    const isSavings = useStateObservable(CostModel.costSavings$);
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -53,7 +55,7 @@ export default function OtherCostFields() {
                 <NumberInput
                     className={"w-full"}
                     info={Strings.UNIT_VALUE}
-                    label={"Unit Value"}
+                    label={isSavings ? "Unit Value Savings" : "Unit Value"}
                     addonBefore={"$"}
                     addonAfter={unit === undefined ? undefined : `per ${unit}`}
                     value$={OtherCostModel.valuePerUnit$}

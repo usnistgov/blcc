@@ -7,6 +7,7 @@ import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
+import { useStateObservable } from "@react-rxjs/core";
 
 /**
  * Component for the OMR fields for a cost
@@ -35,6 +36,8 @@ export default function OMRCostFields() {
     useDbUpdate(sInitialCost$, collection$, "initialCost");
     useDbUpdate(sInitialOccurrence$, collection$, "initialOccurrence");
 
+    const isSavings = useStateObservable(CostModel.costSavings$);
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -42,7 +45,7 @@ export default function OMRCostFields() {
                     className={"w-full"}
                     addonBefore={"$"}
                     controls
-                    label={"Initial Cost"}
+                    label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
                     value$={initialCost$}
                     wire={sInitialCost$}
                 />
@@ -54,8 +57,9 @@ export default function OMRCostFields() {
                     value$={initialOccurrence$}
                     wire={sInitialOccurrence$}
                 />
-                <Recurring />
+
             </div>
+            <Recurring />
         </div>
     );
 }

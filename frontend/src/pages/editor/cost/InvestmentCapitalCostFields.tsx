@@ -7,6 +7,7 @@ import React, { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
 import { Strings } from "constants/Strings";
+import { useStateObservable } from "@react-rxjs/core";
 
 export default function InvestmentCapitalCostFields() {
     const [
@@ -76,6 +77,8 @@ export default function InvestmentCapitalCostFields() {
     useDbUpdate(sCostAdjustmentFactor$, collection$, "costAdjustment");
     useDbUpdate(sAmountFinanced$, collection$, "amountFinanced");
 
+    const isSavings = useStateObservable(CostModel.costSavings$);
+
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -85,7 +88,9 @@ export default function InvestmentCapitalCostFields() {
                     addonBefore={"$"}
                     controls
                     allowEmpty
-                    label={"Initial Cost (Base Year Dollars)"}
+                    label={
+                        isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"
+                    }
                     wire={sInitialCost$}
                     value$={initialCost$}
                 />

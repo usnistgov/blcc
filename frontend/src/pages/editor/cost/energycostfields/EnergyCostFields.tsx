@@ -73,6 +73,7 @@ export default function EnergyCostFields() {
 
     //TODO add other fields
 
+    const isSavings = useStateObservable(CostModel.costSavings$);
     const customLocation = useStateObservable(EnergyCostModel.Location.customLocation$);
 
     return (
@@ -111,7 +112,7 @@ export default function EnergyCostFields() {
                     }
                     controls
                     rules={[min(0)]}
-                    label={"Annual Consumption"}
+                    label={isSavings ? "Annual Consumption Savings" : "Annual Consumption"}
                     wire={sAnnualConsumption$}
                     value$={annualConsumption$}
                 />
@@ -121,7 +122,7 @@ export default function EnergyCostFields() {
                     controls
                     addonAfter={`per ${EnergyCostModel.useUnit()}`}
                     prefix={"$"}
-                    label={"Cost per Unit"}
+                    label={isSavings ? "Cost Savings per Unit" : "Cost per Unit"}
                     wire={sCostPerUnit$}
                     value$={costPerUnit$}
                 />
