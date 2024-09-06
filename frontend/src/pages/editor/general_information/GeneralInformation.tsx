@@ -14,6 +14,9 @@ import { Model } from "model/Model";
 import { max, min } from "model/rules/Rules";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
 import GhgInput from "pages/editor/general_information/GhgInput";
+import { Strings } from "constants/Strings";
+import Info from "components/Info";
+import Nbsp from "util/Nbsp";
 
 export default function GeneralInformation() {
     //TODO make ghg values removable
@@ -32,8 +35,14 @@ export default function GeneralInformation() {
             <div className={"max-w-screen-lg p-6 mb-16"}>
                 <div className={" grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <TextInput
-                        label={"Project Name *"}
+                        label={
+                            <>
+                                Project Name
+                                <Nbsp />*
+                            </>
+                        }
                         type={TextInputType.PRIMARY}
+                        info={Strings.PROJECT_NAME}
                         placeholder={"Untitled Project"}
                         value$={Model.name$}
                         wire={Model.sName$}
@@ -41,13 +50,20 @@ export default function GeneralInformation() {
                     <TextInput
                         label={"Analyst"}
                         type={TextInputType.PRIMARY}
+                        info={Strings.ANALYST}
                         value$={Model.analyst$}
                         wire={Model.sAnalyst$}
                     />
 
                     <Dropdown
-                        label={"Analysis Type *"}
+                        label={
+                            <>
+                                Analysis Type
+                                <Nbsp />*
+                            </>
+                        }
                         className={"w-full"}
+                        info={Strings.ANALYSIS_TYPE}
                         placeholder={"Please select an analysis type"}
                         options={Object.values(AnalysisType)}
                         wire={Model.sAnalysisType$}
@@ -57,6 +73,7 @@ export default function GeneralInformation() {
                         <Dropdown
                             label={"Analysis Purpose"}
                             className={"w-full"}
+                            info={Strings.ANALYSIS_PURPOSE}
                             options={Object.values(Purpose)}
                             wire={Model.sPurpose$}
                             value$={Model.purpose$}
@@ -67,14 +84,20 @@ export default function GeneralInformation() {
                         <TextArea
                             label={"Description"}
                             className={"w-full"}
+                            info={Strings.DESCRIPTION}
                             value$={Model.description$}
                             wire={Model.sDescription$}
                         />
                     </span>
                     <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                         <NumberInput
-                            label={"Study Period*"}
-                            info={"The Study Period"}
+                            label={
+                                <>
+                                    Study Period
+                                    <Nbsp />*
+                                </>
+                            }
+                            info={Strings.STUDY_PERIOD}
                             addonAfter={"years"}
                             defaultValue={0}
                             max={Defaults.STUDY_PERIOD + constructionPeriod}
@@ -87,7 +110,13 @@ export default function GeneralInformation() {
                             parser={(input) => (input ? Math.trunc(Number.parseInt(input)) : 0)}
                         />
                         <NumberInput
-                            label={"Construction Period*"}
+                            label={
+                                <>
+                                    Construction Period
+                                    <Nbsp />*
+                                </>
+                            }
+                            info={Strings.CONSTRUCTION_PERIOD}
                             addonAfter={"years"}
                             defaultValue={0}
                             max={Defaults.CONSTRUCTION_PERIOD}
@@ -100,7 +129,13 @@ export default function GeneralInformation() {
 
                         <Dropdown
                             className={"w-full"}
-                            label={"Data Release Year *"}
+                            label={
+                                <>
+                                    Data Release Year
+                                    <Nbsp />*
+                                </>
+                            }
+                            info={Strings.DATA_RELEASE_YEAR}
                             options={Model.releaseYears$}
                             wire={Model.sReleaseYear$}
                             value$={Model.releaseYear$}
@@ -109,17 +144,23 @@ export default function GeneralInformation() {
                 </div>
 
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    <div className={"grid grid-cols-2 gap-y-2"}>
+                    <div className={"grid grid-cols-2 gap-x-8 gap-y-2"}>
                         <Divider
                             className={"col-span-2 h-fit"}
                             style={{ fontSize: "20px" }}
                             orientation={"left"}
                             orientationMargin={"0"}
                         >
-                            Discounting
+                            <Info text={Strings.DISCOUNTING}>Discounting</Info>
                         </Divider>
                         <div>
-                            <Title level={5}>Constant/Current Dollar Analysis</Title>
+                            <Title level={5}>
+                                <Info text={Strings.DOLLAR_ANALYSIS}>
+                                    Constant/Current
+                                    <br />
+                                    Dollar Analysis
+                                </Info>
+                            </Title>
                             <Switch
                                 left={DollarMethod.CURRENT}
                                 right={DollarMethod.CONSTANT}
@@ -132,7 +173,14 @@ export default function GeneralInformation() {
                             />
                         </div>
                         <Dropdown
-                            label={"Discounting Convention *"}
+                            label={
+                                <>
+                                    Discounting Convention
+                                    <Nbsp />*
+                                </>
+                            }
+                            className={"w-full"}
+                            info={Strings.DISCOUNTING_CONVENTION}
                             placeholder={"Please select a discounting convention"}
                             options={Object.values(DiscountingMethod)}
                             wire={Model.sDiscountingMethod$}
@@ -148,7 +196,7 @@ export default function GeneralInformation() {
                             orientation={"left"}
                             orientationMargin={"0"}
                         >
-                            Location
+                            <Info text={Strings.LOCATION}>Location</Info>
                         </Divider>
                         <Location
                             sCountry$={Model.Location.sCountry$}

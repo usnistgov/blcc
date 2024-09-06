@@ -3,15 +3,17 @@ import { createSignal } from "@react-rxjs/utils";
 import { Input } from "antd";
 import type { TextAreaProps as DefaultProps } from "antd/es/input";
 import Title from "antd/es/typography/Title";
-import { type PropsWithChildren, useEffect, useMemo } from "react";
+import { type PropsWithChildren, type ReactNode, useEffect, useMemo } from "react";
 import { type Subject, switchMap } from "rxjs";
 import { startWith } from "rxjs/operators";
+import Info from "components/Info";
 
 type TextAreaProps = {
     label: string;
     className?: string;
     value$: StateObservable<string | undefined>;
     wire: Subject<string | undefined>;
+    info?: ReactNode;
 };
 
 export function TextArea({
@@ -21,6 +23,7 @@ export function TextArea({
     wire,
     className,
     disabled,
+    info,
     ...defaultProps
 }: PropsWithChildren<TextAreaProps & DefaultProps>) {
     const { useValue, focus, textChange, onChange$ } = useMemo(() => {
@@ -44,7 +47,13 @@ export function TextArea({
 
     return (
         <div>
-            <Title level={5}>{label}</Title>
+            {info ? (
+                <Title level={5}>
+                    <Info text={info}>{label}</Info>
+                </Title>
+            ) : (
+                <Title level={5}>{label}</Title>
+            )}
             <Input.TextArea
                 onChange={(e) => textChange(e.currentTarget.value)}
                 onFocus={() => focus(true)}

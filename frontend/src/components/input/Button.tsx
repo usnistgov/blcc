@@ -1,6 +1,7 @@
 import Icon from "@mdi/react";
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import type { Subject } from "rxjs";
+import { Tooltip } from "antd";
 
 export enum ButtonType {
     PRIMARY = " bg-primary hover:bg-primary-light active:bg-primary-dark text-base-lightest ",
@@ -20,6 +21,7 @@ export type ButtonProps = {
     disabled?: boolean;
     iconSide?: "left" | "right";
     wire?: Subject<void>;
+    tooltip?: ReactNode;
 } & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, "type">;
 
 export function Button({
@@ -30,28 +32,31 @@ export function Button({
     disabled = false,
     iconSide = "left",
     wire,
+    tooltip,
     ...buttonProps
 }: PropsWithChildren<ButtonProps>) {
     return (
-        <button
-            type={"button"}
-            className={`${className ? className : ""} ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`}
-            disabled={disabled}
-            onClick={
-                wire
-                    ? (e) => {
-                          e.stopPropagation();
-                          wire.next();
-                      }
-                    : undefined
-            }
-            {...buttonProps}
-        >
-            <span className={"flex flex-row place-items-center"}>
-                {icon && iconSide === "left" && <Icon className={"mr-1 min-w-[24px]"} path={icon} size={0.8} />}
-                {children}
-                {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8} />}
-            </span>
-        </button>
+        <Tooltip title={tooltip}>
+            <button
+                type={"button"}
+                className={`${className ? className : ""} ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`}
+                disabled={disabled}
+                onClick={
+                    wire
+                        ? (e) => {
+                              e.stopPropagation();
+                              wire.next();
+                          }
+                        : undefined
+                }
+                {...buttonProps}
+            >
+                <span className={"flex flex-row place-items-center"}>
+                    {icon && iconSide === "left" && <Icon className={"mr-1 min-w-[24px]"} path={icon} size={0.8} />}
+                    {children}
+                    {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8} />}
+                </span>
+            </button>
+        </Tooltip>
     );
 }

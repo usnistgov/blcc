@@ -12,6 +12,8 @@ import { withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter } from "util/Util";
+import Info from "components/Info";
+import { Strings } from "constants/Strings";
 
 type UsageIndexProps = {
     title: string;
@@ -103,7 +105,9 @@ export default function UsageIndex({ title }: UsageIndexProps) {
 
     return (
         <div>
-            <Title level={5}>{title}</Title>
+            <Title level={5}>
+                <Info text={Strings.USAGE_INDEX}>{title}</Info>
+            </Title>
             <span className={"flex flex-row items-center gap-2 pb-2"}>
                 <p className={"text-md pb-1"}>Constant</p>
                 <Switch wire={sIsConstant$} value$={isConstant$} checkedChildren={"Yes"} unCheckedChildren={"No"} />

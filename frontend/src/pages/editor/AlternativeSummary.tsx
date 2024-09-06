@@ -20,6 +20,7 @@ import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import { confirm, countProperty } from "util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
+import { Strings } from "constants/Strings";
 
 const { Title } = Typography;
 
@@ -169,6 +170,7 @@ export function createAlternativeCard(alternative: Alternative) {
                             <Button
                                 type={ButtonType.LINK}
                                 icon={mdiContentCopy}
+                                tooltip={Strings.CLONE}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     AlternativeModel.Actions.clone(alternative.id ?? 0);

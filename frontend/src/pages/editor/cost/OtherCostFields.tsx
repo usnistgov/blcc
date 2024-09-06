@@ -4,7 +4,9 @@ import Title from "antd/es/typography/Title";
 import Recurring from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
 import { NumberInput } from "components/input/InputNumber";
+import { Strings } from "constants/Strings";
 import { OtherCostModel } from "model/costs/OtherCostModel";
+import Info from "components/Info";
 
 export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);
@@ -15,7 +17,9 @@ export default function OtherCostFields() {
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <div>
-                    <Title level={5}>{"Tags"}</Title>
+                    <Title level={5}>
+                        <Info text={Strings.TAGS}>Tags</Info>
+                    </Title>
                     <Select
                         className={"w-full"}
                         mode={"tags"}
@@ -26,12 +30,14 @@ export default function OtherCostFields() {
                 </div>
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.INITIAL_OCCURRENCE}
                     label={"Initial Occurrence"}
                     value$={OtherCostModel.initialOccurrence$}
                     wire={OtherCostModel.sInitialOccurrence$}
                 />
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.NUMBER_OF_UNITS}
                     label={"Number of Units"}
                     value$={OtherCostModel.numberOfUnits$}
                     wire={OtherCostModel.sNumberOfUnits$}
@@ -46,6 +52,7 @@ export default function OtherCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.UNIT_VALUE}
                     label={"Unit Value"}
                     addonBefore={"$"}
                     addonAfter={unit === undefined ? undefined : `per ${unit}`}

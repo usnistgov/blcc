@@ -2,15 +2,17 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Select, type SelectProps } from "antd";
 import Title from "antd/es/typography/Title";
-import { type Key, type PropsWithChildren, useEffect, useMemo } from "react";
+import { type Key, type PropsWithChildren, type ReactNode, useEffect, useMemo } from "react";
 import { type Observable, type Subject, of } from "rxjs";
+import Info from "components/Info";
 
 type DropdownProps<T extends Key> = {
     className?: string;
-    label?: string;
+    label?: ReactNode;
     options: Observable<T[]> | T[];
     value$?: Observable<T | undefined>;
     wire: Subject<T>;
+    info?: ReactNode;
 };
 
 export function Dropdown<T extends Key>({
@@ -19,6 +21,7 @@ export function Dropdown<T extends Key>({
     options,
     value$,
     wire,
+    info,
     ...selectProps
 }: PropsWithChildren<DropdownProps<T>> & Omit<SelectProps, "onChange" | "value" | "options">) {
     const { change$, change, useValue, useOptions } = useMemo(() => {
@@ -49,7 +52,13 @@ export function Dropdown<T extends Key>({
     return (
         (label !== undefined && (
             <div>
-                <Title level={5}>{label}</Title>
+                {info ? (
+                    <Title level={5}>
+                        <Info text={info}>{label}</Info>
+                    </Title>
+                ) : (
+                    <Title level={5}>{label}</Title>
+                )}
                 {select}
             </div>
         )) ||

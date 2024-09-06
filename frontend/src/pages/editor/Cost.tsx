@@ -1,7 +1,7 @@
 import { mdiArrowLeft, mdiChevronRight, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
 import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
-import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
+import { type Cost as FormatCost, CostTypes, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
@@ -24,15 +24,16 @@ import RecurringContractCostFields from "pages/editor/cost/RecurringContractCost
 import ReplacementCapitalCostFields from "pages/editor/cost/ReplacementCapitalCostFields";
 import WaterCostFields from "pages/editor/cost/WaterCostFields";
 import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostFields";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject, combineLatest, map, of, sample, switchMap } from "rxjs";
+import { combineLatest, map, sample, Subject, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import Switch from "../../components/input/Switch";
-import sToggleAlt$ = CostModel.sToggleAlt$;
 import Icon from "@mdi/react";
-import ConfirmationModal from "components/modal/ConfirmationModal";
+import { Strings } from "constants/Strings";
+import Info from "components/Info";
+import sToggleAlt$ = CostModel.sToggleAlt$;
 
 const { Title } = Typography;
 
@@ -160,10 +161,20 @@ export default function Cost() {
                         <Button type={ButtonType.LINK} icon={mdiPlus} onClick={() => openCostModal$.next()}>
                             Add Cost
                         </Button>
-                        <Button type={ButtonType.LINK} icon={mdiContentCopy} onClick={() => cloneClick$.next()}>
+                        <Button
+                            type={ButtonType.LINK}
+                            icon={mdiContentCopy}
+                            onClick={() => cloneClick$.next()}
+                            tooltip={Strings.CLONE}
+                        >
                             Clone
                         </Button>
-                        <Button type={ButtonType.LINKERROR} icon={mdiMinus} onClick={() => removeClick$.next()}>
+                        <Button
+                            type={ButtonType.LINKERROR}
+                            icon={mdiMinus}
+                            onClick={() => removeClick$.next()}
+                            tooltip={Strings.DELETE}
+                        >
                             Remove
                         </Button>
                     </div>
@@ -180,7 +191,9 @@ export default function Cost() {
                             wire={CostModel.sName$}
                         />
                         <div className={"flex flex-col"}>
-                            <Title level={5}>Alternatives applied to</Title>
+                            <Title level={5}>
+                                <Info text={Strings.ALTERNATIVES_APPLIED_TO}>Alternatives applied to</Info>
+                            </Title>
                             <AppliedCheckboxes value$={altsThatInclude$} sToggle$={sToggleAlt$} />
                         </div>
                         <span className={"col-span-2"}>
@@ -192,7 +205,9 @@ export default function Cost() {
                             />
                         </span>
                         <span>
-                            <Title level={5}>Cost or Savings</Title>
+                            <Title level={5}>
+                                <Info text={Strings.COST_OR_SAVINGS}>Cost or Savings</Info>
+                            </Title>
                             <Switch
                                 value$={CostModel.costSavings$}
                                 wire={CostModel.sCostSavings$}

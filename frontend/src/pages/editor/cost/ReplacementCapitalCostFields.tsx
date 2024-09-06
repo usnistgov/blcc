@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
 import { defaultValue } from "util/Operators";
+import { Strings } from "constants/Strings";
 
 const { Title } = Typography;
 
@@ -134,6 +135,7 @@ export default function ReplacementCapitalCostFields() {
                             </span>
                             <NumberInput
                                 className={"py-4"}
+                                info={Strings.RESIDUAL_VALUE}
                                 addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
                                 addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
                                 label={"Residual Value"}

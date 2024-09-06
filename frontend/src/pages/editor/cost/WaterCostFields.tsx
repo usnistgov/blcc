@@ -8,6 +8,8 @@ import { WaterCostModel } from "model/costs/WaterCostModel";
 import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 import { Fragment, useMemo } from "react";
 import { EMPTY, Subject } from "rxjs";
+import { Strings } from "constants/Strings";
+import Info from "components/Info";
 
 export default function WaterCostFields() {
     const unitOptions: WaterUnit[] = useMemo(() => [...Object.values(LiquidUnit), ...Object.values(CubicUnit)], []);
@@ -23,6 +25,7 @@ export default function WaterCostFields() {
                 <Dropdown
                     className={"w-full"}
                     label={"Unit"}
+                    info={Strings.UNIT}
                     options={unitOptions}
                     value$={WaterCostModel.unit$}
                     wire={WaterCostModel.sUnit$}
@@ -30,7 +33,9 @@ export default function WaterCostFields() {
                 <div />
 
                 <div>
-                    <Title level={5}>Usage</Title>
+                    <Title level={5}>
+                        <Info text={Strings.USAGE}>Usage</Info>
+                    </Title>
                     <Radio.Group
                         options={Object.values(WaterCostModel.SeasonOption)}
                         onChange={({ target: { value } }) => WaterCostModel.sUsageSeasonNum$.next(value)}
@@ -68,7 +73,9 @@ export default function WaterCostFields() {
                 </div>
 
                 <div>
-                    <Title level={5}>Disposal</Title>
+                    <Title level={5}>
+                        <Info text={Strings.DISPOSAL}>Disposal</Info>
+                    </Title>
                     <Radio.Group
                         options={Object.values(WaterCostModel.SeasonOption)}
                         onChange={({ target: { value } }) => WaterCostModel.sDisposalSeasonNum$.next(value)}

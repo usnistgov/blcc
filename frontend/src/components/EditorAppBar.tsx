@@ -15,6 +15,7 @@ import objectHash from "object-hash";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { download } from "util/DownloadFile";
+import { Strings } from "constants/Strings";
 
 const newClick$ = new Subject<void>();
 const openClick$ = new Subject<void>();
@@ -116,10 +117,20 @@ export default function EditorAppBar() {
         <AppBar className={"z-50 bg-primary shadow-lg"}>
             <SaveDiscardModal />
             <ButtonBar className={"p-2"}>
-                <Button type={ButtonType.PRIMARY} icon={mdiFileDocumentPlus} onClick={() => newClick$.next()}>
+                <Button
+                    type={ButtonType.PRIMARY}
+                    icon={mdiFileDocumentPlus}
+                    onClick={() => newClick$.next()}
+                    tooltip={Strings.NEW}
+                >
                     New
                 </Button>
-                <Button type={ButtonType.PRIMARY} icon={mdiFolder} onClick={() => openClick$.next()}>
+                <Button
+                    type={ButtonType.PRIMARY}
+                    icon={mdiFolder}
+                    onClick={() => openClick$.next()}
+                    tooltip={Strings.OPEN}
+                >
                     Open
                 </Button>
                 <input
@@ -141,7 +152,12 @@ export default function EditorAppBar() {
                         }
                     }}
                 />
-                <Button type={ButtonType.PRIMARY} icon={mdiContentSave} onClick={() => saveClick$.next()}>
+                <Button
+                    type={ButtonType.PRIMARY}
+                    icon={mdiContentSave}
+                    onClick={() => saveClick$.next()}
+                    tooltip={Strings.SAVE}
+                >
                     Save
                 </Button>
             </ButtonBar>

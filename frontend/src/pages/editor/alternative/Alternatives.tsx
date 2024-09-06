@@ -14,10 +14,11 @@ import { AlternativeModel } from "model/AlternativeModel";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
 import CategoryTable, { type Subcategories } from "pages/editor/alternative/CategoryTable";
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { Subject, merge } from "rxjs";
+import { merge, Subject } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
 import { confirm } from "util/Operators";
+import Info from "components/Info";
+import { Strings } from "constants/Strings";
 
 function group<T extends string>(costs: Cost[], keys: T[], extractor: (cost: Cost) => T): Subcategories<T> {
     const result = {};
@@ -65,7 +66,6 @@ const otherCategories$ = AlternativeModel.otherCosts$.pipe(
 );
 
 export default function Alternatives() {
-    const navigate = useNavigate();
     useParamSync();
 
     // Set up streams
@@ -105,22 +105,27 @@ export default function Alternatives() {
 
     const categories = [
         {
+            info: Strings.ENERGY_COSTS,
             label: "Energy Costs",
             children: energyCategories$,
         },
         {
+            info: Strings.WATER_COST,
             label: "Water Costs",
             children: waterCosts$,
         },
         {
+            info: Strings.CAPITAL_COSTS,
             label: "Capital Costs",
             children: capitalCategories$,
         },
         {
+            info: Strings.CONTRACT_COSTS,
             label: "Contract Costs",
             children: contractCategories$,
         },
         {
+            info: Strings.OTHER_COSTS,
             label: "Other Costs",
             children: otherCategories$,
         },
@@ -149,7 +154,9 @@ export default function Alternatives() {
                             wire={AlternativeModel.sName$}
                         />
                         <span className={"w-1/2"}>
-                            <Title level={5}>Baseline Alternative</Title>
+                            <Title level={5}>
+                                <Info text={Strings.BASELINE_ALTERNATIVE}>Baseline Alternative</Info>
+                            </Title>
                             <p>Only one alternative can be the baseline.</p>
                             <Switch value$={AlternativeModel.isBaseline$} wire={sBaselineChange$} />
                         </span>
@@ -167,7 +174,9 @@ export default function Alternatives() {
 
                 <br />
                 <div className={"flex justify-between border-b-2 border-base-lightest"}>
-                    <Title level={4}>Alternative Costs</Title>
+                    <Title level={4}>
+                        <Info text={Strings.ALTERNATIVE_COSTS}>Alternative Costs</Info>
+                    </Title>
                     <Button type={ButtonType.LINK} onClick={() => openCostModal$.next(CostTypes.CAPITAL)}>
                         <Icon path={mdiPlus} size={1} />
                         Add Cost
@@ -177,6 +186,7 @@ export default function Alternatives() {
                     {categories.map((category) => (
                         <CategoryTable
                             key={category.label}
+                            info={category.info}
                             name={category.label}
                             category$={category.children}
                             sAddCostModal$={openCostModal$}

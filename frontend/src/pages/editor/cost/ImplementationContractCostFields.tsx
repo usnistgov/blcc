@@ -6,6 +6,7 @@ import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import { filter, map } from "rxjs/operators";
+import { Strings } from "constants/Strings";
 
 /**
  * Component for the implementation contract fields in the cost pages
@@ -39,6 +40,7 @@ export default function ImplementationContractCostFields() {
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.OCCURRENCE}
                     addonBefore={"year"}
                     label={"Occurrence"}
                     allowEmpty={true}

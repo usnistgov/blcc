@@ -1,5 +1,3 @@
-import { mdiMenuDown } from "@mdi/js";
-import Icon from "@mdi/react";
 import { bind, shareLatest, state, useStateObservable } from "@react-rxjs/core";
 import Title from "antd/es/typography/Title";
 import {
@@ -8,8 +6,8 @@ import {
     type OMRCost,
     type OtherCost,
     type OtherNonMonetary,
-    type RecurringContractCost,
     type Recurring as RecurringType,
+    type RecurringContractCost
 } from "blcc-format/Format";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
@@ -17,12 +15,14 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { RecurringModel } from "model/costs/RecurringModel";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { type Observable, Subject, combineLatest, distinctUntilChanged, merge } from "rxjs";
+import { distinctUntilChanged, merge, type Observable, Subject } from "rxjs";
 import { combineLatestWith, map, withLatestFrom } from "rxjs/operators";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { percentFormatter } from "util/Util";
+import Info from "components/Info";
+import { Strings } from "constants/Strings";
 
 type RecurringCost = OMRCost | RecurringContractCost | OtherCost | OtherNonMonetary;
 type RateChangeInfo = {
@@ -112,9 +112,6 @@ export default function Recurring() {
         isRecurring$,
         sRateOfRecurrence$,
         rateOfRecurrence$,
-        rateOfChangeValue$,
-        rateOfChangeUnits$,
-        indicators$,
         useRateOfChangeValue,
         useRateOfChangeUnits,
     ] = useMemo(() => {
@@ -175,28 +172,11 @@ export default function Recurring() {
             [],
         );
 
-        const indicators$ = state(
-            combineLatest([rateOfRecurrence$, Model.studyPeriod$, Model.constructionPeriod$]).pipe(
-                map(([rateOfRecurrence, studyPeriod, constructionPeriod]) => {
-                    return Array.from(Array((studyPeriod ?? 0) + constructionPeriod)).map((_, i) => {
-                        if (i < constructionPeriod || (i - constructionPeriod) % rateOfRecurrence !== 0)
-                            return <div key={i} className={"grow min-h-2"} />;
-
-                        return <Icon key={i} size={0.6} path={mdiMenuDown} />;
-                    });
-                }),
-            ),
-            [],
-        );
-
         return [
             sToggle$,
             isRecurring$,
             sRateOfRecurrence$,
             rateOfRecurrence$,
-            rateOfChangeValue$,
-            rateOfChangeUnits$,
-            indicators$,
             useRateOfChangeValue,
             useRateOfChangeUnits,
         ];
@@ -211,13 +191,14 @@ export default function Recurring() {
     });
 
     const isRecurring = useStateObservable(isRecurring$);
-    const indicators = useStateObservable(indicators$);
     const rateOfChangeValue = useRateOfChangeValue();
     const rateOfChangeUnits = useRateOfChangeUnits();
 
     return (
         <div className={"flex flex-col w-full"}>
-            <Title level={5}>Recurring</Title>
+            <Title level={5}>
+                <Info text={Strings.RECURRING}>Recurring</Info>
+            </Title>
             <span>
                 <Switch checkedChildren={"Yes"} unCheckedChildren={"No"} value$={isRecurring$} wire={sToggle$} />
             </span>
@@ -239,7 +220,9 @@ export default function Recurring() {
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         {/* Value Rate of Change */}
                         <div>
-                            <Title level={5}>Value Rate of Change</Title>
+                            <Title level={5}>
+                                <Info text={Strings.VALUE_RATE_OF_CHANGE}>Value Rate of Change</Info>
+                            </Title>
                             <span className={"flex flex-row items-center gap-2 pb-2"}>
                                 <p className={"text-md pb-1"}>Constant</p>
                                 <Switch
@@ -278,7 +261,9 @@ export default function Recurring() {
 
                         {/* Unit Rate of Change */}
                         <div>
-                            <Title level={5}>Unit Rate of Change</Title>
+                            <Title level={5}>
+                                <Info text={Strings.UNIT_RATE_OF_CHANGE}>Unit Rate of Change</Info>
+                            </Title>
                             <span className={"flex flex-row items-center gap-2 pb-2"}>
                                 <p className={"text-md pb-1"}>Constant</p>
                                 <Switch

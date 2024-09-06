@@ -6,6 +6,7 @@ import { CostModel } from "model/CostModel";
 import React, { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
+import { Strings } from "constants/Strings";
 
 export default function InvestmentCapitalCostFields() {
     const [
@@ -80,6 +81,7 @@ export default function InvestmentCapitalCostFields() {
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.INITIAL_COST}
                     addonBefore={"$"}
                     controls
                     allowEmpty
@@ -89,6 +91,7 @@ export default function InvestmentCapitalCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.AMOUNT_FINANCED}
                     addonBefore={"$"}
                     controls
                     allowEmpty
@@ -100,6 +103,7 @@ export default function InvestmentCapitalCostFields() {
                 <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
                     <NumberInput
                         className={"w-full"}
+                        info={Strings.EXPECTED_LIFETIME}
                         addonAfter={"years"}
                         controls
                         allowEmpty
@@ -109,6 +113,7 @@ export default function InvestmentCapitalCostFields() {
                     />
                     <NumberInput
                         className={"w-full"}
+                        info={Strings.ANNUAL_RATE_OF_CHANGE}
                         addonAfter={"%"}
                         controls
                         allowEmpty
@@ -118,6 +123,7 @@ export default function InvestmentCapitalCostFields() {
                     />
                     <NumberInput
                         className={"w-full"}
+                        info={Strings.COST_ADJUSTMENT_FACTOR}
                         addonAfter={"%"}
                         controls
                         allowEmpty

@@ -7,6 +7,7 @@ import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
 import { filter } from "rxjs/operators";
+import { Strings } from "constants/Strings";
 
 export default function RecurringContractCostFields() {
     const [
@@ -61,6 +62,7 @@ export default function RecurringContractCostFields() {
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.INITIAL_COST}
                     addonBefore={"$"}
                     label={"Initial Cost"}
                     wire={sInitialCost$}
@@ -68,6 +70,7 @@ export default function RecurringContractCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.INITIAL_OCCURRENCE}
                     addonBefore={"year"}
                     label={"Initial Occurrence"}
                     wire={sInitialOccurrence$}
@@ -75,6 +78,7 @@ export default function RecurringContractCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
+                    info={Strings.VALUE_RATE_OF_CHANGE}
                     addonAfter={"%"}
                     label={"Rate of Change"}
                     wire={sRateOfChange$}

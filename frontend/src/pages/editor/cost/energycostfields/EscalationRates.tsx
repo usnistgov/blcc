@@ -5,7 +5,7 @@ import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Model } from "model/Model";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
-import { useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
 import { P, match } from "ts-pattern";
@@ -13,7 +13,7 @@ import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter } from "util/Util";
 
 type EscalationRatesProps = {
-    title: string;
+    title: ReactNode;
 };
 
 type EscalationRateInfo = {

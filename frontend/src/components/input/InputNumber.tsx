@@ -4,25 +4,24 @@ import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
-import { type Rule, type ValidationResult, validate } from "model/rules/Rules";
-import { type PropsWithChildren, useEffect, useMemo } from "react";
-import { type Observable, type Subject, iif, map, merge, sample, switchMap } from "rxjs";
+import { type Rule, validate, type ValidationResult } from "model/rules/Rules";
+import { type PropsWithChildren, type ReactNode, useEffect, useMemo } from "react";
+import { iif, map, merge, type Observable, sample, type Subject, switchMap } from "rxjs";
 import { combineLatestWith, startWith } from "rxjs/operators";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { guard, isTrue } from "util/Operators";
-import { percentFormatter } from "util/Util";
 
 type NumberOrUndefined<T> = T extends true ? number | undefined : number;
 
 type NumberInputProps<T extends true | false = false> = {
-    label: string;
+    label: ReactNode;
     showLabel?: boolean;
     allowEmpty?: T | false;
     rules?: Rule<number>[];
     value$: Observable<NumberOrUndefined<T>>;
     wire?: Subject<NumberOrUndefined<T>>;
     percent?: boolean;
-    info?: string;
+    info?: ReactNode;
 };
 
 export function NumberInput<T extends true | false = false>({
@@ -38,7 +37,8 @@ export function NumberInput<T extends true | false = false>({
     ...inputProps
 }: PropsWithChildren<NumberInputProps<T> & InputNumberProps<number>>) {
     // Convert name to an ID so we can reference this element later
-    const id = label.toLowerCase().replaceAll(" ", "-");
+    // TODO: Fix ID
+    //const id = label.toLowerCase().replaceAll(" ", "-");
 
     // Get the value from the observable
     const { change, focus, output$, useValue, hasErrors } = useMemo(() => {
@@ -88,7 +88,6 @@ export function NumberInput<T extends true | false = false>({
 
     const input = (
         <InputNumber
-            id={id}
             onFocus={() => focus(true)}
             onBlur={() => focus(false)}
             onChange={(value) => {

@@ -11,6 +11,7 @@ import { db } from "model/db";
 import { useMemo } from "react";
 import { type NavigateFunction, useNavigate } from "react-router-dom";
 import { map } from "rxjs/operators";
+import { Strings } from "constants/Strings";
 
 /**
  * Curries a function to navigate to the last alternative in the list.
@@ -44,15 +45,24 @@ export default function AlternativeSubHeader() {
                 <div className="flex justify-between">
                     <p className={"self-center px-6 text-ink"}>{name}</p>
                     <div className={"px-6"}>
-                        <Button type={ButtonType.LINK} onClick={() => createAlt()}>
-                            <Icon path={mdiPlus} size={1} />
+                        <Button type={ButtonType.LINK} onClick={() => createAlt()} icon={mdiPlus}>
                             Add Alternative
                         </Button>
-                        <Button type={ButtonType.LINK} onClick={() => AlternativeModel.Actions.cloneCurrent()}>
-                            <Icon path={mdiContentCopy} size={1} /> Clone
+                        <Button
+                            type={ButtonType.LINK}
+                            onClick={() => AlternativeModel.Actions.cloneCurrent()}
+                            tooltip={Strings.CLONE}
+                            icon={mdiContentCopy}
+                        >
+                            Clone
                         </Button>
-                        <Button type={ButtonType.LINKERROR} onClick={() => AlternativeModel.Actions.deleteCurrent()}>
-                            <Icon path={mdiMinus} size={1} /> Delete
+                        <Button
+                            type={ButtonType.LINKERROR}
+                            onClick={() => AlternativeModel.Actions.deleteCurrent()}
+                            tooltip={Strings.DELETE}
+                            icon={mdiMinus}
+                        >
+                            Delete
                         </Button>
                     </div>
                 </div>
