@@ -172,8 +172,10 @@ dependencies = [
  "http 0.2.12",
  "http 1.1.0",
  "impl-more",
+ "openssl",
  "pin-project-lite",
  "tokio",
+ "tokio-openssl",
  "tokio-util",
  "tracing",
 ]
@@ -384,6 +386,7 @@ dependencies = [
  "itoa",
  "log",
  "mime",
+ "openssl",
  "percent-encoding",
  "pin-project-lite",
  "rand",
@@ -1646,9 +1649,9 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"
-version = "2.0.74"
+version = "2.0.77"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fceb41e3d546d0bd83421d3409b1460cc7444cd389341a4c880fe7a042cb3d7"
+checksum = "9f35bcdf61fd8e7be6caf75f429fdca8beb3ed76584befb503b1569faee373ed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1716,6 +1719,18 @@ dependencies = [
  "signal-hook-registry",
  "socket2",
  "windows-sys",
+]
+
+[[package]]
+name = "tokio-openssl"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ffab79df67727f6acf57f1ff743091873c24c579b1e2ce4d8f53e47ded4d63d"
+dependencies = [
+ "futures-util",
+ "openssl",
+ "openssl-sys",
+ "tokio",
 ]
 
 [[package]]

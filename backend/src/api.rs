@@ -9,7 +9,7 @@ use diesel::dsl::{max, min};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::DbPool;
+use crate::{AppData, DbPool};
 use crate::models::*;
 use crate::schema::escalation_rates::release_year;
 
@@ -30,7 +30,7 @@ struct EscalationRateRequest {
 #[post("/escalation-rates")]
 async fn post_escalation_rates(
     request: Json<EscalationRateRequest>,
-    data: Data<DbPool>,
+    data: Data<AppData>,
 ) -> impl Responder {
     use crate::schema::escalation_rates::dsl::escalation_rates;
     use crate::schema::escalation_rates::{division, sector, year};
@@ -40,7 +40,7 @@ async fn post_escalation_rates(
 
     let from = request.from;
     let to = request.to;
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query = escalation_rates
         .inner_join(
@@ -88,12 +88,12 @@ impl Display for RegionCaseBARequest {
 #[post("/region-case-ba")]
 async fn post_region_case_ba(
     request: Json<RegionCaseBARequest>,
-    data: Data<DbPool>,
+    data: Data<AppData>,
 ) -> impl Responder {
     use crate::schema::region_case_ba::dsl::*;
     use crate::schema::region_case_ba::*;
 
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query: QueryResult<Vec<f64>> = region_case_ba
         .filter(
@@ -135,11 +135,11 @@ impl Display for RegionNatgasRequest {
 }
 
 #[post("/region-natgas")]
-async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<DbPool>) -> impl Responder {
+async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_natgas::dsl::*;
     use crate::schema::region_natgas::*;
 
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query: QueryResult<Vec<f64>> = region_natgas
         .filter(
@@ -181,11 +181,11 @@ impl Display for RegionCasePropaneLNGRequest {
 }
 
 #[post("/region-case-propane-lng")]
-async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>, data: Data<DbPool>) -> impl Responder {
+async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_case_propane_lng::dsl::*;
     use crate::schema::region_case_propane_lng::*;
 
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query: QueryResult<Vec<f64>> = region_case_propane_lng
         .filter(
@@ -227,11 +227,11 @@ impl Display for RegionOilRequest {
 }
 
 #[post("/region-case-oil")]
-async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<DbPool>) -> impl Responder {
+async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_case_oil::dsl::*;
     use crate::schema::region_case_oil::*;
 
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query: QueryResult<Vec<f64>> = region_case_oil
         .filter(
@@ -273,11 +273,11 @@ impl Display for RegionCaseReedsRequest {
 }
 
 #[post("/region-case-reeds")]
-async fn post_region_case_reeds(request: Json<RegionCaseReedsRequest>, data: Data<DbPool>) -> impl Responder {
+async fn post_region_case_reeds(request: Json<RegionCaseReedsRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_case_reeds::dsl::*;
     use crate::schema::region_case_reeds::*;
 
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query: QueryResult<Vec<f64>> = region_case_reeds
         .filter(
@@ -304,11 +304,11 @@ struct ZipInfoRequest {
 }
 
 #[post("/zip_info")]
-async fn post_zip_info(request: Json<ZipInfoRequest>, data: Data<DbPool>) -> impl Responder {
+async fn post_zip_info(request: Json<ZipInfoRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::zip_info::dsl::*;
     use crate::schema::zip_info::*;
 
-    let mut db = data.get().expect("Failed to get a connection");
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     let query = zip_info.filter(zip.eq(request.zip))
         .select(ZipInfo::as_select())
@@ -346,8 +346,8 @@ impl Display for EmissionsRequest {
 }
 
 #[post("/emissions")]
-async fn post_emissions(request: Json<EmissionsRequest>, data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn post_emissions(request: Json<EmissionsRequest>, data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::zip_info::dsl::*;
     use crate::schema::zip_info::*;
@@ -391,8 +391,8 @@ struct ReleaseYearRequest {
 }
 
 #[post("/release_year")]
-async fn post_check_release_year_exists(request: Json<ReleaseYearRequest>, data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn post_check_release_year_exists(request: Json<ReleaseYearRequest>, data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::region_case_ba::dsl::*;
     use crate::schema::region_case_ba::*;
@@ -418,8 +418,8 @@ struct ReleaseYearResponse {
 type RegionCaseResult = QueryResult<Vec<(i32, Option<i32>, Option<i32>)>>;
 
 #[get("/release_year")]
-async fn get_release_years(data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn get_release_years(data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::region_case_ba::dsl::*;
     use crate::schema::region_case_ba::*;
@@ -459,8 +459,8 @@ struct SccRequest {
 }
 
 #[post("/scc")]
-async fn post_scc(request: Json<SccRequest>, data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn post_scc(request: Json<SccRequest>, data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::scc::dsl::*;
     use crate::schema::scc::*;
@@ -513,8 +513,8 @@ async fn post_scc(request: Json<SccRequest>, data: Data<DbPool>) -> impl Respond
 }
 
 #[get("/states")]
-async fn get_states(data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn get_states(data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::state_division_region::dsl::*;
     use crate::schema::state_division_region::*;
@@ -550,8 +550,8 @@ struct EnergyPriceRequest {
 }
 
 #[post("/energy-prices")]
-async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::energy_prices::dsl::*;
     use crate::schema::energy_prices::*;
@@ -581,8 +581,8 @@ async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<DbPool
 }
 
 #[post("/energy-price-indices")]
-async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::energy_price_indices::dsl::*;
     use crate::schema::energy_price_indices::*;
@@ -617,8 +617,8 @@ struct DiscountRateRequest {
 }
 
 #[post("/discount_rates")]
-async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<DbPool>) -> impl Responder {
-    let mut db = data.get().expect("Failed to get a connection");
+async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<AppData>) -> impl Responder {
+    let mut db = data.pool.get().expect("Failed to get a connection");
 
     use crate::schema::discount_rates::dsl::*;
     use crate::schema::discount_rates::*;
@@ -638,16 +638,16 @@ async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<DbPo
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct E3Request {
     request: String,
 }
 
 #[post("/e3_request")]
-async fn post_e3_request(request: Json<E3Request>) -> impl Responder {
-    let client = Client::default();
-
-    let response = client
+async fn post_e3_request(data: Data<AppData>, request: Json<E3Request>) -> impl Responder {
+    println!("{:?}", request);
+    
+    let response = data.client
         .post(env::var("E3_URL").expect("E3 URL not set"))
         .insert_header((
             "API_KEY",
