@@ -1,17 +1,16 @@
 use std::env;
 use std::fmt::Display;
 
-use actix_web::{get, HttpResponse, post, Responder};
-use actix_web::web::{Data, Json, scope, ServiceConfig};
-use awc::Client;
-use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
+use actix_web::web::{scope, Data, Json, ServiceConfig};
+use actix_web::{get, post, HttpResponse, Responder};
 use diesel::dsl::{max, min};
 use diesel::prelude::*;
+use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use serde::{Deserialize, Serialize};
 
-use crate::{AppData, DbPool};
 use crate::models::*;
 use crate::schema::escalation_rates::release_year;
+use crate::AppData;
 
 #[derive(Serialize)]
 pub struct ErrorResponse {
@@ -644,25 +643,23 @@ struct E3Request {
 }
 
 #[post("/e3_request")]
-async fn post_e3_request(data: Data<AppData>, request: Json<E3Request>) -> impl Responder {
-    println!("{:?}", request);
-    
-    let response = data.client
+async fn post_e3_request(request: Json<E3Request>, data: Data<AppData>) -> impl Responder {
+    let e3_request = request.request.clone();
+
+    let mut response = data.client
         .post(env::var("E3_URL").expect("E3 URL not set"))
         .insert_header((
-            "API_KEY",
+            "Authorization",
             format!(
-                "Authorization: {}",
+                "Api-Key: {}",
                 env::var("E3_API_KEY").expect("E3 API KEY not set")
             )
         ))
-        .send_body("{}")
+        .send_body(e3_request)
         .await
         .unwrap();
-    
-    println!("{}", response.status());
-    
-    HttpResponse::Ok()
+
+    HttpResponse::Ok().body(response.body().await.expect("Could not parse E3 response"))
 }
 
 pub fn config_api(config: &mut ServiceConfig) {
