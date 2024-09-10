@@ -37,7 +37,7 @@
 
         backend = craneLib.buildPackage {
             nativeBuildInputs = with pkgs; [ pkg-config ];
-            buildInputs = with pkgs; [ postgresql openssl cacert ];
+            buildInputs = with pkgs; [ postgresql openssl ];
 
             src = pkgs.lib.cleanSourceWith {
                 src = craneLib.path ./backend;

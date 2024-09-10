@@ -1,6 +1,7 @@
-extern crate openssl;
 extern crate diesel;
-extern crate diesel_migrations; // Openssl declaration must be first
+extern crate diesel_migrations;
+extern crate openssl;
+// Openssl declaration must be first
 
 use crate::api::config_api;
 use crate::paginated::config_paginated;
@@ -9,15 +10,14 @@ use actix_files::{Files, NamedFile};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{middleware, web, App, HttpServer};
-use awc::{Client, Connector};
 use diesel::pg::Pg;
 use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
 use env_logger;
-use openssl::ssl::{SslConnector, SslMethod};
 use r2d2::Pool;
+use reqwest::Client;
 use std::env;
 use std::path::PathBuf;
 
@@ -80,12 +80,7 @@ async fn main() -> std::io::Result<()> {
                 |cors, origin| cors.allowed_origin(&*origin),
             );
 
-        let ssl_connector = SslConnector::builder(SslMethod::tls())
-            .unwrap()
-            .build();
-        let client = Client::builder()
-            .connector(Connector::new().openssl(ssl_connector))
-            .finish();
+        let client = reqwest::Client::new();
 
         App::new()
             .app_data(Data::new(AppData { client, pool: pool.clone() }))

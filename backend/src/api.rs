@@ -646,20 +646,18 @@ struct E3Request {
 async fn post_e3_request(request: Json<E3Request>, data: Data<AppData>) -> impl Responder {
     let e3_request = request.request.clone();
 
-    let mut response = data.client
+    let response = data.client
         .post(env::var("E3_URL").expect("E3 URL not set"))
-        .insert_header((
-            "Authorization",
-            format!(
-                "Api-Key: {}",
-                env::var("E3_API_KEY").expect("E3 API KEY not set")
-            )
-        ))
-        .send_body(e3_request)
+        .header("Authorization", format!("Api-Key: {}", env::var("E3_API_KEY").expect("E3 API KEY not set")))
+        .body(e3_request)
+        .send()
         .await
-        .unwrap();
+        .expect("Request failed")
+        .text()
+        .await
+        .expect("Could not parse E3 response");
 
-    HttpResponse::Ok().body(response.body().await.expect("Could not parse E3 response"))
+    HttpResponse::Ok().body(response)
 }
 
 pub fn config_api(config: &mut ServiceConfig) {
