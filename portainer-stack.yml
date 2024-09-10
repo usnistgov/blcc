@@ -11,6 +11,8 @@ services:
     networks:
       - postgres
       - traefik_net
+    volumes:
+      - ssl_certs:/etc/ssl/certs
     deploy:
       replicas: 1
       labels:
@@ -59,6 +61,11 @@ volumes:
     driver_opts:
       type: none
       device: /DATA/e3/blcc/db_backup
+      o: bind
+  ssl_certs:
+    driver_opts:
+      type: none
+      device: /DATA/e3/blcc/ssl_certs
       o: bind
   #blcc_data:
   #  driver_opts:
