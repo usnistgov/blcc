@@ -34,7 +34,8 @@ import {
 } from "blcc-format/Format";
 import { Model } from "model/Model";
 import { db } from "model/db";
-import { type Observable, type UnaryFunction, pipe, switchMap } from "rxjs";
+import { type Observable, type UnaryFunction, map, pipe, switchMap } from "rxjs";
+import { ajax } from "rxjs/internal/ajax/ajax";
 import { withLatestFrom } from "rxjs/operators";
 import { toMWh } from "util/UnitConversion";
 
@@ -108,7 +109,19 @@ export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBu
  */
 export function E3Request(): UnaryFunction<Observable<RequestBuilder>, Observable<Output>> {
     return pipe(
-        switchMap((builder) => E3.analyze(import.meta.env.VITE_REQUEST_URL, builder, import.meta.env.VITE_API_TOKEN)),
+        switchMap((builder) =>
+            ajax<Output>({
+                url: "/api/e3_request",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    request: JSON.stringify(builder.build()),
+                },
+            }),
+        ),
+        map((response) => response.response),
     );
 }
 
