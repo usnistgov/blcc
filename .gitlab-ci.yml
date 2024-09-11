@@ -71,7 +71,8 @@ portainer-deploy:
   services:
     - docker:27.2.1-dind
   before_script:
-    - apk add jq
+    - apk add jq curl
+    - unset DOCKER_HOST
     - "export DOCKER_CUSTOM_HEADERS=$(curl -s --header \"Content-Type: application\\json\" --request POST --data '{\"username\":\"$PORTAINER_USERNAME\",\"password\":\"$PORTAINER_PASSWORD\"}' http://haproxy-p.el.nist.gov:9000/api/auth | jq -r .jwt)"
     - docker context create portainer --docker "host=tcp://haproxy-p.el.nist.gov:9000/api/endpoints/1/docker"
     - docker context use portainer
