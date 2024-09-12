@@ -270,7 +270,6 @@ export namespace Model {
         ),
         map((response) => response.response),
     );
-    discountRates$.subscribe((rates) => console.log("Discount rates", rates));
 
     /**
      * The study period of the current project.

@@ -33,7 +33,6 @@ export namespace AlternativeModel {
      * The list of costs associated with the current alternative.
      */
     export const altCosts$ = alternative$.pipe(
-        tap((x) => console.log("alternative updated", x)),
         switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
         shareReplay(1),
     );

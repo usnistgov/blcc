@@ -1,14 +1,12 @@
 import { Divider } from "antd";
 import { EmissionsRateScenario, SocialCostOfGhgScenario } from "blcc-format/Format";
-import { Dropdown } from "components/input/Dropdown";
-import { Model } from "model/Model";
-import { Strings } from "constants/Strings";
 import Info from "components/Info";
+import { Dropdown } from "components/input/Dropdown";
+import { Strings } from "constants/Strings";
+import { Model } from "model/Model";
 import Nbsp from "util/Nbsp";
 
 export default function GhgInput() {
-    console.log("Render ghg input");
-
     return (
         <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
             <Divider className={"col-span-2"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>

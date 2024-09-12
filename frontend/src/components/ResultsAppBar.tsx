@@ -20,8 +20,8 @@ const csvClick$ = new Subject<void>();
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(pdfClick$, () => console.log("TODO: save pdf"));
-    useSubscribe(csvClick$, () => console.log("TODO: save csv"));
+    useSubscribe(pdfClick$, () => {}); //TODO Create and download PDF
+    useSubscribe(csvClick$, () => {}); // TODO Create and download CSV
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     //TODO: change download filename
 

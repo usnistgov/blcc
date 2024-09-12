@@ -29,8 +29,6 @@ export namespace CostModel {
         shareReplay(1),
     );
 
-    cost$.subscribe((x) => console.log("Cost", x));
-
     /**
      * The type of the currently selected cost.
      */
@@ -68,8 +66,6 @@ export namespace CostModel {
 
     export const sToggleAlt$ = new Subject<ID>();
     sToggleAlt$.pipe(withLatestFrom(id$)).subscribe(([altID, id]) => {
-        console.log("Toggle cost", altID, id);
-
         db.alternatives
             .where("id")
             .equals(altID)

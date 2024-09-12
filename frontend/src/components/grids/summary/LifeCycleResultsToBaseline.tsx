@@ -124,8 +124,6 @@ const [useRows] = bind(
         map(([measures, names, baselineID]) => {
             const baseline = measures.find((measure) => measure.altId === baselineID);
 
-            console.log(measures);
-
             return measures.map((measure) => ({
                 name: names.get(measure.altId),
                 baseline: measure.altId === baselineID,

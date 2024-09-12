@@ -21,10 +21,7 @@ export default function NistHeaderFooter({ children }: PropsWithChildren) {
 
         // Loads the footer
         const [useFooter] = bind(
-            from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html")).pipe(
-                parseHtml(),
-                tap(() => console.log("called get footer")),
-            ),
+            from(fetch("https://pages.nist.gov/nist-header-footer/boilerplate-footer.html")).pipe(parseHtml()),
             "",
         );
 
