@@ -74,7 +74,7 @@ portainer-deploy:
     - apk add jq curl
     - unset DOCKER_HOST
     - export AUTH_BODY=$(jq -c -n --arg username "$PORTAINER_USERNAME" --arg password "$PORTAINER_PASSWORD" '{username:$username,password:$password}')
-    - "export DOCKER_CUSTOM_HEADERS=$(curl -s --header \"Content-Type: application\\json\" --request POST --data \"$AUTH_BODY\" http://haproxy-p.el.nist.gov:9000/api/auth | jq -r .jwt)"
+    - "export DOCKER_CUSTOM_HEADERS=\"Authorization=Bearer $(curl -s --header \"Content-Type: application\\json\" --request POST --data \"$AUTH_BODY\" http://haproxy-p.el.nist.gov:9000/api/auth | jq -r .jwt)\""
     - docker context create portainer --docker "host=tcp://haproxy-p.el.nist.gov:9000/api/endpoints/1/docker"
     - docker context use portainer
   script:
