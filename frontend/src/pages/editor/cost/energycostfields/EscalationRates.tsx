@@ -3,6 +3,7 @@ import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
+import Decimal from "decimal.js";
 import { Model } from "model/Model";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import { type ReactNode, useEffect, useMemo } from "react";
@@ -30,15 +31,17 @@ const COLUMNS = [
         name: "Escalation Rate (%)",
         key: "escalationRate",
         renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo>) => {
+            const value = new Decimal(row.escalationRate).mul(100);
+
             return (
                 <input
                     className={"w-full pl-4"}
                     type={"number"}
-                    defaultValue={row.escalationRate}
+                    defaultValue={value.toNumber()}
                     onChange={(event) =>
                         onRowChange({
                             ...row,
-                            [column.key]: Number.parseFloat(event.currentTarget.value),
+                            [column.key]: new Decimal(event.currentTarget.value).div(100).toNumber(),
                         })
                     }
                 />
@@ -46,76 +49,74 @@ const COLUMNS = [
         },
         editable: true,
         renderCell: (info: RenderCellProps<EscalationRateInfo>) => {
-            return percentFormatter.format(info.row.escalationRate / 100);
+            return percentFormatter.format(info.row.escalationRate);
         },
     },
 ];
 
 export default function EscalationRates({ title }: EscalationRatesProps) {
-    const { useEscalation, newRates, escalationRateChange$, sIsConstant$, isConstant$, sConstantChange$, newRate$ } =
-        useMemo(() => {
-            const sIsConstant$ = new Subject<boolean>();
-            const isConstant$ = EnergyCostModel.escalation$.pipe(
-                map((escalation) => !Array.isArray(escalation)),
-                distinctUntilChanged(),
-                shareLatest(),
-            );
+    const { useEscalation, newRates, sIsConstant$, isConstant$, sConstantChange$, newRate$ } = useMemo(() => {
+        const sIsConstant$ = new Subject<boolean>();
+        const isConstant$ = EnergyCostModel.escalation$.pipe(
+            map((escalation) => !Array.isArray(escalation)),
+            distinctUntilChanged(),
+            shareLatest(),
+        );
 
-            const [gridRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
-            const sConstantChange$ = new Subject<number>();
-            const escalationRateChange$ = gridRatesChange$.pipe(
-                map((newRates) => newRates.map((rate) => rate.escalationRate)),
-            );
+        const [gridRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
+        const sConstantChange$ = new Subject<number>();
+        const escalationRateChange$ = gridRatesChange$.pipe(
+            map((newRates) => newRates.map((rate) => rate.escalationRate)),
+        );
 
-            // Converts the escalation rates into the format the grid needs
-            const [useEscalation] = bind(
-                combineLatest([Model.releaseYear$, EnergyCostModel.escalation$]).pipe(
-                    map(([releaseYear, escalation]) =>
-                        match(escalation)
-                            .with(P.array(), (escalation) =>
-                                escalation.map((rate, i) => ({
-                                    year: releaseYear + i,
-                                    escalationRate: rate,
-                                })),
-                            )
-                            .otherwise((constant) => constant),
-                    ),
+        // Converts the escalation rates into the format the grid needs
+        const [useEscalation] = bind(
+            combineLatest([Model.releaseYear$, EnergyCostModel.escalation$]).pipe(
+                map(([releaseYear, escalation]) =>
+                    match(escalation)
+                        .with(P.array(), (escalation) =>
+                            escalation.map((rate, i) => ({
+                                year: releaseYear + i,
+                                escalationRate: rate,
+                            })),
+                        )
+                        .otherwise((constant) => constant),
                 ),
-                [],
-            );
+            ),
+            [],
+        );
 
-            const newRate$ = merge(
-                // Set to default constant
-                sIsConstant$.pipe(
-                    isTrue(),
-                    map(() => 0.0),
-                ),
+        const newRate$ = merge(
+            // Set to default constant
+            sIsConstant$.pipe(
+                isTrue(),
+                map(() => 0.0),
+            ),
 
-                sIsConstant$.pipe(
-                    isFalse(),
-                    map(() => []),
-                ),
+            sIsConstant$.pipe(
+                isFalse(),
+                map(() => []),
+            ),
 
-                // Fetch and set to default escalation rates
-                sIsConstant$.pipe(
-                    isFalse(),
-                    switchMap(() => EnergyCostModel.fetchEscalationRates$),
-                ),
+            // Fetch and set to default escalation rates
+            sIsConstant$.pipe(
+                isFalse(),
+                switchMap(() => EnergyCostModel.fetchEscalationRates$),
+            ),
 
-                escalationRateChange$,
-                sConstantChange$,
-            );
+            escalationRateChange$,
+            sConstantChange$,
+        );
 
-            return {
-                useEscalation,
-                newRates,
-                escalationRateChange$,
-                sIsConstant$,
-                isConstant$,
-                sConstantChange$,
-                newRate$,
-            };
-        }, []);
+        return {
+            useEscalation,
+            newRates,
+            sIsConstant$,
+            isConstant$,
+            sConstantChange$,
+            newRate$,
+        };
+    }, []);
 
     useEffect(() => {
         const sub = newRate$.subscribe(EnergyCostModel.rateChange);

@@ -1,19 +1,20 @@
 import { bind, state } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
+import Info from "components/Info";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
+import { Strings } from "constants/Strings";
+import Decimal from "decimal.js";
 import { Model } from "model/Model";
 import { UsageIndexModel } from "model/UsageIndexModel";
 import { useEffect, useMemo } from "react";
-import DataGrid, { type RenderCellProps, textEditor } from "react-data-grid";
+import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, map, merge } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter } from "util/Util";
-import Info from "components/Info";
-import { Strings } from "constants/Strings";
 
 type UsageIndexProps = {
     title: string;
@@ -30,11 +31,27 @@ const COLUMNS = [
         key: "year",
     },
     {
-        name: "Usage",
+        name: "Usage (%)",
         key: "usage",
-        renderEditCell: textEditor,
+        renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<UsageIndexInfo>) => {
+            const value = new Decimal(row.usage).mul(100);
+
+            return (
+                <input
+                    className={"w-full pl-4"}
+                    type={"number"}
+                    defaultValue={value.toNumber()}
+                    onChange={(event) =>
+                        onRowChange({
+                            ...row,
+                            [column.key]: new Decimal(event.currentTarget.value).div(100).toNumber(),
+                        })
+                    }
+                />
+            );
+        },
         renderCell: (info: RenderCellProps<UsageIndexInfo>) => {
-            return percentFormatter.format(info.row.usage / 100);
+            return percentFormatter.format(info.row.usage);
         },
     },
 ];
@@ -71,14 +88,14 @@ export default function UsageIndex({ title }: UsageIndexProps) {
             // Set to default constant
             sIsConstant$.pipe(
                 isTrue(),
-                map(() => 100.0),
+                map(() => 1.0),
             ),
 
             // Fetch and set to default escalation rates
             sIsConstant$.pipe(
                 isFalse(),
                 withLatestFrom(Model.studyPeriod$),
-                map(([_, studyPeriod]) => Array((studyPeriod ?? 1) + 1).fill(100)),
+                map(([_, studyPeriod]) => Array((studyPeriod ?? 1) + 1).fill(1)),
             ),
 
             usageRateChange$,

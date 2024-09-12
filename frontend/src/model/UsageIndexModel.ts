@@ -26,6 +26,4 @@ export namespace UsageIndexModel {
     combineLatest([newUseIndex$, CostModel.collection$]).subscribe(([newRates, costCollection]) =>
         costCollection.modify({ useIndex: newRates }),
     );
-
-    useIndex$.subscribe((x) => console.log("Use Index", x));
 }
