@@ -8,7 +8,7 @@ use crate::paginated::config_paginated;
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_web::middleware::Logger;
-use actix_web::web::Data;
+use actix_web::web::{resource, Data};
 use actix_web::{middleware, web, App, HttpServer};
 use diesel::pg::Pg;
 use diesel::r2d2::ConnectionManager;
@@ -101,9 +101,10 @@ async fn main() -> std::io::Result<()> {
             )
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
-            .route("/", web::get().to(spa))
-            .route("/editor/{tail:.*}", web::get().to(spa))
-            .route("/results/{tail:.*}", web::get().to(spa))
+            .service(
+                resource(vec!["/", "/editor", "/editor/{tail:.*}", "/results", "/results/{tail:.*"])
+                    .route(web::get().to(spa))
+            )
             .configure(config_api)
             .configure(config_paginated)
             .default_service(Files::new("/", public_folder.clone()).index_file("index.html"))
