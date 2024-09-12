@@ -12,7 +12,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    energy_price_indices (release_year, year, division, sector) {
+    energy_price_indices (release_year, year, division, sector, case) {
         release_year -> Int4,
         year -> Int4,
         division -> Text,
@@ -24,11 +24,12 @@ diesel::table! {
         residual_fuel_oil -> Nullable<Float8>,
         natural_gas -> Nullable<Float8>,
         electricity -> Nullable<Float8>,
+        coal -> Nullable<Float8>,
     }
 }
 
 diesel::table! {
-    energy_prices (release_year, year, division, sector) {
+    energy_prices (release_year, year, division, sector, case) {
         release_year -> Int4,
         year -> Int4,
         division -> Text,
@@ -40,11 +41,12 @@ diesel::table! {
         residual_fuel_oil -> Nullable<Float8>,
         natural_gas -> Nullable<Float8>,
         electricity -> Nullable<Float8>,
+        coal -> Nullable<Float8>,
     }
 }
 
 diesel::table! {
-    escalation_rates (release_year, year, division, sector) {
+    escalation_rates (release_year, year, division, sector, case) {
         release_year -> Int4,
         year -> Int4,
         division -> Text,
@@ -56,6 +58,7 @@ diesel::table! {
         residual_fuel_oil -> Nullable<Float8>,
         natural_gas -> Nullable<Float8>,
         electricity -> Nullable<Float8>,
+        coal -> Nullable<Float8>,
     }
 }
 

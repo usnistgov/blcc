@@ -74,6 +74,7 @@ pub struct EscalationRate {
     pub residual_fuel_oil: Option<f64>,
     pub natural_gas: Option<f64>,
     pub electricity: Option<f64>,
+    pub coal: Option<f64>,
 }
 
 #[derive(Queryable, Selectable, Serialize)]
@@ -138,7 +139,8 @@ pub struct EnergyPrices {
     pub distillate_fuel_oil: Option<f64>,
     pub residual_fuel_oil: Option<f64>,
     pub natural_gas: Option<f64>,
-    pub electricity: Option<f64>
+    pub electricity: Option<f64>,
+    pub coal: Option<f64>,
 }
 
 #[derive(Queryable, Selectable, Serialize)]
@@ -155,5 +157,6 @@ pub struct EnergyPriceIndices {
     pub distillate_fuel_oil: Option<f64>,
     pub residual_fuel_oil: Option<f64>,
     pub natural_gas: Option<f64>,
-    pub electricity: Option<f64>
+    pub electricity: Option<f64>,
+    pub coal: Option<f64>,
 }

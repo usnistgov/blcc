@@ -24,6 +24,7 @@ struct EscalationRateRequest {
     zip: i32,
     sector: String,
     release_year: i32,
+    case: String,
 }
 
 #[post("/escalation-rates")]
@@ -32,7 +33,7 @@ async fn post_escalation_rates(
     data: Data<AppData>,
 ) -> impl Responder {
     use crate::schema::escalation_rates::dsl::escalation_rates;
-    use crate::schema::escalation_rates::{division, sector, year};
+    use crate::schema::escalation_rates::{division, sector, year, case};
     use crate::schema::state_division_region::dsl::state_division_region;
     use crate::schema::zip_info::dsl::zip_info;
     use crate::schema::zip_info::{state, zip};
@@ -50,6 +51,7 @@ async fn post_escalation_rates(
             year.between(from, to)
                 .and(release_year.eq(request.release_year))
                 .and(zip.eq(request.zip))
+                .and(case.eq(request.case.clone()))
                 .and(sector.eq(request.sector.clone()))
         )
         .limit(80)
@@ -546,6 +548,7 @@ struct EnergyPriceRequest {
     division: String,
     sector: String,
     fuel_type: EnergyTypeOptions,
+    case: String,
 }
 
 #[post("/energy-prices")]
@@ -560,6 +563,7 @@ async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<AppDat
             release_year.eq(request.release_year)
                 .and(year.between(request.from, request.to))
                 .and(division.eq(request.division.clone()))
+                .and(case.eq(request.case.clone()))
                 .and(sector.eq(request.sector.clone()))
         );
 
@@ -591,6 +595,7 @@ async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data
             release_year.eq(request.release_year)
                 .and(year.between(request.from, request.to))
                 .and(division.eq(request.division.clone()))
+                .and(case.eq(request.case.clone()))
                 .and(sector.eq(request.sector.clone()))
         );
 
