@@ -102,7 +102,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .service(
-                resource(vec!["/", "/editor", "/editor/{tail:.*}", "/results", "/results/{tail:.*"])
+                resource(vec!["/", "/editor", "/editor/{tail:.*}", "/results", "/results/{tail:.*}"])
                     .route(web::get().to(spa))
             )
             .configure(config_api)
