@@ -78,4 +78,4 @@ portainer-deploy:
     - docker context create portainer --docker "host=tcp://haproxy-p.el.nist.gov:9000/api/endpoints/1/docker"
     - docker context use portainer
   script:
-    - docker stack deploy -c portainer-stack.yml --resolve-image changed blcc
+    - docker stack deploy -c portainer-stack.yml --resolve-image always blcc
