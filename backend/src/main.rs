@@ -80,7 +80,7 @@ async fn main() -> std::io::Result<()> {
                 |cors, origin| cors.allowed_origin(&*origin),
             );
 
-        let client = reqwest::Client::new();
+        let client = Client::new();
 
         App::new()
             .app_data(Data::new(AppData { client, pool: pool.clone() }))
@@ -102,8 +102,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
             .route("/", web::get().to(spa))
-            .route("/editor/{tail}*", web::get().to(spa))
-            .route("/results/{tail}*", web::get().to(spa))
+            .route("/editor/{tail:*}", web::get().to(spa))
+            .route("/results/{tail:*}", web::get().to(spa))
             .configure(config_api)
             .configure(config_paginated)
             .default_service(Files::new("/", public_folder.clone()).index_file("index.html"))
