@@ -1,4 +1,4 @@
-import { DollarMethod, EmissionsRateScenario, type Project, SocialCostOfGhgScenario } from "blcc-format/Format";
+import { Case, DollarMethod, type Project, SocialCostOfGhgScenario } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
 import { Country } from "constants/LOCATION";
 
@@ -15,11 +15,11 @@ export function defaultProject(releaseYear: number): Project {
         location: {
             country: Country.USA,
         },
+        case: Case.REF,
         alternatives: [],
         costs: [],
         ghg: {
             socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
-            emissionsRateScenario: EmissionsRateScenario.BASELINE,
         },
         releaseYear,
     };

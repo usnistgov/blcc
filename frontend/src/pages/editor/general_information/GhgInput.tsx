@@ -1,5 +1,5 @@
 import { Divider } from "antd";
-import { EmissionsRateScenario, SocialCostOfGhgScenario } from "blcc-format/Format";
+import { SocialCostOfGhgScenario } from "blcc-format/Format";
 import Info from "components/Info";
 import { Dropdown } from "components/input/Dropdown";
 import { Strings } from "constants/Strings";
@@ -12,19 +12,6 @@ export default function GhgInput() {
             <Divider className={"col-span-2"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
                 <Info text={Strings.EMISSIONS_RATE_SCENARIO}>Greenhouse Gas (GHG) Emissions and Cost Assumptions</Info>
             </Divider>
-            <Dropdown
-                label={
-                    <>
-                        Emissions Rate Scenario
-                        <Nbsp />*
-                    </>
-                }
-                className={"w-full"}
-                info={Strings.GHG_ASSUMPTIONS}
-                options={Object.values(EmissionsRateScenario)}
-                wire={Model.sEmissionsRateScenario$}
-                value$={Model.emissionsRateScenario$}
-            />
             <Dropdown
                 label={
                     <>

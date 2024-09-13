@@ -1,9 +1,9 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
     AnalysisType,
+    Case,
     DiscountingMethod,
     DollarMethod,
-    EmissionsRateScenario,
     type NonUSLocation,
     type Project,
     Purpose,
@@ -49,17 +49,6 @@ export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
 
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
-
-export const getEmissionsRateOption = (option: EmissionsRateScenario | undefined) => {
-    switch (option) {
-        case EmissionsRateScenario.BASELINE:
-            return "REF";
-        case EmissionsRateScenario.LOW_RENEWABLE:
-            return "LRC";
-        default:
-            return undefined;
-    }
-};
 
 const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
     switch (option) {
@@ -323,6 +312,18 @@ export namespace Model {
         .subscribe((params) => setAnalysisType(params));
 
     /**
+     * The case of the project. Usually Reference or LowZTC
+     */
+    export const sCase$ = new Subject<Case>();
+    export const case$ = state(
+        merge(sCase$, dbProject$.pipe(map((p) => p.case))).pipe(distinctUntilChanged()),
+        Case.REF,
+    );
+    sCase$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([pCase, collection]) => collection.modify({ case: pCase }));
+
+    /**
      * The dollar method of the current project
      */
     export const sDollarMethod$ = new Subject<DollarMethod>();
@@ -407,30 +408,14 @@ export namespace Model {
         .pipe(withLatestFrom(projectCollection$))
         .subscribe(([discountingMethod, collection]) => collection.modify({ discountingMethod }));
 
-    /**
-     * The emissions rate scenario of the current project
-     */
-    export const sEmissionsRateScenario$ = new Subject<EmissionsRateScenario>();
-    export const emissionsRateScenario$ = state(
-        merge(sEmissionsRateScenario$, dbProject$.pipe(map((p) => p.ghg.emissionsRateScenario))).pipe(
-            distinctUntilChanged(),
-        ),
-        EmissionsRateScenario.BASELINE,
-    );
-    sEmissionsRateScenario$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([emissionsRateScenario, collection]) =>
-            collection.modify({ "ghg.emissionsRateScenario": emissionsRateScenario }),
-        );
-
     // Get the emissions data from the database.
     export const emissions$ = combineLatest([
         Location.zip$.pipe(guard()),
         releaseYear$,
         studyPeriod$,
-        emissionsRateScenario$.pipe(map(getEmissionsRateOption), guard()),
+        case$,
     ]).pipe(
-        switchMap(([zip, releaseYear, studyPeriod, emissionsRate]) =>
+        switchMap(([zip, releaseYear, studyPeriod, eiaCase]) =>
             ajax<number[]>({
                 url: "/api/emissions",
                 method: "POST",
@@ -442,7 +427,7 @@ export namespace Model {
                     to: releaseYear + (studyPeriod ?? 0),
                     release_year: releaseYear,
                     zip: Number.parseInt(zip ?? "0"),
-                    case: emissionsRate,
+                    case: eiaCase,
                     rate: "Avg",
                 },
             }),

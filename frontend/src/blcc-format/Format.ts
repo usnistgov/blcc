@@ -10,6 +10,7 @@ export type Project = {
     analysisType?: AnalysisType;
     purpose?: Purpose; // For use with OMB_NON_ENERGY
     dollarMethod: DollarMethod;
+    case: Case,
     studyPeriod?: number;
     constructionPeriod: number;
     discountingMethod?: DiscountingMethod;
@@ -24,14 +25,8 @@ export type Project = {
 };
 
 export type GHG = {
-    emissionsRateScenario: EmissionsRateScenario;
     socialCostOfGhgScenario: SocialCostOfGhgScenario;
 };
-
-export enum EmissionsRateScenario {
-    BASELINE = "EIA Baseline Scenario",
-    LOW_RENEWABLE = "EIA Low Renewable Cost Scenario",
-}
 
 export enum SocialCostOfGhgScenario {
     NONE = "$0 / ton",
@@ -299,3 +294,8 @@ export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
 export type Type<T> = {
     type: T;
 };
+
+export enum Case {
+    REF = "ref",
+    LOWZTC = "lowZTC"
+}

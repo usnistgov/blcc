@@ -68,8 +68,9 @@ export namespace EnergyCostModel {
         Model.studyPeriod$,
         Model.Location.zip$,
         customerSector$,
+        Model.case$
     ]).pipe(
-        switchMap(([releaseYear, studyPeriod, zip, sector]) =>
+        switchMap(([releaseYear, studyPeriod, zip, sector, eiaCase]) =>
             ajax<EscalationRateResponse[]>({
                 url: "/api/escalation-rates",
                 method: "POST",
@@ -82,7 +83,7 @@ export namespace EnergyCostModel {
                     to: releaseYear + (studyPeriod ?? 0),
                     zip: Number.parseInt(zip ?? "0"),
                     sector,
-                    case: "ref", // FIXME can the user change this?
+                    case: eiaCase
                 },
             }),
         ),

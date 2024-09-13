@@ -17,6 +17,7 @@ import GhgInput from "pages/editor/general_information/GhgInput";
 import { Strings } from "constants/Strings";
 import Info from "components/Info";
 import Nbsp from "util/Nbsp";
+import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
 
 export default function GeneralInformation() {
     //TODO make ghg values removable
@@ -89,7 +90,7 @@ export default function GeneralInformation() {
                             wire={Model.sDescription$}
                         />
                     </span>
-                    <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
+                    <div className={"col-span-2 grid grid-cols-4 gap-x-16 gap-y-4"}>
                         <NumberInput
                             label={
                                 <>
@@ -140,6 +141,7 @@ export default function GeneralInformation() {
                             wire={Model.sReleaseYear$}
                             value$={Model.releaseYear$}
                         />
+                        <EiaProjectScenarioSelect/>
                     </div>
                 </div>
 

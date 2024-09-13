@@ -10,7 +10,6 @@ import {
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
-    EmissionsRateScenario,
     type EnergyCost,
     EnergyUnit,
     FuelType,
@@ -28,7 +27,7 @@ import {
     type USLocation,
     type Unit,
     type WaterCost,
-    WeightUnit,
+    WeightUnit, Case
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
 import { showMessage } from "components/modal/MessageModal";
@@ -89,6 +88,7 @@ converted$
             purpose: convertAnalysisPurpose(project.AnalysisPurpose),
             dollarMethod: convertDollarMethod(project.DollarMethod),
             studyPeriod,
+            case: Case.REF,
             constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
             discountingMethod: convertDiscountMethod(project.DiscountingMethod),
             realDiscountRate: project.DiscountRate,
@@ -99,7 +99,6 @@ converted$
             costs: newCosts,
             ghg: {
                 socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
-                emissionsRateScenario: EmissionsRateScenario.BASELINE,
             },
             releaseYear,
         });
