@@ -92,7 +92,7 @@
         devShells.system.default = pkgs.mkShell {
           packages = with pkgs; [ openssl postgresql ];
 
-          installPhase = ''
+          shellHook = ''
             echo "Setting up dev shell"
           '';
 

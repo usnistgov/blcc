@@ -22,6 +22,6 @@ dotenvy = "0.15.7"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 r2d2 = "0.8.10"
-openssl = "*"
+openssl = { version = "0.10.66", features = ["vendored"] }
 postgres = "*"
 reqwest = "0.12.7"
