@@ -5,7 +5,6 @@ import Info from "components/Info";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Strings } from "constants/Strings";
-import Decimal from "decimal.js";
 import { Model } from "model/Model";
 import { UsageIndexModel } from "model/UsageIndexModel";
 import { useEffect, useMemo } from "react";
@@ -14,7 +13,7 @@ import { type Observable, Subject, combineLatest, map, merge } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
-import { percentFormatter } from "util/Util";
+import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type UsageIndexProps = {
     title: string;
@@ -34,17 +33,15 @@ const COLUMNS = [
         name: "Usage (%)",
         key: "usage",
         renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<UsageIndexInfo>) => {
-            const value = new Decimal(row.usage).mul(100);
-
             return (
                 <input
                     className={"w-full pl-4"}
                     type={"number"}
-                    defaultValue={value.toNumber()}
+                    defaultValue={toPercentage(row.usage)}
                     onChange={(event) =>
                         onRowChange({
                             ...row,
-                            [column.key]: new Decimal(event.currentTarget.value).div(100).toNumber(),
+                            [column.key]: toDecimal(event.currentTarget.value),
                         })
                     }
                 />
@@ -148,6 +145,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
                             label={"Constant Escalation Rate"}
                             showLabel={false}
                             value$={UsageIndexModel.useIndex$ as Observable<number>}
+                            percent
                             wire={sConstantChange$}
                             addonAfter={"%"}
                         />

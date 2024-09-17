@@ -1,5 +1,4 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
 import {
     CostTypes,
     type CustomerSector,
@@ -15,7 +14,7 @@ import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, combineLatestWith, filter, shareReplay, withLatestFrom } from "rxjs/operators";
+import { catchError, combineLatestWith, filter, shareReplay, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 
@@ -24,106 +23,6 @@ export namespace EnergyCostModel {
      * Outputs a value if the current cost is an energy cost
      */
     export const cost$ = CostModel.cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
-
-    /**
-     * Customer sector streams
-     */
-    export const sSectorChange$ = new Subject<CustomerSector>();
-    export const customerSector$ = merge(sSectorChange$, cost$.pipe(map((cost) => cost.customerSector))).pipe(
-        guard(),
-        distinctUntilChanged(),
-    );
-    sSectorChange$
-        .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([customerSector, costCollection]) => costCollection.modify({ customerSector }));
-
-    /**
-     * Fuel type streams
-     */
-    export const sFuelTypeChange$ = new Subject<FuelType>();
-    export const fuelType$ = merge(sFuelTypeChange$, cost$.pipe(map((cost) => cost.fuelType))).pipe(
-        distinctUntilChanged(),
-    );
-    sFuelTypeChange$
-        .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([fuelType, costCollection]) => costCollection.modify({ fuelType }));
-
-    type EscalationRateResponse = {
-        case: string;
-        release_year: number;
-        year: number;
-        division: string;
-        electricity: number;
-        natural_gas: number;
-        propane: number;
-        region: string;
-        residual_fuel_oil: number;
-        distillate_fuel_oil: number;
-        sector: string;
-    };
-
-    // Gets the default escalation rate information from the api
-    export const fetchEscalationRates$ = combineLatest([
-        Model.releaseYear$,
-        Model.studyPeriod$,
-        Model.Location.zip$,
-        customerSector$,
-        Model.case$
-    ]).pipe(
-        switchMap(([releaseYear, studyPeriod, zip, sector, eiaCase]) =>
-            ajax<EscalationRateResponse[]>({
-                url: "/api/escalation-rates",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    release_year: releaseYear,
-                    from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0),
-                    zip: Number.parseInt(zip ?? "0"),
-                    sector,
-                    case: eiaCase
-                },
-            }),
-        ),
-        map((response) => response.response),
-        combineLatestWith(fuelType$),
-        map(([response, fuelType]) =>
-            response.map((value) =>
-                match(fuelType)
-                    .with(FuelType.ELECTRICITY, () => value.electricity)
-                    .with(FuelType.PROPANE, () => value.propane)
-                    .with(FuelType.DISTILLATE_OIL, () => value.distillate_fuel_oil)
-                    .with(FuelType.RESIDUAL_OIL, () => value.residual_fuel_oil)
-                    .with(FuelType.NATURAL_GAS, () => value.natural_gas)
-                    .otherwise(() => 0),
-            ),
-        ),
-        catchError(() => of([] as number[])),
-        shareLatest(),
-    );
-    export const [rateChange$, rateChange] = createSignal<number | number[]>();
-    export const escalation$ = state(
-        merge(rateChange$, cost$.pipe(map((cost) => cost.escalation))).pipe(distinctUntilChanged()),
-        0,
-    );
-    rateChange$
-        .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([escalation, collection]) => collection.modify({ escalation }));
-
-    /**
-     * Unit streams
-     */
-    export const sUnitChange$ = new Subject<Unit>();
-    export const unit$ = merge(sUnitChange$, cost$.pipe(map((cost) => cost.unit))).pipe(
-        distinctUntilChanged(),
-        shareReplay(1),
-    );
-    export const [useUnit] = bind(unit$, EnergyUnit.KWH);
-    sUnitChange$
-        .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
     // Location override
     export namespace Location {
@@ -197,4 +96,100 @@ export namespace EnergyCostModel {
                 }),
             );
     }
+
+    /**
+     * Customer sector streams
+     */
+    export const sSectorChange$ = new Subject<CustomerSector>();
+    export const customerSector$ = merge(sSectorChange$, cost$.pipe(map((cost) => cost.customerSector))).pipe(
+        guard(),
+        distinctUntilChanged(),
+    );
+    sSectorChange$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([customerSector, costCollection]) => costCollection.modify({ customerSector }));
+
+    /**
+     * Fuel type streams
+     */
+    export const sFuelTypeChange$ = new Subject<FuelType>();
+    export const fuelType$ = merge(sFuelTypeChange$, cost$.pipe(map((cost) => cost.fuelType))).pipe(
+        distinctUntilChanged(),
+    );
+    sFuelTypeChange$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([fuelType, costCollection]) => costCollection.modify({ fuelType }));
+
+    type EscalationRateResponse = {
+        case: string;
+        release_year: number;
+        year: number;
+        division: string;
+        electricity: number;
+        natural_gas: number;
+        propane: number;
+        region: string;
+        residual_fuel_oil: number;
+        distillate_fuel_oil: number;
+        sector: string;
+    };
+
+    // Gets the default escalation rate information from the api
+    export const fetchEscalationRates$ = combineLatest([
+        Model.releaseYear$,
+        Model.studyPeriod$,
+        Location.location$.pipe(
+            switchMap((location) => (location === undefined ? Model.Location.zip$ : Location.zip$)),
+            distinctUntilChanged(),
+        ),
+        customerSector$,
+        Model.case$,
+    ]).pipe(
+        tap((inputs) => console.log("Inputs: ", inputs)),
+        switchMap(([releaseYear, studyPeriod, zip, sector, eiaCase]) =>
+            ajax<EscalationRateResponse[]>({
+                url: "/api/escalation-rates",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    release_year: releaseYear,
+                    from: releaseYear,
+                    to: releaseYear + (studyPeriod ?? 0),
+                    zip: Number.parseInt(zip ?? "0"),
+                    sector,
+                    case: eiaCase,
+                },
+            }),
+        ),
+        map((response) => response.response),
+        combineLatestWith(fuelType$),
+        map(([response, fuelType]) =>
+            response.map((value) =>
+                match(fuelType)
+                    .with(FuelType.ELECTRICITY, () => value.electricity)
+                    .with(FuelType.PROPANE, () => value.propane)
+                    .with(FuelType.DISTILLATE_OIL, () => value.distillate_fuel_oil)
+                    .with(FuelType.RESIDUAL_OIL, () => value.residual_fuel_oil)
+                    .with(FuelType.NATURAL_GAS, () => value.natural_gas)
+                    .otherwise(() => 0),
+            ),
+        ),
+        catchError(() => of([] as number[])),
+        shareLatest(),
+    );
+
+    /**
+     * Unit streams
+     */
+    export const sUnitChange$ = new Subject<Unit>();
+    export const unit$ = merge(sUnitChange$, cost$.pipe(map((cost) => cost.unit))).pipe(
+        distinctUntilChanged(),
+        shareReplay(1),
+    );
+    export const [useUnit] = bind(unit$, EnergyUnit.KWH);
+    sUnitChange$
+        .pipe(withLatestFrom(CostModel.collection$))
+        .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 }

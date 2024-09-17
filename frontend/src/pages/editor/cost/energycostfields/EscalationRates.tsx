@@ -9,9 +9,10 @@ import { Model } from "model/Model";
 import { type ReactNode, useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
+import { filter, tap } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
-import { percentFormatter } from "util/Util";
+import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type EscalationRatesProps = {
     title: ReactNode;
@@ -32,17 +33,15 @@ const COLUMNS = [
         name: "Escalation Rate (%)",
         key: "escalationRate",
         renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo>) => {
-            const value = new Decimal(row.escalationRate).mul(100);
-
             return (
                 <input
                     className={"w-full pl-4"}
                     type={"number"}
-                    defaultValue={value.toNumber()}
+                    defaultValue={toPercentage(row.escalationRate)}
                     onChange={(event) =>
                         onRowChange({
                             ...row,
-                            [column.key]: new Decimal(event.currentTarget.value).div(100).toNumber(),
+                            [column.key]: toDecimal(event.currentTarget.value),
                         })
                     }
                 />
@@ -57,7 +56,7 @@ const COLUMNS = [
 
 const studyPeriodDefaultRates$ = Model.studyPeriod$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
 
-export default function EscalationRates({ title, defaultRates$ = studyPeriodDefaultRates$ }: EscalationRatesProps) {
+export default function EscalationRates({ title, defaultRates$ }: EscalationRatesProps) {
     const { useEscalation, newRates, sIsConstant$, isConstant$, sConstantChange$, newRate$ } = useMemo(() => {
         const sIsConstant$ = new Subject<boolean>();
         const isConstant$ = EscalationRateModel.escalation$.pipe(
@@ -104,7 +103,7 @@ export default function EscalationRates({ title, defaultRates$ = studyPeriodDefa
             // Fetch and set to default escalation rates
             sIsConstant$.pipe(
                 isFalse(),
-                switchMap(() => defaultRates$),
+                switchMap(() => defaultRates$ ?? studyPeriodDefaultRates$),
             ),
 
             escalationRateChange$,
@@ -155,6 +154,7 @@ export default function EscalationRates({ title, defaultRates$ = studyPeriodDefa
                             label={"Constant Escalation Rate"}
                             showLabel={false}
                             value$={EscalationRateModel.escalation$ as Observable<number>}
+                            percent
                             wire={sConstantChange$}
                             addonAfter={"%"}
                         />

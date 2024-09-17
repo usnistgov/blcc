@@ -1,6 +1,7 @@
 import type { Measures } from "@lrd/e3-sdk";
 import { type DefaultedStateObservable, state } from "@react-rxjs/core";
 import { type Cost, CostTypes } from "blcc-format/Format";
+import Decimal from "decimal.js";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import { map } from "rxjs/operators";
 
@@ -118,4 +119,12 @@ export function closest<T>(array: T[], extractor: (t: T) => number, value: numbe
 
         return Math.abs(nextValue - value) < Math.abs(currentValue - value) ? next : current;
     });
+}
+
+export function toPercentage(decimal: number | string) {
+    return new Decimal(decimal).mul(100).toNumber();
+}
+
+export function toDecimal(percentage: number | string) {
+    return new Decimal(percentage).div(100).toNumber();
 }
