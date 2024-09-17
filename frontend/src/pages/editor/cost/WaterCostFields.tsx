@@ -2,15 +2,14 @@ import { useStateObservable } from "@react-rxjs/core";
 import { InputNumber, Radio } from "antd";
 import Title from "antd/es/typography/Title";
 import { CubicUnit, LiquidUnit, type WaterUnit } from "blcc-format/Format";
+import Info from "components/Info";
 import { Dropdown } from "components/input/Dropdown";
-import { NumberInput } from "components/input/InputNumber";
+import { Strings } from "constants/Strings";
+import { CostModel } from "model/CostModel";
 import { WaterCostModel } from "model/costs/WaterCostModel";
+import EscalationRates from "pages/editor/cost/energycostfields/EscalationRates";
 import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 import { Fragment, useMemo } from "react";
-import { EMPTY, Subject } from "rxjs";
-import { Strings } from "constants/Strings";
-import Info from "components/Info";
-import { CostModel } from "model/CostModel";
 
 export default function WaterCostFields() {
     const unitOptions: WaterUnit[] = useMemo(() => [...Object.values(LiquidUnit), ...Object.values(CubicUnit)], []);
@@ -111,6 +110,8 @@ export default function WaterCostFields() {
                         ))}
                     </div>
                 </div>
+
+                <EscalationRates title={"Escalation Rates"} />
                 <UsageIndex title={"Usage Index"} />
             </div>
         </div>

@@ -4,8 +4,8 @@ import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import Decimal from "decimal.js";
+import { EscalationRateModel } from "model/EscalationRateModel";
 import { Model } from "model/Model";
-import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import { type ReactNode, useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
@@ -15,6 +15,7 @@ import { percentFormatter } from "util/Util";
 
 type EscalationRatesProps = {
     title: ReactNode;
+    defaultRates$?: Observable<number[]>;
 };
 
 type EscalationRateInfo = {
@@ -54,10 +55,12 @@ const COLUMNS = [
     },
 ];
 
-export default function EscalationRates({ title }: EscalationRatesProps) {
+const studyPeriodDefaultRates$ = Model.studyPeriod$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
+
+export default function EscalationRates({ title, defaultRates$ = studyPeriodDefaultRates$ }: EscalationRatesProps) {
     const { useEscalation, newRates, sIsConstant$, isConstant$, sConstantChange$, newRate$ } = useMemo(() => {
         const sIsConstant$ = new Subject<boolean>();
-        const isConstant$ = EnergyCostModel.escalation$.pipe(
+        const isConstant$ = EscalationRateModel.escalation$.pipe(
             map((escalation) => !Array.isArray(escalation)),
             distinctUntilChanged(),
             shareLatest(),
@@ -71,7 +74,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
 
         // Converts the escalation rates into the format the grid needs
         const [useEscalation] = bind(
-            combineLatest([Model.releaseYear$, EnergyCostModel.escalation$]).pipe(
+            combineLatest([Model.releaseYear$, EscalationRateModel.escalation$]).pipe(
                 map(([releaseYear, escalation]) =>
                     match(escalation)
                         .with(P.array(), (escalation) =>
@@ -101,7 +104,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
             // Fetch and set to default escalation rates
             sIsConstant$.pipe(
                 isFalse(),
-                switchMap(() => EnergyCostModel.fetchEscalationRates$),
+                switchMap(() => defaultRates$),
             ),
 
             escalationRateChange$,
@@ -116,10 +119,10 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
             sConstantChange$,
             newRate$,
         };
-    }, []);
+    }, [defaultRates$]);
 
     useEffect(() => {
-        const sub = newRate$.subscribe(EnergyCostModel.rateChange);
+        const sub = newRate$.subscribe(EscalationRateModel.escalationChange);
 
         return () => sub.unsubscribe();
     }, [newRate$]);
@@ -151,7 +154,7 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
                             className={"w-full"}
                             label={"Constant Escalation Rate"}
                             showLabel={false}
-                            value$={EnergyCostModel.escalation$ as Observable<number>}
+                            value$={EscalationRateModel.escalation$ as Observable<number>}
                             wire={sConstantChange$}
                             addonAfter={"%"}
                         />

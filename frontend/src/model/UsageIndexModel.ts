@@ -6,7 +6,7 @@ import { filter, shareReplay } from "rxjs/operators";
 
 export namespace UsageIndexModel {
     /**
-     * Outputs a value if the current cost is an energy cost
+     * Outputs a value if the current cost includes a use index
      */
     // @ts-ignore
     const cost$: Observable<UseIndex> = CostModel.cost$.pipe(
@@ -23,7 +23,7 @@ export namespace UsageIndexModel {
         distinctUntilChanged(),
         shareReplay(1),
     );
-    combineLatest([newUseIndex$, CostModel.collection$]).subscribe(([newRates, costCollection]) =>
-        costCollection.modify({ useIndex: newRates }),
+    combineLatest([newUseIndex$, CostModel.collection$]).subscribe(([useIndex, costCollection]) =>
+        costCollection.modify({ useIndex }),
     );
 }

@@ -1,21 +1,21 @@
 import { useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
 import { CustomerSector, type EnergyCost, EnergyUnit, FuelType, type Unit } from "blcc-format/Format";
+import Info from "components/Info";
 import Location from "components/Location";
 import { Dropdown } from "components/input/Dropdown";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
+import { Strings } from "constants/Strings";
 import type { Collection } from "dexie";
 import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
+import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import { min } from "model/rules/Rules";
 import EscalationRates from "pages/editor/cost/energycostfields/EscalationRates";
 import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
-import { EnergyCostModel } from "model/costs/EnergyCostModel";
-import { Strings } from "constants/Strings";
-import Info from "components/Info";
 
 export default function EnergyCostFields() {
     const [
@@ -181,7 +181,10 @@ export default function EnergyCostFields() {
                     <Divider className={"col-span-2 my-2"} />
                 </div>
 
-                <EscalationRates title={<Info text={Strings.ESCALATION_RATES}>Escalation Rates</Info>} />
+                <EscalationRates
+                    title={<Info text={Strings.ESCALATION_RATES}>Escalation Rates</Info>}
+                    defaultRates$={EnergyCostModel.fetchEscalationRates$}
+                />
                 <UsageIndex title={"Usage Index"} />
             </div>
         </div>
