@@ -246,7 +246,7 @@ export namespace Model {
         nominal: number;
         inflation: number;
     };
-    export const discountRates$ = releaseYear$.pipe(
+    export const ombDiscountRates$ = releaseYear$.pipe(
         switchMap((releaseYear) =>
             ajax<DiscountRateResponse[]>({
                 url: "/api/discount_rates",
@@ -257,6 +257,22 @@ export namespace Model {
                 body: {
                     release_year: releaseYear,
                     rate: "OMB",
+                },
+            }),
+        ),
+        map((response) => response.response),
+    );
+    export const doeDiscountRates$ = releaseYear$.pipe(
+        switchMap((releaseYear) =>
+            ajax<DiscountRateResponse[]>({
+                url: "/api/discount_rates",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: {
+                    release_year: releaseYear,
+                    rate: "DOE",
                 },
             }),
         ),
@@ -310,7 +326,7 @@ export namespace Model {
         merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
         undefined,
     );
-    combineLatest([analysisType$.pipe(guard()), discountRates$, purpose$.pipe(guard())])
+    combineLatest([analysisType$.pipe(guard()), ombDiscountRates$, doeDiscountRates$, purpose$.pipe(guard())])
         .pipe(sample(merge(sAnalysisType$, sPurpose$)), withLatestFrom(projectCollection$, studyPeriod$.pipe(guard())))
         .subscribe((params) => setAnalysisType(params));
 
@@ -502,11 +518,13 @@ export namespace Model {
     /**
      * Sets variables associated with changing the analysis type.
      */
-    function setAnalysisType([[analysisType, discountRates, purpose], collection, studyPeriod]: [
-        [AnalysisType, DiscountRateResponse[], Purpose],
+    function setAnalysisType([[analysisType, ombDiscountRates, doeDiscountRates, purpose], collection, studyPeriod]: [
+        [AnalysisType, DiscountRateResponse[], DiscountRateResponse[], Purpose],
         Collection<Project>,
         number | undefined,
     ]) {
+        console.log(doeDiscountRates);
+
         match(analysisType)
             .with(AnalysisType.FEDERAL_FINANCED, (analysisType) => {
                 collection.modify({
@@ -516,7 +534,7 @@ export namespace Model {
                     discountingMethod: DiscountingMethod.END_OF_YEAR,
                     // real discount rate will automatically be set
                     nominalDiscountRate: 0.032, // 3.2%
-                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                    inflationRate: doeDiscountRates[0].inflation,
                 } as Project);
             })
             .with(AnalysisType.FEMP_ENERGY, (analysisType) => {
@@ -527,11 +545,11 @@ export namespace Model {
                     discountingMethod: DiscountingMethod.END_OF_YEAR,
                     realDiscountRate: 0.03, // 3%
                     // nominal discount rate will automatically be set
-                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                    inflationRate: doeDiscountRates[0].inflation,
                 } as Project);
             })
             .with(AnalysisType.OMB_NON_ENERGY, (analysisType) => {
-                const rate = closest(discountRates, (rate) => rate.year, studyPeriod ?? 3);
+                const rate = closest(ombDiscountRates, (rate) => rate.year, studyPeriod ?? 3);
                 const realDiscountRate = purpose === Purpose.INVEST_REGULATION ? 0.07 : rate.real;
 
                 if (purpose === Purpose.INVEST_REGULATION)
@@ -563,11 +581,11 @@ export namespace Model {
                     discountingMethod: DiscountingMethod.MID_YEAR,
                     realDiscountRate: 0.03, // 3%
                     // nominal discount rate will be automatically set
-                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                    inflationRate: doeDiscountRates[0].inflation,
                 } as Project);
             })
             .with(AnalysisType.MILCON_NON_ENERGY, (analysisType) => {
-                const rate = closest(discountRates, (rate) => rate.year, studyPeriod ?? 3);
+                const rate = closest(ombDiscountRates, (rate) => rate.year, studyPeriod ?? 3);
 
                 collection.modify({
                     analysisType,
@@ -587,7 +605,7 @@ export namespace Model {
                     discountingMethod: DiscountingMethod.MID_YEAR,
                     realDiscountRate: 0.03, // 3%
                     //nominal discount rate will automatically be set
-                    inflationRate: closest(discountRates, (rate) => rate.year, studyPeriod ?? 3).inflation,
+                    inflationRate: doeDiscountRates[0].inflation,
                 } as Project);
             })
             .exhaustive();
