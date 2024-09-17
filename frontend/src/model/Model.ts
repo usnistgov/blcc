@@ -14,7 +14,7 @@ import { Country, type State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { db } from "model/db";
 import objectHash from "object-hash";
-import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, switchMap } from "rxjs";
+import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, sample, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
@@ -254,6 +254,7 @@ export namespace Model {
                 },
                 body: {
                     release_year: releaseYear,
+                    rate: "OMB",
                 },
             }),
         ),
@@ -307,8 +308,8 @@ export namespace Model {
         merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
         undefined,
     );
-    combineLatest([sAnalysisType$, discountRates$])
-        .pipe(withLatestFrom(projectCollection$, studyPeriod$.pipe(guard()), purpose$))
+    combineLatest([analysisType$.pipe(guard()), discountRates$, purpose$.pipe(guard())])
+        .pipe(sample(merge(sAnalysisType$, sPurpose$)), withLatestFrom(projectCollection$, studyPeriod$.pipe(guard())))
         .subscribe((params) => setAnalysisType(params));
 
     /**
@@ -409,12 +410,7 @@ export namespace Model {
         .subscribe(([discountingMethod, collection]) => collection.modify({ discountingMethod }));
 
     // Get the emissions data from the database.
-    export const emissions$ = combineLatest([
-        Location.zip$.pipe(guard()),
-        releaseYear$,
-        studyPeriod$,
-        case$,
-    ]).pipe(
+    export const emissions$ = combineLatest([Location.zip$.pipe(guard()), releaseYear$, studyPeriod$, case$]).pipe(
         switchMap(([zip, releaseYear, studyPeriod, eiaCase]) =>
             ajax<number[]>({
                 url: "/api/emissions",
@@ -478,11 +474,10 @@ export namespace Model {
     /**
      * Sets variables associated with changing the analysis type.
      */
-    function setAnalysisType([[analysisType, discountRates], collection, studyPeriod, purpose]: [
-        [AnalysisType, DiscountRateResponse[]],
+    function setAnalysisType([[analysisType, discountRates, purpose], collection, studyPeriod]: [
+        [AnalysisType, DiscountRateResponse[], Purpose],
         Collection<Project>,
         number | undefined,
-        Purpose | undefined,
     ]) {
         match(analysisType)
             .with(AnalysisType.FEDERAL_FINANCED, (analysisType) => {
@@ -509,6 +504,7 @@ export namespace Model {
             })
             .with(AnalysisType.OMB_NON_ENERGY, (analysisType) => {
                 const rate = closest(discountRates, (rate) => rate.year, studyPeriod ?? 3);
+                const realDiscountRate = purpose === Purpose.INVEST_REGULATION ? 0.07 : rate.real;
 
                 if (purpose === Purpose.INVEST_REGULATION)
                     collection.modify({
@@ -516,7 +512,7 @@ export namespace Model {
                         purpose,
                         dollarMethod: DollarMethod.CONSTANT,
                         discountingMethod: DiscountingMethod.END_OF_YEAR,
-                        realDiscountRate: 0.07, //7%,
+                        realDiscountRate,
                         //nominal discount rate will automatically be set
                         inflationRate: rate.inflation,
                     } as Project);

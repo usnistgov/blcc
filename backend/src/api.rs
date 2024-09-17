@@ -618,6 +618,7 @@ async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data
 #[derive(Deserialize)]
 struct DiscountRateRequest {
     release_year: i32,
+    rate: String,
 }
 
 #[post("/discount_rates")]
@@ -630,7 +631,9 @@ async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<AppD
     let result = discount_rates
         .filter(
             release_year.eq(request.release_year)
+                .and(rate.eq(request.rate.clone()))
         )
+        .order_by(year)
         .select(DiscountRates::as_select())
         .load(&mut db);
 
