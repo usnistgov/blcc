@@ -4,15 +4,18 @@ import { createSignal } from "@react-rxjs/utils";
 import {
     AnalysisType,
     type CapitalCost,
+    Case,
     CostTypes,
     CubicUnit,
     type CustomerSector,
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
+    EmissionsRateType,
     type EnergyCost,
     EnergyUnit,
     FuelType,
+    GhgDataSource,
     type ID,
     type ImplementationContractCost,
     LiquidUnit,
@@ -27,7 +30,7 @@ import {
     type USLocation,
     type Unit,
     type WaterCost,
-    WeightUnit, Case
+    WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
 import { showMessage } from "components/modal/MessageModal";
@@ -99,6 +102,8 @@ converted$
             costs: newCosts,
             ghg: {
                 socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
+                dataSource: GhgDataSource.NIST_NETL,
+                emissionsRateType: EmissionsRateType.AVERAGE,
             },
             releaseYear,
         });

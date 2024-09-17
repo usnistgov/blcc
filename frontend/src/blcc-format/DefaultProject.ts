@@ -1,4 +1,11 @@
-import { Case, DollarMethod, type Project, SocialCostOfGhgScenario } from "blcc-format/Format";
+import {
+    Case,
+    DollarMethod,
+    EmissionsRateType,
+    GhgDataSource,
+    type Project,
+    SocialCostOfGhgScenario,
+} from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
 import { Country } from "constants/LOCATION";
 
@@ -19,6 +26,8 @@ export function defaultProject(releaseYear: number): Project {
         alternatives: [],
         costs: [],
         ghg: {
+            dataSource: GhgDataSource.NIST_NETL,
+            emissionsRateType: EmissionsRateType.AVERAGE,
             socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
         },
         releaseYear,

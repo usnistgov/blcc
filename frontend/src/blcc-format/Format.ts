@@ -10,7 +10,7 @@ export type Project = {
     analysisType?: AnalysisType;
     purpose?: Purpose; // For use with OMB_NON_ENERGY
     dollarMethod: DollarMethod;
-    case: Case,
+    case: Case;
     studyPeriod?: number;
     constructionPeriod: number;
     discountingMethod?: DiscountingMethod;
@@ -25,6 +25,8 @@ export type Project = {
 };
 
 export type GHG = {
+    dataSource: GhgDataSource;
+    emissionsRateType: EmissionsRateType;
     socialCostOfGhgScenario: SocialCostOfGhgScenario;
 };
 
@@ -297,5 +299,15 @@ export type Type<T> = {
 
 export enum Case {
     REF = "ref",
-    LOWZTC = "lowZTC"
+    LOWZTC = "lowZTC",
+}
+
+export enum GhgDataSource {
+    NIST_NETL = "NIST NETL",
+    NREL_CAMBIUM = "NREL Cambium",
+}
+
+export enum EmissionsRateType {
+    AVERAGE = "Average",
+    LONG_RUN_MARGINAL = "Long-Run Marginal (lrm)",
 }

@@ -1,5 +1,5 @@
 import { Divider } from "antd";
-import { SocialCostOfGhgScenario } from "blcc-format/Format";
+import { EmissionsRateType, GhgDataSource, SocialCostOfGhgScenario } from "blcc-format/Format";
 import Info from "components/Info";
 import { Dropdown } from "components/input/Dropdown";
 import { Strings } from "constants/Strings";
@@ -8,10 +8,34 @@ import Nbsp from "util/Nbsp";
 
 export default function GhgInput() {
     return (
-        <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-            <Divider className={"col-span-2"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
+        <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
+            <Divider className={"col-span-3"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
                 <Info text={Strings.EMISSIONS_RATE_SCENARIO}>Greenhouse Gas (GHG) Emissions and Cost Assumptions</Info>
             </Divider>
+            <Dropdown
+                label={
+                    <>
+                        Data Source
+                        <Nbsp />*
+                    </>
+                }
+                className={"w-full"}
+                options={Object.values(GhgDataSource)}
+                wire={Model.sGhgDataSource$}
+                value$={Model.ghgDataSource$}
+            />
+            <Dropdown
+                label={
+                    <>
+                        Emissions Rate Type
+                        <Nbsp />*
+                    </>
+                }
+                className={"w-full"}
+                options={Object.values(EmissionsRateType)}
+                wire={Model.sEmissionsRateType$}
+                value$={Model.emissionsRateType$}
+            />
             <Dropdown
                 label={
                     <>

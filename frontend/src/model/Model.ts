@@ -4,6 +4,8 @@ import {
     Case,
     DiscountingMethod,
     DollarMethod,
+    EmissionsRateType,
+    GhgDataSource,
     type NonUSLocation,
     type Project,
     Purpose,
@@ -470,6 +472,32 @@ export namespace Model {
         map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
         startWith(undefined),
     );
+
+    /**
+     * The data source for the current project.
+     */
+    export const sGhgDataSource$ = new Subject<GhgDataSource>();
+    export const ghgDataSource$ = state(
+        merge(sGhgDataSource$, dbProject$.pipe(map((p) => p.ghg.dataSource))).pipe(distinctUntilChanged()),
+        GhgDataSource.NIST_NETL,
+    );
+    sGhgDataSource$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([dataSource, collection]) => collection.modify({ "ghg.dataSource": dataSource }));
+
+    /**
+     * The Emissions Rate Type for the current project.
+     */
+    export const sEmissionsRateType$ = new Subject<EmissionsRateType>();
+    export const emissionsRateType$ = state(
+        merge(sEmissionsRateType$, dbProject$.pipe(map((p) => p.ghg.emissionsRateType))).pipe(distinctUntilChanged()),
+        EmissionsRateType.AVERAGE,
+    );
+    sEmissionsRateType$
+        .pipe(withLatestFrom(projectCollection$))
+        .subscribe(([emissionsRateType, collection]) =>
+            collection.modify({ "ghg.emissionsRateType": emissionsRateType }),
+        );
 
     /**
      * Sets variables associated with changing the analysis type.
