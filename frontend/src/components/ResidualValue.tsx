@@ -1,37 +1,51 @@
 import { useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
 import { DollarOrPercent } from "blcc-format/Format";
+import { Dropdown } from "components/input/Dropdown";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Strings } from "constants/Strings";
 import { ResidualValueModel } from "model/ResidualValueModel";
 
+/**
+ * Component to display the inputs associated with residual value
+ */
 export default function ResidualValue() {
-    const approach = ResidualValueModel.useApproach();
+    const approach = useStateObservable(ResidualValueModel.approach$);
     const hasResidualValue = useStateObservable(ResidualValueModel.hasResidualValue$);
 
     return (
-        <div className={"col-span-3"}>
+        <div className={"flex flex-col"}>
             <Divider className={"col-span-2"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
                 Residual Value
             </Divider>
-            <Switch
-                unCheckedChildren={"None"}
-                wire={ResidualValueModel.sSetResidualValue$}
-                value$={ResidualValueModel.hasResidualValue$}
-            />
-            {hasResidualValue && (
-                <NumberInput
-                    className={"py-4"}
-                    info={Strings.RESIDUAL_VALUE}
-                    addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
-                    addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
-                    label={"Residual Value"}
-                    showLabel={false}
-                    allowEmpty
-                    value$={ResidualValueModel.value$}
-                    wire={ResidualValueModel.sValue$}
+            <div>
+                <Switch
+                    unCheckedChildren={"None"}
+                    wire={ResidualValueModel.sSetResidualValue$}
+                    value$={ResidualValueModel.hasResidualValue$}
                 />
+            </div>
+            {hasResidualValue && (
+                <div className={"grid grid-cols-3 gap-x-16 gap-y-4 pt-6"}>
+                    <Dropdown
+                        className={"w-full"}
+                        label={"Approach"}
+                        options={Object.values(DollarOrPercent)}
+                        wire={ResidualValueModel.sApproach$}
+                        value$={ResidualValueModel.approach$}
+                    />
+                    <NumberInput
+                        className={"w-full"}
+                        info={Strings.RESIDUAL_VALUE}
+                        addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
+                        addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
+                        label={"Value"}
+                        allowEmpty
+                        value$={ResidualValueModel.value$}
+                        wire={ResidualValueModel.sValue$}
+                    />
+                </div>
             )}
         </div>
     );

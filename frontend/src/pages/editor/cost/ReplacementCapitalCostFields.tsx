@@ -50,11 +50,6 @@ export default function ReplacementCapitalCostFields() {
     useDbUpdate(sInitialCost$.pipe(defaultValue(0)), collection$, "initialCost");
     useDbUpdate(sAnnualRateOfChange$, collection$, "annualRateOfChange");
     useDbUpdate(sExpectedLife$, collection$, "expectedLife");
-    /*    useDbUpdate(
-        dollarOrPercentChange$.pipe(map((value) => (value ? DollarOrPercent.PERCENT : DollarOrPercent.DOLLAR))),
-        costCollection$,
-        "residualValue.approach"
-    );*/
 
     const isSavings = useStateObservable(CostModel.costSavings$);
 
@@ -87,9 +82,9 @@ export default function ReplacementCapitalCostFields() {
                     value$={expectedLife$}
                     wire={sExpectedLife$}
                 />
-
-                <ResidualValue />
             </div>
+
+            <ResidualValue />
         </div>
     );
 }

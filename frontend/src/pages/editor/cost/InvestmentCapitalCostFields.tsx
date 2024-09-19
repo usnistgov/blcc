@@ -137,11 +137,11 @@ export default function InvestmentCapitalCostFields() {
                     />
                 </div>
 
-                <ResidualValue />
-
                 {/*<PhaseIn /> // TODO replace with new grids
                 <EscalationRate />*/}
             </div>
+
+            <ResidualValue />
         </div>
     );
 }
