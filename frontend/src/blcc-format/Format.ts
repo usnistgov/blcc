@@ -125,15 +125,19 @@ export type BaseCost = {
     costSavings?: boolean;
 };
 
+export type ResidualValueCost = {
+    residualValue?: ResidualValue;
+};
+
 export type CapitalCost = Type<CostTypes.CAPITAL> &
-    BaseCost & {
+    BaseCost &
+    ResidualValueCost & {
         initialCost?: number;
         amountFinanced?: number;
         annualRateOfChange?: number;
         expectedLife: number;
         costAdjustment?: number;
         phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
-        residualValue?: ResidualValue;
     };
 
 export type ResidualValue = {
@@ -234,11 +238,11 @@ export enum Season {
 export type WaterUnit = LiquidUnit | CubicUnit;
 
 export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
-    BaseCost & {
+    BaseCost &
+    ResidualValueCost & {
         initialCost: number;
         annualRateOfChange?: number;
         expectedLife?: number;
-        residualValue?: ResidualValue;
     };
 
 export type OMRCost = Type<CostTypes.OMR> &

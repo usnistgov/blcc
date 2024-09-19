@@ -7,6 +7,7 @@ use crate::api::config_api;
 use crate::paginated::config_paginated;
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
+use actix_web::error::ErrorBadRequest;
 use actix_web::middleware::Logger;
 use actix_web::web::{resource, Data};
 use actix_web::{middleware, web, App, HttpServer};
@@ -83,6 +84,9 @@ async fn main() -> std::io::Result<()> {
         let client = Client::new();
 
         App::new()
+            .app_data(web::JsonConfig::default().error_handler(|_, _| {
+               ErrorBadRequest("Could not parse json")
+            }))
             .app_data(Data::new(AppData { client, pool: pool.clone() }))
             .wrap(cors)
             .wrap(

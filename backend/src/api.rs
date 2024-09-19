@@ -18,6 +18,7 @@ pub struct ErrorResponse {
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct EscalationRateRequest {
     from: i32,
     to: i32,
@@ -27,7 +28,7 @@ struct EscalationRateRequest {
     case: String,
 }
 
-#[post("/escalation-rates")]
+#[post("/escalation_rates")]
 async fn post_escalation_rates(
     request: Json<EscalationRateRequest>,
     data: Data<AppData>,
@@ -67,6 +68,7 @@ async fn post_escalation_rates(
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct RegionCaseBARequest {
     from: i32,
     to: i32,
@@ -86,7 +88,7 @@ impl Display for RegionCaseBARequest {
     }
 }
 
-#[post("/region-case-ba")]
+#[post("/region_case_ba")]
 async fn post_region_case_ba(
     request: Json<RegionCaseBARequest>,
     data: Data<AppData>,
@@ -116,6 +118,7 @@ async fn post_region_case_ba(
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct RegionNatgasRequest {
     from: i32,
     to: i32,
@@ -135,7 +138,7 @@ impl Display for RegionNatgasRequest {
     }
 }
 
-#[post("/region-natgas")]
+#[post("/region_natgas")]
 async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_natgas::dsl::*;
     use crate::schema::region_natgas::*;
@@ -162,6 +165,7 @@ async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<AppDa
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct RegionCasePropaneLNGRequest {
     from: i32,
     to: i32,
@@ -181,7 +185,7 @@ impl Display for RegionCasePropaneLNGRequest {
     }
 }
 
-#[post("/region-case-propane-lng")]
+#[post("/region_case_propane_lng")]
 async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_case_propane_lng::dsl::*;
     use crate::schema::region_case_propane_lng::*;
@@ -208,6 +212,7 @@ async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct RegionOilRequest {
     from: i32,
     to: i32,
@@ -227,7 +232,7 @@ impl Display for RegionOilRequest {
     }
 }
 
-#[post("/region-case-oil")]
+#[post("/region_case_oil")]
 async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_case_oil::dsl::*;
     use crate::schema::region_case_oil::*;
@@ -254,6 +259,7 @@ async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<AppDat
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct RegionCaseReedsRequest {
     from: i32,
     to: i32,
@@ -273,7 +279,7 @@ impl Display for RegionCaseReedsRequest {
     }
 }
 
-#[post("/region-case-reeds")]
+#[post("/region_case_reeds")]
 async fn post_region_case_reeds(request: Json<RegionCaseReedsRequest>, data: Data<AppData>) -> impl Responder {
     use crate::schema::region_case_reeds::dsl::*;
     use crate::schema::region_case_reeds::*;
@@ -300,6 +306,7 @@ async fn post_region_case_reeds(request: Json<RegionCaseReedsRequest>, data: Dat
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct ZipInfoRequest {
     zip: i32,
 }
@@ -327,6 +334,7 @@ async fn post_zip_info(request: Json<ZipInfoRequest>, data: Data<AppData>) -> im
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct EmissionsRequest {
     zip: i32,
     from: i32,
@@ -387,6 +395,7 @@ async fn post_emissions(request: Json<EmissionsRequest>, data: Data<AppData>) ->
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct ReleaseYearRequest {
     year: i32,
 }
@@ -443,7 +452,7 @@ async fn get_release_years(data: Data<AppData>) -> impl Responder {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", deny_unknown_fields)]
 enum SccOption {
     ThreePercentNinetyFifthPercentile,
     FivePercentAverage,
@@ -452,6 +461,7 @@ enum SccOption {
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct SccRequest {
     from: i32,
     to: i32,
@@ -531,7 +541,7 @@ async fn get_states(data: Data<AppData>) -> impl Responder {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", deny_unknown_fields)]
 enum EnergyTypeOptions {
     DistillateFuelOil,
     ResidualFuelOil,
@@ -541,6 +551,7 @@ enum EnergyTypeOptions {
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct EnergyPriceRequest {
     from: i32,
     to: i32,
@@ -551,7 +562,7 @@ struct EnergyPriceRequest {
     case: String,
 }
 
-#[post("/energy-prices")]
+#[post("/energy_prices")]
 async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<AppData>) -> impl Responder {
     let mut db = data.pool.get().expect("Failed to get a connection");
 
@@ -583,7 +594,7 @@ async fn post_energy_prices(request: Json<EnergyPriceRequest>, data: Data<AppDat
     }
 }
 
-#[post("/energy-price-indices")]
+#[post("/energy_price_indices")]
 async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data<AppData>) -> impl Responder {
     let mut db = data.pool.get().expect("Failed to get a connection");
 
@@ -616,6 +627,7 @@ async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct DiscountRateRequest {
     release_year: i32,
     rate: String,
@@ -645,7 +657,8 @@ async fn post_discount_rates(request: Json<DiscountRateRequest>, data: Data<AppD
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct E3Request {
     request: String,
 }

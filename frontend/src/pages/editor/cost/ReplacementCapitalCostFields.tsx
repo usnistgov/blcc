@@ -1,8 +1,15 @@
 import { bind, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
-import { CostTypes, DollarOrPercent, type ReplacementCapitalCost, type ResidualValue } from "blcc-format/Format";
+import {
+    CostTypes,
+    DollarOrPercent,
+    type ReplacementCapitalCost,
+    type ResidualValue as ResidualValueType,
+} from "blcc-format/Format";
+import ResidualValue from "components/ResidualValue";
 import checkbox from "components/input/Checkbox";
 import { NumberInput } from "components/input/InputNumber";
+import { Strings } from "constants/Strings";
 import type { Collection } from "dexie";
 import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
@@ -10,7 +17,6 @@ import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
 import { defaultValue } from "util/Operators";
-import { Strings } from "constants/Strings";
 
 const { Title } = Typography;
 
@@ -29,7 +35,7 @@ const { component: ResidualValueCheckbox, onChange$: residualValueCheck$ } = che
     replacementCapitalCost$.pipe(map((cost) => cost.residualValue !== undefined)),
 );
 const residualValueEnabled$ = residualValueCheck$.pipe(
-    map((value) => (value ? ({ approach: DollarOrPercent.DOLLAR, value: 0 } as ResidualValue) : undefined)),
+    map((value) => (value ? ({ approach: DollarOrPercent.DOLLAR, value: 0 } as ResidualValueType) : undefined)),
 );
 
 export default function ReplacementCapitalCostFields() {
@@ -100,9 +106,7 @@ export default function ReplacementCapitalCostFields() {
                     className={"w-full"}
                     addonBefore={"$"}
                     controls
-                    label={
-                        isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"
-                    }
+                    label={isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"}
                     value$={initialCost$}
                     wire={sInitialCost$}
                 />
@@ -124,6 +128,7 @@ export default function ReplacementCapitalCostFields() {
                     value$={expectedLife$}
                     wire={sExpectedLife$}
                 />
+                <ResidualValue />
                 <span className={"flex flex-col"}>
                     <div className={"flex flex-row gap-2"}>
                         <ResidualValueCheckbox className={""} />

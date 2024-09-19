@@ -148,7 +148,7 @@ export namespace EnergyCostModel {
         tap((inputs) => console.log("Inputs: ", inputs)),
         switchMap(([releaseYear, studyPeriod, zip, sector, eiaCase]) =>
             ajax<EscalationRateResponse[]>({
-                url: "/api/escalation-rates",
+                url: "/api/escalation_rates",
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
