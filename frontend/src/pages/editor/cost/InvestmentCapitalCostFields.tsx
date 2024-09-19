@@ -1,13 +1,14 @@
+import { useStateObservable } from "@react-rxjs/core";
 import { type CapitalCost, CostTypes } from "blcc-format/Format";
+import ResidualValue from "components/ResidualValue";
 import { NumberInput } from "components/input/InputNumber";
+import { Strings } from "constants/Strings";
 import type { Collection } from "dexie";
 import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
 import React, { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
-import { Strings } from "constants/Strings";
-import { useStateObservable } from "@react-rxjs/core";
 
 export default function InvestmentCapitalCostFields() {
     const [
@@ -88,9 +89,7 @@ export default function InvestmentCapitalCostFields() {
                     addonBefore={"$"}
                     controls
                     allowEmpty
-                    label={
-                        isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"
-                    }
+                    label={isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"}
                     wire={sInitialCost$}
                     value$={initialCost$}
                 />
@@ -137,6 +136,8 @@ export default function InvestmentCapitalCostFields() {
                         value$={costAdjustmentFactor$}
                     />
                 </div>
+
+                <ResidualValue />
 
                 {/*<PhaseIn /> // TODO replace with new grids
                 <EscalationRate />*/}
