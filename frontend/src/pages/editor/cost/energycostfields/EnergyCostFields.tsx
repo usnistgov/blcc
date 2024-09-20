@@ -92,7 +92,7 @@ export default function EnergyCostFields() {
                     className={"w-full"}
                     label={"Customer Sector"}
                     info={Strings.CUSTOMER_SECTOR}
-                    options={Object.values(CustomerSector)}
+                    options={EnergyCostModel.sectorOptions$}
                     value$={EnergyCostModel.customerSector$}
                     wire={EnergyCostModel.sSectorChange$}
                     showSearch
