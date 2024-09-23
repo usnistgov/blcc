@@ -6,6 +6,7 @@ import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Strings } from "constants/Strings";
 import { ResidualValueModel } from "model/ResidualValueModel";
+import { useMemo } from "react";
 
 /**
  * Component to display the inputs associated with residual value
@@ -13,6 +14,19 @@ import { ResidualValueModel } from "model/ResidualValueModel";
 export default function ResidualValue() {
     const approach = useStateObservable(ResidualValueModel.approach$);
     const hasResidualValue = useStateObservable(ResidualValueModel.hasResidualValue$);
+
+    const approachDropdown = useMemo(
+        () => (
+            <Dropdown
+                label={"Approach"}
+                showLabel={false}
+                options={Object.values(DollarOrPercent)}
+                wire={ResidualValueModel.sApproach$}
+                value$={ResidualValueModel.approach$}
+            />
+        ),
+        [],
+    );
 
     return (
         <div className={"flex flex-col"}>
@@ -28,18 +42,15 @@ export default function ResidualValue() {
             </div>
             {hasResidualValue && (
                 <div className={"grid grid-cols-3 gap-x-16 gap-y-4 pt-6"}>
-                    <Dropdown
-                        className={"w-full"}
-                        label={"Approach"}
-                        options={Object.values(DollarOrPercent)}
-                        wire={ResidualValueModel.sApproach$}
-                        value$={ResidualValueModel.approach$}
-                    />
                     <NumberInput
                         className={"w-full"}
                         info={Strings.RESIDUAL_VALUE}
-                        addonBefore={approach === DollarOrPercent.DOLLAR ? "$" : undefined}
-                        addonAfter={approach === DollarOrPercent.PERCENT ? "%" : undefined}
+                        addonBefore={
+                            approach === DollarOrPercent.DOLLAR ? approachDropdown : undefined
+                        }
+                        addonAfter={
+                            approach === DollarOrPercent.PERCENT ? approachDropdown : undefined
+                        }
                         label={"Value"}
                         allowEmpty
                         value$={ResidualValueModel.value$}
