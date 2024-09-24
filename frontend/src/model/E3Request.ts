@@ -37,7 +37,7 @@ import { db } from "model/db";
 import { type Observable, type UnaryFunction, map, pipe, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { withLatestFrom } from "rxjs/operators";
-import { toMWh } from "util/UnitConversion";
+import { getConvertMap } from "util/UnitConversion";
 
 /**
  * RXJS operator to take the project and create an E3 request.
@@ -260,11 +260,13 @@ function energyCostToBuilder(
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
     // Emissions
-    const kwh = toMWh(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
+    // Convert cost value to correct emissions unit. Usually MWh, but can also be MJ for coal.
+    const convertedUnit = getConvertMap(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
 
-    if (kwh === undefined || emissions === undefined) return result;
+    // If unit conversion failed or we have no emissions data, return
+    if (convertedUnit === undefined || emissions === undefined) return result;
 
-    const emissionValues = emissions.map((value) => value * kwh);
+    const emissionValues = emissions.map((value) => value * convertedUnit);
 
     result.push(
         new BcnBuilder()

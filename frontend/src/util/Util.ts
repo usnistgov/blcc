@@ -128,3 +128,10 @@ export function toPercentage(decimal: number | string) {
 export function toDecimal(percentage: number | string) {
     return new Decimal(percentage).div(100).toNumber();
 }
+
+export const ajaxDefault = {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+};

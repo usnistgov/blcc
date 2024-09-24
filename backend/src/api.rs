@@ -78,16 +78,6 @@ struct RegionCaseBARequest {
     rate: String,
 }
 
-impl Display for RegionCaseBARequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "key: {} {} {} release year {} for years {} to {}",
-            self.ba, self.case, self.rate, self.release_year, self.from, self.to
-        )
-    }
-}
-
 #[post("/region_case_ba")]
 async fn post_region_case_ba(
     request: Json<RegionCaseBARequest>,
@@ -112,7 +102,7 @@ async fn post_region_case_ba(
     match query {
         Ok(emissions) => HttpResponse::Ok().json(emissions),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get emissions information for {}", request),
+            error: "Could not get emissions information".into(),
         }),
     }
 }
@@ -126,16 +116,6 @@ struct RegionNatgasRequest {
     technobasin: String,
     case: String,
     rate: String,
-}
-
-impl Display for RegionNatgasRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "key: {} {} {} release year {} for years {} to {}",
-            self.technobasin, self.case, self.rate, self.release_year, self.from, self.to
-        )
-    }
 }
 
 #[post("/region_natgas")]
@@ -159,7 +139,7 @@ async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<AppDa
     match query {
         Ok(emissions) => HttpResponse::Ok().json(emissions),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get region natgas information for {}", request),
+            error: "Could not get region natgas information".into(),
         }),
     }
 }
@@ -173,16 +153,6 @@ struct RegionCasePropaneLNGRequest {
     padd: String,
     case: String,
     rate: String,
-}
-
-impl Display for RegionCasePropaneLNGRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "key: {} {} {} release year {} for years {} to {}",
-            self.padd, self.case, self.rate, self.release_year, self.from, self.to
-        )
-    }
 }
 
 #[post("/region_case_propane_lng")]
@@ -206,7 +176,7 @@ async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>
     match query {
         Ok(emissions) => HttpResponse::Ok().json(emissions),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get region case propane lng information for {}", request),
+            error: "Could not get region case propane lng information".into(),
         }),
     }
 }
@@ -220,16 +190,6 @@ struct RegionOilRequest {
     padd: String,
     case: String,
     rate: String,
-}
-
-impl Display for RegionOilRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "key: {} {} {} release year {} for years {} to {}",
-            self.padd, self.case, self.rate, self.release_year, self.from, self.to
-        )
-    }
 }
 
 #[post("/region_case_oil")]
@@ -253,7 +213,7 @@ async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<AppDat
     match query {
         Ok(emissions) => HttpResponse::Ok().json(emissions),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get region case oil information for {}", request),
+            error: "Could not get region case oil information".into(),
         }),
     }
 }
@@ -267,16 +227,6 @@ struct RegionCaseReedsRequest {
     reeds: String,
     case: String,
     rate: String,
-}
-
-impl Display for RegionCaseReedsRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "key: {} {} {} release year {} for years {} to {}",
-            self.reeds, self.case, self.rate, self.release_year, self.from, self.to
-        )
-    }
 }
 
 #[post("/region_case_reeds")]
@@ -300,7 +250,7 @@ async fn post_region_case_reeds(request: Json<RegionCaseReedsRequest>, data: Dat
     match query {
         Ok(emissions) => HttpResponse::Ok().json(emissions),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get region case reeds information for {}", request),
+            error: "Could not get region case reeds information".into(),
         }),
     }
 }
@@ -344,16 +294,6 @@ struct EmissionsRequest {
     rate: String,
 }
 
-impl Display for EmissionsRequest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "key: {} {} {} release year {} for years {} to {}",
-            self.zip, self.case, self.rate, self.release_year, self.from, self.to
-        )
-    }
-}
-
 #[post("/emissions")]
 async fn post_emissions(request: Json<EmissionsRequest>, data: Data<AppData>) -> impl Responder {
     let mut db = data.pool.get().expect("Failed to get a connection");
@@ -384,12 +324,12 @@ async fn post_emissions(request: Json<EmissionsRequest>, data: Data<AppData>) ->
             match query {
                 Ok(emissions) => HttpResponse::Ok().json(emissions),
                 Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-                    error: format!("Could not get emissions information for {}", request),
+                    error: "Could not get requested emissions information".into(),
                 }),
             }
         }
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
-            error: format!("Could not get emissions zip information for {}", request),
+            error: "Could not get requested emissions zip information".into(),
         }),
     }
 }

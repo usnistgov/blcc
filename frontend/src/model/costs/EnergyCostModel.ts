@@ -17,8 +17,10 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
+import { ajaxDefault } from "util/Util";
 
 export namespace EnergyCostModel {
+    import globalOrLocalZip$ = EnergyCostModel.Location.globalOrLocalZip$;
     /**
      * Outputs a value if the current cost is an energy cost
      */
@@ -95,6 +97,38 @@ export namespace EnergyCostModel {
                     (project.location as USLocation).zipcode = zipcode;
                 }),
             );
+
+        export const globalOrLocalZip$ = Location.location$.pipe(
+            switchMap((location) => (location === undefined ? Model.Location.zip$ : Location.zip$)),
+            distinctUntilChanged(),
+            shareLatest(),
+        );
+
+        type ZipInfoResponse = {
+            zip: number;
+            ba: string;
+            gea: string;
+            state: string;
+            padd: string;
+            technobasin: string;
+            reeds_ba: string;
+        };
+
+        export const zipInfo$ = globalOrLocalZip$.pipe(
+            switchMap((zip) =>
+                ajax<ZipInfoResponse[]>({
+                    url: "/api/discount_rates",
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        zip,
+                    },
+                }),
+            ),
+            map((response) => response.response[0]),
+        );
     }
 
     /**
@@ -151,10 +185,7 @@ export namespace EnergyCostModel {
     export const fetchEscalationRates$ = combineLatest([
         Model.releaseYear$,
         Model.studyPeriod$,
-        Location.location$.pipe(
-            switchMap((location) => (location === undefined ? Model.Location.zip$ : Location.zip$)),
-            distinctUntilChanged(),
-        ),
+        globalOrLocalZip$,
         customerSector$,
         Model.case$,
     ]).pipe(
@@ -205,4 +236,48 @@ export namespace EnergyCostModel {
     sUnitChange$
         .pipe(withLatestFrom(CostModel.collection$))
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
+
+    export namespace Emissions {
+        export const emissions$ = combineLatest([
+            Location.zipInfo$,
+            Model.releaseYear$,
+            Model.studyPeriod$,
+            Model.case$,
+            Model.emissionsRateType$,
+            fuelType$,
+        ]).pipe(
+            switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, fuelType]) => {
+                match(fuelType)
+                    .with(FuelType.ELECTRICITY, () =>
+                        ajax<number[]>({
+                            ...ajaxDefault,
+                            url: "/api/region_case_ba",
+                            body: {
+                                from: releaseYear,
+                                to: releaseYear + (studyPeriod ?? 0),
+                                release_year: releaseYear,
+                                ba: zipInfo.ba,
+                                case: eiaCase,
+                                rate,
+                            },
+                        }),
+                    )
+                    .with(FuelType.NATURAL_GAS, () =>
+                        ajax<number[]>({
+                            ...ajaxDefault,
+                            url: "/api/region_natgas",
+                            body: {
+                                from: releaseYear,
+                                to: releaseYear + (studyPeriod ?? 0),
+                                release_year: releaseYear,
+                                technobasin: zipInfo.technobasin,
+                                case: eiaCase,
+                                rate,
+                            },
+                        }),
+                    )
+                    .otherwise(() => of(undefined));
+            }),
+        );
+    }
 }
