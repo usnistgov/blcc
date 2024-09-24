@@ -156,7 +156,8 @@ export enum FuelType {
     RESIDUAL_OIL = "Residual Fuel Oil (#4, #5, #6)",
     NATURAL_GAS = "Natural Gas",
     PROPANE = "Liquefied Petroleum Gas / Propane",
-    OTHER = "Other (Coal, Steam, etc.)",
+    COAL = "Coal",
+    OTHER = "Other (Steam, etc.)",
 }
 
 export type EnergyCost = Type<CostTypes.ENERGY> &

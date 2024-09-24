@@ -1,7 +1,7 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
     CostTypes,
-    type CustomerSector,
+    CustomerSector,
     type EnergyCost,
     EnergyUnit,
     FuelType,
@@ -14,7 +14,7 @@ import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, combineLatestWith, filter, shareReplay, tap, withLatestFrom } from "rxjs/operators";
+import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 
@@ -116,9 +116,22 @@ export namespace EnergyCostModel {
     export const fuelType$ = merge(sFuelTypeChange$, cost$.pipe(map((cost) => cost.fuelType))).pipe(
         distinctUntilChanged(),
     );
-    sFuelTypeChange$
-        .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([fuelType, costCollection]) => costCollection.modify({ fuelType }));
+    sFuelTypeChange$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([fuelType, costCollection]) => {
+        // Set fuel type
+        costCollection.modify({ fuelType });
+
+        // Coal can only be set with an industrial customer sector
+        if (fuelType === FuelType.COAL) costCollection.modify({ customerSector: CustomerSector.INDUSTRIAL });
+    });
+
+    export const sectorOptions$ = fuelType$.pipe(
+        map((fuelType) => {
+            if (fuelType === FuelType.COAL) return [CustomerSector.INDUSTRIAL];
+
+            return Object.values(CustomerSector);
+        }),
+        startWith(Object.values(CustomerSector)),
+    );
 
     type EscalationRateResponse = {
         case: string;
