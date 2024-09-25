@@ -7,7 +7,7 @@ import ResourceUsage from "components/grids/alternative-results/ResourceUsage";
 
 export default function AlternativeResults() {
     return (
-        <div className={"mb-28 flex w-full flex-col gap-8 p-5"}>
+        <div className={"mb-28 flex w-full flex-col gap-8 p-5 h-full overflow-y-auto pb-48"}>
             <div className={"col-span-2"}>
                 <ResultAlternativeSelect />
             </div>

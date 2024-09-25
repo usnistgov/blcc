@@ -6,7 +6,7 @@ import NpvCostsBySubcategory from "components/grids/summary/NpvCostsBySubcategor
 
 export default function Summary() {
     return (
-        <div className={"mb-28 flex w-full flex-col gap-8 p-5"}>
+        <div className={"mb-28 flex w-full flex-col gap-8 p-5 h-full overflow-y-auto pb-48"}>
             <div>
                 <Header>Life Cycle Results Comparison</Header>
                 <LifecycleResultsComparison />
