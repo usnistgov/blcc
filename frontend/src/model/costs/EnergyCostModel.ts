@@ -12,11 +12,12 @@ import {
 import { Country, type State } from "constants/LOCATION";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
-import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap, Observable } from "rxjs";
+import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
+import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
 import { ajaxDefault } from "util/Util";
 
 export namespace EnergyCostModel {
@@ -238,7 +239,7 @@ export namespace EnergyCostModel {
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
     export namespace Emissions {
-        export const emissions$: Observable<number[] | undefined> = combineLatest([
+        export const emissions$: Observable<number[] | number | undefined> = combineLatest([
             Location.zipInfo$,
             Model.releaseYear$,
             Model.studyPeriod$,
@@ -254,6 +255,16 @@ export namespace EnergyCostModel {
                     case: eiaCase,
                     rate,
                 };
+
+                const oil = () =>
+                    ajax<number[]>({
+                        ...ajaxDefault,
+                        url: "/api/region_case_oil",
+                        body: {
+                            ...common,
+                            padd: zipInfo.padd,
+                        },
+                    }).pipe(map((response) => response.response));
 
                 return match(fuelType)
                     .with(FuelType.ELECTRICITY, () =>
@@ -276,16 +287,19 @@ export namespace EnergyCostModel {
                             },
                         }).pipe(map((response) => response.response)),
                     )
-                    .with(FuelType.DISTILLATE_OIL, () =>
+                    .with(FuelType.DISTILLATE_OIL, oil)
+                    .with(FuelType.RESIDUAL_OIL, oil)
+                    .with(FuelType.PROPANE, () =>
                         ajax<number[]>({
                             ...ajaxDefault,
-                            url: "/api/region_case_oil",
+                            url: "/api/region_case_propane_lng",
                             body: {
                                 ...common,
                                 padd: zipInfo.padd,
                             },
-                        }),
+                        }).pipe(map((response) => response.response)),
                     )
+                    .with(FuelType.COAL, () => of(COAL_KG_CO2_PER_MEGAJOULE))
                     .otherwise(() => of(undefined));
             }),
         );
