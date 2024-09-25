@@ -239,7 +239,7 @@ export namespace EnergyCostModel {
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
     export namespace Emissions {
-        export const emissions$: Observable<number[] | number | undefined> = combineLatest([
+        export const emissions$: Observable<number[] | undefined> = combineLatest([
             Location.zipInfo$,
             Model.releaseYear$,
             Model.studyPeriod$,
@@ -299,9 +299,20 @@ export namespace EnergyCostModel {
                             },
                         }).pipe(map((response) => response.response)),
                     )
-                    .with(FuelType.COAL, () => of(COAL_KG_CO2_PER_MEGAJOULE))
+                    .with(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2_PER_MEGAJOULE)))
                     .otherwise(() => of(undefined));
             }),
         );
+        emissions$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([emissions, collection]) => {
+            if (emissions === undefined) {
+                collection.modify({
+                    emissions: undefined,
+                });
+            } else {
+                collection.modify({
+                    emissions,
+                });
+            }
+        });
     }
 }

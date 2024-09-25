@@ -172,6 +172,7 @@ export type EnergyCost = Type<CostTypes.ENERGY> &
         unit: Unit;
         demandCharge?: number;
         rebate?: number;
+        emissions?: number[];
     };
 
 export enum CustomerSector {

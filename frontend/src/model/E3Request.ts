@@ -266,7 +266,10 @@ function energyCostToBuilder(
     // If unit conversion failed or we have no emissions data, return
     if (convertedUnit === undefined || emissions === undefined) return result;
 
-    const emissionValues = emissions.map((value) => value * convertedUnit);
+    const emissionValues =
+        cost.emissions === undefined
+            ? emissions.map((value) => value * convertedUnit)
+            : cost.emissions.map((value) => value * convertedUnit);
 
     result.push(
         new BcnBuilder()
