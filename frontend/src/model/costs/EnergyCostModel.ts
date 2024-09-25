@@ -5,6 +5,7 @@ import {
     type EnergyCost,
     EnergyUnit,
     FuelType,
+    GhgDataSource,
     type NonUSLocation,
     type USLocation,
     type Unit,
@@ -21,7 +22,6 @@ import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
 import { ajaxDefault } from "util/Util";
 
 export namespace EnergyCostModel {
-    import globalOrLocalZip$ = EnergyCostModel.Location.globalOrLocalZip$;
     /**
      * Outputs a value if the current cost is an energy cost
      */
@@ -118,13 +118,13 @@ export namespace EnergyCostModel {
         export const zipInfo$ = globalOrLocalZip$.pipe(
             switchMap((zip) =>
                 ajax<ZipInfoResponse[]>({
-                    url: "/api/discount_rates",
+                    url: "/api/zip_info",
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: {
-                        zip,
+                        zip: Number.parseInt(zip ?? "0"),
                     },
                 }),
             ),
@@ -186,7 +186,7 @@ export namespace EnergyCostModel {
     export const fetchEscalationRates$ = combineLatest([
         Model.releaseYear$,
         Model.studyPeriod$,
-        globalOrLocalZip$,
+        Location.globalOrLocalZip$,
         customerSector$,
         Model.case$,
     ]).pipe(
@@ -245,9 +245,10 @@ export namespace EnergyCostModel {
             Model.studyPeriod$,
             Model.case$,
             Model.emissionsRateType$,
+            Model.ghgDataSource$,
             fuelType$,
         ]).pipe(
-            switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, fuelType]) => {
+            switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType]) => {
                 const common = {
                     from: releaseYear,
                     to: releaseYear + (studyPeriod ?? 0),
@@ -267,16 +268,29 @@ export namespace EnergyCostModel {
                     }).pipe(map((response) => response.response));
 
                 return match(fuelType)
-                    .with(FuelType.ELECTRICITY, () =>
-                        ajax<number[]>({
+                    .with(FuelType.ELECTRICITY, () => {
+                        console.log("Calling for region case", { ...common, ba: zipInfo.ba });
+
+                        if (ghgDataSource === GhgDataSource.NIST_NETL) {
+                            return ajax<number[]>({
+                                ...ajaxDefault,
+                                url: "/api/region_case_ba",
+                                body: {
+                                    ...common,
+                                    ba: zipInfo.ba,
+                                },
+                            }).pipe(map((response) => response.response));
+                        }
+
+                        return ajax<number[]>({
                             ...ajaxDefault,
-                            url: "/api/region_case_ba",
+                            url: "/api/region_case_reeds",
                             body: {
                                 ...common,
-                                ba: zipInfo.ba,
+                                padd: zipInfo.reeds_ba,
                             },
-                        }).pipe(map((response) => response.response)),
-                    )
+                        });
+                    })
                     .with(FuelType.NATURAL_GAS, () =>
                         ajax<number[]>({
                             ...ajaxDefault,
@@ -300,10 +314,13 @@ export namespace EnergyCostModel {
                         }).pipe(map((response) => response.response)),
                     )
                     .with(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2_PER_MEGAJOULE)))
-                    .otherwise(() => of(undefined));
+                    .otherwise(() => of(Array(studyPeriod).fill(0)));
             }),
+            tap((result) => console.log(result)),
         );
         emissions$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([emissions, collection]) => {
+            console.log(emissions);
+
             if (emissions === undefined) {
                 collection.modify({
                     emissions: undefined,
