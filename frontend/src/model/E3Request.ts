@@ -5,7 +5,6 @@ import {
     BcnBuilder,
     BcnSubType,
     BcnType,
-    E3,
     type Output,
     ProjectType,
     RecurBuilder,
@@ -37,6 +36,7 @@ import { db } from "model/db";
 import { type Observable, type UnaryFunction, map, pipe, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { withLatestFrom } from "rxjs/operators";
+import { P, match } from "ts-pattern";
 import { toMWh } from "util/UnitConversion";
 
 /**
@@ -223,33 +223,49 @@ function energyCostToBuilder(
         .recur(recurrence(cost))
         .quantityValue(cost.costPerUnit)
         .quantity(cost.annualConsumption);
+
+    if (cost.escalation !== undefined) {
+        // @ts-ignore
+        builder.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+    }
+
     result.push(builder);
 
     if (cost.demandCharge !== undefined) {
-        result.push(
-            new BcnBuilder()
-                .name(`${cost.name} Demand Charge`)
-                .addTag("Demand Charge", "LCC")
-                .real()
-                .type(BcnType.COST)
-                .subType(BcnSubType.DIRECT)
-                .recur(recurrence(cost))
-                .quantityValue(cost.demandCharge)
-                .quantity(1),
-        );
+        const demandChargeBcn = new BcnBuilder()
+            .name(`${cost.name} Demand Charge`)
+            .addTag("Demand Charge", "LCC")
+            .real()
+            .type(BcnType.COST)
+            .subType(BcnSubType.DIRECT)
+            .recur(recurrence(cost))
+            .quantityValue(cost.demandCharge)
+            .quantity(1);
+
+        if (cost.escalation !== undefined) {
+            // @ts-ignore
+            demandChargeBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+        }
+
+        result.push(demandChargeBcn);
     }
 
     if (cost.rebate !== undefined) {
-        result.push(
-            new BcnBuilder()
-                .name(`${cost.name} Rebate`)
-                .addTag("Rebate", "LCC")
-                .real()
-                .type(BcnType.BENEFIT)
-                .subType(BcnSubType.DIRECT)
-                .quantityValue(-cost.rebate)
-                .quantity(1),
-        );
+        const rebateBcn = new BcnBuilder()
+            .name(`${cost.name} Rebate`)
+            .addTag("Rebate", "LCC")
+            .real()
+            .type(BcnType.BENEFIT)
+            .subType(BcnSubType.DIRECT)
+            .quantityValue(-cost.rebate)
+            .quantity(1);
+
+        if (cost.escalation !== undefined) {
+            // @ts-ignore
+            rebateBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+        }
+
+        result.push(rebateBcn);
     }
 
     if (cost.useIndex) {
