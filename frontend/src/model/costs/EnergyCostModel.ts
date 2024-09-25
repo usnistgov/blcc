@@ -12,7 +12,7 @@ import {
 import { Country, type State } from "constants/LOCATION";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
-import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
+import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap, Observable } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
@@ -238,7 +238,7 @@ export namespace EnergyCostModel {
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
     export namespace Emissions {
-        export const emissions$ = combineLatest([
+        export const emissions$: Observable<number[] | undefined> = combineLatest([
             Location.zipInfo$,
             Model.releaseYear$,
             Model.studyPeriod$,
@@ -247,32 +247,42 @@ export namespace EnergyCostModel {
             fuelType$,
         ]).pipe(
             switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, fuelType]) => {
-                match(fuelType)
+                const common = {
+                    from: releaseYear,
+                    to: releaseYear + (studyPeriod ?? 0),
+                    release_year: releaseYear,
+                    case: eiaCase,
+                    rate,
+                };
+
+                return match(fuelType)
                     .with(FuelType.ELECTRICITY, () =>
                         ajax<number[]>({
                             ...ajaxDefault,
                             url: "/api/region_case_ba",
                             body: {
-                                from: releaseYear,
-                                to: releaseYear + (studyPeriod ?? 0),
-                                release_year: releaseYear,
+                                ...common,
                                 ba: zipInfo.ba,
-                                case: eiaCase,
-                                rate,
                             },
-                        }),
+                        }).pipe(map((response) => response.response)),
                     )
                     .with(FuelType.NATURAL_GAS, () =>
                         ajax<number[]>({
                             ...ajaxDefault,
                             url: "/api/region_natgas",
                             body: {
-                                from: releaseYear,
-                                to: releaseYear + (studyPeriod ?? 0),
-                                release_year: releaseYear,
+                                ...common,
                                 technobasin: zipInfo.technobasin,
-                                case: eiaCase,
-                                rate,
+                            },
+                        }).pipe(map((response) => response.response)),
+                    )
+                    .with(FuelType.DISTILLATE_OIL, () =>
+                        ajax<number[]>({
+                            ...ajaxDefault,
+                            url: "/api/region_case_oil",
+                            body: {
+                                ...common,
+                                padd: zipInfo.padd,
                             },
                         }),
                     )
