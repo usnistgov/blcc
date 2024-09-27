@@ -1,5 +1,6 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
+    Case,
     CostTypes,
     CustomerSector,
     type EnergyCost,
@@ -9,6 +10,7 @@ import {
     type NonUSLocation,
     type USLocation,
     type Unit,
+    EmissionsRateType,
 } from "blcc-format/Format";
 import { Country, type State } from "constants/LOCATION";
 import { CostModel } from "model/CostModel";
@@ -238,6 +240,16 @@ export namespace EnergyCostModel {
         .pipe(withLatestFrom(CostModel.collection$))
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
+    const EiaCaseMap = {
+        [Case.REF]: "REF",
+        [Case.LOWZTC]: "LRC",
+    };
+
+    const RateMap = {
+        [EmissionsRateType.AVERAGE]: "avg",
+        [EmissionsRateType.LONG_RUN_MARGINAL]: "lrm",
+    };
+
     export namespace Emissions {
         export const emissions$: Observable<number[] | undefined> = combineLatest([
             Location.zipInfo$,
@@ -248,13 +260,14 @@ export namespace EnergyCostModel {
             Model.ghgDataSource$,
             fuelType$,
         ]).pipe(
+            tap((x) => console.log("Combined values", x)),
             switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType]) => {
                 const common = {
                     from: releaseYear,
                     to: releaseYear + (studyPeriod ?? 0),
                     release_year: releaseYear,
-                    case: eiaCase,
-                    rate,
+                    case: EiaCaseMap[eiaCase],
+                    rate: RateMap[rate],
                 };
 
                 const oil = () =>
@@ -279,7 +292,10 @@ export namespace EnergyCostModel {
                                     ...common,
                                     ba: zipInfo.ba,
                                 },
-                            }).pipe(map((response) => response.response));
+                            }).pipe(
+                                tap((x) => console.log("ba response", x)),
+                                map((response) => response.response),
+                            );
                         }
 
                         return ajax<number[]>({
@@ -289,7 +305,7 @@ export namespace EnergyCostModel {
                                 ...common,
                                 padd: zipInfo.reeds_ba,
                             },
-                        });
+                        }).pipe(map((response) => response.response));
                     })
                     .with(FuelType.NATURAL_GAS, () =>
                         ajax<number[]>({
