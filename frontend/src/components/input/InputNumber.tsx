@@ -15,6 +15,7 @@ type NumberOrUndefined<T> = T extends true ? number | undefined : number;
 
 type NumberInputProps<T extends true | false = false> = {
     label: ReactNode;
+    subLabel?: ReactNode;
     showLabel?: boolean;
     allowEmpty?: T | false;
     rules?: Rule<number>[];
@@ -26,6 +27,7 @@ type NumberInputProps<T extends true | false = false> = {
 
 export function NumberInput<T extends true | false = false>({
     label,
+    subLabel,
     showLabel = true,
     children,
     allowEmpty = false,
@@ -114,6 +116,7 @@ export function NumberInput<T extends true | false = false>({
                     {(info && (
                         <Title level={5}>
                             <Info text={info}>{label}</Info>
+                            {subLabel && <p className={"text-xs text-base-light"}>{subLabel}</p>}
                         </Title>
                     )) || <Title level={5}>{label}</Title>}
                     {input}

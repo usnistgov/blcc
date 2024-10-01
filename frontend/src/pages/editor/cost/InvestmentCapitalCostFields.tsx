@@ -9,6 +9,8 @@ import { CostModel } from "model/CostModel";
 import React, { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
+import { Divider } from "antd";
+import PhaseIn from "components/grids/PhaseIn";
 
 export default function InvestmentCapitalCostFields() {
     const [
@@ -104,44 +106,45 @@ export default function InvestmentCapitalCostFields() {
                     value$={amountFinanced$}
                 />
 
-                <div className={"col-span-2 grid grid-cols-3 gap-x-16 gap-y-4"}>
-                    <NumberInput
-                        className={"w-full"}
-                        info={Strings.EXPECTED_LIFETIME}
-                        addonAfter={"years"}
-                        controls
-                        allowEmpty
-                        label={"Expected Lifetime"}
-                        wire={sExpectedLifetime$}
-                        value$={expectedLifetime$}
-                    />
-                    <NumberInput
-                        className={"w-full"}
-                        info={Strings.ANNUAL_RATE_OF_CHANGE}
-                        addonAfter={"%"}
-                        controls
-                        allowEmpty
-                        label={"Annual Rate of Change"}
-                        wire={sAnnualRateOfChange$}
-                        value$={annualRateOfChange$}
-                    />
-                    <NumberInput
-                        className={"w-full"}
-                        info={Strings.COST_ADJUSTMENT_FACTOR}
-                        addonAfter={"%"}
-                        controls
-                        allowEmpty
-                        label={"Cost Adjustment Factor"}
-                        wire={sCostAdjustmentFactor$}
-                        value$={costAdjustmentFactor$}
-                    />
-                </div>
+                <NumberInput
+                    className={"w-full"}
+                    info={Strings.EXPECTED_LIFETIME}
+                    addonAfter={"years"}
+                    controls
+                    allowEmpty
+                    label={"Expected Lifetime"}
+                    wire={sExpectedLifetime$}
+                    value$={expectedLifetime$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    info={Strings.ANNUAL_RATE_OF_CHANGE}
+                    addonAfter={"%"}
+                    controls
+                    allowEmpty
+                    label={"Annual Rate of Change"}
+                    subLabel={"for residual value calculation"}
+                    wire={sAnnualRateOfChange$}
+                    value$={annualRateOfChange$}
+                />
+                <NumberInput
+                    className={"w-full"}
+                    info={Strings.COST_ADJUSTMENT_FACTOR}
+                    addonAfter={"%"}
+                    controls
+                    allowEmpty
+                    label={"Cost Adjustment Factor"}
+                    subLabel={"for phased-in investments"}
+                    wire={sCostAdjustmentFactor$}
+                    value$={costAdjustmentFactor$}
+                />
 
                 {/*<PhaseIn /> // TODO replace with new grids
                 <EscalationRate />*/}
             </div>
 
             <ResidualValue />
+            <PhaseIn />
         </div>
     );
 }
