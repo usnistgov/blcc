@@ -16,7 +16,19 @@ import { Country, type State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { db } from "model/db";
 import objectHash from "object-hash";
-import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, of, sample, switchMap } from "rxjs";
+import {
+    NEVER,
+    type Observable,
+    Subject,
+    combineLatest,
+    distinctUntilChanged,
+    from,
+    map,
+    merge,
+    of,
+    sample,
+    switchMap,
+} from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
@@ -105,6 +117,20 @@ export const isDirty$ = hash$.pipe(
     });
 */
 
+function createVar<A, B extends keyof A>(name: B, from$: Observable<A>, collection$: Observable<Collection<A>>) {
+    const sSubject$ = new Subject<A>();
+    const value$ = merge(sSubject$, from$).pipe(distinctUntilChanged());
+    const sub = sSubject$
+        .pipe(withLatestFrom(collection$))
+        .subscribe(([value, collection]) => collection.modify({ [name]: value }));
+
+    return [sSubject$, value$, sub];
+}
+
+function zoom<A, B extends keyof A>(name: B, stream$: Observable<A>): Observable<A[B]> {
+    return stream$.pipe(map((value) => value[name]));
+}
+
 export namespace Model {
     export namespace Location {
         export const location$ = dbProject$.pipe(map((p) => p.location));
@@ -186,13 +212,16 @@ export namespace Model {
     /**
      * The name of the current project.
      */
-    export const sName$ = new Subject<string | undefined>();
+    export const [sName$, name$] = createVar("name", dbProject$, projectCollection$);
+
+    /*export const sName$ = new Subject<string | undefined>();
     const newName$ = sName$.pipe(defaultValue("Untitled Project"));
     export const [useName, name$] = bind(
         merge(newName$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
         undefined,
     );
     newName$.pipe(withLatestFrom(projectCollection$)).subscribe(([name, collection]) => collection.modify({ name }));
+     */
 
     /**
      * The analyst for the current project
