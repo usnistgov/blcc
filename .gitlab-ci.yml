@@ -46,8 +46,6 @@ docker-build:
 portainer-deploy:
   image: docker:27.2.1
   stage: release
-  needs:
-    - release-image
   tags:
     - dind
   services:
