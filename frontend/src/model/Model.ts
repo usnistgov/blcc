@@ -212,16 +212,15 @@ export namespace Model {
     /**
      * The name of the current project.
      */
-    export const [sName$, name$] = createVar("name", dbProject$, projectCollection$);
+    //export const [sName$, name$] = createVar("name", dbProject$, projectCollection$);
 
-    /*export const sName$ = new Subject<string | undefined>();
+    export const sName$ = new Subject<string | undefined>();
     const newName$ = sName$.pipe(defaultValue("Untitled Project"));
     export const [useName, name$] = bind(
         merge(newName$, dbProject$.pipe(map((p) => p.name))).pipe(distinctUntilChanged()),
         undefined,
     );
     newName$.pipe(withLatestFrom(projectCollection$)).subscribe(([name, collection]) => collection.modify({ name }));
-     */
 
     /**
      * The analyst for the current project
@@ -458,8 +457,9 @@ export namespace Model {
 
     // Get the emissions data from the database.
     export const emissions$ = combineLatest([Location.zip$.pipe(guard()), releaseYear$, studyPeriod$, case$]).pipe(
-        switchMap(([zip, releaseYear, studyPeriod, eiaCase]) =>
-            ajax<number[]>({
+        switchMap(([zip, releaseYear, studyPeriod, eiaCase]) => {
+            console.log("Getting emissions", zip, releaseYear, studyPeriod, eiaCase);
+            return ajax<number[]>({
                 url: "/api/emissions",
                 method: "POST",
                 headers: {
@@ -473,8 +473,8 @@ export namespace Model {
                     case: eiaCase,
                     rate: "Avg",
                 },
-            }),
-        ),
+            });
+        }),
         map((response) => response.response),
         startWith(undefined),
     );

@@ -304,8 +304,8 @@ export type Type<T> = {
 };
 
 export enum Case {
-    REF = "ref",
-    LOWZTC = "lowZTC",
+    REF = "REF",
+    LOWZTC = "LRC",
 }
 
 export enum GhgDataSource {

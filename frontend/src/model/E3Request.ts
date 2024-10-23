@@ -11,7 +11,7 @@ import {
     RequestBuilder,
     TimestepComp,
     TimestepValue,
-    VarRate
+    VarRate,
 } from "@lrd/e3-sdk";
 import {
     type CapitalCost,
@@ -29,11 +29,11 @@ import {
     type RecurringContractCost,
     type ReplacementCapitalCost,
     type ResidualValue,
-    type WaterCost
+    type WaterCost,
 } from "blcc-format/Format";
 import { Model } from "model/Model";
 import { db } from "model/db";
-import { map, type Observable, pipe, switchMap, type UnaryFunction } from "rxjs";
+import { type Observable, type UnaryFunction, map, pipe, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { withLatestFrom } from "rxjs/operators";
 import { getConvertMap } from "util/UnitConversion";
@@ -281,40 +281,45 @@ function energyCostToBuilder(
     // If unit conversion failed or we have no emissions data, return
     if (convertedUnit === undefined || emissions === undefined) return result;
 
+    console.log("Emissions", emissions);
+    console.log("Cost emissions", cost.emissions);
+
     const emissionValues =
         cost.emissions === undefined
             ? emissions.map((value) => value * convertedUnit)
             : cost.emissions.map((value) => value * convertedUnit);
 
-    result.push(
-        new BcnBuilder()
-            .name(`${cost.name} Emissions`)
-            .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
-            .real()
-            .type(BcnType.NON_MONETARY)
-            .recur(recurrence(cost))
-            .quantity(1)
-            .quantityValue(1)
-            .quantityVarRate(VarRate.YEAR_BY_YEAR)
-            .quantityVarValue(emissionValues)
-            .quantityUnit("kg co2"),
-    );
+    if (emissionValues.length > 0) {
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} Emissions`)
+                .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
+                .real()
+                .type(BcnType.NON_MONETARY)
+                .recur(recurrence(cost))
+                .quantity(1)
+                .quantityValue(1)
+                .quantityVarRate(VarRate.YEAR_BY_YEAR)
+                .quantityVarValue(emissionValues)
+                .quantityUnit("kg co2"),
+        );
 
-    if (scc === undefined) return result;
+        if (scc === undefined) return result;
 
-    result.push(
-        new BcnBuilder()
-            .name(`${cost.name} SCC`)
-            .addTag("SCC", `${cost.fuelType} SCC`, "$/kg")
-            .real()
-            .type(BcnType.COST)
-            .recur(recurrence(cost))
-            .quantity(1)
-            .quantityValue(1)
-            .quantityVarRate(VarRate.YEAR_BY_YEAR)
-            .quantityVarValue(scc.map((v, i) => v * emissionValues[i]))
-            .quantityUnit("$/kg co2"),
-    );
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} SCC`)
+                .addTag("SCC", `${cost.fuelType} SCC`, "$/kg")
+                .real()
+                .type(BcnType.COST)
+                .recur(recurrence(cost))
+                .quantity(1)
+                .quantityValue(1)
+                .quantityVarRate(VarRate.YEAR_BY_YEAR)
+                .quantityVarValue(scc.map((v, i) => v * emissionValues[i]))
+                .quantityUnit("$/kg co2"),
+        );
+    }
 
     return result;
 }
