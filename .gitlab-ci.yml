@@ -10,21 +10,38 @@ backend-build:
     - cd backend
     - rustup target add "x86_64-unknown-linux-musl"
     - cargo build --release --locked --target "x86_64-unknown-linux-musl"
+  cache:
+    - key:
+        files:
+          - backend/Cargo.lock
+      paths:
+        - backend/target
   artifacts:
     paths:
-      - target/x86_64-unknown-linux-musl/release/backend
+      - backend/target/x86_64-unknown-linux-musl/release/backend
 
 frontend-build:
   image: node:23
   stage: build
+  before_script:
+    - cd frontend
+    - corepack enable pnpm
+    - pnpm config set @lrd:registry=$CI_API_V4_URL/projects/$E3_SDK_PROJECT_ID/packages/npm
+    - pnpm config set //gitlab.nist.gov/gitlab/api/v4/projects/$E3_SDK_PROJECT_ID/packages/npm:_authToken="$E3_SDK_PROJECT_TOKEN"
   script:
     - cd frontend
     - corepack enable pnpm
     - pnpm install
     - pnpm run build
+  cache:
+    - key:
+        files:
+          - frontend/pnpm-lock.yaml
+      paths:
+        - frontend/node_modules
   artifacts:
     paths:
-      - dist/*
+      - frontend/dist/*
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
