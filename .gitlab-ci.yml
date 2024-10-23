@@ -56,7 +56,7 @@ docker-build:
   services:
     - docker:27.2.1-dind
   script:
-    - docker build -t $IMAGE_TAG gitlab-dockerfile
+    - docker build -t $IMAGE_TAG -f gitlab-dockerfile .
     - docker push $IMAGE_TAG
 
 portainer-deploy:
