@@ -1,5 +1,6 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
+import { pdf } from "@react-pdf/renderer";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -12,6 +13,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject } from "rxjs";
 import { download } from "util/DownloadFile";
+import Pdf from "./Pdf";
 
 const pdfClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
@@ -20,7 +22,18 @@ const csvClick$ = new Subject<void>();
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
-    useSubscribe(pdfClick$, () => {}); //TODO Create and download PDF
+    useSubscribe(pdfClick$, () => {
+        const blob = pdf(<Pdf />).toBlob();
+
+        blob.then((blob: Blob | MediaSource) => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "BLCC Report.pdf";
+            link.click();
+        });
+    }); //TODO Create and download PDF
+
     useSubscribe(csvClick$, () => {}); // TODO Create and download CSV
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     //TODO: change download filename
