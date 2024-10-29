@@ -1,6 +1,8 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import React from "react";
 
+import Alternatives from "./pdf-components/Alternatives";
+import GeneralInformation from "./pdf-components/GeneralInformation";
 import PdfDisclaimer from "./pdf-components/PdfDisclaimer";
 
 const styles = StyleSheet.create({
@@ -56,22 +58,29 @@ const Pdf = () => {
         <Document>
             <Page size="LETTER">
                 <View fixed style={styles.mainHeader}>
-                    <Image
+                    {/* <Image
                         style={{ ...styles.headerNistLogo, marginBottom: 25 }}
                         src={"/images/645px-nist_logo-svg_1.png"}
                     />
                     <br />
-                    <Image style={styles.logo} src={"/images/logo.png"} />
+                    <Image style={styles.logo} src={"/images/logo.png"} /> */}
                     <Text style={styles.date}>
                         Report Generated: {`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`}
                     </Text>
                 </View>
-                <PdfDisclaimer />
+                <GeneralInformation />
+
                 <Text
                     fixed
                     style={styles.pageNumber}
                     render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
                 />
+            </Page>
+            <Page size="LETTER">
+                <Alternatives />
+            </Page>
+            <Page size="LETTER">
+                <PdfDisclaimer />
             </Page>
         </Document>
     );
