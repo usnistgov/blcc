@@ -42,7 +42,9 @@ export namespace ResultModel {
         withLatestFrom(currentProject$),
         map(([, id]) => id),
         toE3Object(),
+        tap(x => console.log("E3 Object: ", x)),
         E3Request(),
+        tap(x => console.log("E3 Result: ", x)),
         shareLatest(),
     );
 
