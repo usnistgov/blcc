@@ -1,12 +1,13 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
 import { pdf } from "@react-pdf/renderer";
+import { Project } from "blcc-format/Format";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { Model } from "model/Model";
+import { Model, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
 import React from "react";
@@ -21,9 +22,10 @@ const csvClick$ = new Subject<void>();
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
+    const project = useProject();
 
     useSubscribe(pdfClick$, () => {
-        const blob = pdf(<Pdf />).toBlob();
+        const blob = pdf(<Pdf project={project as Project} />).toBlob();
 
         blob.then((blob: Blob | MediaSource) => {
             const url = window.URL.createObjectURL(blob);
