@@ -1,200 +1,40 @@
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import React from "react";
+import { Text, View } from "@react-pdf/renderer";
+import { Alternative } from "blcc-format/Format";
+import { styles } from "./pdfStyles";
 
-const styles = StyleSheet.create({
-    section: {
-        display: "flex",
-        flexDirection: "column",
-        padding: 25
-    },
-    title: {
-        fontSize: 18,
-        textAlign: "center",
-        marginBottom: 20
-    },
-    key: {
-        display: "flex",
-        flexDirection: "row",
-        marginBottom: 10
-    },
-    desc: {
-        maxWidth: "100vw",
-        marginBottom: 10
-    },
-    text: {
-        fontSize: 14,
-        color: "#979797"
-    },
-    value: {
-        fontSize: 14
-    }
-});
-
-const Alternatives = () => {
+const Alternatives = (props: { alternatives: Alternative[] }) => {
+    const alts = props.alternatives;
+    console.log(alts);
     return (
         <View style={styles.section}>
             <Text style={styles.title}>Alternatives</Text>
-            <View style={styles.key}>
-                <Text style={styles.text}>Name:&nbsp;</Text>
-                <Text style={styles.value}>{}</Text>
-            </View>
-            <View style={styles.key}>
-                <Text style={styles.text}>Baseline Alternative:&nbsp;</Text>
-                <Text style={styles.value}>{}</Text>
-            </View>
-            <br />
-            {/* {project?.projectDesc?.length !== 0 ? ( */}
-            <View style={styles.desc}>
-                <Text style={styles.text}>Description:&nbsp;</Text>
-                <Text style={styles.value}>{}</Text>
-                <br />
-            </View>
-            {/* ) : null} */}
-            <View style={styles.key}>
-                <Text style={styles.text}>Alternative Costs&nbsp;</Text>
-                <Text style={styles.value}>{} year(s)</Text>
-            </View>
-            <br />
-            <View style={styles.key}>
-                <Text style={styles.text}>Energy Costs:&nbsp;</Text>
-                <Text style={styles.value}>{}</Text>
-                <View>
-                    {/* <Text style={styles.text}>Location:</Text> */}
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Country:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>State:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>City:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Zip:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                </View>
-            </View>
-            <br />
-            <View style={styles.key}>
-                <Text style={styles.text}>Water Costs:&nbsp;</Text>
-                <Text style={styles.value}>{}</Text>
-                <View>
-                    {/* <Text style={styles.text}>Location:</Text> */}
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Country:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>State:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>City:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Zip:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                </View>
-            </View>
-            <br />
-            <View style={styles.key}>
-                <Text style={styles.text}>Capital Costs:&nbsp;</Text>
-                <Text style={styles.value}>{}</Text>
-                <View>
-                    {/* <Text style={styles.text}>Location:</Text> */}
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Country:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>State:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>City:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Zip:&nbsp;</Text>
-                        <Text style={styles.value}>{}</Text>
-                    </View>
-                    <br />
-                </View>
-            </View>
-            <br />
-
-            <>
-                <View style={styles.key}>
-                    <Text style={styles.text}>Contract Costs:&nbsp;</Text>
-                    <Text style={styles.value}>Constant</Text>
-                    <View>
+            {alts.map((alt: Alternative) => {
+                return (
+                    <View key={alt.id}>
                         <View style={styles.key}>
-                            <Text style={styles.text}>Country:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
+                            <Text style={styles.text}>Name:&nbsp; </Text>
+                            <Text style={styles.value}>{alt.name}</Text>
+                            <br />
                         </View>
-                        <br />
                         <View style={styles.key}>
-                            <Text style={styles.text}>State:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
+                            <Text style={styles.text}>Description:&nbsp;</Text>
+                            <Text style={styles.desc}> {alt.description}</Text>
+                            <br />
                         </View>
-                        <br />
                         <View style={styles.key}>
-                            <Text style={styles.text}>City:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
+                            <Text style={styles.text}>Baseline:&nbsp;</Text>
+                            <Text style={styles.value}> {alt.baseline === false ? "No" : "Yes"}</Text>
+                            <br />
                         </View>
-                        <br />
                         <View style={styles.key}>
-                            <Text style={styles.text}>Zip:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
+                            <Text style={styles.text}>Total Costs:&nbsp;</Text>
+                            <Text style={styles.value}> {alt.costs.length}</Text>
+                            <br />
                         </View>
-                        <br />
+                        <hr style={styles.divider} />
                     </View>
-                </View>
-                <View style={styles.key}>
-                    <Text style={styles.text}>Other Costs:&nbsp;</Text>
-                    <Text style={styles.value}>{}</Text>
-                    <View>
-                        <View style={styles.key}>
-                            <Text style={styles.text}>Country:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
-                        </View>
-                        <br />
-                        <View style={styles.key}>
-                            <Text style={styles.text}>State:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
-                        </View>
-                        <br />
-                        <View style={styles.key}>
-                            <Text style={styles.text}>City:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
-                        </View>
-                        <br />
-                        <View style={styles.key}>
-                            <Text style={styles.text}>Zip:&nbsp;</Text>
-                            <Text style={styles.value}>{}</Text>
-                        </View>
-                        <br />
-                    </View>
-                </View>
-                <br />
-            </>
+                );
+            })}
         </View>
     );
 };

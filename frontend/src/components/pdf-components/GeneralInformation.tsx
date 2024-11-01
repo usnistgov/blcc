@@ -1,56 +1,6 @@
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 import { AnalysisType, DollarMethod, Project, USLocation } from "blcc-format/Format";
-import React from "react";
-
-const styles = StyleSheet.create({
-    section: {
-        display: "flex",
-        flexDirection: "column",
-        padding: 25
-    },
-    title: {
-        fontSize: 18,
-        textAlign: "center",
-        marginBottom: 20
-    },
-    heading: {
-        fontSize: 16,
-        color: "rgba(0, 0, 0, 0.88)"
-    },
-    key: {
-        display: "flex",
-        flexDirection: "row",
-        marginBottom: 10
-    },
-    desc: {
-        maxWidth: "100vw",
-        marginBottom: 10
-    },
-    text: {
-        fontSize: 14,
-        color: "#979797"
-    },
-    value: {
-        fontSize: 14,
-        marginBottom: "5"
-    },
-    divider: {
-        border: "1px solid black",
-        margin: "2px 0 5px 0"
-    },
-    container: {
-        display: "flex"
-    },
-    row: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 10 // space between rows
-    },
-    item: {
-        flex: 1,
-        margin: 5
-    }
-});
+import { styles } from "./pdfStyles";
 
 const GeneralInformation = (props: { project: Project }) => {
     const project = props.project;
