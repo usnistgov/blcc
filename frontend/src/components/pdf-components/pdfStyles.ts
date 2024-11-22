@@ -1,6 +1,10 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
 export const styles = StyleSheet.create({
+    page: {
+        margin: "10px",
+        border: "1px solid black"
+    },
     section: {
         display: "flex",
         flexDirection: "column",
@@ -43,30 +47,39 @@ export const styles = StyleSheet.create({
         marginBottom: 10
     },
     title: {
-        fontSize: 18,
+        fontSize: 16,
         textAlign: "center",
         marginBottom: 20
     },
     heading: {
-        fontSize: 16,
+        fontSize: 14,
         color: "rgba(0, 0, 0, 0.88)"
     },
     key: {
         display: "flex",
         flexDirection: "row",
-        marginBottom: 10
+        marginBottom: 4
     },
     desc: {
         maxWidth: "100vw",
-        marginBottom: 10
+        marginBottom: 4,
+        fontSize: 10
     },
     text: {
-        fontSize: 14,
-        color: "#979797"
+        fontSize: 10,
+        color: "#005fa3ff"
+    },
+    subHeading: {
+        fontSize: 13,
+        textDecoration: "underline",
+        textDecorationStyle: "solid",
+        textAlign: "center",
+        margin: "auto",
+        marginBottom: 4
     },
     value: {
-        fontSize: 14,
-        marginBottom: "5"
+        fontSize: 10,
+        marginBottom: 3
     },
     divider: {
         border: "1px solid black",
@@ -88,5 +101,18 @@ export const styles = StyleSheet.create({
         display: "flex",
         justifyContent: "flex-end",
         fontSize: 14
+    },
+    table: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-evenly"
+    },
+    subDivider: {
+        border: "1px solid black",
+        margin: "15px auto",
+        width: "50%"
+    },
+    costContainer: {
+        padding: "10px 20px"
     }
 });

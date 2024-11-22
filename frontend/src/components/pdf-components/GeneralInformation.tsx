@@ -42,8 +42,8 @@ const GeneralInformation = (props: { project: Project }) => {
                         <Text style={styles.value}>{project?.studyPeriod} year(s)</Text>
                     </View>
                     <View style={styles.item}>
-                        <Text style={styles.text}>Data Release Year:&nbsp;</Text>
-                        <Text style={styles.value}>{project?.releaseYear}</Text>
+                        <Text style={styles.text}>Construction Period:&nbsp;</Text>
+                        <Text style={styles.value}>{project?.constructionPeriod}</Text>
                     </View>
                 </View>
                 <View style={styles.row}>
@@ -75,18 +75,18 @@ const GeneralInformation = (props: { project: Project }) => {
                     <View style={styles.row}>
                         <View style={styles.item}>
                             <Text style={styles.text}>Real Discount Rate:&nbsp;</Text>
-                            <Text style={styles.value}>{project?.realDiscountRate}%</Text>
+                            <Text style={styles.value}>{project?.realDiscountRate} %</Text>
                         </View>
                     </View>
                 ) : (
                     <View style={styles.row}>
                         <View style={styles.item}>
-                            <Text style={styles.text}>City:&nbsp;</Text>
-                            <Text style={styles.value}>{project?.location?.city}</Text>
+                            <Text style={styles.text}>Inflation Rate:&nbsp;</Text>
+                            <Text style={styles.value}>{project?.inflationRate} %</Text>
                         </View>
                         <View style={styles.item}>
-                            <Text style={styles.text}>Zip:&nbsp;</Text>
-                            <Text style={styles.value}>{(project?.location as USLocation)?.zipcode}</Text>
+                            <Text style={styles.text}>Nominal Discount Rate:&nbsp;</Text>
+                            <Text style={styles.value}>{project?.nominalDiscountRate} %</Text>
                         </View>
                     </View>
                 )}

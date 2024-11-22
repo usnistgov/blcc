@@ -1,13 +1,13 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
 import { pdf } from "@react-pdf/renderer";
-import { Alternative, Project } from "blcc-format/Format";
+import { Alternative, Cost, Project } from "blcc-format/Format";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { Model, useAlternatives, useProject } from "model/Model";
+import { costs$, Model, useAlternatives, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
 import React from "react";
@@ -24,9 +24,15 @@ export default function ResultsAppBar() {
     const navigate = useNavigate();
     const project = useProject();
     const alternatives = useAlternatives();
+    let costs: Cost[] = [];
+    costs$.subscribe((data) => {
+        costs = data;
+    });
 
     useSubscribe(pdfClick$, () => {
-        const blob = pdf(<Pdf project={project as Project} alternatives={alternatives as Alternative[]} />).toBlob();
+        const blob = pdf(
+            <Pdf project={project as Project} alternatives={alternatives as Alternative[]} costs={costs as Cost[]} />
+        ).toBlob();
 
         blob.then((blob: Blob | MediaSource) => {
             const url = window.URL.createObjectURL(blob);
