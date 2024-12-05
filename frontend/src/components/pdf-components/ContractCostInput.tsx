@@ -5,10 +5,11 @@ import {
     CostSavings,
     Description,
     InitialCost,
+    InitialOccurence,
+    RateOfChangeValue,
     RateOfRecurrence,
     Recurring
 } from "./CostComponents";
-import InputTable from "./InputTable";
 import { styles } from "./pdfStyles";
 
 const ContractCostInput = (props: { cost; year: number }) => {
@@ -20,62 +21,37 @@ const ContractCostInput = (props: { cost; year: number }) => {
 
             <Description cost={cost} />
 
-            {cost?.occurence ? (
+            {cost?.occurrence ? (
                 <View style={styles.key}>
-                    <Text style={styles.text}>Occurence:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.occurrence} year(s)</Text>
+                    <Text style={styles.text}>Occurrence:&nbsp;</Text>
+                    <Text style={styles.value}> Year - {cost?.occurrence}</Text>
                 </View>
             ) : null}
 
-            {cost?.initialOccurrence ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Initial Occurrence:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.initialOccurrence} year(s)</Text>
-                </View>
-            ) : null}
+            <InitialOccurence cost={cost} />
+
+            <CostSavings cost={cost} />
 
             {cost?.cost ? (
                 <View style={styles.key}>
-                    <Text style={styles.text}>Cost:&nbsp;</Text>
+                    {cost?.costSavings ? (
+                        <Text style={styles.text}>Savings:&nbsp;</Text>
+                    ) : (
+                        <Text style={styles.text}>Cost:&nbsp;</Text>
+                    )}
                     <Text style={styles.value}> ${cost?.cost}</Text>
                 </View>
             ) : null}
 
             <InitialCost cost={cost} />
 
-            <CostSavings cost={cost} />
-
             <AnnualRateOfChange cost={cost} />
 
-            {cost?.costPerUnit ? (
-                <View style={styles.key}>
-                    {cost?.costSavings ? (
-                        <Text style={styles.text}>Cost Savings per Unit:&nbsp;</Text>
-                    ) : (
-                        <Text style={styles.text}>Cost per Unit:&nbsp;</Text>
-                    )}
-                    <Text style={styles.value}> {cost?.costPerUnit} </Text>
-                </View>
-            ) : null}
-
-            <RateOfRecurrence cost={cost} />
             <Recurring cost={cost} />
-
             {cost?.recurring ? (
                 <>
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Rate of Recurrence:&nbsp;</Text>
-                        <Text style={styles.value}> {cost?.recurring?.rateOfRecurrence} year(s)</Text>
-                    </View>
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Rate of Change of Value:&nbsp;</Text>
-                        <InputTable
-                            cost={cost}
-                            header={"Value Rate of Change (%)"}
-                            inputRows={cost?.recurring?.rateOfChangeValue}
-                            year={year}
-                        />
-                    </View>
+                    <RateOfRecurrence cost={cost} year={year} />
+                    <RateOfChangeValue cost={cost} year={year} />
                 </>
             ) : null}
         </View>

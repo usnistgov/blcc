@@ -9,21 +9,24 @@ interface Props {
         description?: string;
         costSavings?: Boolean;
         initialCost?: number;
+        costPerUnit?: number;
+        expectedLifetime?: number;
+        costAdjustment?: number;
+        initialOccurrence?: number;
         annualRateOfChange?: number;
-        recurring?: Boolean;
+        recurring?: any; // TODO: specify the correct type
         rateOfRecurrence?: number;
         useIndex?: number[];
         phaseIn?: number[];
+        escalation?: any; // TODO: specify the correct type
     };
     year?: number;
 }
 
 export const CostName = ({ cost }: Props) => (
-    <View style={styles.key}>
-        <Text style={styles.subHeading}>
-            {cost?.type}: {cost?.name || "Unnamed"}
-        </Text>
-    </View>
+    <Text style={styles.subHeading}>
+        Cost - {cost?.type}: {cost?.name || "Unnamed"}
+    </Text>
 );
 
 export const Description = ({ cost }: Props) => (
@@ -42,7 +45,7 @@ export const CostSavings = ({ cost }: Props) => (
         {cost?.costSavings ? (
             <View style={styles.key}>
                 <Text style={styles.text}>Cost Savings:&nbsp;</Text>
-                <Text style={styles.value}> {cost.costSavings ? "Yes" : "No"}</Text>
+                <Text style={styles.value}> {cost?.costSavings ? "Yes" : "No"}</Text>
             </View>
         ) : null}
     </>
@@ -58,6 +61,39 @@ export const InitialCost = ({ cost }: Props) => (
                     <Text style={styles.text}>Initial Cost:&nbsp;</Text>
                 )}
                 <Text style={styles.value}> ${cost?.initialCost}</Text>
+            </View>
+        ) : null}
+    </>
+);
+
+export const CostPerUnit = ({ cost }: Props) => (
+    <>
+        {cost?.costPerUnit ? (
+            <View style={styles.key}>
+                {cost?.costSavings ? (
+                    <Text style={styles.text}>Cost Savings per Unit:&nbsp;</Text>
+                ) : (
+                    <Text style={styles.text}>Cost per Unit:&nbsp;</Text>
+                )}
+                <Text style={styles.value}> ${cost?.costPerUnit} </Text>
+            </View>
+        ) : null}
+    </>
+);
+
+export const ExpectedLife = ({ cost }: Props) => (
+    <View style={styles.key}>
+        <Text style={styles.text}>Expected Lifetime:&nbsp;</Text>
+        <Text style={styles.value}> {cost?.expectedLifetime || 0} year(s)</Text>
+    </View>
+);
+
+export const CostAdjustmentFactor = ({ cost }: Props) => (
+    <>
+        {cost?.costAdjustment ? (
+            <View style={styles.key}>
+                <Text style={styles.text}>Cost Adjustment Factor:&nbsp;</Text>
+                <Text style={styles.value}> {cost?.costAdjustment}%</Text>
             </View>
         ) : null}
     </>
@@ -81,6 +117,17 @@ export const Recurring = ({ cost }: Props) => (
     </View>
 );
 
+export const InitialOccurence = ({ cost }: Props) => (
+    <>
+        {cost?.initialOccurrence ? (
+            <View style={styles.key}>
+                <Text style={styles.text}>Initial Occurrence:&nbsp;</Text>
+                <Text style={styles.value}> {cost?.initialOccurrence} year(s)</Text>
+            </View>
+        ) : null}
+    </>
+);
+
 export const RateOfRecurrence = ({ cost }: Props) => (
     <>
         {cost?.rateOfRecurrence ? (
@@ -94,9 +141,10 @@ export const RateOfRecurrence = ({ cost }: Props) => (
 export const UseIndex = ({ cost, year }: Props) => (
     <>
         {cost?.useIndex && (
-            <View style={styles.key}>
+            <View style={styles.tableWrapper}>
                 <Text style={styles.text}>Usage Index:&nbsp;</Text>
-                <InputTable cost={cost} header="Usage %" inputRows={cost.useIndex} year={year} />
+                <View style={{ margin: 2 }} />
+                <InputTable cost={cost} header="Usage (%)" inputRows={cost?.useIndex} year={year} />
             </View>
         )}
     </>
@@ -105,10 +153,78 @@ export const UseIndex = ({ cost, year }: Props) => (
 export const PhaseIn = ({ cost, year }: Props) => (
     <>
         {cost?.phaseIn && (
-            <View style={styles.key}>
+            <View style={styles.tableWrapper}>
                 <Text style={styles.text}>Phase In:&nbsp;</Text>
-                <InputTable cost={cost} header="Phase In (%)" inputRows={cost.phaseIn} year={year} />
+                <View style={{ margin: 2 }} />
+                <InputTable cost={cost} header="Phase In (%)" inputRows={cost?.phaseIn} year={year} />
             </View>
         )}
+    </>
+);
+
+export const RateOfChangeValue = ({ cost, year }: Props) => {
+    const value = Array.isArray(cost?.recurring?.rateOfChangeValue);
+    return (
+        <View style={value ? { margin: 0 } : styles.key}>
+            <Text style={styles.text}>Rate Of Change of Value:&nbsp;</Text>
+            {value ? (
+                <View style={{ marginBottom: 6 }}>
+                    <View style={{ margin: 2 }} />
+                    <InputTable
+                        cost={cost}
+                        header={"Value Rate of Change (%)"}
+                        inputRows={cost?.recurring?.rateOfChangeValue}
+                        year={year}
+                    />
+                </View>
+            ) : (
+                <Text style={styles.value}> {cost?.recurring?.rateOfChangeValue}%</Text>
+            )}
+        </View>
+    );
+};
+
+export const RateOfChangeUnits = ({ cost, year }: Props) => {
+    const value = Array.isArray(cost?.recurring?.rateOfChangeUnits);
+    return (
+        <View style={value ? { margin: 0 } : styles.key}>
+            <Text style={styles.text}>Rate Of Change Units:&nbsp;</Text>
+            {value ? (
+                <View style={{ marginBottom: 6 }}>
+                    <View style={{ margin: 2 }} />
+                    <InputTable
+                        cost={cost}
+                        header={"Unit Rate of Change (%)"}
+                        inputRows={cost?.recurring?.rateOfChangeUnits}
+                        year={year}
+                    />
+                </View>
+            ) : (
+                <Text style={styles.value}> {cost?.recurring?.rateOfChangeUnits}%</Text>
+            )}
+        </View>
+    );
+};
+
+export const EscalationRates = ({ cost, year }: Props) => (
+    <>
+        {cost?.escalation ? (
+            <View>
+                <Text style={styles.text}>Escalation:&nbsp;</Text>
+                {Array.isArray(cost?.escalation) ? (
+                    <View style={{ marginBottom: 6 }}>
+                        <View style={{ margin: 2 }} />
+                        <InputTable
+                            cost={cost}
+                            header={"Escalation Rates (%)"}
+                            inputRows={cost?.escalation}
+                            year={year}
+                        />
+                    </View>
+                ) : (
+                    <Text style={styles.value}> {cost?.escalation}%</Text>
+                )}
+            </View>
+        ) : null}
     </>
 );

@@ -1,9 +1,12 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
+const blue = "#005fa3ff";
+const black = "rgb(0,0,0)";
+
 export const styles = StyleSheet.create({
     page: {
-        margin: "10px",
-        border: "1px solid black"
+        margin: 10
+        // border: "1px solid black"
     },
     section: {
         display: "flex",
@@ -24,15 +27,6 @@ export const styles = StyleSheet.create({
         height: "20px",
         alignSelf: "flex-end"
     },
-    pageNumber: {
-        position: "absolute",
-        fontSize: 12,
-        bottom: 30,
-        left: 0,
-        right: 0,
-        textAlign: "center",
-        color: "grey"
-    },
     blccHeader: {
         display: "flex",
         flexDirection: "column",
@@ -46,44 +40,96 @@ export const styles = StyleSheet.create({
         height: "50px",
         marginBottom: 10
     },
+    date: {
+        display: "flex",
+        justifyContent: "flex-end",
+        fontSize: 14
+    },
+    pageNumber: {
+        position: "absolute",
+        fontSize: 12,
+        bottom: 30,
+        left: 0,
+        right: 0,
+        textAlign: "center",
+        color: "grey"
+    },
+
+    titleDivider: {
+        border: "1px solid black",
+        margin: "4px 0 4px 0"
+    },
+    titleWrapper: {
+        display: "flex",
+        justifyContent: "space-between",
+        textAlign: "center"
+    },
     title: {
         fontSize: 16,
-        textAlign: "center",
-        marginBottom: 20
+        color: blue,
+        textAlign: "center"
+    },
+    subTitle: {
+        fontSize: 12,
+        color: blue,
+        fontWeight: "ultrabold"
     },
     heading: {
         fontSize: 14,
-        color: "rgba(0, 0, 0, 0.88)"
+        color: "rgba(0, 0, 0, 0.88)",
+        textDecoration: "underline",
+        textDecorationColor: black,
+        marginBottom: 8
+    },
+    altHeading: {
+        display: "flex",
+        flexDirection: "row",
+        marginTop: 8,
+        marginBottom: 8,
+        fontSize: 13,
+        color: black,
+        textAlign: "center",
+        textDecoration: "underline",
+        textDecorationColor: black,
+        fontWeight: 800
     },
     key: {
         display: "flex",
         flexDirection: "row",
-        marginBottom: 4
+        marginBottom: 6,
+        fontSize: 10
+    },
+    text: {
+        fontSize: 10,
+        color: blue
+    },
+    value: {
+        fontSize: 10,
+        marginBottom: 3
     },
     desc: {
         maxWidth: "100vw",
         marginBottom: 4,
         fontSize: 10
     },
-    text: {
-        fontSize: 10,
-        color: "#005fa3ff"
+    tableWrapper: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: 10
     },
+
     subHeading: {
-        fontSize: 13,
+        fontSize: 12,
         textDecoration: "underline",
         textDecorationStyle: "solid",
-        textAlign: "center",
-        margin: "auto",
-        marginBottom: 4
+        marginBottom: 8,
+        fontWeight: "ultrabold",
+        color: "#000"
     },
-    value: {
-        fontSize: 10,
-        marginBottom: 3
-    },
+
     divider: {
         border: "1px solid black",
-        margin: "2px 0 5px 0"
+        margin: "2px 0 2.5px 0"
     },
     container: {
         display: "flex"
@@ -94,18 +140,15 @@ export const styles = StyleSheet.create({
         marginBottom: 10 // space between rows
     },
     item: {
-        flex: 1,
-        margin: 5
+        flex: 1
     },
-    date: {
-        display: "flex",
-        justifyContent: "flex-end",
-        fontSize: 14
-    },
+
     table: {
         display: "flex",
         flexDirection: "row",
-        justifyContent: "space-evenly"
+        justifyContent: "space-evenly",
+        border: "1px solid #000",
+        maxWidth: "300px"
     },
     subDivider: {
         border: "1px solid black",
@@ -113,6 +156,28 @@ export const styles = StyleSheet.create({
         width: "50%"
     },
     costContainer: {
-        padding: "10px 20px"
+        padding: "5px 20px"
+    },
+    cell: {
+        width: "100px",
+        fontSize: 10,
+        textAlign: "center",
+        borderRight: "1px solid black",
+        backgroundColor: "#005fa3ff",
+        color: "#fff"
+    },
+    alt: {
+        width: "100px",
+        fontSize: 10,
+        textAlign: "center",
+        borderRight: "1px solid black"
+    },
+    tag: {
+        backgroundColor: "rgb(169 174 177)",
+        padding: "1.5 3",
+        fontSize: 10,
+        border: "1px solid #000",
+        borderRadius: 2,
+        marginRight: 2
     }
 });

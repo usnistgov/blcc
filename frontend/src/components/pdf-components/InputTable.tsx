@@ -1,27 +1,28 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import InputTableRows from "./InputTableRows";
 
-const borderRight = "1px solid #fff";
+const border = "1px solid #000";
 const fontSize = 10;
 
 const styles = StyleSheet.create({
     container: {
+        width: "180px",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
         color: "#fff",
         textAlign: "center",
-        backgroundColor: "#005fa3ff"
+        backgroundColor: "#005fa3ff",
+        border
     },
     year: {
-        // width: "14.28%",
-        borderRight,
+        width: "50px",
+        borderRight: border,
         fontSize
     },
     value: {
-        // width: "17.28%",
-        fontSize,
-        borderRight
+        width: "130px",
+        fontSize
     }
 });
 

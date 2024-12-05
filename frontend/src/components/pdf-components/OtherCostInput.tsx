@@ -1,6 +1,14 @@
 import { Text, View } from "@react-pdf/renderer";
-import { CostName, CostSavings, Description, RateOfRecurrence, Recurring, UseIndex } from "./CostComponents";
-import InputTable from "./InputTable";
+import {
+    CostName,
+    Description,
+    InitialOccurence,
+    RateOfChangeUnits,
+    RateOfChangeValue,
+    RateOfRecurrence,
+    Recurring
+} from "./CostComponents";
+
 import { styles } from "./pdfStyles";
 
 const OtherCostInput = (props: { cost; year: number }) => {
@@ -11,32 +19,27 @@ const OtherCostInput = (props: { cost; year: number }) => {
             <CostName cost={cost} />
 
             <Description cost={cost} />
-            {cost?.fuelType ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Fuel Type:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.fuelType}</Text>
-                </View>
-            ) : null}
+
             {cost?.tags ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Tags:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.tags}</Text>
+                    {cost?.tags?.map((tag: string) => (
+                        <Text key={tag} style={styles.tag}>
+                            {tag}
+                        </Text>
+                    ))}
                 </View>
             ) : null}
 
-            <CostSavings cost={cost} />
             {cost?.costOrBenefit ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Cost or Benefit:&nbsp;</Text>
                     <Text style={styles.value}>{cost?.costOrBenefit}</Text>
                 </View>
             ) : null}
-            {cost?.initialOccurrence ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Initial Occurrence:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.initialOccurrence}</Text>
-                </View>
-            ) : null}
+
+            <InitialOccurence cost={cost} />
+
             {cost?.valuePerUnit ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Value per Unit:&nbsp;</Text>
@@ -45,6 +48,7 @@ const OtherCostInput = (props: { cost; year: number }) => {
                     </Text>
                 </View>
             ) : null}
+
             {cost?.numberOfUnits ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Number Of Units:&nbsp;</Text>
@@ -53,66 +57,14 @@ const OtherCostInput = (props: { cost; year: number }) => {
                     </Text>
                 </View>
             ) : null}
-            {cost?.escalation ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Escalation:&nbsp;</Text>
-                    {Array.isArray(cost?.escalation) ? (
-                        <InputTable
-                            cost={cost}
-                            header={"Value Rate of Change %"}
-                            inputRows={cost?.escalation}
-                            year={year}
-                        />
-                    ) : (
-                        <Text style={styles.value}> {cost.escalation}</Text>
-                    )}
-                </View>
-            ) : null}
-            {cost?.costAdjustment ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Cost Adjustment Factor:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.costAdjustment}</Text>
-                </View>
-            ) : null}
-            {cost?.phaseIn ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Escalation:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.phaseIn}</Text>
-                </View>
-            ) : null}
 
             <Recurring cost={cost} />
+
             {cost?.recurring ? (
                 <>
                     <RateOfRecurrence cost={cost} />
-
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Rate Of Change Value:&nbsp;</Text>
-                        {Array.isArray(cost?.recurring?.rateOfChangeValue) ? (
-                            <InputTable
-                                cost={cost}
-                                header={"Value Rate of Change %"}
-                                inputRows={cost?.recurring?.rateOfChangeValue}
-                                year={year}
-                            />
-                        ) : (
-                            <Text style={styles.value}> {cost?.recurring?.rateOfChangeValue}</Text>
-                        )}
-                    </View>
-
-                    <View style={styles.key}>
-                        <Text style={styles.text}>Rate Of Change Units:&nbsp;</Text>
-                        {Array.isArray(cost?.recurring?.rateOfChangeUnits) ? (
-                            <InputTable
-                                cost={cost}
-                                header={"Unit Rate of Change %"}
-                                inputRows={cost?.recurring?.rateOfChangeUnits}
-                                year={year}
-                            />
-                        ) : (
-                            <Text style={styles.value}> {cost?.recurring?.rateOfChangeUnits}</Text>
-                        )}
-                    </View>
+                    <RateOfChangeValue cost={cost} year={year} />
+                    <RateOfChangeUnits cost={cost} year={year} />
                 </>
             ) : null}
         </View>

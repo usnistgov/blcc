@@ -23,36 +23,35 @@ const Alternatives = (props: { alternatives: Alternative[]; costs: Cost[]; relea
 
     return (
         <View style={styles.section}>
-            <Text style={styles.title}>Alternatives</Text>
-            {alts.map((alt: Alternative) => {
-                const altCosts = getAltCosts(alt);
-                const lastIndex = altCosts.length - 1;
+            <hr style={styles.titleDivider} />
+            <View style={styles.titleWrapper}>
+                <Text style={{ ...styles.title, marginBottom: 5 }}>Alternatives</Text>
+                <Text style={styles.subTitle}>Total - {alts.length}</Text>
+            </View>
+            <hr style={styles.titleDivider} />
+            <br />
+            {alts.map((alt: Alternative, idx: number) => {
                 return (
                     <View key={alt.id}>
-                        <View style={styles.key}>
-                            <Text style={styles.text}>Name:&nbsp; </Text>
-                            <Text style={styles.value}>{alt.name}</Text>
-                            <br />
-                        </View>
+                        <Text style={styles.altHeading}>
+                            Alternative {idx + 1} - {alt.name}
+                        </Text>
+
                         {alt?.description ? (
                             <View style={styles.key}>
                                 <Text style={styles.text}>Description:&nbsp;</Text>
                                 <Text style={styles.desc}> {alt.description}</Text>
-                                <br />
                             </View>
                         ) : null}
                         <View style={styles.key}>
                             <Text style={styles.text}>Baseline:&nbsp;</Text>
                             <Text style={styles.value}> {alt.baseline === false ? "No" : "Yes"}</Text>
-                            <br />
                         </View>
                         <View style={styles.key}>
                             <Text style={styles.text}>Total Costs:&nbsp;</Text>
                             <Text style={styles.value}> {alt.costs.length}</Text>
-                            <br />
                         </View>
-                        {altCosts.map((cost: Cost, idx: number) => {
-                            console.log(idx, lastIndex, cost.name);
+                        {getAltCosts(alt).map((cost: Cost) => {
                             return (
                                 <View style={styles.costContainer} key={cost.id}>
                                     {(cost.type === "Capital" ||
@@ -73,7 +72,6 @@ const Alternatives = (props: { alternatives: Alternative[]; costs: Cost[]; relea
                                         cost.type === "Recurring Contract") && (
                                         <ContractCostInput cost={cost} year={releaseYear} />
                                     )}
-                                    {idx !== lastIndex && <hr style={styles.subDivider} />}
                                 </View>
                             );
                         })}
