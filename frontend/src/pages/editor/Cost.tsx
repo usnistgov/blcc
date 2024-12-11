@@ -1,13 +1,16 @@
 import { mdiArrowLeft, mdiChevronRight, mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
+import Icon from "@mdi/react";
 import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
-import { type Cost as FormatCost, CostTypes, type ID } from "blcc-format/Format";
+import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
+import Info from "components/Info";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
+import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
@@ -26,14 +29,13 @@ import WaterCostFields from "pages/editor/cost/WaterCostFields";
 import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostFields";
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { combineLatest, map, sample, Subject, switchMap } from "rxjs";
+import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import Switch from "../../components/input/Switch";
-import Icon from "@mdi/react";
-import { Strings } from "constants/Strings";
-import Info from "components/Info";
 import sToggleAlt$ = CostModel.sToggleAlt$;
+import { CostSavingsSwitch } from "components/CostSavingsSwitch";
+import { TestInput } from "components/input/TestInput";
 
 const { Title } = Typography;
 
@@ -126,7 +128,6 @@ export default function Cost() {
     const costType = CostModel.useType();
     const alternativeID = AlternativeModel.useID();
     const alternativeName = useStateObservable(AlternativeModel.name$);
-    const costName = useStateObservable(CostModel.name$);
 
     /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     //useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
@@ -155,7 +156,7 @@ export default function Cost() {
                             {alternativeName}
                         </Button>
                         <Icon path={mdiChevronRight} size={0.8} className={"text-ink"} />
-                        <p className={"px-2 text-ink"}>{costName}</p>
+                        <p className={"px-2 text-ink"}>{CostModel.name.use()}</p>
                     </div>
                     <div className={"px-6"}>
                         <Button type={ButtonType.LINK} icon={mdiPlus} onClick={() => openCostModal$.next()}>
@@ -184,11 +185,11 @@ export default function Cost() {
             <div className={"w-full h-full overflow-y-auto"}>
                 <div className={"max-w-screen-lg p-6"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        <TextInput
+                        <TestInput
                             type={TextInputType.PRIMARY}
                             label={"Name"}
-                            value$={CostModel.name$}
-                            wire={CostModel.sName$}
+                            getter={CostModel.name.use}
+                            onChange={(event) => CostModel.name.set(event.currentTarget.value)}
                         />
                         <div className={"flex flex-col"}>
                             <Title level={5}>
@@ -204,17 +205,7 @@ export default function Cost() {
                                 wire={CostModel.sDescription$}
                             />
                         </span>
-                        <span>
-                            <Title level={5}>
-                                <Info text={Strings.COST_OR_SAVINGS}>Cost or Savings</Info>
-                            </Title>
-                            <Switch
-                                value$={CostModel.costSavings$}
-                                wire={CostModel.sCostSavings$}
-                                checkedChildren={"Savings"}
-                                unCheckedChildren={"Cost"}
-                            />
-                        </span>
+                        <CostSavingsSwitch />
                     </div>
                 </div>
                 <div className={"border-t border-base-lighter mb-32"}>

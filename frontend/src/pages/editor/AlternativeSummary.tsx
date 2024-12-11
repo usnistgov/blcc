@@ -7,6 +7,7 @@ import type { Alternative, Cost, EnergyCost, ID } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
+import { Strings } from "constants/Strings";
 import { liveQuery } from "dexie";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
@@ -20,14 +21,13 @@ import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import { confirm, countProperty } from "util/Operators";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
-import { Strings } from "constants/Strings";
 
 const { Title } = Typography;
 
 const addAlternativeClick$ = new Subject<void>();
 
 const confirmBaselineChange$ = new Subject<ID>();
-const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))), []);
+const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))));
 
 export default function AlternativeSummary() {
     const navigate = useNavigate();
@@ -55,7 +55,7 @@ export default function AlternativeSummary() {
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.08 }}
         >
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
@@ -88,23 +88,23 @@ export function createAlternativeCard(alternative: Alternative) {
     );
 
     // Count all energy costs, and the count of its subcategories
-    const [energyCosts, energyCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isEnergyCost))), []);
-    const [fuelSubcategories] = bind(energyCosts$.pipe(countProperty((cost) => (cost as EnergyCost).fuelType)), []);
+    const [energyCosts, energyCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isEnergyCost))));
+    const [fuelSubcategories] = bind(energyCosts$.pipe(countProperty((cost) => (cost as EnergyCost).fuelType)));
 
     // Count all water costs
-    const [waterCosts] = bind(altCosts$.pipe(map((costs) => costs.filter(isWaterCost))), []);
+    const [waterCosts] = bind(altCosts$.pipe(map((costs) => costs.filter(isWaterCost))));
 
     // Count all capital costs and its subcategories
-    const [capitalCosts, capitalCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isCapitalCost))), []);
-    const [capitalSubcategories] = bind(capitalCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
+    const [capitalCosts, capitalCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isCapitalCost))));
+    const [capitalSubcategories] = bind(capitalCosts$.pipe(countProperty((cost) => (cost as Cost).type)));
 
     // Count all contract costs and its subcategories
-    const [contractCosts, contractCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isContractCost))), []);
-    const [contractSubcategories] = bind(contractCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
+    const [contractCosts, contractCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isContractCost))));
+    const [contractSubcategories] = bind(contractCosts$.pipe(countProperty((cost) => (cost as Cost).type)));
 
     // Count all other costs and its subcategories
-    const [otherCosts, otherCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isOtherCost))), []);
-    const [otherSubcategories] = bind(otherCosts$.pipe(countProperty((cost) => (cost as Cost).type)), []);
+    const [otherCosts, otherCosts$] = bind(altCosts$.pipe(map((costs) => costs.filter(isOtherCost))));
+    const [otherSubcategories] = bind(otherCosts$.pipe(countProperty((cost) => (cost as Cost).type)));
 
     const [cardClick$, click] = createSignal();
 
@@ -180,7 +180,7 @@ export function createAlternativeCard(alternative: Alternative) {
                             </Button>
                         </div>
                     </div>
-                    <p>{alternative.description}</p>
+                    <p className={"max-w-[32rem] pb-4"}>{alternative.description}</p>
                     <br />
                     <div className={"flex flex-row justify-between gap-6"}>
                         {/* Render each category */}

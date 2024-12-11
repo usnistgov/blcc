@@ -36,7 +36,7 @@ import { Version } from "blcc-format/Verison";
 import { showMessage } from "components/modal/MessageModal";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
 import { XMLParser } from "fast-xml-parser";
-import { Model } from "model/Model";
+import { Model, reload } from "model/Model";
 import { db } from "model/db";
 import objectHash from "object-hash";
 import { Subject, map, switchMap } from "rxjs";
@@ -112,6 +112,8 @@ converted$
             "Old Format Conversion",
             "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
         );
+
+        reload();
     });
 
 function parseStudyPeriod(studyPeriod: DateDiff) {

@@ -1,5 +1,4 @@
 use std::env;
-use std::fmt::Display;
 
 use actix_web::web::{scope, Data, Json, ServiceConfig};
 use actix_web::{get, post, HttpResponse, Responder};

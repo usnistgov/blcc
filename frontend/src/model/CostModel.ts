@@ -1,10 +1,12 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
-import { CostTypes, type ID } from "blcc-format/Format";
+import { type Cost, CostTypes, type ID, type Project } from "blcc-format/Format";
 import { liveQuery } from "dexie";
+import { DexieModel, ModelType, Var } from "model/Model";
 import { db } from "model/db";
+import * as O from "optics-ts";
 import { Subject, distinctUntilChanged, map, merge, switchMap } from "rxjs";
 import { shareReplay, tap, withLatestFrom } from "rxjs/operators";
-import { defaultValue, guard, toggle } from "util/Operators";
+import { DexieOps, defaultValue, guard, toggle } from "util/Operators";
 
 export namespace CostModel {
     /**
@@ -13,11 +15,9 @@ export namespace CostModel {
     export const sId$ = new Subject<number>();
     export const id$ = sId$.pipe(shareLatest());
 
-    export const collection$ = id$.pipe(
-        distinctUntilChanged(),
-        map((id) => db.costs.where("id").equals(id)),
-        shareReplay(1),
-    );
+    export const collection$ = id$.pipe(distinctUntilChanged(), DexieOps.byId(db.costs), shareReplay(1));
+
+    export const DexieCostModel = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
 
     /**
      * The currently selected cost object as specified by the URL parameter.
@@ -44,13 +44,7 @@ export namespace CostModel {
     /**
      * The name of the current cost
      */
-    export const sName$ = new Subject<string | undefined>();
-    const newName$ = sName$.pipe(defaultValue("Unnamed Cost"));
-    export const name$ = state(
-        merge(newName$, cost$.pipe(map((cost) => cost?.name))).pipe(distinctUntilChanged()),
-        undefined,
-    );
-    newName$.pipe(withLatestFrom(collection$)).subscribe(([name, collection]) => collection.modify({ name }));
+    export const name = new Var(DexieCostModel, O.optic<Cost>().prop("name"));
 
     /**
      * The description of the current cost

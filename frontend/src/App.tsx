@@ -3,13 +3,13 @@ import { defaultProject } from "blcc-format/DefaultProject";
 import ConfirmationModal from "components/modal/ConfirmationModal";
 import MessageModal from "components/modal/MessageModal";
 import { liveQuery } from "dexie";
-import { Model } from "model/Model";
+import { Model, reload } from "model/Model";
 import { db } from "model/db";
 import Index from "pages/Index";
 import Editor from "pages/editor/Editor";
 import Results from "pages/results/Results";
-import { useMemo } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { Route, Routes } from "react-router-dom";
 import { combineLatest } from "rxjs";
 
 /**
@@ -25,25 +25,27 @@ export default function App() {
         });
     }, []);
 
+    useEffect(() => {
+        reload();
+    }, []);
+
     return (
         <Subscribe>
-            <BrowserRouter>
-                <div className={"flex h-full flex-col"}>
-                    {/*
-                     * Various modals that need to appear over everything else. They can be activated by calling a
-                     * stream operator
-                     */}
-                    <MessageModal />
-                    <ConfirmationModal />
+            <div className={"flex h-full flex-col"}>
+                {/*
+                 * Various modals that need to appear over everything else. They can be activated by calling a
+                 * stream operator
+                 */}
+                <MessageModal />
+                <ConfirmationModal />
 
-                    {/* Top level pages */}
-                    <Routes>
-                        <Route index element={<Index />} />
-                        <Route path={"/editor/*"} element={<Editor />} />
-                        <Route path={"/results/*"} element={<Results />} />
-                    </Routes>
-                </div>
-            </BrowserRouter>
+                {/* Top level pages */}
+                <Routes>
+                    <Route index element={<Index />} />
+                    <Route path={"/editor/*"} element={<Editor />} />
+                    <Route path={"/results/*"} element={<Results />} />
+                </Routes>
+            </div>
         </Subscribe>
     );
 }

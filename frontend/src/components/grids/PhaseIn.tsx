@@ -45,7 +45,7 @@ const COLUMNS = [
 
 export default function PhaseIn() {
     const [default$, rates$] = useMemo(() => {
-        const default$ = combineLatest([CapitalCostModel.phaseIn$, Model.constructionPeriod$]).pipe(
+        const default$ = combineLatest([CapitalCostModel.phaseIn$, Model.constructionPeriod.$]).pipe(
             filter(([phaseIn, constructionPeriod]) => constructionPeriod > 0 && phaseIn === undefined),
             map(([phaseIn, constructionPeriod]) => {
                 // Create default array with a size equal to the construction period
@@ -82,7 +82,7 @@ export default function PhaseIn() {
         return () => subscription.unsubscribe();
     }, [default$]);
 
-    const constructionPeriod = useStateObservable(Model.constructionPeriod$);
+    const constructionPeriod = Model.constructionPeriod.use();
     const rates = useStateObservable(rates$);
 
     return (

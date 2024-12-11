@@ -1,4 +1,7 @@
+import type { Project } from "blcc-format/Format";
 import { type ConfirmConfig, confirm as modalConfirm } from "components/modal/ConfirmationModal";
+import type { Collection, Table } from "dexie";
+import { db } from "model/db";
 import {
     type Observable,
     Subject,
@@ -121,4 +124,29 @@ export function confirm<T>(
             return confirm$.pipe(map(() => value));
         }),
     );
+}
+
+export namespace DexieOps {
+    /**
+     * Given a Dexie table and an observable of IDs, returns an observable of Collections that correspond to the given IDs.
+     *
+     * @param table The Dexie table to query
+     * @returns An observable of Collections that correspond to the given IDs.
+     */
+    export function byId<T>(table: Table<T, number>): UnaryFunction<Observable<number>, Observable<Collection<T>>> {
+        return pipe(map((id: number) => table.where("id").equals(id)));
+    }
+
+    /**
+     * Given an observable of collections, returns an observable of the first item in each collection. If the
+     * collection is empty, the resulting observable will not emit anything.
+     *
+     * @returns An observable of the first item in each collection.
+     */
+    export function first<T>(): UnaryFunction<Observable<Collection<T>>, Observable<T>> {
+        return pipe(
+            switchMap((collection) => collection.first()),
+            guard(),
+        );
+    }
 }

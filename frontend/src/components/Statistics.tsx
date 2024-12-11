@@ -62,7 +62,7 @@ export default function Statistics() {
 
                 {/* An icon denoting whether the project is valid or invalid */}
                 <Icon
-                    className={"mx-2 " + (valid ? "text-success" : "text-error")}
+                    className={`mx-2 ${valid ? "text-success" : "text-error"}`}
                     path={valid ? mdiCheck : mdiWindowClose}
                     size={0.8}
                 />

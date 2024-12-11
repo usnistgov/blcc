@@ -1,6 +1,6 @@
 extern crate diesel;
 extern crate diesel_migrations;
-extern crate openssl;
+//extern crate openssl;
 // Openssl declaration must be first
 
 use crate::api::config_api;
@@ -18,7 +18,7 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
 use env_logger;
 use r2d2::Pool;
-use reqwest::Client;
+use reqwest::{Client, ClientBuilder};
 use std::env;
 use std::path::PathBuf;
 
@@ -81,7 +81,11 @@ async fn main() -> std::io::Result<()> {
                 |cors, origin| cors.allowed_origin(&*origin),
             );
 
-        let client = Client::new();
+        // Set up reqwest client
+        let client = ClientBuilder::new()
+            .use_rustls_tls()
+            .build()
+            .unwrap();
 
         App::new()
             .app_data(web::JsonConfig::default().error_handler(|_, _| {

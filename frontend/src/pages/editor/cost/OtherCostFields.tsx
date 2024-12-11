@@ -1,13 +1,13 @@
 import { useStateObservable } from "@react-rxjs/core";
 import { Select } from "antd";
 import Title from "antd/es/typography/Title";
+import Info from "components/Info";
 import Recurring from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
 import { NumberInput } from "components/input/InputNumber";
 import { Strings } from "constants/Strings";
-import { OtherCostModel } from "model/costs/OtherCostModel";
-import Info from "components/Info";
 import { CostModel } from "model/CostModel";
+import { OtherCostModel } from "model/costs/OtherCostModel";
 
 export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);
@@ -55,7 +55,7 @@ export default function OtherCostFields() {
                 <NumberInput
                     className={"w-full"}
                     info={Strings.UNIT_VALUE}
-                    label={isSavings ? "Unit Value Savings" : "Unit Value"}
+                    label={isSavings ? "Unit Value Benefits" : "Unit Value"}
                     addonBefore={"$"}
                     addonAfter={unit === undefined ? undefined : `per ${unit}`}
                     value$={OtherCostModel.valuePerUnit$}

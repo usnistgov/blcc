@@ -1,67 +1,47 @@
-import { useStateObservable } from "@react-rxjs/core";
 import { DollarMethod } from "blcc-format/Format";
-import { NumberInput } from "components/input/InputNumber";
-import { Model } from "model/Model";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
-import Nbsp from "util/Nbsp";
+import { Model } from "model/Model";
 
 /**
  * Component to display the discount rates for the current project
  */
 export default function DiscountRates() {
-    const dollarMethod = useStateObservable(Model.dollarMethod$);
+    const dollarMethod = Model.dollarMethod.use();
 
     return (
         <div className={"col-span-2 grid grid-cols-3 items-end gap-x-4 gap-y-4"}>
-            <NumberInput
-                label={
-                    <>
-                        Inflation Rate
-                        <Nbsp />*
-                    </>
-                }
+            <TestNumberInput
+                label={"Inflation Rate"}
+                required
                 info={Strings.INFLATION_RATE}
                 disabled={dollarMethod !== DollarMethod.CURRENT}
                 addonAfter={"%"}
-                allowEmpty={true}
                 controls={false}
-                wire={Model.sInflationRate$}
-                value$={Model.inflationRate$}
-                percent
+                getter={Model.inflationRate.use}
+                onChange={(value) => Model.inflationRate.set(value ?? undefined)}
             />
-            <NumberInput
-                label={
-                    <>
-                        Nominal Discount Rate
-                        <Nbsp />*
-                    </>
-                }
+            <TestNumberInput
+                label={"Nominal Discount Rate"}
+                required
                 info={Strings.NOMINAL_DISCOUNT_RATE}
                 disabled={dollarMethod !== DollarMethod.CURRENT}
                 addonAfter={"%"}
-                allowEmpty={true}
                 controls={false}
                 min={0.0}
-                wire={Model.sNominalDiscountRate$}
-                value$={Model.nominalDiscountRate$}
-                percent
+                getter={Model.nominalDiscountRate.use}
+                onChange={(value) => Model.nominalDiscountRate.set(value ?? undefined)}
             />
-            <NumberInput
-                label={
-                    <>
-                        Real Discount Rate
-                        <Nbsp />*
-                    </>
-                }
+            <TestNumberInput
+                label={"Real Discount Rate"}
+                required
                 info={Strings.REAL_DISCOUNT_RATE}
                 disabled={dollarMethod !== DollarMethod.CONSTANT}
                 addonAfter={"%"}
-                allowEmpty={true}
                 controls={false}
                 min={0.0}
-                wire={Model.sRealDiscountRate$}
-                value$={Model.realDiscountRate$}
-                percent
+                getter={Model.realDiscountRate.use}
+                onChange={(value) => Model.realDiscountRate.set(value ?? undefined)}
             />
         </div>
     );

@@ -164,18 +164,7 @@ export default function EnergyCostFields() {
                     />
                     {customLocation && (
                         <div className={"grid grid-cols-2 gap-x-16 gap-y-4 pb-4"}>
-                            <Location
-                                sCountry$={EnergyCostModel.Location.sCountry$}
-                                country$={EnergyCostModel.Location.country$}
-                                sCity$={EnergyCostModel.Location.sCity$}
-                                city$={EnergyCostModel.Location.city$}
-                                sState$={EnergyCostModel.Location.sState$}
-                                state$={EnergyCostModel.Location.state$}
-                                sZip$={EnergyCostModel.Location.sZip$}
-                                zip$={EnergyCostModel.Location.zip$}
-                                sStateOrProvince$={EnergyCostModel.Location.sStateOrProvince$}
-                                stateOrProvince$={EnergyCostModel.Location.stateOrProvince$}
-                            />
+                            <Location model={EnergyCostModel.Location.model} />
                         </div>
                     )}
                     <Divider className={"col-span-2 my-2"} />

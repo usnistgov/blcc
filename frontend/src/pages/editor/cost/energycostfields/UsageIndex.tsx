@@ -91,7 +91,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
             // Fetch and set to default escalation rates
             sIsConstant$.pipe(
                 isFalse(),
-                withLatestFrom(Model.studyPeriod$),
+                withLatestFrom(Model.studyPeriod.$),
                 map(([_, studyPeriod]) => Array((studyPeriod ?? 1) + 1).fill(1)),
             ),
 

@@ -1,5 +1,5 @@
-describe("Index Page Spec", () => {
-    it("Should request header and footer", () => {
+describe("Index page spec", () => {
+    it("should request header and footer", () => {
         cy.intercept({
             method: "GET",
             url: "https://pages.nist.gov/nist-header-footer/boilerplate-header.html",
@@ -12,9 +12,16 @@ describe("Index Page Spec", () => {
         cy.get("footer");
     });
 
-    it("Opens the editor", () => {
+    it("opens the editor", () => {
         cy.visit("http://localhost:5173");
-        cy.contains("Open BLCC").click();
-        cy.url().should("include", "/editor");
-    });
+
+        // Check that "Open BLCC" button exists
+        const button = cy.get("button")
+        button.should("exist");
+        button.should("have.text", "Open BLCC");
+        button.click()
+
+        // Check that we actually navigated to the editor
+        cy.url().should("include", "/editor")
+    })
 });

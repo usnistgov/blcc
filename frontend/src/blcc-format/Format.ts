@@ -4,7 +4,7 @@ import type { Country, State } from "constants/LOCATION";
 export type Project = {
     id?: number;
     version: Version;
-    name: string;
+    name?: string;
     description?: string;
     analyst?: string;
     analysisType?: AnalysisType;
