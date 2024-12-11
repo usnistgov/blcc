@@ -4,7 +4,7 @@ stages:
   - release
 
 backend-build:
-  image: clux/muslrust:latest
+  image: clux/muslrust:1.85.0-nightly
   stage: build
   script:
     - cd backend
