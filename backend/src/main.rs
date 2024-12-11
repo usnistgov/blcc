@@ -1,7 +1,5 @@
 extern crate diesel;
 extern crate diesel_migrations;
-//extern crate openssl;
-// Openssl declaration must be first
 
 use crate::api::config_api;
 use crate::paginated::config_paginated;
@@ -16,7 +14,6 @@ use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
-use env_logger;
 use r2d2::Pool;
 use reqwest::{Client, ClientBuilder};
 use std::env;
