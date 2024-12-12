@@ -1,35 +1,38 @@
-import {
-    CostTypes,
-    type OMRCost,
-    type OtherCost,
-    type OtherNonMonetary,
-    type RecurringContractCost,
-} from "blcc-format/Format";
+import { bind } from "@react-rxjs/core";
+import type { Cost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
-import { Model } from "model/Model";
+import { isRecurringCost } from "model/Guards";
+import { Model, Var } from "model/Model";
+import * as O from "optics-ts";
 import { Subject, distinctUntilChanged, merge } from "rxjs";
-import { filter, map, withLatestFrom } from "rxjs/operators";
-import { guard } from "util/Operators";
-
-type RecurringTypes = RecurringContractCost | OtherCost | OtherNonMonetary | OMRCost;
+import { map, withLatestFrom } from "rxjs/operators";
+import { guard, isConstant } from "util/Operators";
 
 export namespace RecurringModel {
-    export const recurring$ = CostModel.cost$.pipe(
-        filter(
-            (cost): cost is RecurringTypes =>
-                cost.type === CostTypes.OMR ||
-                cost.type === CostTypes.RECURRING_CONTRACT ||
-                cost.type === CostTypes.OTHER ||
-                cost.type === CostTypes.OTHER_NON_MONETARY,
-        ),
-        map((cost) => cost.recurring),
-        guard(),
+    const recurringOptic = O.optic<Cost>().guard(isRecurringCost).prop("recurring");
+
+    export const recurring = new Var(CostModel.DexieCostModel, recurringOptic);
+
+    export const [isRecurring] = bind(recurring.$.pipe(map((recurring) => !!recurring)));
+
+    export const rateOfChangeValue = new Var(
+        CostModel.DexieCostModel,
+        recurringOptic.optional().prop("rateOfChangeValue"),
     );
+
+    export const [isValueRateOfChangeConstant] = bind(rateOfChangeValue.$.pipe(guard(), isConstant()));
+
+    export const rateOfChangeUnits = new Var(
+        CostModel.DexieCostModel,
+        recurringOptic.optional().prop("rateOfChangeUnits"),
+    );
+
+    export const [isUnitRateOfChangeConstant] = bind(rateOfChangeUnits.$.pipe(guard(), isConstant()));
 
     export const sRateOfChangeValue$ = new Subject<number | number[]>();
     export const rateOfChangeValue$ = merge(
         sRateOfChangeValue$,
-        recurring$.pipe(map((recurring) => recurring?.rateOfChangeValue ?? 0)),
+        recurring.$.pipe(map((recurring) => recurring?.rateOfChangeValue ?? 0)),
     ).pipe(distinctUntilChanged());
     sRateOfChangeValue$
         .pipe(withLatestFrom(CostModel.collection$))
@@ -40,7 +43,7 @@ export namespace RecurringModel {
     export const sIsValueChangeConstant$ = new Subject<boolean>();
     export const isValueChangeConstant$ = merge(
         sIsValueChangeConstant$,
-        recurring$.pipe(map((recurring) => !Array.isArray(recurring?.rateOfChangeValue))),
+        recurring.$.pipe(map((recurring) => !Array.isArray(recurring?.rateOfChangeValue))),
     ).pipe(distinctUntilChanged());
     sIsValueChangeConstant$
         .pipe(withLatestFrom(CostModel.collection$, Model.studyPeriod.$, Model.constructionPeriod.$))
@@ -55,7 +58,7 @@ export namespace RecurringModel {
     export const sRateOfChangeUnits$ = new Subject<number | number[]>();
     export const rateOfChangeUnits$ = merge(
         sRateOfChangeUnits$,
-        recurring$.pipe(map((recurring) => recurring?.rateOfChangeUnits ?? 0)),
+        recurring.$.pipe(map((recurring) => recurring?.rateOfChangeUnits ?? 0)),
     ).pipe(distinctUntilChanged());
     sRateOfChangeUnits$
         .pipe(withLatestFrom(CostModel.collection$))
@@ -66,7 +69,7 @@ export namespace RecurringModel {
     export const sIsUnitChangeConstant$ = new Subject<boolean>();
     export const isUnitChangeConstant$ = merge(
         sIsUnitChangeConstant$,
-        recurring$.pipe(map((recurring) => !Array.isArray(recurring?.rateOfChangeUnits))),
+        recurring.$.pipe(map((recurring) => !Array.isArray(recurring?.rateOfChangeUnits))),
     ).pipe(distinctUntilChanged());
     sIsUnitChangeConstant$
         .pipe(withLatestFrom(CostModel.collection$, Model.studyPeriod.$, Model.constructionPeriod.$))

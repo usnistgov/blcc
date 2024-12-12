@@ -62,7 +62,7 @@ export default function OtherCostFields() {
                     wire={OtherCostModel.sValuePerUnit$}
                 />
                 <span className={"col-span-2"}>
-                    <Recurring />
+                    <Recurring showUnit />
                 </span>
             </div>
         </div>

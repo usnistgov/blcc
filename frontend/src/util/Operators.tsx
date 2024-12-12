@@ -126,6 +126,22 @@ export function confirm<T>(
     );
 }
 
+/**
+ * Operator that takes an observable of objects and returns an observable of the value of a given property
+ * of each object.
+ *
+ * @param property The property to extract from each object. Must be a key of the type parameter `T`.
+ *
+ * @returns An observable of the value of the given property of each object.
+ */
+export function property<T, K extends keyof T>(property: K): UnaryFunction<Observable<T>, Observable<T[K]>> {
+    return pipe(map((obj) => obj[property]));
+}
+
+export function isConstant<T>(): UnaryFunction<Observable<T | T[]>, Observable<boolean>> {
+    return pipe(map((value) => !Array.isArray(value)));
+}
+
 export namespace DexieOps {
     /**
      * Given a Dexie table and an observable of IDs, returns an observable of Collections that correspond to the given IDs.

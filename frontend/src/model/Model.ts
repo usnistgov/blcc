@@ -19,6 +19,7 @@ import {
     NEVER,
     type Observable,
     Subject,
+    Subscription,
     combineLatest,
     distinctUntilChanged,
     from,
@@ -62,6 +63,9 @@ export class DexieModel<T> {
 }
 
 const DexieModelTest = new DexieModel(dbProject$);
+DexieModelTest.$.pipe(withLatestFrom(projectCollection$)).subscribe(([next, collection]) => {
+    collection.modify(next);
+});
 
 export class ModelType<A> {
     subject: Subject<A> = new Subject<A>();
