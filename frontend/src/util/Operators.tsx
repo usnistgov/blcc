@@ -138,7 +138,7 @@ export function property<T, K extends keyof T>(property: K): UnaryFunction<Obser
     return pipe(map((obj) => obj[property]));
 }
 
-export function isConstant<T>(): UnaryFunction<Observable<T | T[]>, Observable<boolean>> {
+export function isConstant<T>(): UnaryFunction<Observable<T | T[] | undefined>, Observable<boolean>> {
     return pipe(map((value) => !Array.isArray(value)));
 }
 

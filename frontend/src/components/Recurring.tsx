@@ -235,12 +235,12 @@ export default function Recurring({ showUnit }: RecurringProps) {
                             </Title>
                             <span className={"flex flex-row items-center gap-2 pb-2"}>
                                 <p className={"text-md pb-1"}>Constant</p>
-                                {/*<Switch
-                                    checked={RecurringModel.isValueRateOfChangeConstant()}
+                                <Switch
                                     checkedChildren={"Yes"}
                                     unCheckedChildren={"No"}
-                                    //TODO add onchange
-                                />*/}
+                                    checked={RecurringModel.isValueRateOfChangeConstant()}
+                                    onChange={RecurringModel.Actions.setValueRateOfChange}
+                                />
                             </span>
                             {match(rateOfChangeValue)
                                 .with(P.array(), (rateOfChangeValue) => (
@@ -277,12 +277,12 @@ export default function Recurring({ showUnit }: RecurringProps) {
                                 </Title>
                                 <span className={"flex flex-row items-center gap-2 pb-2"}>
                                     <p className={"text-md pb-1"}>Constant</p>
-                                    {/*                               <Switch
-                                    value$={RecurringModel.isUnitChangeConstant$}
-                                    wire={RecurringModel.sIsUnitChangeConstant$}
-                                    checkedChildren={"Yes"}
-                                    unCheckedChildren={"No"}
-                                />*/}
+                                    <Switch
+                                        checked={RecurringModel.isUnitRateOfChangeConstant()}
+                                        checkedChildren={"Yes"}
+                                        unCheckedChildren={"No"}
+                                        //TODO add onchange
+                                    />
                                 </span>
                                 {match(rateOfChangeUnits)
                                     .with(P.array(), (rateOfChangeUnits) => (

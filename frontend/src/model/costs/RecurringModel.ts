@@ -1,33 +1,55 @@
 import { bind } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import type { Cost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { isRecurringCost } from "model/Guards";
 import { Model, Var } from "model/Model";
 import * as O from "optics-ts";
-import { Subject, distinctUntilChanged, merge } from "rxjs";
+import { Subject, combineLatest, distinctUntilChanged, merge, sample } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
-import { guard, isConstant } from "util/Operators";
+import { isConstant } from "util/Operators";
+import { makeArray } from "util/Util";
 
 export namespace RecurringModel {
     const recurringOptic = O.optic<Cost>().guard(isRecurringCost).prop("recurring");
 
     export const recurring = new Var(CostModel.DexieCostModel, recurringOptic);
 
+    /**
+     * True if the current cost is a recurring cost.
+     */
     export const [isRecurring] = bind(recurring.$.pipe(map((recurring) => !!recurring)));
 
+    /**
+     * The value of the rate of change of the recurring cost.
+     * Either a constant value or an array of values for each year.
+     */
     export const rateOfChangeValue = new Var(
         CostModel.DexieCostModel,
         recurringOptic.optional().prop("rateOfChangeValue"),
     );
 
-    export const [isValueRateOfChangeConstant] = bind(rateOfChangeValue.$.pipe(guard(), isConstant()));
+    /**
+     * Is the value of the rate of change constant.
+     *
+     * If true, the value is constant across the entire period.
+     * If false, the value will be an array of values for each year.
+     */
+    export const [isValueRateOfChangeConstant] = bind(rateOfChangeValue.$.pipe(isConstant()));
+
+    const [setValueChangeArray$, setSetValueChangeArray] = createSignal();
+    combineLatest([Model.studyPeriod.$, Model.constructionPeriod.$])
+        .pipe(sample(setValueChangeArray$))
+        .subscribe(([studyPeriod, constructionPeriod]) =>
+            rateOfChangeValue.set(makeArray((studyPeriod ?? 0) + constructionPeriod, 0)),
+        );
 
     export const rateOfChangeUnits = new Var(
         CostModel.DexieCostModel,
         recurringOptic.optional().prop("rateOfChangeUnits"),
     );
 
-    export const [isUnitRateOfChangeConstant] = bind(rateOfChangeUnits.$.pipe(guard(), isConstant()));
+    export const [isUnitRateOfChangeConstant] = bind(rateOfChangeUnits.$.pipe(isConstant()));
 
     export const sRateOfChangeValue$ = new Subject<number | number[]>();
     export const rateOfChangeValue$ = merge(
@@ -80,4 +102,11 @@ export namespace RecurringModel {
                     : Array.from(Array((studyPeriod ?? 0) + constructionPeriod)).fill(0),
             }),
         );
+
+    export namespace Actions {
+        export function setValueRateOfChange(isConstant: boolean) {
+            if (isConstant) rateOfChangeValue.set(0);
+            else setSetValueChangeArray();
+        }
+    }
 }

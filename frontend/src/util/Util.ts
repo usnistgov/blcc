@@ -121,10 +121,22 @@ export function closest<T>(array: T[], extractor: (t: T) => number, value: numbe
     });
 }
 
+/**
+ * Converts a decimal value to a percentage.
+ *
+ * @param decimal - The decimal value to be converted to a percentage.
+ * @returns A percentage value.
+ */
 export function toPercentage(decimal: number | string) {
     return new Decimal(decimal).mul(100).toNumber();
 }
 
+/**
+ * Converts a percentage to a decimal value.
+ *
+ * @param percentage - The percentage to be converted to a decimal.
+ * @returns A decimal value.
+ */
 export function toDecimal(percentage: number | string) {
     return new Decimal(percentage).div(100).toNumber();
 }
@@ -135,3 +147,14 @@ export const ajaxDefault = {
         "Content-Type": "application/json",
     },
 };
+
+/**
+ * Creates an array of a specified length, filled with a specified value.
+ *
+ * @param n - The number of elements in the array.
+ * @param fill - The value to fill the array with.
+ * @returns An array of length `n`, where each element is `fill`.
+ */
+export function makeArray<T>(n: number, fill: T): T[] {
+    return Array.from({ length: n }, () => fill);
+}
