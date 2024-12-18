@@ -42,13 +42,8 @@ frontend-build:
     paths:
       - frontend/dist/*
 
-variables:
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
-
 include:
   - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.0
-
-include:
   - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.0
     inputs:
       url: haproxy-p.el.nist.gov:9000
