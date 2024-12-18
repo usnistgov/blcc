@@ -49,8 +49,12 @@ frontend-build:
       - frontend/dist/*
 
 include:
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.0
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.0
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.1
+    inputs:
+      dependencies:
+        - frontend-build
+        - backend-build
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.1
     inputs:
       url: haproxy-p.el.nist.gov:9000
       name: blcc
