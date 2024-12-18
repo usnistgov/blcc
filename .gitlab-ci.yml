@@ -45,24 +45,11 @@ frontend-build:
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
 
-docker-build:
-  image: docker:27.2.1
-  stage: docker-build
-  needs:
-    - backend-build
-    - frontend-build
-  tags:
-    - dind
-  services:
-    - docker:27.2.1-dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build -t $IMAGE_TAG -f gitlab-dockerfile .
-    - docker push $IMAGE_TAG
+include:
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.0
 
 include:
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.0.4
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.0
     inputs:
       url: haproxy-p.el.nist.gov:9000
       name: blcc
