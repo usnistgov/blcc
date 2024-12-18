@@ -6,6 +6,9 @@ stages:
 backend-build:
   image: clux/muslrust:1.85.0-nightly
   stage: build
+  rules:
+    - changes:
+      - backend/**/*
   script:
     - cd backend
     - rustup target add "x86_64-unknown-linux-musl"
@@ -23,6 +26,9 @@ backend-build:
 frontend-build:
   image: node:23
   stage: build
+  rules:
+    - changes:
+      - frontend/**/*
   before_script:
     - cd frontend
     - corepack enable pnpm
