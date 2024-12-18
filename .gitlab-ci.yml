@@ -6,9 +6,6 @@ stages:
 backend-build:
   image: clux/muslrust:1.85.0-nightly
   stage: build
-  rules:
-    - changes:
-      - backend/**/*
   script:
     - cd backend
     - rustup target add "x86_64-unknown-linux-musl"
@@ -26,9 +23,6 @@ backend-build:
 frontend-build:
   image: node:23
   stage: build
-  rules:
-    - changes:
-      - frontend/**/*
   before_script:
     - cd frontend
     - corepack enable pnpm
@@ -50,8 +44,6 @@ frontend-build:
 
 include:
   - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.1
-    inputs:
-      dependencies: [frontend-build, backend-build]
   - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.1
     inputs:
       url: haproxy-p.el.nist.gov:9000
