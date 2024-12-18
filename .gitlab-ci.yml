@@ -62,7 +62,7 @@ docker-build:
     - docker push $IMAGE_TAG
 
 include:
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.0.2
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.0.3
     inputs:
       url: haproxy-p.el.nist.gov:9000
       name: blcc
