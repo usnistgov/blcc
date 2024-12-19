@@ -1,12 +1,10 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import InputTableRows from "./InputTableRows";
-
 const border = "1px solid #000";
 const fontSize = 10;
 
 const styles = StyleSheet.create({
     container: {
-        width: "180px",
+        // width: "180px",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
@@ -16,37 +14,38 @@ const styles = StyleSheet.create({
         border
     },
     year: {
-        width: "50px",
+        // width: "50px",
         borderRight: border,
         fontSize
     },
     value: {
-        width: "130px",
+        // width: "130px",
         fontSize
     }
 });
 
-const InputTable = (props: { cost; header: string; inputRows: number[]; year: number }) => {
+const ResultsTable = (props: { headers: string[] }) => {
     //TODO: specify type for cost
 
-    const { header, inputRows, year } = props;
+    const { headers } = props;
 
-    const tableRows =
-        inputRows?.map((val, idx: number) => {
-            return [year + idx, `${val * 100}%`];
-        }) || [];
+    // const tableRows =
+    //     inputRows?.map((val, idx: number) => {
+    //         return [year + idx, `${val * 100}%`];
+    //     }) || [];
 
     return (
         <View>
             {/* results Table Header */}
             <View style={styles.container}>
-                <Text style={styles.year}>Year</Text>
-                <Text style={styles.value}>{header}</Text>
+                {headers.map((header) => (
+                    <Text style={styles.value}>{header}</Text>
+                ))}
             </View>
             {/* Results Table Rows */}
-            <InputTableRows tableRows={tableRows} />
+            {/* <InputTableRows tableRows={tableRows} /> */}
         </View>
     );
 };
 
-export default InputTable;
+export default ResultsTable;

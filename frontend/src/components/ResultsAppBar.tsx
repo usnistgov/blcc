@@ -12,9 +12,20 @@ import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject } from "rxjs";
+import { Subject, withLatestFrom } from "rxjs";
 import { download } from "util/DownloadFile";
 import Pdf from "./Pdf";
+
+import {
+    altNPV,
+    annualAltNPV,
+    lccBaseline,
+    lccResourceRows,
+    lccRows,
+    npvComparison,
+    npvCosts,
+    resourceUsage
+} from "./pdf-components/Results/allResultStreams";
 
 const pdfClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
@@ -29,19 +40,40 @@ export default function ResultsAppBar() {
         costs = data;
     });
 
-    useSubscribe(pdfClick$, () => {
-        const blob = pdf(
-            <Pdf project={project as Project} alternatives={alternatives as Alternative[]} costs={costs as Cost[]} />
-        ).toBlob();
+    useSubscribe(
+        pdfClick$.pipe(
+            withLatestFrom(
+                lccRows,
+                lccBaseline,
+                npvCosts,
+                lccResourceRows,
+                annualAltNPV,
+                npvComparison,
+                altNPV,
+                resourceUsage
+            )
+        ),
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, annualAltNPV, npvComparison, altNPV, resourceUsage]) => {
+            const blob = pdf(
+                <Pdf
+                    project={project as Project}
+                    alternatives={alternatives as Alternative[]}
+                    costs={costs as Cost[]}
+                    summary={{ lccRows, lccBaseline, npvCosts, lccResourceRows }}
+                    annual={{ npvComparison, annualAltNPV }}
+                    altResults={{ altNPV, resourceUsage }}
+                />
+            ).toBlob();
 
-        blob.then((blob: Blob | MediaSource) => {
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "BLCC Report.pdf";
-            link.click();
-        });
-    }); //TODO Create and download PDF
+            blob.then((blob: Blob | MediaSource) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "BLCC Report.pdf";
+                link.click();
+            });
+        }
+    ); //TODO Create and download PDF
 
     useSubscribe(csvClick$, () => {}); // TODO Create and download CSV
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
