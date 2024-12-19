@@ -11,11 +11,11 @@ import "dexie-export-import";
 import { convert } from "blcc-format/Converter";
 import { defaultProject } from "blcc-format/DefaultProject";
 import saveDiscardModal from "components/modal/SaveDiscardModal";
+import { Strings } from "constants/Strings";
 import objectHash from "object-hash";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { download } from "util/DownloadFile";
-import { Strings } from "constants/Strings";
 
 const newClick$ = new Subject<void>();
 const openClick$ = new Subject<void>();
@@ -106,6 +106,7 @@ export default function EditorAppBar() {
             await db.dirty.clear();
             await db.dirty.add({ hash: objectHash({ project, alternatives: [], costs: [] }) });
 
+            // Navigate to general information page after opening file
             navigate("/editor");
         },
         [navigate],
@@ -144,11 +145,15 @@ export default function EditorAppBar() {
                         if (event.currentTarget.files !== null) {
                             const file = event.currentTarget.files[0];
 
+                            console.log(file);
+
                             await db.delete();
                             await db.open();
 
-                            if (file.type === "text/xml") convert(file);
+                            if (file.type.includes("xml")) convert(file);
                             else await db.import(file);
+
+                            navigate("/editor");
                         }
                     }}
                 />
@@ -162,7 +167,9 @@ export default function EditorAppBar() {
                 </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"}>{Model.useName() || "Untitled Project"}</p>
+                <p className={"text-base-lightest"} id={"project-name"}>
+                    {Model.name.use() || "Untitled Project"}
+                </p>
                 <div className={"pl-4"}>
                     <Button
                         type={ButtonType.PRIMARY_INVERTED}

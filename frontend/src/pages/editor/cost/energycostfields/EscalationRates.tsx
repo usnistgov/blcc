@@ -52,7 +52,7 @@ const COLUMNS = [
     },
 ];
 
-const studyPeriodDefaultRates$ = Model.studyPeriod$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
+const studyPeriodDefaultRates$ = Model.studyPeriod.$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
 
 export default function EscalationRates({ title, defaultRates$ }: EscalationRatesProps) {
     const { useEscalation, newRates, sIsConstant$, isConstant$, sConstantChange$, newRate$ } = useMemo(() => {

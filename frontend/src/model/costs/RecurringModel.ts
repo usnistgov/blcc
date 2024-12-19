@@ -43,7 +43,7 @@ export namespace RecurringModel {
         recurring$.pipe(map((recurring) => !Array.isArray(recurring?.rateOfChangeValue))),
     ).pipe(distinctUntilChanged());
     sIsValueChangeConstant$
-        .pipe(withLatestFrom(CostModel.collection$, Model.studyPeriod$, Model.constructionPeriod$))
+        .pipe(withLatestFrom(CostModel.collection$, Model.studyPeriod.$, Model.constructionPeriod.$))
         .subscribe(([isConstant, collection, studyPeriod, constructionPeriod]) =>
             collection.modify({
                 "recurring.rateOfChangeValue": isConstant
@@ -69,7 +69,7 @@ export namespace RecurringModel {
         recurring$.pipe(map((recurring) => !Array.isArray(recurring?.rateOfChangeUnits))),
     ).pipe(distinctUntilChanged());
     sIsUnitChangeConstant$
-        .pipe(withLatestFrom(CostModel.collection$, Model.studyPeriod$, Model.constructionPeriod$))
+        .pipe(withLatestFrom(CostModel.collection$, Model.studyPeriod.$, Model.constructionPeriod.$))
         .subscribe(([isConstant, collection, studyPeriod, constructionPeriod]) =>
             collection.modify({
                 "recurring.rateOfChangeUnits": isConstant

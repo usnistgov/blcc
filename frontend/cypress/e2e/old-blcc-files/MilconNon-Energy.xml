@@ -1,0 +1,330 @@
+<?xml version="1.0"?>
+<Project>
+    <Name>MILCON Project #767 - Savannah Georgia</Name>
+    <Comment>Determine whether to maintain Existing Services Shop, Renovate Building 172, or Construct a New Building
+    </Comment>
+    <Location>Georgia</Location>
+    <Analyst>J. Burke</Analyst>
+    <AnalysisType>5</AnalysisType>
+    <AnalysisPurpose>1</AnalysisPurpose>
+    <BaseDate>April 1, 2022</BaseDate>
+    <PCPeriod>2 years 0 months</PCPeriod>
+    <Duration>27 years 0 months</Duration>
+    <DiscountingMethod>2</DiscountingMethod>
+    <DiscountRate>-0.0036</DiscountRate>
+    <Alternatives>
+        <Alternative>
+            <Name>Maintain Existing Services Shop</Name>
+            <Comment>The existing temporary Services Shop operates from various buildings across the site and has
+                insufficient space in any of hte buildings for storage of the equipment to be serviced.
+            </Comment>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Maintenance of Existing Services Shops</Name>
+                    <Duration>25 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0
+                            </Portions>
+                            <Intervals>0 years 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Annual Routine OM&amp;R of Existing Building</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>420950.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                        <RecurringCost>
+                            <Name>Annual Productivity Loss</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>3118200.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                        <RecurringCost>
+                            <Name>Annual Equipment Exp.: Forklifts</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>56800.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                        <RecurringCost>
+                            <Name>Annual Equipment Exp: Trailers</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>37600.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+            <EnergyUsages>
+                <EnergyUsage>
+                    <FuelType>Electricity</FuelType>
+                    <Name>Electricity</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>2655900.0</YearlyUsage>
+                    <Units>kWh</Units>
+                    <UnitCost>0.0433</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>Georgia</State>
+                    <RateSchedule>Industrial</RateSchedule>
+                    <Emissions>Georgia</Emissions>
+                </EnergyUsage>
+                <EnergyUsage>
+                    <FuelType>NatGas</FuelType>
+                    <Name>Natural Gas</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>400325.0</YearlyUsage>
+                    <Units>Therm</Units>
+                    <UnitCost>0.25</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>Georgia</State>
+                    <RateSchedule>Industrial</RateSchedule>
+                </EnergyUsage>
+            </EnergyUsages>
+        </Alternative>
+        <Alternative>
+            <Name>Renovate Building 172</Name>
+            <Comment>Renovation of building includes all necessary upgrades and additions to building 172, which will
+                allow consolidation of services.
+            </Comment>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Building Renovation</Name>
+                    <InitialCost>1.762E7</InitialCost>
+                    <Duration>45 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>0.5,0.5
+                            </Portions>
+                            <Intervals>1 year 0 months,1 year 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleValueFactor>0.44</ResaleValueFactor>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Annual Routine OM&amp;R of Bldg. 172</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>342500.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+            <EnergyUsages>
+                <EnergyUsage>
+                    <FuelType>Electricity</FuelType>
+                    <Name>Electricity</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>5773700.0</YearlyUsage>
+                    <Units>kWh</Units>
+                    <UnitCost>0.0433</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>Georgia</State>
+                    <RateSchedule>Industrial</RateSchedule>
+                    <Emissions>Georgia</Emissions>
+                </EnergyUsage>
+                <EnergyUsage>
+                    <FuelType>NatGas</FuelType>
+                    <Name>Natural Gas</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>520000.0</YearlyUsage>
+                    <Units>Therm</Units>
+                    <UnitCost>0.25</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>Georgia</State>
+                    <RateSchedule>Industrial</RateSchedule>
+                </EnergyUsage>
+            </EnergyUsages>
+        </Alternative>
+        <Alternative>
+            <Name>Construct New Building</Name>
+            <Comment>Construction of a new building would provide an efficient, centrally locatd Services Shop of 14249
+                m2, equal to the space available in Building 172.
+            </Comment>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Copy of: Building Renovation</Name>
+                    <InitialCost>2.64078E7</InitialCost>
+                    <Duration>60 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>0.5,0.5
+                            </Portions>
+                            <Intervals>1 year 0 months,1 year 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleValueFactor>0.58</ResaleValueFactor>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Annual Routine OM&amp;R for New Building</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>291100.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+            <EnergyUsages>
+                <EnergyUsage>
+                    <FuelType>Electricity</FuelType>
+                    <Name>Electricity</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>4907600.0</YearlyUsage>
+                    <Units>kWh</Units>
+                    <UnitCost>0.0433</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>Georgia</State>
+                    <RateSchedule>Industrial</RateSchedule>
+                    <Emissions>Georgia</Emissions>
+                </EnergyUsage>
+                <EnergyUsage>
+                    <FuelType>NatGas</FuelType>
+                    <Name>Natural Gas</Name>
+                    <Duration>Remaining</Duration>
+                    <YearlyUsage>442000.0</YearlyUsage>
+                    <Units>Therm</Units>
+                    <UnitCost>0.25</UnitCost>
+                    <UsageIndex>
+                        <UsageIndex>
+                            <Intervals>Remaining
+                            </Intervals>
+                            <Values>1.0
+                            </Values>
+                        </UsageIndex>
+                    </UsageIndex>
+                    <State>Georgia</State>
+                    <RateSchedule>Industrial</RateSchedule>
+                </EnergyUsage>
+            </EnergyUsages>
+        </Alternative>
+    </Alternatives>
+</Project>

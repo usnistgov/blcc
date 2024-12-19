@@ -30,7 +30,7 @@ export namespace CapitalCostModel {
     );
     sExpectedLifetime$
         .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([expectedLifetime, collection]) => collection.modify({ expectedLifetime }));
+        .subscribe(([expectedLife, collection]) => collection.modify({ expectedLife }));
 
     export const sCostAdjustmentFactor$ = new Subject<number | undefined>();
     export const costAdjustmentFactor$ = merge(

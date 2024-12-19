@@ -8,6 +8,7 @@ import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
 import Alternatives from "pages/editor/alternative/Alternatives";
 import GeneralInformation from "pages/editor/general_information/GeneralInformation";
+import { Suspense } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 export default function Editor() {
@@ -19,7 +20,10 @@ export default function Editor() {
 
             <div className={"flex h-full overflow-hidden"}>
                 <AnimatePresence mode={"wait"}>
-                    <Routes location={location} key={location.key}>
+                    <Routes
+                        location={location}
+                        key={location.pathname.startsWith("/editor/alternative/") ? "cost-navigation" : "navigation"}
+                    >
                         <Route path={"*"} element={<Navigation />}>
                             <Route path={"alternative/:alternativeID"}>
                                 <Route index path={"*"} element={<CostNavigation />} />
@@ -30,7 +34,13 @@ export default function Editor() {
 
                 <AnimatePresence mode={"wait"}>
                     <Routes location={location} key={location.key}>
-                        <Route element={<PageWrapper />}>
+                        <Route
+                            element={
+                                <Suspense>
+                                    <PageWrapper />
+                                </Suspense>
+                            }
+                        >
                             <Route index element={<GeneralInformation />} />
                             <Route path={"alternative"}>
                                 <Route index element={<AlternativeSummary />} />

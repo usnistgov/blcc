@@ -341,6 +341,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
     return [
         ...cost.usage.map((usage) => {
             const builder = new BcnBuilder()
+                .type(BcnType.COST)
                 .name(cost.name)
                 .addTag(cost.unit, "LCC", `${cost.name} ${usage.season} Water Usage`)
                 .real()
@@ -358,6 +359,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
         }),
         ...cost.disposal.map((disposal) => {
             const builder = new BcnBuilder()
+                .type(BcnType.COST)
                 .name(cost.name)
                 .addTag(cost.unit, "LCC", `${cost.name} ${disposal.season} Water Disposal`)
                 .real()

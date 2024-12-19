@@ -1,8 +1,10 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
     Case,
+    type Cost,
     CostTypes,
     CustomerSector,
+    EmissionsRateType,
     type EnergyCost,
     EnergyUnit,
     FuelType,
@@ -10,11 +12,12 @@ import {
     type NonUSLocation,
     type USLocation,
     type Unit,
-    EmissionsRateType,
 } from "blcc-format/Format";
 import { Country, type State } from "constants/LOCATION";
 import { CostModel } from "model/CostModel";
-import { Model } from "model/Model";
+import { isEnergyCost, isNonUSLocation, isUSLocation } from "model/Guards";
+import { type LocationModel, Model, Var } from "model/Model";
+import * as O from "optics-ts";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
@@ -22,18 +25,38 @@ import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
 import { ajaxDefault } from "util/Util";
+import z from "zod";
 
 export namespace EnergyCostModel {
     /**
      * Outputs a value if the current cost is an energy cost
      */
     export const cost$ = CostModel.cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+    export const energyCostOptic = O.optic<Cost>().guard(isEnergyCost);
+
+    const locationOptic = energyCostOptic.prop("location").optional();
+    export const location = new Var(CostModel.DexieCostModel, locationOptic);
 
     // Location override
     export namespace Location {
+        export const model: LocationModel<Cost> = {
+            country: new Var(CostModel.DexieCostModel, locationOptic.prop("country")),
+            city: new Var(CostModel.DexieCostModel, locationOptic.prop("city")),
+            state: new Var(CostModel.DexieCostModel, locationOptic.guard(isUSLocation).prop("state")),
+            stateProvince: new Var(
+                CostModel.DexieCostModel,
+                locationOptic.guard(isNonUSLocation).prop("stateProvince"),
+            ),
+            zipcode: new Var(
+                CostModel.DexieCostModel,
+                locationOptic.guard(isUSLocation).prop("zipcode"),
+                z.string().max(5),
+            ),
+        };
+
         export const sToggleLocation$ = new Subject<boolean>();
         sToggleLocation$
-            .pipe(withLatestFrom(CostModel.collection$, Model.Location.location$))
+            .pipe(withLatestFrom(CostModel.collection$, Model.location.$))
             .subscribe(([toggle, collection, projectLocation]) =>
                 collection.modify({
                     location: toggle ? { ...projectLocation } : undefined,
@@ -102,7 +125,7 @@ export namespace EnergyCostModel {
             );
 
         export const globalOrLocalZip$ = Location.location$.pipe(
-            switchMap((location) => (location === undefined ? Model.Location.zip$ : Location.zip$)),
+            switchMap((location) => (location === undefined ? Model.Location.zipcode.$ : Location.zip$)),
             distinctUntilChanged(),
             shareLatest(),
         );
@@ -187,7 +210,7 @@ export namespace EnergyCostModel {
     // Gets the default escalation rate information from the api
     export const fetchEscalationRates$ = combineLatest([
         Model.releaseYear$,
-        Model.studyPeriod$,
+        Model.studyPeriod.$,
         Location.globalOrLocalZip$,
         customerSector$,
         Model.case$,
@@ -254,10 +277,10 @@ export namespace EnergyCostModel {
         export const emissions$: Observable<number[] | undefined> = combineLatest([
             Location.zipInfo$,
             Model.releaseYear$,
-            Model.studyPeriod$,
+            Model.studyPeriod.$,
             Model.case$,
-            Model.emissionsRateType$,
-            Model.ghgDataSource$,
+            Model.emissionsRateType.$,
+            Model.ghgDataSource.$,
             fuelType$,
         ]).pipe(
             tap((x) => console.log("Combined values", x)),

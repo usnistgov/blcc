@@ -3,6 +3,7 @@ import Icon from "@mdi/react";
 import { type StateObservable, useStateObservable } from "@react-rxjs/core";
 import type { Cost } from "blcc-format/Format";
 import { Button, ButtonType } from "components/input/Button";
+import { motion } from "framer-motion";
 import { useActiveLink } from "hooks/UseActiveLink";
 import { AlternativeModel } from "model/AlternativeModel";
 import { CostModel } from "model/CostModel";
@@ -84,10 +85,17 @@ function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: 
 
 export default function CostNavigation() {
     return (
-        <nav className="flex h-full max-w-64 w-fit flex-col gap-2 overflow-y-auto bg-primary-dark p-2 text-base-lightest ">
-            {items.map((item) => (
-                <CostButtons key={item.title} item={item} costs$={item.costs$} />
-            ))}
-        </nav>
+        <motion.div
+            exit={{ translateX: "-100%" }}
+            initial={{ translateX: "-100%" }}
+            animate={{ translateX: 0 }}
+            transition={{ duration: 0.08 }}
+        >
+            <nav className="flex h-full max-w-64 w-fit flex-col gap-2 overflow-y-auto bg-primary-dark p-2 text-base-lightest ">
+                {items.map((item) => (
+                    <CostButtons key={item.title} item={item} costs$={item.costs$} />
+                ))}
+            </nav>
+        </motion.div>
     );
 }

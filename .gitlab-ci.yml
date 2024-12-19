@@ -1,71 +1,69 @@
-.nix:
-  image: registry.gitlab.com/cynerd/gitlab-ci-nix
-  tags:
-    - docker
-  cache:
-    key: "nix"
-    paths:
-      - ".nix-cache"
-  before_script:
-    - gitlab-ci-nix-cache-before
-  after_script:
-    - gitlab-ci-nix-cache-after
-
 stages:
   - build
+  - docker-build
   - release
 
 backend-build:
-  extends: .nix
+  image: clux/muslrust:1.85.0-nightly
   stage: build
   script:
-    - nix build .#backend
-
-frontend-build:
-  extends: .nix
-  stage: build
-  script:
-    - nix build .#frontend
-
-docker-build:
-  extends: .nix
-  stage: build
-  needs:
-    - backend-build
-    - frontend-build
+    - cd backend
+    - rustup target add "x86_64-unknown-linux-musl"
+    - cargo build --release --locked --target "x86_64-unknown-linux-musl"
+  cache:
+    - key:
+        files:
+          - backend/Cargo.lock
+      paths:
+        - backend/target
   artifacts:
     paths:
-      - blcc-image.tar.gz
+      - backend/target/x86_64-unknown-linux-musl/release/backend
+
+frontend-build:
+  image: node:23
+  stage: build
+  before_script:
+    - cd frontend
+    - corepack enable pnpm
+    - pnpm config set @lrd:registry=$CI_API_V4_URL/projects/$E3_SDK_PROJECT_ID/packages/npm/
+    - pnpm config set //gitlab.nist.gov/gitlab/api/v4/projects/$E3_SDK_PROJECT_ID/packages/npm/:_authToken="$E3_SDK_PROJECT_TOKEN"
+    - pnpm config list
   script:
-    - nix build
-    - cp result blcc-image.tar.gz
+    - pnpm install
+    - pnpm run build
+  cache:
+    - key:
+        files:
+          - frontend/pnpm-lock.yaml
+      paths:
+        - frontend/node_modules
+  artifacts:
+    paths:
+      - frontend/dist/*
 
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
 
-release-image:
+docker-build:
   image: docker:27.2.1
-  stage: release
+  stage: docker-build
   needs:
-    - docker-build
+    - backend-build
+    - frontend-build
   tags:
     - dind
   services:
     - docker:27.2.1-dind
-  dependencies:
-    - docker-build
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker load < blcc-image.tar.gz
-    - docker tag blcc:latest $IMAGE_TAG
+    - docker build -t $IMAGE_TAG -f gitlab-dockerfile .
     - docker push $IMAGE_TAG
-  
+
 portainer-deploy:
   image: docker:27.2.1
   stage: release
-  needs:
-    - release-image
   tags:
     - dind
   services:
