@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 
 import { styles } from "../pdfStyles";
 
-import ResultsTable from "./ResultsTable";
+import { LCCBaselineTable, LCCResourceTable, LCCResultsTable, NPVSubTable } from "./ResultsSummaryTables";
 
 const lifeCycleResultsColumns = [
     "Alternative",
@@ -43,10 +43,10 @@ const ResultsSummary = (props: { altNames: string[]; summary }) => {
                 <hr style={styles.titleDivider} />
             </View>
             <View>
-                <ResultsTable headers={lifeCycleResultsColumns} />
-                <ResultsTable headers={lifeCycleResultsBaseline} />
-                <ResultsTable headers={["Cost Type", ...altNames]} />
-                <ResultsTable headers={["Resource Type", ...altNames]} />
+                <LCCResultsTable headers={lifeCycleResultsColumns} rows={summary.lccRows} />
+                <LCCBaselineTable headers={lifeCycleResultsBaseline} rows={summary.lccBaseline} />
+                <NPVSubTable headers={["Cost Type", ...altNames]} rows={summary.npvCosts} />
+                <LCCResourceTable headers={["Resource Type", ...altNames]} rows={summary.lccResourceRows} />
             </View>
         </>
     );

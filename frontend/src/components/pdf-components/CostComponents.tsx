@@ -16,7 +16,7 @@ interface Props {
         annualRateOfChange?: number;
         recurring?: any; // TODO: specify the correct type
         rateOfRecurrence?: number;
-        useIndex?: number[];
+        useIndex?: number | number[];
         phaseIn?: number[];
         escalation?: any; // TODO: specify the correct type
     };
@@ -138,17 +138,22 @@ export const RateOfRecurrence = ({ cost }: Props) => (
         ) : null}
     </>
 );
-export const UseIndex = ({ cost, year }: Props) => (
-    <>
-        {cost?.useIndex && (
-            <View style={styles.tableWrapper}>
-                <Text style={styles.text}>Usage Index:&nbsp;</Text>
-                <View style={{ margin: 2 }} />
-                <InputTable cost={cost} header="Usage (%)" inputRows={cost?.useIndex} year={year} />
-            </View>
-        )}
-    </>
-);
+export const UseIndex = ({ cost, year }: Props) => {
+    const value = Array.isArray(cost?.useIndex);
+    return (
+        <View style={value ? { margin: 0 } : styles.key}>
+            <Text style={styles.text}>Usage Index:&nbsp;</Text>
+            {value ? (
+                <View style={{ marginBottom: 6 }}>
+                    <View style={{ margin: 2 }} />
+                    <InputTable cost={cost} header={"Usage (%)"} inputRows={cost?.useIndex} year={year} />
+                </View>
+            ) : (
+                <Text style={styles.value}> {cost?.useIndex}%</Text>
+            )}
+        </View>
+    );
+};
 
 export const PhaseIn = ({ cost, year }: Props) => (
     <>

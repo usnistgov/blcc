@@ -31,10 +31,9 @@ const InputTable = (props: { cost; header: string; inputRows: number[]; year: nu
 
     const { header, inputRows, year } = props;
 
-    const tableRows =
-        inputRows?.map((val, idx: number) => {
-            return [year + idx, `${val * 100}%`];
-        }) || [];
+    const tableRows = inputRows?.map((val, idx: number) => {
+        return [year + idx, `${val * 100}%`];
+    });
 
     return (
         <View>
