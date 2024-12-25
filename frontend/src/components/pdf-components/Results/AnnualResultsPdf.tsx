@@ -1,7 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 
 import { styles } from "../pdfStyles";
-import ResultsTable from "./ResultsTable";
+import { NPVAltTable, NPVComparisonTable } from "./AnnualResultsTables";
 
 const AnnualResultsPdf = (props: { altNames: string[]; annual }) => {
     const { altNames, annual } = props;
@@ -17,13 +17,14 @@ const AnnualResultsPdf = (props: { altNames: string[]; annual }) => {
 
             <View>
                 <Text style={styles.subHeading}>NPV Cash Flow Comparison</Text>
-                <ResultsTable headers={["Year", ...altNames]} />
+                <NPVComparisonTable headers={["Year", ...altNames]} rows={annual.npvComparison} />
                 <Text style={styles.subHeading}>NPV Cash Flows</Text>
                 <Text style={styles.subHeading}>Annual Results for Alternative</Text>
                 {altNames.map((name) => (
                     <View>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow by Alternative</Text>
+                        <NPVAltTable rows={annual.NpvAll} />
                         <Text style={styles.subHeading}>NPV Cash Flows</Text>
                         <Text style={styles.subHeading}>Tag/Object by Year</Text>
                     </View>

@@ -148,6 +148,42 @@ export const [useNPVComparison, npvComparison] = bind(
     []
 );
 
+// @Luke to check
+export const [useNpvAll, NpvAll] = bind(
+    combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
+        switchMap(([allRequired, optionals]) => {
+            const defaultArray = Array(allRequired[0].totalCostsDiscounted.length).fill(0);
+            const all = allRequired.map((req, index) => {
+                const investment = from(
+                    optionals.get(`${index} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray
+                );
+                const consumption = from(optionals.get(`${index} Energy`)?.totalTagCashflowDiscounted ?? defaultArray);
+                const recurring = from(
+                    optionals.get(`${index} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray
+                );
+                const nonRecurring = from(
+                    optionals.get(`${index} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray
+                );
+
+                return zip(from(req.totalCostsDiscounted), investment, consumption, recurring, nonRecurring).pipe(
+                    map((values, year) => ({
+                        year,
+                        investment: values[1],
+                        consumption: values[2],
+                        recurring: values[3],
+                        nonRecurring: values[4],
+                        total: values[0]
+                    })),
+                    toArray()
+                );
+            });
+
+            return combineLatest(all);
+        })
+    ),
+    []
+);
+
 export const [useAnnualAltNPV, annualAltNPV] = bind(
     combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
         switchMap(([allRequired, optionals, selectedID]) => {

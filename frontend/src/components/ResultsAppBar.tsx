@@ -18,10 +18,10 @@ import Pdf from "./Pdf";
 
 import {
     altNPV,
-    annualAltNPV,
     lccBaseline,
     lccResourceRows,
     lccRows,
+    NpvAll,
     npvComparison,
     npvCosts,
     resourceUsage
@@ -47,20 +47,20 @@ export default function ResultsAppBar() {
                 lccBaseline,
                 npvCosts,
                 lccResourceRows,
-                annualAltNPV,
                 npvComparison,
                 altNPV,
-                resourceUsage
+                resourceUsage,
+                NpvAll
             )
         ),
-        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, annualAltNPV, npvComparison, altNPV, resourceUsage]) => {
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, NpvAll]) => {
             const blob = pdf(
                 <Pdf
                     project={project as Project}
                     alternatives={alternatives as Alternative[]}
                     costs={costs as Cost[]}
                     summary={{ lccRows, lccBaseline, npvCosts, lccResourceRows }}
-                    annual={{ npvComparison, annualAltNPV }}
+                    annual={{ npvComparison, NpvAll }}
                     altResults={{ altNPV, resourceUsage }}
                 />
             ).toBlob();
