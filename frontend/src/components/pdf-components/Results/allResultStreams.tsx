@@ -218,60 +218,56 @@ export const [useAnnualAltNPV, annualAltNPV] = bind(
 
 // alternative
 export const [useAltNPV, altNPV] = bind(
-    combineLatest([ResultModel.selectedMeasure$]).pipe(
+    combineLatest([ResultModel.measures$]).pipe(
         map(([measure]) => {
-            return [
-                { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
-                { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
+            return measure.map((req) => [
+                { category: "Investment", alternative: req.totalTagFlows["Initial Investment"] },
+                { category: "Energy", subcategory: "Consumption", alternative: req.totalTagFlows.Energy },
                 { subcategory: "Demand" },
                 { subcategory: "Rebates" },
                 { category: "Water", subcategory: "Usage" },
-                { subcategory: "Disposal " },
-                { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
-                { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
+                { subcategory: "Disposal" },
+                { category: "OMR", subcategory: "Recurring", alternative: req.totalTagFlows["OMR Recurring"] },
+                { subcategory: "Non-Recurring", alternative: req.totalTagFlows["OMR Non-Recurring"] },
                 { category: "Replacement" },
                 { category: "Residual Value" }
-            ];
+            ]);
         })
     ),
     []
 );
 
 export const [useResourceUsage, resourceUsage] = bind(
-    ResultModel.selectedMeasure$.pipe(
-        map((measure) => {
-            const consumption = [
-                FuelType.ELECTRICITY,
-                FuelType.NATURAL_GAS,
-                FuelType.DISTILLATE_OIL,
-                FuelType.RESIDUAL_OIL,
-                FuelType.PROPANE,
-                "Energy"
-            ].map((fuelType) => measure.totalTagFlows[fuelType]);
+    combineLatest([ResultModel.measures$]).pipe(
+        map(([measureArray]) => {
+            return measureArray.map((measure) => {
+                const fuelTypes = [
+                    FuelType.ELECTRICITY,
+                    FuelType.NATURAL_GAS,
+                    FuelType.DISTILLATE_OIL,
+                    FuelType.RESIDUAL_OIL,
+                    FuelType.PROPANE,
+                    "Energy"
+                ];
 
-            const emissions = [
-                FuelType.ELECTRICITY,
-                FuelType.NATURAL_GAS,
-                FuelType.DISTILLATE_OIL,
-                FuelType.RESIDUAL_OIL,
-                FuelType.PROPANE,
-                "Energy"
-            ].map((fuelType) => measure.totalTagFlows[fuelType]);
+                const consumption = fuelTypes.map((fuelType) => measure.totalTagFlows[fuelType]);
+                const emissions = fuelTypes.map((fuelType) => measure.totalTagFlows[fuelType]);
 
-            return [
-                {
-                    category: "Consumption",
-                    subcategory: FuelType.ELECTRICITY,
-                    consumption: consumption[0],
-                    emissions: emissions[0]
-                },
-                { subcategory: FuelType.NATURAL_GAS, consumption: consumption[1], emissions: emissions[1] },
-                { subcategory: FuelType.DISTILLATE_OIL, consumption: consumption[2], emissions: emissions[2] },
-                { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
-                { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
-                { subcategory: "Total", consumption: consumption[5], emissions: emissions[5] },
-                { category: "Water", subcategory: "Use" }
-            ];
+                return [
+                    {
+                        category: "Consumption",
+                        subcategory: FuelType.ELECTRICITY,
+                        consumption: consumption[0],
+                        emissions: emissions[0]
+                    },
+                    { subcategory: FuelType.NATURAL_GAS, consumption: consumption[1], emissions: emissions[1] },
+                    { subcategory: FuelType.DISTILLATE_OIL, consumption: consumption[2], emissions: emissions[2] },
+                    { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
+                    { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
+                    { subcategory: "Total", consumption: consumption[5], emissions: emissions[5] },
+                    { category: "Water", subcategory: "Use" }
+                ];
+            });
         })
     ),
     []

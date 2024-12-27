@@ -1,10 +1,9 @@
 import { Text, View } from "@react-pdf/renderer";
 import { styles } from "../pdfStyles";
-import ResultsTable from "./ResultsTable";
+import { NpvAltCashflowTable, NpvAltResourceTable } from "./AlternativeResultsTables";
 
 const AlternativeResultsPdf = (props: { altNames: string[]; altResults }) => {
     const { altNames, altResults } = props;
-    console.log(altResults);
 
     return (
         <View style={styles.section}>
@@ -15,13 +14,16 @@ const AlternativeResultsPdf = (props: { altNames: string[]; altResults }) => {
             <hr style={styles.titleDivider} />
 
             <View>
-                {altNames.map((name) => (
-                    <View>
+                {altNames.map((name, index) => (
+                    <View key={name}>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow Comparison</Text>
-                        <ResultsTable headers={["Cost Type", name]} />
+                        <NpvAltCashflowTable headers={["Cost Type", "", name]} rows={altResults.altNPV[index]} />
                         <Text style={styles.subHeading}>Energy and Water use, Emissions, and Social Cost of GHG</Text>
-                        <ResultsTable headers={["Resource Type", "Consumption", "Emissions"]} />
+                        <NpvAltResourceTable
+                            headers={["Resource Type", "", "Consumption", "Emissions"]}
+                            rows={altResults.resourceUsage[index]}
+                        />
                         <Text style={styles.subHeading}>Share of LCC</Text>
                         <Text style={styles.subHeading}>Share of Energy Use</Text>
                     </View>

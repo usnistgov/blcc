@@ -20,11 +20,11 @@ const AnnualResultsPdf = (props: { altNames: string[]; annual }) => {
                 <NPVComparisonTable headers={["Year", ...altNames]} rows={annual.npvComparison} />
                 <Text style={styles.subHeading}>NPV Cash Flows</Text>
                 <Text style={styles.subHeading}>Annual Results for Alternative</Text>
-                {altNames.map((name) => (
-                    <View>
+                {altNames.map((name, index) => (
+                    <View key={name}>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow by Alternative</Text>
-                        <NPVAltTable rows={annual.NpvAll} />
+                        <NPVAltTable rows={annual.NpvAll[index]} />
                         <Text style={styles.subHeading}>NPV Cash Flows</Text>
                         <Text style={styles.subHeading}>Tag/Object by Year</Text>
                     </View>

@@ -6,7 +6,6 @@ const styles = StyleSheet.create({
     container: {
         display: "flex",
         flexDirection: "row",
-        justifyContent: "space-between",
         color: "#fff",
         textAlign: "center",
         backgroundColor: "#005fa3ff",
@@ -15,20 +14,20 @@ const styles = StyleSheet.create({
     row: {
         display: "flex",
         flexDirection: "row",
-        justifyContent: "space-between",
         textAlign: "center",
-        borderBottom: border,
-        borderRight: border,
-        // borderLeft: border,
+        border,
         marginTop: 0
     },
     value: {
-        fontSize
+        width: 100,
+        fontSize,
+        borderRight: "1px solid #fff"
     },
     alt: {
         fontSize: 10,
-        // textAlign: "center",
-        borderRight: border
+        textAlign: "center",
+        borderRight: border,
+        width: 100
     }
 });
 
@@ -59,32 +58,36 @@ const npvAltTableHeaders = [
     ]
 ];
 
-export const NPVComparisonTable = (props: { headers: string[]; rows }) => {
+export const NPVComparisonTable = (props: {
+    headers: string[];
+    rows: { year: number; key: number; "0": number; "1": number }[];
+}) => {
     const { headers, rows } = props;
 
     return (
-        <View style={{ marginBottom: 10 }}>
+        <View style={{ marginBottom: 10, maxWidth: 300 }}>
             {/* results Table Header */}
             <View style={styles.container}>
                 {headers.map((header) => (
-                    <Text style={styles.value}>{header}</Text>
+                    <Text style={styles.value} key={header + "_npvComparison"}>
+                        {header}
+                    </Text>
                 ))}
             </View>
 
-            {rows.map((alt) => (
+            {rows.map((alt: { year: number; key: number; "0": number; "1": number }) => (
                 <View style={styles.row} key={alt.key + "_lcc"}>
                     <Text style={styles.alt}>{alt.year}</Text>
-                    <Text style={styles.alt}>${alt["0"]}</Text>
-                    <Text style={styles.alt}>${alt["1"]}</Text>
+                    <Text style={styles.alt}>${alt["0"] || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt["1"] || "0.00"}</Text>
                 </View>
             ))}
         </View>
     );
 };
 
-export const NPVAltTable = (props: { rows }) => {
+export const NPVAltTable = (props: { rows: npvAltTableType[] }) => {
     const { rows } = props;
-    console.log(rows);
 
     return (
         <View style={{ marginBottom: 10 }}>
@@ -92,22 +95,28 @@ export const NPVAltTable = (props: { rows }) => {
             {npvAltTableHeaders.map((headers, index) => (
                 <View key={`row_${index}`} style={styles.container}>
                     {headers.map((header) => (
-                        <Text style={styles.value}>{header}</Text>
+                        <Text style={styles.value} key={header + "_npvAlt"}>
+                            {header}
+                        </Text>
                     ))}
                 </View>
             ))}
 
-            {rows.map((altArray: npvAltTableType[], index: number) => (
-                <View key={`row_${index}`} style={styles.row}>
-                    {altArray.map((alt) => (
-                        <View style={styles.row} key={alt.year + "_lcc"}>
-                            <Text style={styles.alt}>{alt.year}</Text>
-                            <Text style={styles.alt}>${alt.consumption}</Text>
-                            <Text style={styles.alt}>${alt.recurring}</Text>
-                            <Text style={styles.alt}>${alt.nonRecurring}</Text>
-                            <Text style={styles.alt}>${alt.total}</Text>
-                        </View>
-                    ))}
+            {/* ask luke about this */}
+            {rows.map((alt: npvAltTableType, index: number) => (
+                <View style={styles.row} key={alt.year + `row_${index}`}>
+                    <Text style={styles.alt}>{alt.year}</Text>
+                    <Text style={styles.alt}>${alt.consumption || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.recurring || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.nonRecurring || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.consumption || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.recurring || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.nonRecurring || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.total || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.consumption || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.recurring || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.nonRecurring || "0.00"}</Text>
+                    <Text style={styles.alt}>${alt.total || "0.00"}</Text>
                 </View>
             ))}
         </View>

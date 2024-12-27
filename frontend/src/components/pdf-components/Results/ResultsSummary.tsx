@@ -19,7 +19,6 @@ const lifeCycleResultsBaseline = [
     "Alternative",
     "Base Case",
     "Initial Cost",
-    "Life Cycle Cost",
     "SIRR",
     "AIRR",
     "SPP",
@@ -43,10 +42,14 @@ const ResultsSummary = (props: { altNames: string[]; summary }) => {
                 <hr style={styles.titleDivider} />
             </View>
             <View>
+                <Text style={styles.subHeading}>Life Cycle Results Comparison</Text>
                 <LCCResultsTable headers={lifeCycleResultsColumns} rows={summary.lccRows} />
+                <Text style={styles.subHeading}>Life Cycle Results Relative to Baseline Alternative</Text>
                 <LCCBaselineTable headers={lifeCycleResultsBaseline} rows={summary.lccBaseline} />
-                <NPVSubTable headers={["Cost Type", ...altNames]} rows={summary.npvCosts} />
-                <LCCResourceTable headers={["Resource Type", ...altNames]} rows={summary.lccResourceRows} />
+                <Text style={styles.subHeading}>NPV Costs by Cost Subcategory</Text>
+                <NPVSubTable headers={["Cost Type", "", ...altNames]} rows={summary.npvCosts} />
+                <Text style={styles.subHeading}>Life Cycle Resource Consumption and Emissions Comparison</Text>
+                <LCCResourceTable headers={["Resource Type", "", ...altNames]} rows={summary.lccResourceRows} />
             </View>
         </>
     );
