@@ -1,17 +1,31 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
+import { pdf } from "@react-pdf/renderer";
+import { Alternative, Cost, Project } from "blcc-format/Format";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { Model } from "model/Model";
+import { costs$, Model, useAlternatives, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject } from "rxjs";
+import { Subject, withLatestFrom } from "rxjs";
 import { download } from "util/DownloadFile";
+import Pdf from "./Pdf";
+
+import {
+    altNPV,
+    lccBaseline,
+    lccResourceRows,
+    lccRows,
+    NpvAll,
+    npvComparison,
+    npvCosts,
+    resourceUsage
+} from "./pdf-components/Results/allResultStreams";
 
 const pdfClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
@@ -19,8 +33,48 @@ const csvClick$ = new Subject<void>();
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
+    const project = useProject();
+    const alternatives = useAlternatives();
+    let costs: Cost[] = [];
+    costs$.subscribe((data) => {
+        costs = data;
+    });
 
-    useSubscribe(pdfClick$, () => {}); //TODO Create and download PDF
+    useSubscribe(
+        pdfClick$.pipe(
+            withLatestFrom(
+                lccRows,
+                lccBaseline,
+                npvCosts,
+                lccResourceRows,
+                npvComparison,
+                altNPV,
+                resourceUsage,
+                NpvAll
+            )
+        ),
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, NpvAll]) => {
+            const blob = pdf(
+                <Pdf
+                    project={project as Project}
+                    alternatives={alternatives as Alternative[]}
+                    costs={costs as Cost[]}
+                    summary={{ lccRows, lccBaseline, npvCosts, lccResourceRows }}
+                    annual={{ npvComparison, NpvAll }}
+                    altResults={{ altNPV, resourceUsage }}
+                />
+            ).toBlob();
+
+            blob.then((blob: Blob | MediaSource) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "BLCC Report.pdf";
+                link.click();
+            });
+        }
+    ); //TODO Create and download PDF
+
     useSubscribe(csvClick$, () => {}); // TODO Create and download CSV
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     //TODO: change download filename
