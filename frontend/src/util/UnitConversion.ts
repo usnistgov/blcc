@@ -1,7 +1,10 @@
 import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, type Unit } from "blcc-format/Format";
 import convert from "convert";
 
-export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => number } => {
+type ConvertFunction = (value: number) => number;
+type ConvertMap = { [key in Unit]?: ConvertFunction };
+
+export const getConvertMap = (fuelType: FuelType): ConvertMap => {
     const energyConversions = {
         [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("MWh"),
         [EnergyUnit.THERM]: thermToMWh,
@@ -34,6 +37,14 @@ export const toMWh = (fuelType: FuelType): { [key in Unit]?: (value: number) => 
             return {
                 ...energyConversions,
             };
+        case FuelType.COAL:
+            return {
+                [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("megajoules"),
+                [EnergyUnit.THERM]: (therm: number) => convert(thermToMWh(therm), "MWh").to("megajoules"),
+                [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("megajoules"),
+                [EnergyUnit.MJ]: (mj: number) => mj,
+                [EnergyUnit.MBTU]: (mbtu: number) => convert(mbtuToMWh(mbtu), "MWh").to("megajoules"),
+            };
         default:
             return {};
     }
@@ -43,6 +54,8 @@ const PROPANE = 9.63e7; // J/gallon
 const NATURAL_GAS = 1.09e6; // J/ft^3
 const OIL = 41.868; // GJ/m ton
 const COAL = 18.2; // GJ/m ton
+
+export const COAL_KG_CO2_PER_MEGAJOULE = 0.09042;
 
 function thermToMWh(therm: number) {
     return therm / 34.13;

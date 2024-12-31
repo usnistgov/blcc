@@ -5,7 +5,6 @@ import {
     BcnBuilder,
     BcnSubType,
     BcnType,
-    E3,
     type Output,
     ProjectType,
     RecurBuilder,
@@ -37,7 +36,7 @@ import { db } from "model/db";
 import { type Observable, type UnaryFunction, map, pipe, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { withLatestFrom } from "rxjs/operators";
-import { toMWh } from "util/UnitConversion";
+import { getConvertMap } from "util/UnitConversion";
 
 /**
  * RXJS operator to take the project and create an E3 request.
@@ -223,33 +222,49 @@ function energyCostToBuilder(
         .recur(recurrence(cost))
         .quantityValue(cost.costPerUnit)
         .quantity(cost.annualConsumption);
+
+    if (cost.escalation !== undefined) {
+        // @ts-ignore
+        builder.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+    }
+
     result.push(builder);
 
     if (cost.demandCharge !== undefined) {
-        result.push(
-            new BcnBuilder()
-                .name(`${cost.name} Demand Charge`)
-                .addTag("Demand Charge", "LCC")
-                .real()
-                .type(BcnType.COST)
-                .subType(BcnSubType.DIRECT)
-                .recur(recurrence(cost))
-                .quantityValue(cost.demandCharge)
-                .quantity(1),
-        );
+        const demandChargeBcn = new BcnBuilder()
+            .name(`${cost.name} Demand Charge`)
+            .addTag("Demand Charge", "LCC")
+            .real()
+            .type(BcnType.COST)
+            .subType(BcnSubType.DIRECT)
+            .recur(recurrence(cost))
+            .quantityValue(cost.demandCharge)
+            .quantity(1);
+
+        if (cost.escalation !== undefined) {
+            // @ts-ignore
+            demandChargeBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+        }
+
+        result.push(demandChargeBcn);
     }
 
     if (cost.rebate !== undefined) {
-        result.push(
-            new BcnBuilder()
-                .name(`${cost.name} Rebate`)
-                .addTag("Rebate", "LCC")
-                .real()
-                .type(BcnType.BENEFIT)
-                .subType(BcnSubType.DIRECT)
-                .quantityValue(-cost.rebate)
-                .quantity(1),
-        );
+        const rebateBcn = new BcnBuilder()
+            .name(`${cost.name} Rebate`)
+            .addTag("Rebate", "LCC")
+            .real()
+            .type(BcnType.BENEFIT)
+            .subType(BcnSubType.DIRECT)
+            .quantityValue(-cost.rebate)
+            .quantity(1);
+
+        if (cost.escalation !== undefined) {
+            // @ts-ignore
+            rebateBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+        }
+
+        result.push(rebateBcn);
     }
 
     if (cost.useIndex) {
@@ -260,41 +275,51 @@ function energyCostToBuilder(
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
     // Emissions
-    const kwh = toMWh(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
+    // Convert cost value to correct emissions unit. Usually MWh, but can also be MJ for coal.
+    const convertedUnit = getConvertMap(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
 
-    if (kwh === undefined || emissions === undefined) return result;
+    // If unit conversion failed or we have no emissions data, return
+    if (convertedUnit === undefined || emissions === undefined) return result;
 
-    const emissionValues = emissions.map((value) => value * kwh);
+    console.log("Emissions", emissions);
+    console.log("Cost emissions", cost.emissions);
 
-    result.push(
-        new BcnBuilder()
-            .name(`${cost.name} Emissions`)
-            .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
-            .real()
-            .type(BcnType.NON_MONETARY)
-            .recur(recurrence(cost))
-            .quantity(1)
-            .quantityValue(1)
-            .quantityVarRate(VarRate.YEAR_BY_YEAR)
-            .quantityVarValue(emissionValues)
-            .quantityUnit("kg co2"),
-    );
+    const emissionValues =
+        cost.emissions === undefined
+            ? emissions.map((value) => value * convertedUnit)
+            : cost.emissions.map((value) => value * convertedUnit);
 
-    if (scc === undefined) return result;
+    if (emissionValues.length > 0) {
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} Emissions`)
+                .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
+                .real()
+                .type(BcnType.NON_MONETARY)
+                .recur(recurrence(cost))
+                .quantity(1)
+                .quantityValue(1)
+                .quantityVarRate(VarRate.YEAR_BY_YEAR)
+                .quantityVarValue(emissionValues)
+                .quantityUnit("kg co2"),
+        );
 
-    result.push(
-        new BcnBuilder()
-            .name(`${cost.name} SCC`)
-            .addTag("SCC", `${cost.fuelType} SCC`, "$/kg")
-            .real()
-            .type(BcnType.COST)
-            .recur(recurrence(cost))
-            .quantity(1)
-            .quantityValue(1)
-            .quantityVarRate(VarRate.YEAR_BY_YEAR)
-            .quantityVarValue(scc.map((v, i) => v * emissionValues[i]))
-            .quantityUnit("$/kg co2"),
-    );
+        if (scc === undefined) return result;
+
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} SCC`)
+                .addTag("SCC", `${cost.fuelType} SCC`, "$/kg")
+                .real()
+                .type(BcnType.COST)
+                .recur(recurrence(cost))
+                .quantity(1)
+                .quantityValue(1)
+                .quantityVarRate(VarRate.YEAR_BY_YEAR)
+                .quantityVarValue(scc.map((v, i) => v * emissionValues[i]))
+                .quantityUnit("$/kg co2"),
+        );
+    }
 
     return result;
 }
@@ -316,6 +341,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
     return [
         ...cost.usage.map((usage) => {
             const builder = new BcnBuilder()
+                .type(BcnType.COST)
                 .name(cost.name)
                 .addTag(cost.unit, "LCC", `${cost.name} ${usage.season} Water Usage`)
                 .real()
@@ -333,6 +359,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
         }),
         ...cost.disposal.map((disposal) => {
             const builder = new BcnBuilder()
+                .type(BcnType.COST)
                 .name(cost.name)
                 .addTag(cost.unit, "LCC", `${cost.name} ${disposal.season} Water Disposal`)
                 .real()

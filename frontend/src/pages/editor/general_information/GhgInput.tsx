@@ -2,6 +2,7 @@ import { Divider } from "antd";
 import { EmissionsRateType, GhgDataSource, SocialCostOfGhgScenario } from "blcc-format/Format";
 import Info from "components/Info";
 import { Dropdown } from "components/input/Dropdown";
+import { TestSelect } from "components/input/TestSelect";
 import { Strings } from "constants/Strings";
 import { Model } from "model/Model";
 import Nbsp from "util/Nbsp";
@@ -12,42 +13,30 @@ export default function GhgInput() {
             <Divider className={"col-span-3"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
                 <Info text={Strings.EMISSIONS_RATE_SCENARIO}>Greenhouse Gas (GHG) Emissions and Cost Assumptions</Info>
             </Divider>
-            <Dropdown
-                label={
-                    <>
-                        Data Source
-                        <Nbsp />*
-                    </>
-                }
+            <TestSelect
+                label={"Data Source"}
+                required
                 className={"w-full"}
                 options={Object.values(GhgDataSource)}
-                wire={Model.sGhgDataSource$}
-                value$={Model.ghgDataSource$}
+                getter={Model.ghgDataSource.use}
+                onChange={(change) => Model.ghgDataSource.set(change)}
             />
-            <Dropdown
-                label={
-                    <>
-                        Emissions Rate Type
-                        <Nbsp />*
-                    </>
-                }
+            <TestSelect
+                label={"Emissions Rate Type"}
+                required
                 className={"w-full"}
                 options={Object.values(EmissionsRateType)}
-                wire={Model.sEmissionsRateType$}
-                value$={Model.emissionsRateType$}
+                getter={Model.emissionsRateType.use}
+                onChange={(change) => Model.emissionsRateType.set(change)}
             />
-            <Dropdown
-                label={
-                    <>
-                        Social Cost of GHG Scenario
-                        <Nbsp />*
-                    </>
-                }
+            <TestSelect
+                label={"Social Cost of GHG Scenario"}
+                required
                 className={"w-full"}
                 info={Strings.SOCIAL_COST_GHG}
                 options={Object.values(SocialCostOfGhgScenario)}
-                wire={Model.sSocialCostOfGhgScenario$}
-                value$={Model.socialCostOfGhgScenario$}
+                getter={Model.socialCostOfGhgScenario.use}
+                onChange={(change) => Model.socialCostOfGhgScenario.set(change)}
             />
         </div>
     );

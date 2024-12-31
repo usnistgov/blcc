@@ -9,6 +9,7 @@ import Info from "components/Info";
 type DropdownProps<T extends Key> = {
     className?: string;
     label?: ReactNode;
+    showLabel?: boolean;
     options: Observable<T[]> | T[];
     value$?: Observable<T | undefined>;
     wire: Subject<T>;
@@ -22,6 +23,7 @@ export function Dropdown<T extends Key>({
     value$,
     wire,
     info,
+    showLabel = true,
     ...selectProps
 }: PropsWithChildren<DropdownProps<T>> & Omit<SelectProps, "onChange" | "value" | "options">) {
     const { change$, change, useValue, useOptions } = useMemo(() => {
@@ -52,13 +54,14 @@ export function Dropdown<T extends Key>({
     return (
         (label !== undefined && (
             <div>
-                {info ? (
-                    <Title level={5}>
-                        <Info text={info}>{label}</Info>
-                    </Title>
-                ) : (
-                    <Title level={5}>{label}</Title>
-                )}
+                {showLabel &&
+                    (info ? (
+                        <Title level={5}>
+                            <Info text={info}>{label}</Info>
+                        </Title>
+                    ) : (
+                        <Title level={5}>{label}</Title>
+                    ))}
                 {select}
             </div>
         )) ||

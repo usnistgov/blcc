@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<Project>
+    <Name>OMB Demo</Name>
+    <Comment>Lease vs. Buy Decision</Comment>
+    <Location>Maryland</Location>
+    <Analyst>SKF</Analyst>
+    <AnalysisType>4</AnalysisType>
+    <AnalysisPurpose>1</AnalysisPurpose>
+    <BaseDate>April 1, 2022</BaseDate>
+    <PCPeriod>0 years 0 months</PCPeriod>
+    <Duration>15 years 0 months</Duration>
+    <DiscountingMethod>2</DiscountingMethod>
+    <DiscountRate>-0.008</DiscountRate>
+    <Alternatives>
+        <Alternative>
+            <Name>Lease</Name>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Leasing</Name>
+                    <Duration>50 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0
+                            </Portions>
+                            <Intervals>0 years 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Lease Payment</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>500000.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+        </Alternative>
+        <Alternative>
+            <Name>Buy</Name>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <Name>Buying</Name>
+                    <InitialCost>5000000.0</InitialCost>
+                    <Duration>50 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0
+                            </Portions>
+                            <Intervals>0 years 0 months
+                            </Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleValueFactor>0.5</ResaleValueFactor>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                    <RecurringCosts>
+                        <RecurringCost>
+                            <Name>Building maintenance</Name>
+                            <Duration>Remaining</Duration>
+                            <Amount>200000.0</Amount>
+                            <Escalation>
+                                <SimpleEscalation>
+                                </SimpleEscalation>
+                            </Escalation>
+                            <Index>
+                                <UsageIndex>
+                                    <Intervals>Remaining
+                                    </Intervals>
+                                    <Values>1.0
+                                    </Values>
+                                </UsageIndex>
+                            </Index>
+                        </RecurringCost>
+                    </RecurringCosts>
+                </CapitalComponent>
+            </CapitalComponents>
+        </Alternative>
+    </Alternatives>
+</Project>

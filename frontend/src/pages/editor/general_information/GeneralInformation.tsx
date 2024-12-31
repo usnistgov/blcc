@@ -1,150 +1,148 @@
-import { useStateObservable } from "@react-rxjs/core";
-import { Divider } from "antd";
+import { Switch as AntSwitch, Divider } from "antd";
 import Title from "antd/es/typography/Title";
-import { Defaults } from "blcc-format/Defaults";
 import { AnalysisType, DiscountingMethod, DollarMethod, Purpose } from "blcc-format/Format";
+import Info from "components/Info";
 import Location from "components/Location";
-import { Dropdown } from "components/input/Dropdown";
-import { NumberInput } from "components/input/InputNumber";
-import Switch from "components/input/Switch";
-import { TextArea } from "components/input/TextArea";
-import TextInput, { TextInputType } from "components/input/TextInput";
+import { TestInput } from "components/input/TestInput";
+import { TestNumberInput } from "components/input/TestNumberInput";
+import { TestSelect } from "components/input/TestSelect";
+import { TestTextArea } from "components/input/TestTextArea";
+import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { Model } from "model/Model";
-import { max, min } from "model/rules/Rules";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
-import GhgInput from "pages/editor/general_information/GhgInput";
-import { Strings } from "constants/Strings";
-import Info from "components/Info";
-import Nbsp from "util/Nbsp";
 import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
+import GhgInput from "pages/editor/general_information/GhgInput";
+
+/**
+ * Returns a dropdown for selecting the analysis purpose if the analysis type is OMB Non-Energy,
+ * otherwise returns nothing.
+ *
+ * @returns A dropdown with options for selecting the analysis purpose.
+ */
+function AnalysisPurpose() {
+    if (Model.analysisType.use() !== AnalysisType.OMB_NON_ENERGY) return;
+
+    return (
+        <TestSelect
+            className={"w-full"}
+            label={"Analysis Purpose"}
+            id={"analysisPurpose"}
+            placeholder={"Select Analysis Purpose"}
+            info={Strings.ANALYSIS_PURPOSE}
+            options={Object.values(Purpose)}
+            getter={Model.purpose.use}
+            onChange={(change) => Model.purpose.set(change)}
+        />
+    );
+}
 
 export default function GeneralInformation() {
-    //TODO make ghg values removable
-    //TODO make location reset when switching to US vs non-US
-
-    const constructionPeriod = useStateObservable(Model.constructionPeriod$);
-
     return (
         <motion.div
             className={"w-full h-full overflow-y-auto"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.08 }}
         >
             <div className={"max-w-screen-lg p-6 mb-16"}>
                 <div className={" grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    <TextInput
-                        label={
-                            <>
-                                Project Name
-                                <Nbsp />*
-                            </>
-                        }
-                        type={TextInputType.PRIMARY}
+                    {/* Project Name */}
+                    <TestInput
+                        id={"general-information:project-name"}
+                        name={"projectName"}
+                        label={"Project Name"}
                         info={Strings.PROJECT_NAME}
+                        required
                         placeholder={"Untitled Project"}
-                        value$={Model.name$}
-                        wire={Model.sName$}
-                    />
-                    <TextInput
-                        label={"Analyst"}
-                        type={TextInputType.PRIMARY}
-                        info={Strings.ANALYST}
-                        value$={Model.analyst$}
-                        wire={Model.sAnalyst$}
+                        getter={Model.name.use}
+                        onChange={(event) => {
+                            const change = event.currentTarget.value;
+                            Model.name.set(change === "" ? undefined : change);
+                        }}
+                        showCount
+                        maxLength={50}
+                        error={Model.name.useValidation}
                     />
 
-                    <Dropdown
-                        label={
-                            <>
-                                Analysis Type
-                                <Nbsp />*
-                            </>
-                        }
+                    {/* Analyst */}
+                    <TestInput
+                        name={"analyst"}
+                        label={"Analyst"}
+                        info={Strings.ANALYST}
+                        getter={Model.analyst.use}
+                        onChange={(event) => {
+                            const change = event.currentTarget.value;
+                            Model.analyst.set(change === "" ? undefined : change);
+                        }}
+                        showCount
+                        maxLength={50}
+                        error={Model.analyst.useValidation}
+                    />
+
+                    {/* Analysis Type */}
+                    <TestSelect
                         className={"w-full"}
+                        label={"Analysis Type"}
+                        id={"analysisType"}
                         info={Strings.ANALYSIS_TYPE}
+                        required
                         placeholder={"Please select an analysis type"}
                         options={Object.values(AnalysisType)}
-                        wire={Model.sAnalysisType$}
-                        value$={Model.analysisType$}
-                    />
-                    {useStateObservable(Model.analysisType$) === "OMB Analysis, Non-Energy Project" && (
-                        <Dropdown
-                            label={"Analysis Purpose"}
-                            className={"w-full"}
-                            info={Strings.ANALYSIS_PURPOSE}
-                            options={Object.values(Purpose)}
-                            wire={Model.sPurpose$}
-                            value$={Model.purpose$}
-                        />
-                    )}
+                        getter={Model.analysisType.use}
+                        onChange={(change) => {
+                            Model.analysisType.set(change);
 
+                            if (change !== AnalysisType.OMB_NON_ENERGY) Model.purpose.set(undefined);
+                        }}
+                    />
+
+                    {/* Analysis Purpose */}
+                    <AnalysisPurpose />
+
+                    {/* Description */}
                     <span className={"col-span-2"}>
-                        <TextArea
+                        <TestTextArea
+                            name={"description"}
                             label={"Description"}
                             className={"w-full"}
                             info={Strings.DESCRIPTION}
-                            value$={Model.description$}
-                            wire={Model.sDescription$}
+                            getter={Model.description.use}
+                            onChange={(event) => Model.description.set(event.currentTarget.value)}
                         />
                     </span>
                     <div className={"col-span-2 grid grid-cols-4 gap-x-16 gap-y-4"}>
-                        <NumberInput
-                            label={
-                                <>
-                                    Study Period
-                                    <Nbsp />*
-                                </>
-                            }
-                            info={Strings.STUDY_PERIOD}
-                            addonAfter={"years"}
-                            defaultValue={0}
-                            max={Defaults.STUDY_PERIOD + constructionPeriod}
-                            min={0}
-                            controls={true}
-                            allowEmpty
-                            rules={[max(Defaults.STUDY_PERIOD + constructionPeriod), min(0)]}
-                            wire={Model.sStudyPeriod$}
-                            value$={Model.studyPeriod$}
-                            parser={(input) => (input ? Math.trunc(Number.parseInt(input)) : 0)}
-                        />
-                        <NumberInput
-                            label={
-                                <>
-                                    Construction Period
-                                    <Nbsp />*
-                                </>
-                            }
-                            info={Strings.CONSTRUCTION_PERIOD}
-                            addonAfter={"years"}
-                            defaultValue={0}
-                            max={Defaults.CONSTRUCTION_PERIOD}
-                            min={0}
-                            controls={true}
-                            wire={Model.sConstructionPeriod$}
-                            value$={Model.constructionPeriod$}
-                            parser={(input) => (input ? Math.trunc(Number.parseInt(input)) : 0)}
-                        />
-
-                        <Dropdown
+                        <TestNumberInput
                             className={"w-full"}
-                            label={
-                                <>
-                                    Data Release Year
-                                    <Nbsp />*
-                                </>
-                            }
-                            info={Strings.DATA_RELEASE_YEAR}
-                            options={Model.releaseYears$}
-                            wire={Model.sReleaseYear$}
-                            value$={Model.releaseYear$}
+                            getter={Model.studyPeriod.use}
+                            label={"Study Period"}
+                            name={"studyPeriod"}
+                            required
+                            info={Strings.STUDY_PERIOD}
+                            onChange={(event) => Model.studyPeriod.set(event ?? 0)}
                         />
-                        <EiaProjectScenarioSelect/>
+                        <TestNumberInput
+                            className={"w-full"}
+                            required
+                            getter={Model.constructionPeriod.use}
+                            label={"Construction Period"}
+                            name={"constructionPeriod"}
+                            info={Strings.CONSTRUCTION_PERIOD}
+                            onChange={(event) => Model.constructionPeriod.set(event ?? 0)}
+                        />
+                        <TestSelect
+                            className={"w-full"}
+                            label={"Data Release Year"}
+                            info={Strings.DATA_RELEASE_YEAR}
+                            required
+                            optionGetter={Model.useReleaseYears}
+                            getter={Model.useReleaseYear}
+                            onChange={(releaseYear) => Model.sReleaseYear$.next(releaseYear)}
+                        />
+                        <EiaProjectScenarioSelect />
                     </div>
                 </div>
-
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <div className={"grid grid-cols-2 gap-x-8 gap-y-2"}>
                         <Divider
@@ -163,34 +161,29 @@ export default function GeneralInformation() {
                                     Dollar Analysis
                                 </Info>
                             </Title>
-                            <Switch
-                                left={DollarMethod.CURRENT}
-                                right={DollarMethod.CONSTANT}
+                            <AntSwitch
                                 className={"bg-primary hover:bg-primary"}
-                                value$={Model.dollarMethod$}
-                                wire={Model.sDollarMethod$}
+                                checked={Model.dollarMethod.use() === DollarMethod.CONSTANT}
                                 checkedChildren={"Constant"}
                                 unCheckedChildren={"Current"}
                                 defaultChecked
+                                onChange={(checked) =>
+                                    Model.dollarMethod.set(checked ? DollarMethod.CONSTANT : DollarMethod.CURRENT)
+                                }
                             />
                         </div>
-                        <Dropdown
-                            label={
-                                <>
-                                    Discounting Convention
-                                    <Nbsp />*
-                                </>
-                            }
+                        <TestSelect
+                            label={"Discounting Convention"}
+                            required
                             className={"w-full"}
                             info={Strings.DISCOUNTING_CONVENTION}
                             placeholder={"Please select a discounting convention"}
                             options={Object.values(DiscountingMethod)}
-                            wire={Model.sDiscountingMethod$}
-                            value$={Model.discountingMethod$}
+                            getter={Model.discountingMethod.use}
+                            onChange={(change) => Model.discountingMethod.set(change)}
                         />
                         <DiscountRates />
                     </div>
-
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <Divider
                             className={"col-span-2 h-fit"}
@@ -200,21 +193,11 @@ export default function GeneralInformation() {
                         >
                             <Info text={Strings.LOCATION}>Location</Info>
                         </Divider>
-                        <Location
-                            sCountry$={Model.Location.sCountry$}
-                            country$={Model.Location.country$}
-                            sCity$={Model.Location.sCity$}
-                            city$={Model.Location.city$}
-                            sState$={Model.Location.sState$}
-                            state$={Model.Location.state$}
-                            sZip$={Model.Location.sZip$}
-                            zip$={Model.Location.zip$}
-                            sStateOrProvince$={Model.Location.sStateOrProvince$}
-                            stateOrProvince$={Model.Location.stateOrProvince$}
-                        />
+                        <Location model={Model.Location} />
                     </div>
                 </div>
 
+                {/* Greenhouse Gas Inputs */}
                 <GhgInput />
             </div>
         </motion.div>

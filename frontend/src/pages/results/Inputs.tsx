@@ -9,7 +9,7 @@ export default function Inputs() {
     if (project === undefined) return <>No project</>; //TODO make this error better
 
     return (
-        <div className={"mb-28 max-w-screen-lg p-6"}>
+        <div className={"mb-28 max-w-screen-lg p-6 overflow-y-auto h-full pb-48"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <ResultsInput label="Project Name" dataVal={project.name} />
                 <ResultsInput label="Analyst" dataVal={project.analyst} />

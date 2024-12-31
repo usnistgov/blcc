@@ -1,0 +1,7 @@
+FROM scratch
+
+COPY ./backend/target/x86_64-unknown-linux-musl/release/backend /server
+COPY ./frontend/dist /public/dist
+
+EXPOSE 8080
+CMD ["./server"]

@@ -8,7 +8,7 @@ import NpvCashFlowComparison from "components/grids/annual-results/NpvCashFlowCo
 
 export default function AnnualResults() {
     return (
-        <div className={"mb-28 flex w-full flex-col gap-8 p-5"}>
+        <div className={"mb-28 flex w-full flex-col gap-8 p-5 overflow-y-auto h-full pb-48"}>
             <div className="grid grid-cols-2 gap-8">
                 <div>
                     <Header>NPV Cash Flow Comparison</Header>

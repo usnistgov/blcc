@@ -31,3 +31,5 @@ dev-dist
 
 .npmrc
 result
+
+**/__screenshots__/*

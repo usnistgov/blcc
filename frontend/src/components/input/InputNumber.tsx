@@ -4,17 +4,18 @@ import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
-import { type Rule, validate, type ValidationResult } from "model/rules/Rules";
+import { type Rule, validate } from "model/rules/Rules";
 import { type PropsWithChildren, type ReactNode, useEffect, useMemo } from "react";
-import { iif, map, merge, type Observable, sample, type Subject, switchMap } from "rxjs";
+import { type Observable, type Subject, iif, map, merge, sample, switchMap } from "rxjs";
 import { combineLatestWith, startWith } from "rxjs/operators";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { guard, isTrue } from "util/Operators";
 
 type NumberOrUndefined<T> = T extends true ? number | undefined : number;
 
 type NumberInputProps<T extends true | false = false> = {
     label: ReactNode;
+    subLabel?: ReactNode;
     showLabel?: boolean;
     allowEmpty?: T | false;
     rules?: Rule<number>[];
@@ -26,6 +27,7 @@ type NumberInputProps<T extends true | false = false> = {
 
 export function NumberInput<T extends true | false = false>({
     label,
+    subLabel,
     showLabel = true,
     children,
     allowEmpty = false,
@@ -54,7 +56,7 @@ export function NumberInput<T extends true | false = false>({
             map(([snapshot, newValue]) => (newValue === undefined ? snapshot : newValue)),
         );
 
-        const [useValue, v2$] = bind<number | ValidationResult<number> | undefined>(
+        const [useValue, v2$] = bind<number | undefined>(
             focused$.pipe(
                 startWith(false),
                 switchMap((focused) => (focused ? onChange$ : replayed$)),
@@ -98,7 +100,6 @@ export function NumberInput<T extends true | false = false>({
             // Display the value directly or get it out of the validation result
             value={match(value)
                 .with(P.number, (value) => (percent ? Number.parseFloat((value * 100).toFixed(2)) : value))
-                .with({ value: P.select() }, (value) => (percent ? Number.parseFloat((value * 100).toFixed(2)) : value))
                 .otherwise(() => undefined)}
             status={error === undefined ? "" : "error"}
             {...inputProps}
@@ -114,6 +115,7 @@ export function NumberInput<T extends true | false = false>({
                     {(info && (
                         <Title level={5}>
                             <Info text={info}>{label}</Info>
+                            {subLabel && <p className={"text-xs text-base-light"}>{subLabel}</p>}
                         </Title>
                     )) || <Title level={5}>{label}</Title>}
                     {input}

@@ -4,7 +4,7 @@ import type { Country, State } from "constants/LOCATION";
 export type Project = {
     id?: number;
     version: Version;
-    name: string;
+    name?: string;
     description?: string;
     analyst?: string;
     analysisType?: AnalysisType;
@@ -156,7 +156,8 @@ export enum FuelType {
     RESIDUAL_OIL = "Residual Fuel Oil (#4, #5, #6)",
     NATURAL_GAS = "Natural Gas",
     PROPANE = "Liquefied Petroleum Gas / Propane",
-    OTHER = "Other (Coal, Steam, etc.)",
+    COAL = "Coal",
+    OTHER = "Other (Steam, etc.)",
 }
 
 export type EnergyCost = Type<CostTypes.ENERGY> &
@@ -171,6 +172,7 @@ export type EnergyCost = Type<CostTypes.ENERGY> &
         unit: Unit;
         demandCharge?: number;
         rebate?: number;
+        emissions?: number[];
     };
 
 export enum CustomerSector {
@@ -302,8 +304,8 @@ export type Type<T> = {
 };
 
 export enum Case {
-    REF = "ref",
-    LOWZTC = "lowZTC",
+    REF = "REF",
+    LOWZTC = "LRC",
 }
 
 export enum GhgDataSource {

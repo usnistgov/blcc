@@ -12,9 +12,9 @@ export type Rule<T> = {
     test: (t: T) => boolean;
 };
 
-export type ValidationResult<T> = { type: "valid"; value: T } | { type: "invalid"; messages: string[]; value: T };
+export type ValidationResult = { type: "valid" } | { type: "invalid"; messages: string[] };
 
-export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, Observable<ValidationResult<T>>> {
+export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, Observable<ValidationResult>> {
     return pipe(
         map((t: T) => {
             const messages = rules.filter((rule) => !rule.test(t)).map((rule) => rule.message(t));
@@ -23,13 +23,11 @@ export function validate<T>(...rules: Rule<T>[]): UnaryFunction<Observable<T>, O
                 return {
                     type: "invalid",
                     messages,
-                    value: t,
-                } as ValidationResult<T>;
+                } as ValidationResult;
 
             return {
                 type: "valid",
-                value: t,
-            } as ValidationResult<T>;
+            } as ValidationResult;
         }),
     );
 }
@@ -55,3 +53,33 @@ const HAS_BASELINE: Rule<Alternative[]> = {
     test: (alts) => alts.find((alt) => alt.baseline) !== undefined,
     message: () => "Must have at least one baseline alternative",
 };
+
+export namespace Rule {
+    /**
+     * Creates a rule that checks if a string's length does not exceed a specified maximum length.
+     *
+     * @param maxLength - The maximum allowed length for the string.
+     * @returns A Rule<string> that validates the string length against the maximum length.
+     */
+    export function maxLength<T>(maxLength: number): Rule<string> {
+        return {
+            name: "Max length rule",
+            message: (x: string) => `${x} is longer than the maximum allowed length ${maxLength}`,
+            test: (x: string) => x.length <= maxLength,
+        };
+    }
+
+    /**
+     * Creates a rule that checks if a string's length is at least a specified minimum length.
+     *
+     * @param minLength - The minimum allowed length for the string.
+     * @returns A Rule<string> that validates the string length against the minimum length.
+     */
+    export function minLength(minLength: number): Rule<string> {
+        return {
+            name: "Min length rule",
+            message: (x: string) => `${x} is shorter than the minimum allowed length ${minLength}`,
+            test: (x: string) => x.length >= minLength,
+        };
+    }
+}

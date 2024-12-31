@@ -3,13 +3,11 @@ import { createSignal } from "@react-rxjs/utils";
 import Title from "antd/es/typography/Title";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
-import Decimal from "decimal.js";
 import { EscalationRateModel } from "model/EscalationRateModel";
 import { Model } from "model/Model";
 import { type ReactNode, useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
-import { filter, tap } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter, toDecimal, toPercentage } from "util/Util";
@@ -54,7 +52,7 @@ const COLUMNS = [
     },
 ];
 
-const studyPeriodDefaultRates$ = Model.studyPeriod$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
+const studyPeriodDefaultRates$ = Model.studyPeriod.$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
 
 export default function EscalationRates({ title, defaultRates$ }: EscalationRatesProps) {
     const { useEscalation, newRates, sIsConstant$, isConstant$, sConstantChange$, newRate$ } = useMemo(() => {

@@ -37,21 +37,22 @@ export namespace ResultModel {
     // True if the project has been run before, if anything has changed since, false.
     export const isCached$ = result$.pipe(map((result) => result !== undefined));
 
-    // Only send E3 request if we don't have the results cached
+    // Send the E3 request when the run button is clicked
     export const e3Result$ = sRun$.pipe(
-        withLatestFrom(ResultModel.isCached$),
-        filter(([, cached]) => !cached),
         withLatestFrom(currentProject$),
         map(([, id]) => id),
         toE3Object(),
+        tap((x) => console.log("E3 Object: ", x)),
         E3Request(),
+        tap((x) => console.log("E3 Result: ", x)),
         shareLatest(),
     );
 
     // Store the E3 result into the database with the hash of the project file to identify it.
-    ResultModel.e3Result$.pipe(withLatestFrom(hash$)).subscribe(([result, hash]) => {
+    ResultModel.e3Result$.pipe(withLatestFrom(hash$)).subscribe(async ([result, hash]) => {
         const timestamp = new Date();
-        db.results.add({ hash, timestamp, ...result });
+        await db.results.delete(hash);
+        await db.results.add({ hash, timestamp, ...result });
     });
 
     /**

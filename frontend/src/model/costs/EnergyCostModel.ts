@@ -1,34 +1,62 @@
 import { bind, shareLatest, state } from "@react-rxjs/core";
 import {
+    Case,
+    type Cost,
     CostTypes,
-    type CustomerSector,
+    CustomerSector,
+    EmissionsRateType,
     type EnergyCost,
     EnergyUnit,
     FuelType,
+    GhgDataSource,
     type NonUSLocation,
     type USLocation,
     type Unit,
 } from "blcc-format/Format";
 import { Country, type State } from "constants/LOCATION";
 import { CostModel } from "model/CostModel";
-import { Model } from "model/Model";
-import { Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
+import { isEnergyCost, isNonUSLocation, isUSLocation } from "model/Guards";
+import { type LocationModel, Model, Var } from "model/Model";
+import * as O from "optics-ts";
+import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, combineLatestWith, filter, shareReplay, tap, withLatestFrom } from "rxjs/operators";
+import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
+import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
+import { ajaxDefault } from "util/Util";
+import z from "zod";
 
 export namespace EnergyCostModel {
     /**
      * Outputs a value if the current cost is an energy cost
      */
     export const cost$ = CostModel.cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+    export const energyCostOptic = O.optic<Cost>().guard(isEnergyCost);
+
+    const locationOptic = energyCostOptic.prop("location").optional();
+    export const location = new Var(CostModel.DexieCostModel, locationOptic);
 
     // Location override
     export namespace Location {
+        export const model: LocationModel<Cost> = {
+            country: new Var(CostModel.DexieCostModel, locationOptic.prop("country")),
+            city: new Var(CostModel.DexieCostModel, locationOptic.prop("city")),
+            state: new Var(CostModel.DexieCostModel, locationOptic.guard(isUSLocation).prop("state")),
+            stateProvince: new Var(
+                CostModel.DexieCostModel,
+                locationOptic.guard(isNonUSLocation).prop("stateProvince"),
+            ),
+            zipcode: new Var(
+                CostModel.DexieCostModel,
+                locationOptic.guard(isUSLocation).prop("zipcode"),
+                z.string().max(5),
+            ),
+        };
+
         export const sToggleLocation$ = new Subject<boolean>();
         sToggleLocation$
-            .pipe(withLatestFrom(CostModel.collection$, Model.Location.location$))
+            .pipe(withLatestFrom(CostModel.collection$, Model.location.$))
             .subscribe(([toggle, collection, projectLocation]) =>
                 collection.modify({
                     location: toggle ? { ...projectLocation } : undefined,
@@ -95,6 +123,38 @@ export namespace EnergyCostModel {
                     (project.location as USLocation).zipcode = zipcode;
                 }),
             );
+
+        export const globalOrLocalZip$ = Location.location$.pipe(
+            switchMap((location) => (location === undefined ? Model.Location.zipcode.$ : Location.zip$)),
+            distinctUntilChanged(),
+            shareLatest(),
+        );
+
+        type ZipInfoResponse = {
+            zip: number;
+            ba: string;
+            gea: string;
+            state: string;
+            padd: string;
+            technobasin: string;
+            reeds_ba: string;
+        };
+
+        export const zipInfo$ = globalOrLocalZip$.pipe(
+            switchMap((zip) =>
+                ajax<ZipInfoResponse[]>({
+                    url: "/api/zip_info",
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: {
+                        zip: Number.parseInt(zip ?? "0"),
+                    },
+                }),
+            ),
+            map((response) => response.response[0]),
+        );
     }
 
     /**
@@ -116,9 +176,22 @@ export namespace EnergyCostModel {
     export const fuelType$ = merge(sFuelTypeChange$, cost$.pipe(map((cost) => cost.fuelType))).pipe(
         distinctUntilChanged(),
     );
-    sFuelTypeChange$
-        .pipe(withLatestFrom(CostModel.collection$))
-        .subscribe(([fuelType, costCollection]) => costCollection.modify({ fuelType }));
+    sFuelTypeChange$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([fuelType, costCollection]) => {
+        // Set fuel type
+        costCollection.modify({ fuelType });
+
+        // Coal can only be set with an industrial customer sector
+        if (fuelType === FuelType.COAL) costCollection.modify({ customerSector: CustomerSector.INDUSTRIAL });
+    });
+
+    export const sectorOptions$ = fuelType$.pipe(
+        map((fuelType) => {
+            if (fuelType === FuelType.COAL) return [CustomerSector.INDUSTRIAL];
+
+            return Object.values(CustomerSector);
+        }),
+        startWith(Object.values(CustomerSector)),
+    );
 
     type EscalationRateResponse = {
         case: string;
@@ -137,11 +210,8 @@ export namespace EnergyCostModel {
     // Gets the default escalation rate information from the api
     export const fetchEscalationRates$ = combineLatest([
         Model.releaseYear$,
-        Model.studyPeriod$,
-        Location.location$.pipe(
-            switchMap((location) => (location === undefined ? Model.Location.zip$ : Location.zip$)),
-            distinctUntilChanged(),
-        ),
+        Model.studyPeriod.$,
+        Location.globalOrLocalZip$,
         customerSector$,
         Model.case$,
     ]).pipe(
@@ -192,4 +262,113 @@ export namespace EnergyCostModel {
     sUnitChange$
         .pipe(withLatestFrom(CostModel.collection$))
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
+
+    const EiaCaseMap = {
+        [Case.REF]: "REF",
+        [Case.LOWZTC]: "LRC",
+    };
+
+    const RateMap = {
+        [EmissionsRateType.AVERAGE]: "avg",
+        [EmissionsRateType.LONG_RUN_MARGINAL]: "lrm",
+    };
+
+    export namespace Emissions {
+        export const emissions$: Observable<number[] | undefined> = combineLatest([
+            Location.zipInfo$,
+            Model.releaseYear$,
+            Model.studyPeriod.$,
+            Model.case$,
+            Model.emissionsRateType.$,
+            Model.ghgDataSource.$,
+            fuelType$,
+        ]).pipe(
+            tap((x) => console.log("Combined values", x)),
+            switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType]) => {
+                const common = {
+                    from: releaseYear,
+                    to: releaseYear + (studyPeriod ?? 0),
+                    release_year: releaseYear,
+                    case: EiaCaseMap[eiaCase],
+                    rate: RateMap[rate],
+                };
+
+                const oil = () =>
+                    ajax<number[]>({
+                        ...ajaxDefault,
+                        url: "/api/region_case_oil",
+                        body: {
+                            ...common,
+                            padd: zipInfo.padd,
+                        },
+                    }).pipe(map((response) => response.response));
+
+                return match(fuelType)
+                    .with(FuelType.ELECTRICITY, () => {
+                        console.log("Calling for region case", { ...common, ba: zipInfo.ba });
+
+                        if (ghgDataSource === GhgDataSource.NIST_NETL) {
+                            return ajax<number[]>({
+                                ...ajaxDefault,
+                                url: "/api/region_case_ba",
+                                body: {
+                                    ...common,
+                                    ba: zipInfo.ba,
+                                },
+                            }).pipe(
+                                tap((x) => console.log("ba response", x)),
+                                map((response) => response.response),
+                            );
+                        }
+
+                        return ajax<number[]>({
+                            ...ajaxDefault,
+                            url: "/api/region_case_reeds",
+                            body: {
+                                ...common,
+                                padd: zipInfo.reeds_ba,
+                            },
+                        }).pipe(map((response) => response.response));
+                    })
+                    .with(FuelType.NATURAL_GAS, () =>
+                        ajax<number[]>({
+                            ...ajaxDefault,
+                            url: "/api/region_natgas",
+                            body: {
+                                ...common,
+                                technobasin: zipInfo.technobasin,
+                            },
+                        }).pipe(map((response) => response.response)),
+                    )
+                    .with(FuelType.DISTILLATE_OIL, oil)
+                    .with(FuelType.RESIDUAL_OIL, oil)
+                    .with(FuelType.PROPANE, () =>
+                        ajax<number[]>({
+                            ...ajaxDefault,
+                            url: "/api/region_case_propane_lng",
+                            body: {
+                                ...common,
+                                padd: zipInfo.padd,
+                            },
+                        }).pipe(map((response) => response.response)),
+                    )
+                    .with(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2_PER_MEGAJOULE)))
+                    .otherwise(() => of(Array(studyPeriod).fill(0)));
+            }),
+            tap((result) => console.log(result)),
+        );
+        emissions$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([emissions, collection]) => {
+            console.log(emissions);
+
+            if (emissions === undefined) {
+                collection.modify({
+                    emissions: undefined,
+                });
+            } else {
+                collection.modify({
+                    emissions,
+                });
+            }
+        });
+    }
 }
