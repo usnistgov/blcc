@@ -18,7 +18,7 @@ import {
     lccBaseline,
     lccResourceRows,
     lccRows,
-    NpvAll,
+    npvAll,
     npvComparison,
     npvCosts,
     resourceUsage
@@ -49,12 +49,12 @@ export default function ResultsAppBar() {
                 npvComparison,
                 altNPV,
                 resourceUsage,
-                NpvAll
+                npvAll
             )
         ),
-        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, NpvAll]) => {
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, npvAll]) => {
             const summary = { lccRows, lccBaseline, npvCosts, lccResourceRows };
-            const annual = { npvComparison, NpvAll };
+            const annual = { npvComparison, npvAll };
             const altResults = { altNPV, resourceUsage };
             // Trigger CSV download
             const link = document.createElement("a");
