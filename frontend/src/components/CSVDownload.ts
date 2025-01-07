@@ -1,42 +1,42 @@
-import { Alternative, Cost, Project } from "blcc-format/Format";
+import { Alternative, Project } from "blcc-format/Format";
 
-const CSVDownload = (project: Project, alternatives: Alternative[], costs: Cost[], summary, annual, altResults) => {
-    let altNames: string[] = alternatives.map((alt) => alt.name);
+const CSVDownload = (project: Project, alternatives: Alternative[], summary, annual, altResults) => {
+    let altNames: string[] = alternatives?.map((alt) => alt?.name);
 
-    const lccComparison = summary.lccRows.map((row) => {
+    const lccComparison = summary?.lccRows?.map((row) => {
         return [
             row?.name,
             row?.baseline,
-            row?.initialCost,
-            row?.lifeCycleCost,
-            row?.energy,
-            row?.ghgEmissions,
-            row?.scc,
-            row?.lccScc
+            "$" + row?.initialCost || "0.00",
+            "$" + row?.lifeCycleCost || "0.00",
+            "$" + row?.energy || "0.00",
+            "$" + row?.ghgEmissions || "0.00",
+            "$" + row?.scc || "0.00",
+            "$" + row?.lccScc || "0.00"
         ];
     });
 
-    const lccBaseline = summary.lccBaseline.map((row) => {
+    const lccBaseline = summary?.lccBaseline?.map((row) => {
         return [
             row?.name,
             row?.baseline,
-            row?.initialCost,
-            row?.sir,
-            row?.airr,
-            row?.spp,
-            row?.dpp,
-            row?.deltaEnergy,
-            row?.deltaGhg,
-            row?.deltaScc,
-            row?.netSavings
+            "$" + row?.initialCost || "0.00",
+            "$" + row?.sir || "0.00",
+            "$" + row?.airr || "0.00",
+            "$" + row?.spp || "0.00",
+            "$" + row?.dpp || "0.00",
+            "$" + row?.deltaEnergy || "0.00",
+            "$" + row?.deltaGhg || "0.00",
+            "$" + row?.deltaScc || "0.00",
+            "$" + row?.netSavings || "0.00"
         ];
     });
 
-    const npvCosts = summary.npvCosts.map((row) => {
+    const npvCosts = summary?.npvCosts?.map((row) => {
         return [row?.category, row?.subcategory, "$" + row["0"] || "0.00", "$" + row["1"] || "0.00"];
     });
 
-    const lccResource = summary.lccResourceRows.map((row) => {
+    const lccResource = summary?.lccResourceRows?.map((row) => {
         return [row?.category, row?.subcategory, "$" + row["0"] || "0.00", "$" + row["1"] || "0.00"];
     });
 
@@ -110,17 +110,17 @@ const CSVDownload = (project: Project, alternatives: Alternative[], costs: Cost[
         alts?.forEach((alt) => {
             rows.push([
                 alt.year,
-                "$" + alt?.investment || 0,
-                "$" + alt?.consumption || 0,
-                "$" + alt?.recurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt?.nonRecurring || 0,
-                "$" + alt.total || 0
+                "$" + alt?.investment || "0.00",
+                "$" + alt?.consumption || "0.00",
+                "$" + alt?.recurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt?.nonRecurring || "0.00",
+                "$" + alt.total || "0.00"
             ]);
         });
         rows.push([]);
@@ -150,7 +150,7 @@ const CSVDownload = (project: Project, alternatives: Alternative[], costs: Cost[
                 result.push([item?.category || "", item?.subcategory || "", "$" + (item?.alternative || "0.00")]);
             });
 
-            result.push("", "Energy and Water use, Emissions, and Social Cost of GHG", "", [
+            result.push("", "Energy and Water use Emissions and Social Cost of GHG", "", [
                 "Resource Type",
                 "",
                 "Consumption",
@@ -160,7 +160,7 @@ const CSVDownload = (project: Project, alternatives: Alternative[], costs: Cost[
             resourceUsage[i].forEach((item) => {
                 result.push([
                     item?.category || "",
-                    [item?.subcategory || ""],
+                    [`${item?.subcategory}` || ""],
                     "$" + (item?.consumption || "0.00"),
                     "$" + (item?.emissions || "0.00")
                 ]);

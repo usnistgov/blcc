@@ -58,7 +58,7 @@ export default function ResultsAppBar() {
             const altResults = { altNPV, resourceUsage };
             // Trigger CSV download
             const link = document.createElement("a");
-            const csvData = CSVDownload(project, alternatives, costs, summary, annual, altResults);
+            const csvData = CSVDownload(project, alternatives, summary, annual, altResults);
             const csvBlob = new Blob([csvData.join("\n")], { type: "text/csv" });
             const url = window.URL.createObjectURL(csvBlob);
             link.href = url;
