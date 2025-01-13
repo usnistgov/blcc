@@ -25,6 +25,7 @@
     "decimal.js": "^10.4.3",
     "dexie": "^3.2.7",
     "dexie-export-import": "^4.1.2",
+    "effect": "^3.12.1",
     "fast-xml-parser": "4.4.1",
     "fp-ts": "^2.16.9",
     "framer-motion": "^11.2.10",

@@ -1,7 +1,7 @@
 stages:
   - build
-  - docker-build
-  - release
+  - docker
+  - deploy
 
 backend-build:
   image: clux/muslrust:1.85.0-nightly
@@ -42,38 +42,9 @@ frontend-build:
     paths:
       - frontend/dist/*
 
-variables:
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
-
-docker-build:
-  image: docker:27.2.1
-  stage: docker-build
-  needs:
-    - backend-build
-    - frontend-build
-  tags:
-    - dind
-  services:
-    - docker:27.2.1-dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build -t $IMAGE_TAG -f gitlab-dockerfile .
-    - docker push $IMAGE_TAG
-
-portainer-deploy:
-  image: docker:27.2.1
-  stage: release
-  tags:
-    - dind
-  services:
-    - docker:27.2.1-dind
-  before_script:
-    - apk add jq curl
-    - unset DOCKER_HOST
-    - export AUTH_BODY=$(jq -c -n --arg username "$PORTAINER_USERNAME" --arg password "$PORTAINER_PASSWORD" '{username:$username,password:$password}')
-    - "export DOCKER_CUSTOM_HEADERS=\"Authorization=Bearer $(curl -s --header \"Content-Type: application\\json\" --request POST --data \"$AUTH_BODY\" http://haproxy-p.el.nist.gov:9000/api/auth | jq -r .jwt)\""
-    - docker context create portainer --docker "host=tcp://haproxy-p.el.nist.gov:9000/api/endpoints/1/docker"
-    - docker context use portainer
-  script:
-    - docker stack deploy -c portainer-stack.yml --resolve-image always blcc
+include:
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.1
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.1
+    inputs:
+      url: haproxy-p.el.nist.gov:9000
+      name: blcc
