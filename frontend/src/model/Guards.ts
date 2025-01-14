@@ -64,3 +64,7 @@ export function isRecurringCost(cost: Cost): cost is RecurringTypes {
         cost.type === CostTypes.OTHER_NON_MONETARY
     );
 }
+
+export function isRecurringContractCost(cost: Cost): cost is RecurringContractCost {
+    return cost.type === CostTypes.RECURRING_CONTRACT;
+}

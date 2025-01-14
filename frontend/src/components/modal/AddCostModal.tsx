@@ -151,6 +151,10 @@ namespace DefaultCosts {
         initialCost: 0,
         initialOccurrence: 0,
         annualRateOfChange: 0,
+        recurring: {
+            rateOfRecurrence: 0,
+            rateOfChangeValue: 0,
+        },
     };
 
     export const OTHER: Props<OtherCost> = {

@@ -83,14 +83,8 @@ export default function Recurring({ showUnit = false }: RecurringProps) {
             />
             {RecurringModel.isRecurring() && (
                 <>
-                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        <TestNumberInput
-                            className={"my-4 w-full"}
-                            addonBefore={"occurs every"}
-                            addonAfter={"years"}
-                            getter={RecurringModel.rateOfRecurrence.use}
-                            onChange={RecurringModel.Actions.setRateOfRecurrence}
-                        />
+                    <div className={"my-4 grid grid-cols-2 gap-x-16 gap-y-4"}>
+                        <RateOfRecurrenceInput />
                     </div>
 
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -103,7 +97,24 @@ export default function Recurring({ showUnit = false }: RecurringProps) {
     );
 }
 
-function ValueRateOfChange() {
+type RateOfRecurrenceInputProps = {
+    showLabel?: boolean;
+};
+
+export function RateOfRecurrenceInput({ showLabel = false }: RateOfRecurrenceInputProps) {
+    return (
+        <TestNumberInput
+            className={"w-full"}
+            label={showLabel ? "Rate of Recurrence" : undefined}
+            addonBefore={"occurs every"}
+            addonAfter={"years"}
+            getter={RecurringModel.rateOfRecurrence.use}
+            onChange={RecurringModel.Actions.setRateOfRecurrence}
+        />
+    );
+}
+
+export function ValueRateOfChange() {
     const isConstant = RecurringModel.Value.isConstant();
 
     return (
