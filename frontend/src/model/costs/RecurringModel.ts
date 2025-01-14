@@ -6,9 +6,15 @@ import { isRecurringCost } from "model/Guards";
 import { Model, Var } from "model/Model";
 import * as O from "optics-ts";
 import { Subject, combineLatest, distinctUntilChanged, merge, sample } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { combineLatestWith, map, withLatestFrom } from "rxjs/operators";
+import { P, match } from "ts-pattern";
 import { isConstant } from "util/Operators";
 import { makeArray } from "util/Util";
+
+export type RateChangeInfo = {
+    year: number;
+    rate: number;
+};
 
 export namespace RecurringModel {
     const recurringOptic = O.optic<Cost>().guard(isRecurringCost).prop("recurring");
@@ -19,6 +25,11 @@ export namespace RecurringModel {
      * True if the current cost is a recurring cost.
      */
     export const [isRecurring] = bind(recurring.$.pipe(map((recurring) => !!recurring)));
+
+    export const rateOfRecurrence = new Var(
+        CostModel.DexieCostModel,
+        recurringOptic.optional().prop("rateOfRecurrence"),
+    );
 
     /**
      * The value of the rate of change of the recurring cost.
@@ -62,6 +73,26 @@ export namespace RecurringModel {
             collection.modify({ "recurring.rateOfChangeValue": rateOfChangeValue }),
         );
 
+    export const [useTableRateOfChangeValue, tableRateOfChangeValue$] = bind(
+        RecurringModel.rateOfChangeValue$.pipe(
+            combineLatestWith(Model.releaseYear$),
+            map(([change, releaseYear]) =>
+                match(change)
+                    .with(P.array(), (changes) =>
+                        changes.map(
+                            (rate, i) =>
+                                ({
+                                    year: releaseYear + i,
+                                    rate,
+                                }) as RateChangeInfo,
+                        ),
+                    )
+                    .otherwise((constant) => constant),
+            ),
+        ),
+        [],
+    );
+
     export const sIsValueChangeConstant$ = new Subject<boolean>();
     export const isValueChangeConstant$ = merge(
         sIsValueChangeConstant$,
@@ -87,6 +118,26 @@ export namespace RecurringModel {
         .subscribe(([rateOfChangeUnits, collection]) =>
             collection.modify({ "recurring.rateOfChangeUnits": rateOfChangeUnits }),
         );
+
+    export const [useTableRateOfChangeUnits, tableRateOfChangeUnits$] = bind(
+        RecurringModel.rateOfChangeUnits$.pipe(
+            combineLatestWith(Model.releaseYear$),
+            map(([change, releaseYear]) =>
+                match(change)
+                    .with(P.array(), (changes) =>
+                        changes.map(
+                            (rate, i) =>
+                                ({
+                                    year: releaseYear + i,
+                                    rate,
+                                }) as RateChangeInfo,
+                        ),
+                    )
+                    .otherwise((constant) => constant),
+            ),
+        ),
+        [],
+    );
 
     export const sIsUnitChangeConstant$ = new Subject<boolean>();
     export const isUnitChangeConstant$ = merge(
