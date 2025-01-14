@@ -1,4 +1,4 @@
-import { mdiAlphaBBox, mdiContentCopy, mdiPlus } from "@mdi/js";
+import { mdiAlphaBBox, mdiContentCopy, mdiDelete, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
@@ -48,10 +48,11 @@ export default function AlternativeSummary() {
 
     useSubscribe(changeBaseline$, AlternativeModel.sMakeBaseline$);
     useSubscribe(AlternativeModel.Actions.clonedAlternative$, (id) => navigate(`/editor/alternative/${id}`));
+    useSubscribe(AlternativeModel.Actions.removeAlternative$);
 
     return (
         <motion.div
-            className={"h-full w-full flex flex-col"}
+            className={"flex h-full w-full flex-col"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -149,7 +150,7 @@ export function createAlternativeCard(alternative: Alternative) {
                     onClick={click}
                     onKeyDown={click}
                 >
-                    <div className={"flex flex-row gap-1 justify-between flex-nowrap"}>
+                    <div className={"flex flex-row flex-nowrap justify-between gap-1"}>
                         <div className={"flex flex-row gap-2"}>
                             {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
                             <Title level={4}>{alternative.name}</Title>
@@ -161,7 +162,7 @@ export function createAlternativeCard(alternative: Alternative) {
                                     icon={mdiAlphaBBox}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        confirmBaselineChange$.next(alternative.id ?? 0);
+                                        if (alternative.id !== undefined) confirmBaselineChange$.next(alternative.id);
                                     }}
                                 >
                                     Set as Baseline
@@ -173,22 +174,34 @@ export function createAlternativeCard(alternative: Alternative) {
                                 tooltip={Strings.CLONE}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    AlternativeModel.Actions.clone(alternative.id ?? 0);
+                                    if (alternative.id !== undefined) AlternativeModel.Actions.clone(alternative.id);
                                 }}
                             >
                                 Clone
+                            </Button>
+                            <Button
+                                type={ButtonType.LINKERROR}
+                                icon={mdiDelete}
+                                tooltip={Strings.DELETE}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (alternative.id !== undefined)
+                                        AlternativeModel.Actions.deleteByID(alternative.id);
+                                }}
+                            >
+                                Delete
                             </Button>
                         </div>
                     </div>
                     <p className={"max-w-[32rem] pb-4"}>{alternative.description}</p>
                     <br />
-                    <div className={"flex flex-row justify-between gap-6"}>
+                    <div className={"flex min-h-16 flex-row justify-between gap-6"}>
                         {/* Render each category */}
                         {categories.map((category) => (
-                            <div className={"grid grid-cols-[auto,_1fr] gap-x-4"} key={category.label}>
-                                <Title level={5}>{category.label}</Title>
+                            <div className={"grid h-fit grid-cols-[auto,_1fr] gap-x-4"} key={category.label}>
+                                <p className={"pb-1 font-bold"}>{category.label}</p>
                                 <p>{category.hook().length}</p>
-                                <div className={"border-b-2 col-span-2 w-full h-0 mb-2"} />
+                                <div className={"col-span-2 mb-2 h-0 w-full border-b-2"} />
 
                                 {/* Render each subcategory */}
                                 {category.children?.().map(([type, count]) => (
