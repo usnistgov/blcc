@@ -1,4 +1,4 @@
-import { bind, shareLatest, state, useStateObservable } from "@react-rxjs/core";
+import { shareLatest, state } from "@react-rxjs/core";
 import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
 import {
@@ -12,23 +12,20 @@ import {
 } from "blcc-format/Format";
 import Info from "components/Info";
 import { NumberInput } from "components/input/InputNumber";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { CostModel } from "model/CostModel";
-import { Model } from "model/Model";
-import { RecurringModel } from "model/costs/RecurringModel";
-import React, { useMemo } from "react";
+import { type RateChangeInfo, RecurringModel } from "model/costs/RecurringModel";
+import type React from "react";
+import { useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
-import { combineLatestWith, map, withLatestFrom } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { percentFormatter } from "util/Util";
 
 type RecurringCost = OMRCost | RecurringContractCost | OtherCost | OtherNonMonetary;
-type RateChangeInfo = {
-    year: number;
-    rate: number;
-};
 
 const VALUE_COLUMNS = [
     {
@@ -121,8 +118,6 @@ function isRecurringCost(cost: Cost): boolean {
 }
 
 function toggleRecurring(change: boolean) {
-    console.log("change", change);
-
     if (!change) RecurringModel.recurring.set(undefined);
     else RecurringModel.recurring.set({ rateOfRecurrence: 0 });
 }
@@ -132,74 +127,30 @@ type RecurringProps = {
 };
 
 export default function Recurring({ showUnit }: RecurringProps) {
-    const [sToggle$, sRateOfRecurrence$, rateOfRecurrence$, useRateOfChangeValue, useRateOfChangeUnits] =
-        useMemo(() => {
-            const sToggle$ = new Subject<boolean>();
+    const [sRateOfRecurrence$, rateOfRecurrence$] = useMemo(() => {
+        const recurring$: Observable<RecurringType> = CostModel.cost$.pipe(
+            map((cost) => (cost as RecurringCost).recurring ?? {}),
+            shareLatest(),
+        );
 
-            const recurring$: Observable<RecurringType> = CostModel.cost$.pipe(
-                map((cost) => (cost as RecurringCost).recurring ?? {}),
-                shareLatest(),
-            );
+        const sRateOfRecurrence$ = new Subject<number>();
+        const rateOfRecurrence$ = state(
+            merge(sRateOfRecurrence$, recurring$.pipe(map((recurring) => recurring.rateOfRecurrence ?? 0))).pipe(
+                distinctUntilChanged(),
+            ),
+            0,
+        );
 
-            const sRateOfRecurrence$ = new Subject<number>();
-            const rateOfRecurrence$ = state(
-                merge(sRateOfRecurrence$, recurring$.pipe(map((recurring) => recurring.rateOfRecurrence ?? 0))).pipe(
-                    distinctUntilChanged(),
-                ),
-                0,
-            );
-            const [useRateOfChangeValue, rateOfChangeValue$] = bind(
-                RecurringModel.rateOfChangeValue$.pipe(
-                    combineLatestWith(Model.releaseYear$),
-                    map(([change, releaseYear]) =>
-                        match(change)
-                            .with(P.array(), (changes) =>
-                                changes.map(
-                                    (rate, i) =>
-                                        ({
-                                            year: releaseYear + i,
-                                            rate,
-                                        }) as RateChangeInfo,
-                                ),
-                            )
-                            .otherwise((constant) => constant),
-                    ),
-                ),
-                [],
-            );
-            const [useRateOfChangeUnits, rateOfChangeUnits$] = bind(
-                RecurringModel.rateOfChangeUnits$.pipe(
-                    combineLatestWith(Model.releaseYear$),
-                    map(([change, releaseYear]) =>
-                        match(change)
-                            .with(P.array(), (changes) =>
-                                changes.map(
-                                    (rate, i) =>
-                                        ({
-                                            year: releaseYear + i,
-                                            rate,
-                                        }) as RateChangeInfo,
-                                ),
-                            )
-                            .otherwise((constant) => constant),
-                    ),
-                ),
-                [],
-            );
-
-            return [sToggle$, sRateOfRecurrence$, rateOfRecurrence$, useRateOfChangeValue, useRateOfChangeUnits];
-        }, []);
+        return [sRateOfRecurrence$, rateOfRecurrence$];
+    }, []);
 
     useSubscribe(sRateOfRecurrence$.pipe(withLatestFrom(CostModel.collection$)), ([rateOfRecurrence, collection]) =>
         collection.modify({ "recurring.rateOfRecurrence": rateOfRecurrence }),
     );
-    useSubscribe(sToggle$.pipe(withLatestFrom(CostModel.collection$)), ([recurring, collection]) => {
+    /*useSubscribe(sToggle$.pipe(withLatestFrom(CostModel.collection$)), ([recurring, collection]) => {
         if (!recurring) collection.modify({ recurring: undefined });
         else collection.modify({ recurring: { rateOfRecurrence: 0 } });
-    });
-
-    const rateOfChangeValue = useRateOfChangeValue();
-    const rateOfChangeUnits = useRateOfChangeUnits();
+    });*/
 
     return (
         <>
@@ -212,108 +163,135 @@ export default function Recurring({ showUnit }: RecurringProps) {
                 checked={RecurringModel.isRecurring()}
                 onChange={toggleRecurring}
             />
-            {RecurringModel.isRecurring() && (
-                <>
-                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        <NumberInput
-                            label={"Rate of Recurrence"}
-                            allowEmpty={false}
-                            showLabel={false}
-                            className={"my-4 w-full"}
-                            addonBefore={"occurs every"}
-                            addonAfter={"years"}
-                            value$={rateOfRecurrence$}
-                            wire={sRateOfRecurrence$}
+            {RecurringModel.isRecurring() && <Fields showUnit={showUnit} />}
+        </>
+    );
+}
+
+/**
+ * Component for displaying the recurring cost fields.
+ *
+ * @param {{ showUnit?: boolean }} props
+ * @prop {boolean} [showUnit] Whether to show the unit rate of change field.
+ * @returns {React.JSX.Element}
+ */
+function Fields({ showUnit }: RecurringProps): React.JSX.Element {
+    return (
+        <>
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                {/*                <NumberInput
+                    label={"Rate of Recurrence"}
+                    allowEmpty={false}
+                    showLabel={false}
+                    className={"my-4 w-full"}
+                    addonBefore={"occurs every"}
+                    addonAfter={"years"}
+                    value$={rateOfRecurrence$}
+                    wire={sRateOfRecurrence$}
+                />*/}
+                <TestNumberInput
+                    className={"my-4 w-full"}
+                    addonBefore={"occurs every"}
+                    addonAfter={"years"}
+                    getter={RecurringModel.rateOfRecurrence.use}
+                    onChange={(value) => {
+                        if (value !== null) RecurringModel.rateOfRecurrence.set(value);
+                    }}
+                />
+            </div>
+
+            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <ValueRateOfChange />
+                {showUnit && <UnitRateOfChange />}
+            </div>
+        </>
+    );
+}
+
+function ValueRateOfChange() {
+    return (
+        <div>
+            <Title level={5}>
+                <Info text={Strings.VALUE_RATE_OF_CHANGE}>Value Rate of Change</Info>
+            </Title>
+            <span className={"flex flex-row items-center gap-2 pb-2"}>
+                <p className={"pb-1 text-md"}>Constant</p>
+                <Switch
+                    checkedChildren={"Yes"}
+                    unCheckedChildren={"No"}
+                    checked={RecurringModel.isValueRateOfChangeConstant()}
+                    onChange={RecurringModel.Actions.setValueRateOfChange}
+                />
+            </span>
+            {match(RecurringModel.useTableRateOfChangeValue())
+                .with(P.array(), (rateOfChangeValue) => (
+                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                        <DataGrid
+                            className={"rdg-light"}
+                            columns={VALUE_COLUMNS}
+                            rows={rateOfChangeValue}
+                            onRowsChange={(rows: RateChangeInfo[]) =>
+                                RecurringModel.sRateOfChangeValue$.next(rows.map((row) => row.rate))
+                            }
                         />
                     </div>
-
-                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        {/* Value Rate of Change */}
-                        <div>
-                            <Title level={5}>
-                                <Info text={Strings.VALUE_RATE_OF_CHANGE}>Value Rate of Change</Info>
-                            </Title>
-                            <span className={"flex flex-row items-center gap-2 pb-2"}>
-                                <p className={"text-md pb-1"}>Constant</p>
-                                <Switch
-                                    checkedChildren={"Yes"}
-                                    unCheckedChildren={"No"}
-                                    checked={RecurringModel.isValueRateOfChangeConstant()}
-                                    onChange={RecurringModel.Actions.setValueRateOfChange}
-                                />
-                            </span>
-                            {match(rateOfChangeValue)
-                                .with(P.array(), (rateOfChangeValue) => (
-                                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                                        <DataGrid
-                                            className={"rdg-light"}
-                                            columns={VALUE_COLUMNS}
-                                            rows={rateOfChangeValue}
-                                            onRowsChange={(rows: RateChangeInfo[]) =>
-                                                RecurringModel.sRateOfChangeValue$.next(rows.map((row) => row.rate))
-                                            }
-                                        />
-                                    </div>
-                                ))
-                                .otherwise(() => (
-                                    <div>
-                                        <NumberInput
-                                            className={"w-full"}
-                                            label={"Constant Value Change"}
-                                            showLabel={false}
-                                            value$={RecurringModel.rateOfChangeValue$ as Observable<number>}
-                                            wire={RecurringModel.sRateOfChangeValue$ as Subject<number>}
-                                            addonAfter={"%"}
-                                        />
-                                    </div>
-                                ))}
-                        </div>
-
-                        {/* Unit Rate of Change */}
-                        {showUnit && (
-                            <div>
-                                <Title level={5}>
-                                    <Info text={Strings.UNIT_RATE_OF_CHANGE}>Unit Rate of Change</Info>
-                                </Title>
-                                <span className={"flex flex-row items-center gap-2 pb-2"}>
-                                    <p className={"text-md pb-1"}>Constant</p>
-                                    <Switch
-                                        checked={RecurringModel.isUnitRateOfChangeConstant()}
-                                        checkedChildren={"Yes"}
-                                        unCheckedChildren={"No"}
-                                        //TODO add onchange
-                                    />
-                                </span>
-                                {match(rateOfChangeUnits)
-                                    .with(P.array(), (rateOfChangeUnits) => (
-                                        <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                                            <DataGrid
-                                                className={"rdg-light"}
-                                                columns={UNIT_COLUMNS}
-                                                rows={rateOfChangeUnits}
-                                                onRowsChange={(rows: RateChangeInfo[]) =>
-                                                    RecurringModel.sRateOfChangeUnits$.next(rows.map((row) => row.rate))
-                                                }
-                                            />
-                                        </div>
-                                    ))
-                                    .otherwise(() => (
-                                        <div>
-                                            <NumberInput
-                                                className={"w-full"}
-                                                label={"Constant Unit Change"}
-                                                showLabel={false}
-                                                value$={RecurringModel.rateOfChangeUnits$ as Observable<number>}
-                                                wire={RecurringModel.sRateOfChangeUnits$ as Subject<number>}
-                                                addonAfter={"%"}
-                                            />
-                                        </div>
-                                    ))}
-                            </div>
-                        )}
+                ))
+                .otherwise(() => (
+                    <div>
+                        <NumberInput
+                            className={"w-full"}
+                            label={"Constant Value Change"}
+                            showLabel={false}
+                            value$={RecurringModel.rateOfChangeValue$ as Observable<number>}
+                            wire={RecurringModel.sRateOfChangeValue$ as Subject<number>}
+                            addonAfter={"%"}
+                        />
                     </div>
-                </>
-            )}
-        </>
+                ))}
+        </div>
+    );
+}
+
+function UnitRateOfChange() {
+    return (
+        <div>
+            <Title level={5}>
+                <Info text={Strings.UNIT_RATE_OF_CHANGE}>Unit Rate of Change</Info>
+            </Title>
+            <span className={"flex flex-row items-center gap-2 pb-2"}>
+                <p className={"pb-1 text-md"}>Constant</p>
+                <Switch
+                    checked={RecurringModel.isUnitRateOfChangeConstant()}
+                    checkedChildren={"Yes"}
+                    unCheckedChildren={"No"}
+                    //TODO add onchange
+                />
+            </span>
+            {match(RecurringModel.useTableRateOfChangeUnits())
+                .with(P.array(), (rateOfChangeUnits) => (
+                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                        <DataGrid
+                            className={"rdg-light"}
+                            columns={UNIT_COLUMNS}
+                            rows={rateOfChangeUnits}
+                            onRowsChange={(rows: RateChangeInfo[]) =>
+                                RecurringModel.sRateOfChangeUnits$.next(rows.map((row) => row.rate))
+                            }
+                        />
+                    </div>
+                ))
+                .otherwise(() => (
+                    <div>
+                        <NumberInput
+                            className={"w-full"}
+                            label={"Constant Unit Change"}
+                            showLabel={false}
+                            value$={RecurringModel.rateOfChangeUnits$ as Observable<number>}
+                            wire={RecurringModel.sRateOfChangeUnits$ as Subject<number>}
+                            addonAfter={"%"}
+                        />
+                    </div>
+                ))}
+        </div>
     );
 }
