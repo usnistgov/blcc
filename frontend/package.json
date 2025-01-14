@@ -14,6 +14,7 @@
     "cy:open": "cypress open"
   },
   "dependencies": {
+    "@effect/platform-browser": "^0.51.2",
     "@lrd/e3-sdk": "^1.0.11",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
@@ -27,7 +28,6 @@
     "dexie-export-import": "^4.1.2",
     "effect": "^3.12.1",
     "fast-xml-parser": "4.4.1",
-    "fp-ts": "^2.16.9",
     "framer-motion": "^11.2.10",
     "html-to-react": "^1.7.0",
     "monocle-ts": "^2.3.13",

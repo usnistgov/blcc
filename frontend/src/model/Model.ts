@@ -19,7 +19,6 @@ import {
     NEVER,
     type Observable,
     Subject,
-    Subscription,
     combineLatest,
     distinctUntilChanged,
     from,
@@ -63,6 +62,7 @@ export class DexieModel<T> {
 }
 
 const DexieModelTest = new DexieModel(dbProject$);
+// Write changes back to database
 DexieModelTest.$.pipe(withLatestFrom(projectCollection$)).subscribe(([next, collection]) => {
     collection.modify(next);
 });
