@@ -242,6 +242,7 @@ export type WaterUnit = LiquidUnit | CubicUnit;
 export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
     BaseCost &
     ResidualValueCost & {
+        initialOccurrence: number;
         initialCost: number;
         annualRateOfChange?: number;
         expectedLife?: number;

@@ -8,6 +8,7 @@ import {
     type OtherCost,
     type OtherNonMonetary,
     type RecurringContractCost,
+    type ReplacementCapitalCost,
     type USLocation,
 } from "blcc-format/Format";
 import { Country } from "constants/LOCATION";
@@ -65,6 +66,26 @@ export function isRecurringCost(cost: Cost): cost is RecurringTypes {
     );
 }
 
+/**
+ * Checks if the given cost is a recurring contract cost.
+ *
+ * The given cost is considered a recurring contract cost if its type is `RECURRING_CONTRACT`.
+ *
+ * @param cost - The cost to check.
+ * @returns True if the cost is a recurring contract cost, false otherwise.
+ */
 export function isRecurringContractCost(cost: Cost): cost is RecurringContractCost {
     return cost.type === CostTypes.RECURRING_CONTRACT;
+}
+
+/**
+ * Checks if the given cost is a replacement capital cost.
+ *
+ * The given cost is considered a replacement capital cost if its type is `REPLACEMENT_CAPITAL`.
+ *
+ * @param cost - The cost to check.
+ * @returns True if the cost is a replacement capital cost, false otherwise.
+ */
+export function isReplacementCapitalCost(cost: Cost): cost is ReplacementCapitalCost {
+    return cost.type === CostTypes.REPLACEMENT_CAPITAL;
 }

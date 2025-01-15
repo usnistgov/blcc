@@ -1,86 +1,78 @@
 import { useStateObservable } from "@react-rxjs/core";
-import { CostTypes, type ReplacementCapitalCost } from "blcc-format/Format";
+import type { Cost } from "blcc-format/Format";
 import ResidualValue from "components/ResidualValue";
-import { NumberInput } from "components/input/InputNumber";
-import type { Collection } from "dexie";
-import { useDbUpdate } from "hooks/UseDbUpdate";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { CostModel } from "model/CostModel";
-import { useMemo } from "react";
-import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
-import { map } from "rxjs/operators";
-import { defaultValue } from "util/Operators";
+import { isReplacementCapitalCost } from "model/Guards";
+import { Var } from "model/Model";
+import * as O from "optics-ts";
 
-// If we are on this page that means the cost collection can be narrowed to ReplacementCapitalCost.
-const collection$ = CostModel.collection$ as Observable<Collection<ReplacementCapitalCost, number>>;
-const replacementCapitalCost$ = CostModel.cost$.pipe(
-    filter((cost): cost is ReplacementCapitalCost => cost.type === CostTypes.REPLACEMENT_CAPITAL),
-);
+namespace Model {
+    const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
+
+    export const initialCost = new Var(CostModel.DexieCostModel, costOptic.prop("initialCost"));
+    export const initialOccurrence = new Var(CostModel.DexieCostModel, costOptic.prop("initialOccurrence"));
+    export const annualRateOfChange = new Var(CostModel.DexieCostModel, costOptic.prop("annualRateOfChange"));
+    export const expectedLife = new Var(CostModel.DexieCostModel, costOptic.prop("expectedLife"));
+
+    export namespace Actions {
+        export function setInitialCost(change: number | null) {
+            if (change !== null) initialCost.set(change);
+        }
+
+        export function setInitialOccurrence(change: number | null) {
+            if (change !== null) initialOccurrence.set(change);
+        }
+
+        export function setAnnualRateOfChange(change: number | null) {
+            if (change !== null) annualRateOfChange.set(change);
+            else annualRateOfChange.set(undefined);
+        }
+
+        export function setExpectedLife(change: number | null) {
+            if (change !== null) expectedLife.set(change);
+            else expectedLife.set(undefined);
+        }
+    }
+}
 
 export default function ReplacementCapitalCostFields() {
-    const [sInitialCost$, initialCost$, sAnnualRateOfChange$, annualRateOfChange$, sExpectedLife$, expectedLife$] =
-        useMemo(() => {
-            const sInitialCost$ = new Subject<number>();
-            const initialCost$ = merge(
-                sInitialCost$,
-                replacementCapitalCost$.pipe(map((cost) => cost.initialCost)),
-            ).pipe(distinctUntilChanged());
-
-            const sAnnualRateOfChange$ = new Subject<number | undefined>();
-            const annualRateOfChange$ = merge(
-                sAnnualRateOfChange$,
-                replacementCapitalCost$.pipe(map((cost) => cost.annualRateOfChange)),
-            ).pipe(distinctUntilChanged());
-
-            const sExpectedLife$ = new Subject<number | undefined>();
-            const expectedLife$ = merge(
-                sExpectedLife$,
-                replacementCapitalCost$.pipe(map((cost) => cost.expectedLife)),
-            ).pipe(distinctUntilChanged());
-
-            return [
-                sInitialCost$,
-                initialCost$,
-                sAnnualRateOfChange$,
-                annualRateOfChange$,
-                sExpectedLife$,
-                expectedLife$,
-            ];
-        }, []);
-
-    useDbUpdate(sInitialCost$.pipe(defaultValue(0)), collection$, "initialCost");
-    useDbUpdate(sAnnualRateOfChange$, collection$, "annualRateOfChange");
-    useDbUpdate(sExpectedLife$, collection$, "expectedLife");
-
     const isSavings = useStateObservable(CostModel.costSavings$);
 
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     addonBefore={"$"}
                     controls
                     label={isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"}
-                    value$={initialCost$}
-                    wire={sInitialCost$}
+                    getter={Model.initialCost.use}
+                    onChange={Model.Actions.setInitialCost}
                 />
-                <NumberInput
+                <TestNumberInput
+                    className={"w-full"}
+                    addonBefore={"year"}
+                    controls
+                    label={"InitialOccurrence"}
+                    getter={Model.initialOccurrence.use}
+                    onChange={Model.Actions.setInitialOccurrence}
+                />
+                <TestNumberInput
                     className={"w-full"}
                     addonAfter={"%"}
                     controls
-                    allowEmpty
                     label={"Annual Rate of Change"}
-                    value$={annualRateOfChange$}
-                    wire={sAnnualRateOfChange$}
+                    getter={Model.annualRateOfChange.use}
+                    onChange={Model.Actions.setAnnualRateOfChange}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     addonAfter={"years"}
                     controls
                     label={"Expected Lifetime"}
-                    allowEmpty
-                    value$={expectedLife$}
-                    wire={sExpectedLife$}
+                    getter={Model.expectedLife.use}
+                    onChange={Model.Actions.setExpectedLife}
                 />
             </div>
 

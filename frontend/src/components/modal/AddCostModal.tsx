@@ -132,6 +132,7 @@ namespace DefaultCosts {
     export const REPLACEMENT_CAPITAL: Props<ReplacementCapitalCost> = {
         type: CostTypes.REPLACEMENT_CAPITAL,
         initialCost: 0,
+        initialOccurrence: 0,
     };
 
     export const OMR: Props<OMRCost> = {
