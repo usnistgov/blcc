@@ -3,6 +3,7 @@ import { defaultProject } from "blcc-format/DefaultProject";
 import ConfirmationModal from "components/modal/ConfirmationModal";
 import MessageModal from "components/modal/MessageModal";
 import { liveQuery } from "dexie";
+import useParamSync from "hooks/useParamSync";
 import { Model, reload } from "model/Model";
 import { db } from "model/db";
 import Index from "pages/Index";
@@ -16,6 +17,8 @@ import { combineLatest } from "rxjs";
  * Component containing the top level elements and router for the entire application.
  */
 export default function App() {
+    useParamSync();
+
     useMemo(() => {
         const defaultProject$ = liveQuery(() => db.projects.where("id").equals(1).first());
         combineLatest([defaultProject$, Model.defaultReleaseYear$]).subscribe(([p, releaseYear]) => {

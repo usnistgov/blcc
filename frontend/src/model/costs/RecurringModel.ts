@@ -67,7 +67,7 @@ export namespace RecurringModel {
         export const [gridValues] = bind(
             rate.$.pipe(
                 filter<number | number[] | undefined, number[]>(Array.isArray),
-                combineLatestWith(Model.releaseYear$),
+                combineLatestWith(Model.releaseYear.$),
                 map(toRateChangeInfo),
             ),
         );
@@ -101,7 +101,7 @@ export namespace RecurringModel {
         export const [gridValues] = bind(
             rate.$.pipe(
                 filter<number | number[] | undefined, number[]>(Array.isArray),
-                combineLatestWith(Model.releaseYear$),
+                combineLatestWith(Model.releaseYear.$),
                 map(toRateChangeInfo),
             ),
         );

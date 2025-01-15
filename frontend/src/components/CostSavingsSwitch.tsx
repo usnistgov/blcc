@@ -7,25 +7,27 @@ import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { map } from "rxjs";
 
-export namespace CostSavingsSwitchModel {
+export namespace Model {
     export const [useSavingsOrBenefits] = bind(
-        CostModel.type$.pipe(
+        CostModel.type.$.pipe(
             map((type) => (type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY ? "Benefits" : "Savings")),
         ),
     );
 }
 
 export function CostSavingsSwitch() {
+    const savingsOrBenefits = Model.useSavingsOrBenefits();
+
     return (
         <span>
             <Title level={5}>
-                <Info text={Strings.COST_OR_SAVINGS}>Cost or {CostSavingsSwitchModel.useSavingsOrBenefits()}</Info>
+                <Info text={Strings.COST_OR_SAVINGS}>Cost or {savingsOrBenefits}</Info>
             </Title>
             <Switch
-                checked={CostModel.useCostOrSavings()}
-                checkedChildren={CostSavingsSwitchModel.useSavingsOrBenefits()}
+                checked={CostModel.costOrSavings.use()}
+                checkedChildren={savingsOrBenefits}
                 unCheckedChildren={"Cost"}
-                onChange={(checked) => CostModel.sCostSavings$.next(checked)}
+                onChange={(toggle) => CostModel.costOrSavings.set(toggle)}
             />
         </span>
     );

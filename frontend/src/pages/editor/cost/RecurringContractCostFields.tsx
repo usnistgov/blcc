@@ -1,4 +1,3 @@
-import { useStateObservable } from "@react-rxjs/core";
 import type { Cost } from "blcc-format/Format";
 import { RateOfRecurrenceInput, ValueRateOfChange } from "components/Recurring";
 import { TestNumberInput } from "components/input/TestNumberInput";
@@ -27,7 +26,7 @@ namespace Model {
 }
 
 export default function RecurringContractCostFields() {
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>

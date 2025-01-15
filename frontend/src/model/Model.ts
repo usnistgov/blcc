@@ -32,8 +32,19 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { DexieOps, guard } from "util/Operators";
-import { calculateNominalDiscountRate, calculateRealDiscountRate, closest } from "util/Util";
+import { calculateNominalDiscountRate, calculateRealDiscountRate, closest, getResponse } from "util/Util";
 import z, { type ZodError, type ZodType } from "zod";
+
+type ReleaseYearResponse = { year: number; max: number; min: number };
+
+type DiscountRateResponse = {
+    release_year: number;
+    rate: string;
+    year: number;
+    real: number;
+    nominal: number;
+    inflation: number;
+};
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
@@ -282,38 +293,28 @@ export namespace Model {
      */
     export const description = new Var(DexieModelTest, O.optic<Project>().prop("description"));
 
+    function unwrapReleaseYearResponse(result: ReleaseYearResponse[]) {
+        return result === null ? [2023] : result.map((r) => r.year);
+    }
+
+    export const [useReleaseYearList, releaseYearList$] = bind(
+        ajax.getJSON<ReleaseYearResponse[]>("/api/release_year").pipe(map(unwrapReleaseYearResponse), shareReplay(1)),
+    );
+
     /**
-     * Get the release years of the data that are available
+     * The release year of the current project
      */
-    type ReleaseYearResponse = { year: number; max: number; min: number };
-    export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearResponse[]>("/api/release_year");
-    export const releaseYears$ = releaseYearsResponse$.pipe(
-        map((result) => (result === null ? [2023] : result.map((r) => r.year))),
-        shareReplay(1),
-    );
-    export const sReleaseYear$ = new Subject<number>();
-    export const releaseYear$ = merge(sReleaseYear$, dbProject$.pipe(map((p) => p.releaseYear))).pipe(
-        distinctUntilChanged(),
-    );
-    export const [useReleaseYears] = bind(releaseYears$);
-    export const [useReleaseYear] = bind(releaseYear$);
-    sReleaseYear$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([releaseYear, collection]) => collection.modify({ releaseYear }));
-    export const defaultReleaseYear$ = releaseYears$.pipe(
+    export const releaseYear = new Var(DexieModelTest, O.optic<Project>().prop("releaseYear"));
+
+    /**
+     * The release year to use as the default. Either the earliest release year or the current year.
+     */
+    export const defaultReleaseYear$ = releaseYearList$.pipe(
         map((years) => years[0]),
         catchError(() => of(new Date().getFullYear())),
     );
 
-    type DiscountRateResponse = {
-        release_year: number;
-        rate: string;
-        year: number;
-        real: number;
-        nominal: number;
-        inflation: number;
-    };
-    export const ombDiscountRates$ = releaseYear$.pipe(
+    export const ombDiscountRates$ = releaseYear.$.pipe(
         switchMap((releaseYear) =>
             ajax<DiscountRateResponse[]>({
                 url: "/api/discount_rates",
@@ -327,9 +328,9 @@ export namespace Model {
                 },
             }),
         ),
-        map((response) => response.response),
+        map(getResponse),
     );
-    export const doeDiscountRates$ = releaseYear$.pipe(
+    export const doeDiscountRates$ = releaseYear.$.pipe(
         switchMap((releaseYear) =>
             ajax<DiscountRateResponse[]>({
                 url: "/api/discount_rates",
@@ -343,7 +344,7 @@ export namespace Model {
                 },
             }),
         ),
-        map((response) => response.response),
+        map(getResponse),
     );
 
     /**
@@ -461,7 +462,7 @@ export namespace Model {
     // Get the emissions data from the database.
     export const emissions$ = combineLatest([
         Location.zipcode.$.pipe(guard()),
-        releaseYear$,
+        releaseYear.$,
         studyPeriod.$,
         case$,
     ]).pipe(
@@ -483,7 +484,7 @@ export namespace Model {
                 },
             });
         }),
-        map((response) => response.response),
+        map(getResponse),
         startWith(undefined),
     );
 
@@ -493,7 +494,7 @@ export namespace Model {
     );
 
     export const scc$ = combineLatest([
-        releaseYear$,
+        releaseYear.$,
         studyPeriod.$,
         socialCostOfGhgScenario.$.pipe(map(getSccOption), guard()),
     ]).pipe(
@@ -512,7 +513,7 @@ export namespace Model {
                 },
             }),
         ),
-        map((response) => response.response),
+        map(getResponse),
         map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
         startWith(undefined),
     );

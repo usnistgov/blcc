@@ -4,6 +4,7 @@ import Statistics from "components/Statistics";
 import CostNavigation from "components/navigation/CostNavigation";
 import Navigation from "components/navigation/Navigation";
 import { AnimatePresence } from "framer-motion";
+import { Sync } from "hooks/useParamSync";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
 import Alternatives from "pages/editor/alternative/Alternatives";
@@ -36,7 +37,7 @@ export default function Editor() {
                     <Routes location={location} key={location.key}>
                         <Route
                             element={
-                                <Suspense>
+                                <Suspense fallback={<Sync />}>
                                     <PageWrapper />
                                 </Suspense>
                             }

@@ -71,7 +71,7 @@ export default function EscalationRates({ title, defaultRates$ }: EscalationRate
 
         // Converts the escalation rates into the format the grid needs
         const [useEscalation] = bind(
-            combineLatest([Model.releaseYear$, EscalationRateModel.escalation$]).pipe(
+            combineLatest([Model.releaseYear.$, EscalationRateModel.escalation$]).pipe(
                 map(([releaseYear, escalation]) =>
                     match(escalation)
                         .with(P.array(), (escalation) =>

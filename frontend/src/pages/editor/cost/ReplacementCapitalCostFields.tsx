@@ -37,7 +37,7 @@ namespace Model {
 }
 
 export default function ReplacementCapitalCostFields() {
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
