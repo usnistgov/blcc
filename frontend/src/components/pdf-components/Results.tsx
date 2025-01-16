@@ -6,8 +6,8 @@ import AlternativeResultsPdf from "./Results/AlternativeResultsPdf";
 import AnnualResultsPdf from "./Results/AnnualResultsPdf";
 import ResultsSummary from "./Results/ResultsSummary";
 
-const Results = (props: { alternatives: Alternative[]; summary; annual; altResults }) => {
-    const { alternatives, summary, annual, altResults } = props;
+const Results = (props: { alternatives: Alternative[]; summary; annual; altResults; graphs }) => {
+    const { alternatives, summary, annual, altResults, graphs } = props;
 
     const altNames = alternatives.map((alternative) => alternative.name);
 
@@ -19,7 +19,7 @@ const Results = (props: { alternatives: Alternative[]; summary; annual; altResul
             </View>
             <hr style={styles.titleDivider} />
             <ResultsSummary altNames={altNames} summary={summary} />
-            <AnnualResultsPdf altNames={altNames} annual={annual} />
+            <AnnualResultsPdf altNames={altNames} annual={annual} graphs={graphs} />
             <AlternativeResultsPdf altNames={altNames} altResults={altResults} />
         </View>
     );

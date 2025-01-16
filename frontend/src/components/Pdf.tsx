@@ -9,8 +9,17 @@ import PdfDisclaimer from "./pdf-components/PdfDisclaimer";
 import { styles } from "./pdf-components/pdfStyles";
 import Results from "./pdf-components/Results";
 
-const Pdf = (props: { project: Project; alternatives: Alternative[]; costs: Cost[]; summary; annual; altResults }) => {
-    const { project, alternatives, costs, summary, annual, altResults } = props;
+const Pdf = (props: {
+    project: Project;
+    alternatives: Alternative[];
+    costs: Cost[];
+    summary;
+    annual;
+    altResults;
+    graphSources;
+}) => {
+    const { project, alternatives, costs, summary, annual, altResults, graphSources } = props;
+    console.log(alternatives, costs);
     return (
         <Document>
             <Page style={styles.page} size="LETTER">
@@ -31,7 +40,13 @@ const Pdf = (props: { project: Project; alternatives: Alternative[]; costs: Cost
             </Page>
             <Page size="LETTER">
                 <NISTHeader />
-                <Results alternatives={alternatives} summary={summary} annual={annual} altResults={altResults} />
+                <Results
+                    alternatives={alternatives}
+                    summary={summary}
+                    annual={annual}
+                    altResults={altResults}
+                    graphs={graphSources}
+                />
                 <PdfDisclaimer />
                 <PageNumber />
             </Page>
