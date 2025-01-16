@@ -1,18 +1,22 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
+import { pdf } from "@react-pdf/renderer";
 import { Alternative, Cost, Project } from "blcc-format/Format";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
+import * as htmlToImage from "html-to-image";
 import { db } from "model/db";
 import { costs$, Model, useAlternatives, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
-import React from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, withLatestFrom } from "rxjs";
 import { download } from "util/DownloadFile";
+import Pdf from "./Pdf";
+
 import {
     altNPV,
     lccBaseline,
@@ -38,7 +42,70 @@ export default function ResultsAppBar() {
         costs = data;
     });
 
-    useSubscribe(pdfClick$, () => {}); //TODO Create and download PDF
+    const generatePdf = useCallback(
+        (_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, NpvAll) => {
+            const pdfGraphs = document.getElementsByClassName("result-graph");
+
+            // if (pdfGraphs.length === 0) return;
+
+            const promises = [...pdfGraphs].map((graph) =>
+                htmlToImage.toPng(graph as HTMLElement).then((graphSrc) => graphSrc)
+            );
+
+            Promise.all(promises).then((graphSources) => {
+                console.log(graphSources);
+                const blob = pdf(
+                    <Pdf
+                        project={project as Project}
+                        alternatives={alternatives as Alternative[]}
+                        costs={costs as Cost[]}
+                        summary={{ lccRows, lccBaseline, npvCosts, lccResourceRows }}
+                        annual={{ npvComparison, NpvAll }}
+                        altResults={{ altNPV, resourceUsage }}
+                        graphSources={(graphSources as string[]) || []}
+                    />
+                ).toBlob();
+
+                blob.then((blob: Blob | MediaSource) => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "BLCC Report.pdf";
+                    link.click();
+                });
+            });
+        },
+        [project]
+    );
+
+    useSubscribe(
+        pdfClick$.pipe(
+            withLatestFrom(
+                lccRows,
+                lccBaseline,
+                npvCosts,
+                lccResourceRows,
+                npvComparison,
+                altNPV,
+                resourceUsage,
+                npvAll
+            )
+        ),
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, npvAll]) => {
+            console.log("clicked");
+            generatePdf(
+                _,
+                lccRows,
+                lccBaseline,
+                npvCosts,
+                lccResourceRows,
+                npvComparison,
+                altNPV,
+                resourceUsage,
+                npvAll
+            );
+        }
+    ); //TODO Create and download PDF
     useSubscribe(
         csvClick$.pipe(
             withLatestFrom(
