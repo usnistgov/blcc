@@ -4,6 +4,7 @@ import type { Collection, Table } from "dexie";
 import { db } from "model/db";
 import {
     type Observable,
+    type ObservableInputTuple,
     Subject,
     type UnaryFunction,
     count,
@@ -15,7 +16,7 @@ import {
     scan,
     switchMap,
 } from "rxjs";
-import { catchError, filter, map, shareReplay, toArray } from "rxjs/operators";
+import { catchError, filter, map, shareReplay, toArray, withLatestFrom } from "rxjs/operators";
 
 /**
  * Counts the number of occurrences of each unique property in type A. The property is obtained with the given property extractor function.
@@ -126,6 +127,22 @@ export function confirm<T>(
     );
 }
 
+/**
+ * Operator that takes an observable of objects and returns an observable of the value of a given property
+ * of each object.
+ *
+ * @param property The property to extract from each object. Must be a key of the type parameter `T`.
+ *
+ * @returns An observable of the value of the given property of each object.
+ */
+export function property<T, K extends keyof T>(property: K): UnaryFunction<Observable<T>, Observable<T[K]>> {
+    return pipe(map((obj) => obj[property]));
+}
+
+export function isConstant<T>(): UnaryFunction<Observable<T | T[] | undefined>, Observable<boolean>> {
+    return pipe(map((value) => !Array.isArray(value)));
+}
+
 export namespace DexieOps {
     /**
      * Given a Dexie table and an observable of IDs, returns an observable of Collections that correspond to the given IDs.
@@ -149,4 +166,14 @@ export namespace DexieOps {
             guard(),
         );
     }
+}
+
+export function sampleMany<T, Rest extends unknown[]>(
+    sampler: Observable<unknown>,
+    inputs: [...ObservableInputTuple<Rest>],
+): Observable<[...Rest]> {
+    return sampler.pipe(
+        withLatestFrom(...inputs),
+        map(([_, ...inputs]) => [...inputs]),
+    );
 }

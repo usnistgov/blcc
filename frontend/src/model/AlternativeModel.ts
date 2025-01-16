@@ -97,14 +97,18 @@ export namespace AlternativeModel {
 
     export namespace Actions {
         export function deleteCurrent() {
-            sRemoveAlternative$.next();
+            sRemoveAlternative$.next(undefined);
         }
 
-        const sRemoveAlternative$ = new Subject<void>();
+        export function deleteByID(id: ID) {
+            sRemoveAlternative$.next(id);
+        }
+
+        const sRemoveAlternative$ = new Subject<ID | undefined>();
         export const removeAlternative$ = sRemoveAlternative$.pipe(
             confirm("Delete Alternative?", "This action cannot be undone", { okText: "Delete", okType: "danger" }),
-            withLatestFrom(AlternativeModel.sID$, currentProject$),
-            map(([_, id, project]) => [id, project] as [number, number]),
+            switchMap((value) => iif(() => value === undefined, AlternativeModel.sID$, of(value as number))),
+            withLatestFrom(currentProject$),
             switchMap(removeAlternative),
         );
 

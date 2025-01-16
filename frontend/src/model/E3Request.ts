@@ -387,6 +387,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .subType(BcnSubType.DIRECT)
         .addTag("Replacement Capital", "LCC")
         .life(cost.expectedLife ?? 1)
+        .initialOccurrence(cost.initialOccurrence)
         .quantity(1)
         .quantityValue(cost.initialCost)
         .quantityValue(1);
