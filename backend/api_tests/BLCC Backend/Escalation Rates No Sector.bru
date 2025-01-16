@@ -1,0 +1,22 @@
+meta {
+  name: Escalation Rates No Sector
+  type: http
+  seq: 15
+}
+
+post {
+  url: http://localhost:8080/api/escalation_rates
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "release_year": 2024,
+      "from": 2024,
+      "to": 2027,
+      "zip": 20877,
+      "sector": "Residential",
+      "case": "ref"
+  }
+}

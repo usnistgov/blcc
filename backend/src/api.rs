@@ -16,13 +16,13 @@ pub struct ErrorResponse {
     pub error: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct EscalationRateRequest {
     from: i32,
     to: i32,
     zip: i32,
-    sector: String,
+    sector: Option<String>,
     release_year: i32,
     case: String,
 }
@@ -42,7 +42,8 @@ async fn post_escalation_rates(
     let to = request.to;
     let mut db = data.pool.get().expect("Failed to get a connection");
 
-    let query = escalation_rates
+    let mut query = escalation_rates
+        .into_boxed()
         .inner_join(
             state_division_region.on(crate::schema::state_division_region::division.eq(division))
                 .inner_join(zip_info.on(state.eq(crate::schema::state_division_region::state)))
@@ -52,13 +53,19 @@ async fn post_escalation_rates(
                 .and(release_year.eq(request.release_year))
                 .and(zip.eq(request.zip))
                 .and(case.eq(request.case.clone()))
-                .and(sector.eq(request.sector.clone()))
-        )
+        );
+
+    let sector_option = request.clone().sector;
+    if let Some(some_sector) = sector_option {
+        query = query.filter(sector.eq(some_sector.clone()));
+    }
+
+    let result = query
         .limit(80)
         .select(EscalationRate::as_select())
         .load(&mut db);
 
-    match query {
+    match result {
         Ok(rates) => HttpResponse::Ok().json(rates),
         Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
             error: format!("Could not get escalation rates from {} to {}", from, to),
