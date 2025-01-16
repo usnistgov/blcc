@@ -9,16 +9,17 @@ import { db } from "model/db";
 import Index from "pages/Index";
 import Editor from "pages/editor/Editor";
 import Results from "pages/results/Results";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Route, Routes } from "react-router-dom";
 import { combineLatest } from "rxjs";
+
+// Loads data from the database into model
+reload();
 
 /**
  * Component containing the top level elements and router for the entire application.
  */
 export default function App() {
-    useParamSync();
-
     useMemo(() => {
         const defaultProject$ = liveQuery(() => db.projects.where("id").equals(1).first());
         combineLatest([defaultProject$, Model.defaultReleaseYear$]).subscribe(([p, releaseYear]) => {
@@ -26,10 +27,6 @@ export default function App() {
 
             db.projects.add(defaultProject(releaseYear));
         });
-    }, []);
-
-    useEffect(() => {
-        reload();
     }, []);
 
     return (

@@ -1,11 +1,11 @@
-import { state } from "@react-rxjs/core";
 import { type CapitalCost, CostTypes } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { Subject, distinctUntilChanged, map, merge } from "rxjs";
 import { filter, withLatestFrom } from "rxjs/operators";
+import cost = CostModel.cost;
 
 export namespace CapitalCostModel {
-    export const cost$ = CostModel.cost$.pipe(filter((cost): cost is CapitalCost => cost.type === CostTypes.CAPITAL));
+    export const cost$ = cost.$.pipe(filter((cost): cost is CapitalCost => cost.type === CostTypes.CAPITAL));
 
     export const sInitialCost$ = new Subject<number | undefined>();
     export const initialCost$ = merge(sInitialCost$, cost$.pipe(map((cost) => cost.initialCost))).pipe(

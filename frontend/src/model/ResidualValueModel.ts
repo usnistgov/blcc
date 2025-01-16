@@ -1,4 +1,4 @@
-import { bind, state } from "@react-rxjs/core";
+import { state } from "@react-rxjs/core";
 import { DollarOrPercent, type ResidualValueCost, type ResidualValue as ResidualValueType } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
@@ -7,7 +7,7 @@ import { filter, withLatestFrom } from "rxjs/operators";
 export namespace ResidualValueModel {
     export const hasResidualValue$ = state(
         // @ts-ignore
-        CostModel.cost$.pipe(map((cost) => Object.hasOwn(cost, "residualValue"))),
+        CostModel.cost.$.pipe(map((cost) => Object.hasOwn(cost, "residualValue"))),
         false,
     );
     export const sSetResidualValue$ = new Subject<boolean>();
@@ -23,7 +23,7 @@ export namespace ResidualValueModel {
     });
 
     // @ts-ignore
-    const cost$: Observable<ResidualValueCost> = CostModel.cost$.pipe(
+    const cost$: Observable<ResidualValueCost> = CostModel.cost.$.pipe(
         // @ts-ignore
         filter((cost): cost is ResidualValueCost => Object.hasOwn(cost, "residualValue")),
     );

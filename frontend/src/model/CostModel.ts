@@ -17,41 +17,33 @@ export namespace CostModel {
 
     export const collection$ = id$.pipe(distinctUntilChanged(), DexieOps.byId(db.costs), shareReplay(1));
 
-    export const DexieCostModel = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
+    export const cost = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
     // Write changes back to database
-    DexieCostModel.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
+    cost.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
         collection.modify(next);
     });
 
-    /**
-     * The currently selected cost object as specified by the URL parameter.
-     */
-    export const cost$ = id$.pipe(
-        distinctUntilChanged(),
-        switchMap((id) => liveQuery(() => db.costs.where("id").equals(id).first())),
-        guard(),
-        shareReplay(1),
-    );
+    export const id = new Var(cost, O.optic<Cost>().prop("id"));
 
     /**
      * The type of the currently selected cost.
      */
-    export const type = new Var(DexieCostModel, O.optic<Cost>().prop("type"));
+    export const type = new Var(cost, O.optic<Cost>().prop("type"));
 
     /**
      * Whether this cost is a cost or a savings.
      */
-    export const costOrSavings = new Var(DexieCostModel, O.optic<Cost>().prop("costSavings"));
+    export const costOrSavings = new Var(cost, O.optic<Cost>().prop("costSavings"));
 
     /**
      * The name of the current cost
      */
-    export const name = new Var(DexieCostModel, O.optic<Cost>().prop("name"));
+    export const name = new Var(cost, O.optic<Cost>().prop("name"));
 
     /**
      * The description of the current cost
      */
-    export const description = new Var(DexieCostModel, O.optic<Cost>().prop("description"));
+    export const description = new Var(cost, O.optic<Cost>().prop("description"));
 
     export const sToggleAlt$ = new Subject<ID>();
     sToggleAlt$.pipe(withLatestFrom(id$)).subscribe(([altID, id]) => {
@@ -62,4 +54,10 @@ export namespace CostModel {
                 alt.costs = [...toggle(new Set(alt.costs), id)];
             });
     });
+
+    export namespace Actions {
+        export function load(id: ID) {
+            sId$.next(id);
+        }
+    }
 }

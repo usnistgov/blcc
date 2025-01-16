@@ -9,7 +9,7 @@ import Info from "components/Info";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import { TestInput } from "components/input/TestInput";
-import { TextArea } from "components/input/TextArea";
+import { TestTextArea } from "components/input/TestTextArea";
 import { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
 import { Strings } from "constants/Strings";
@@ -34,7 +34,7 @@ import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import sToggleAlt$ = CostModel.sToggleAlt$;
-import { TestTextArea } from "components/input/TestTextArea";
+import cost = CostModel.cost;
 
 const { Title } = Typography;
 
@@ -43,7 +43,7 @@ const cloneClick$ = new Subject<void>();
 const removeClick$ = new Subject<void>();
 
 const remove$ = combineLatest([CostModel.id$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
-const clone$ = combineLatest([CostModel.cost$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
+const clone$ = combineLatest([cost.$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
 
 function removeCost([costID, projectID]: [number, number]) {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {

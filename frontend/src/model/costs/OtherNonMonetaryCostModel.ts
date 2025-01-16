@@ -3,12 +3,13 @@ import { CostTypes, EnergyUnit, type OtherNonMonetary, type Unit } from "blcc-fo
 import { CostModel } from "model/CostModel";
 import { Subject, distinctUntilChanged, merge } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
+import cost = CostModel.cost;
 
 export namespace OtherNonMonetaryCostModel {
     /**
      * The cost stream narrowed to an OtherCost
      */
-    export const cost$ = CostModel.cost$.pipe(
+    export const cost$ = cost.$.pipe(
         filter((cost): cost is OtherNonMonetary => cost.type === CostTypes.OTHER_NON_MONETARY),
     );
 

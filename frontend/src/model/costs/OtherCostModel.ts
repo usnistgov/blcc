@@ -1,4 +1,4 @@
-import { shareLatest, state } from "@react-rxjs/core";
+import { state } from "@react-rxjs/core";
 import type { SelectProps } from "antd";
 import {
     CostTypes,
@@ -13,16 +13,16 @@ import {
 import type { OptionType } from "components/SelectOrCreate";
 import { liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
-import { OtherNonMonetaryCostModel } from "model/costs/OtherNonMonetaryCostModel";
 import { db } from "model/db";
 import { type Observable, Subject, distinctUntilChanged, from, merge } from "rxjs";
-import { filter, map, tap, withLatestFrom } from "rxjs/operators";
+import { filter, map, withLatestFrom } from "rxjs/operators";
+import cost = CostModel.cost;
 
 export namespace OtherCostModel {
     /**
      * The cost stream narrowed to an OtherCost
      */
-    export const cost$ = CostModel.cost$.pipe(filter((cost): cost is OtherCost => cost.type === CostTypes.OTHER));
+    export const cost$ = cost.$.pipe(filter((cost): cost is OtherCost => cost.type === CostTypes.OTHER));
 
     /**
      * Gets a list of all the tags for all Other and Other Non-monetary costs.

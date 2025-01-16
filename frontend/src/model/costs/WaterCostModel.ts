@@ -3,12 +3,13 @@ import { CostTypes, LiquidUnit, Season, type SeasonUsage, type WaterCost, type W
 import { CostModel } from "model/CostModel";
 import { Subject, distinctUntilChanged, merge, sample } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
+import cost = CostModel.cost;
 
 export namespace WaterCostModel {
     /*
      * Outputs a value if the current cost is a water cost
      */
-    export const cost$ = CostModel.cost$.pipe(filter((cost): cost is WaterCost => cost.type === CostTypes.WATER));
+    export const cost$ = cost.$.pipe(filter((cost): cost is WaterCost => cost.type === CostTypes.WATER));
 
     export const sUnit$ = new Subject<WaterUnit>();
     export const unit$ = state(

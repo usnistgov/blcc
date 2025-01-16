@@ -1,4 +1,4 @@
-import { bind, shareLatest, state } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import {
     Case,
@@ -10,23 +10,19 @@ import {
     EnergyUnit,
     FuelType,
     GhgDataSource,
-    type NonUSLocation,
-    type USLocation,
     type Unit,
 } from "blcc-format/Format";
-import { Country, type State } from "constants/LOCATION";
 import { CostModel } from "model/CostModel";
 import { isEnergyCost, isNonUSLocation, isUSLocation } from "model/Guards";
 import { type LocationModel, Model, Var } from "model/Model";
 import * as O from "optics-ts";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
-import { ajax } from "rxjs/internal/ajax/ajax";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import { guard } from "util/Operators";
 import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
-import { ajaxDefault, getResponse, index, makeApiRequest } from "util/Util";
+import { index, makeApiRequest } from "util/Util";
 import z from "zod";
+import cost = CostModel.cost;
 
 type ZipInfoResponse = {
     zip: number;
@@ -66,25 +62,25 @@ export namespace EnergyCostModel {
     /**
      * Outputs a value if the current cost is an energy cost
      */
-    export const cost$ = CostModel.cost$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
+    export const cost$ = cost.$.pipe(filter((cost): cost is EnergyCost => cost.type === CostTypes.ENERGY));
     export const energyCostOptic = O.optic<Cost>().guard(isEnergyCost);
 
     // The location must not be marked as optional since we want to be able to set it to undefined if needed
     const locationOptic = energyCostOptic.prop("location");
-    export const location = new Var(CostModel.DexieCostModel, locationOptic);
+    export const location = new Var(CostModel.cost, locationOptic);
 
     // Location override
     export namespace Location {
         export const model: LocationModel<Cost> = {
-            country: new Var(CostModel.DexieCostModel, locationOptic.optional().prop("country")),
-            city: new Var(CostModel.DexieCostModel, locationOptic.optional().prop("city")),
-            state: new Var(CostModel.DexieCostModel, locationOptic.optional().guard(isUSLocation).prop("state")),
+            country: new Var(CostModel.cost, locationOptic.optional().prop("country")),
+            city: new Var(CostModel.cost, locationOptic.optional().prop("city")),
+            state: new Var(CostModel.cost, locationOptic.optional().guard(isUSLocation).prop("state")),
             stateProvince: new Var(
-                CostModel.DexieCostModel,
+                CostModel.cost,
                 locationOptic.optional().guard(isNonUSLocation).prop("stateProvince"),
             ),
             zipcode: new Var(
-                CostModel.DexieCostModel,
+                CostModel.cost,
                 locationOptic.optional().guard(isUSLocation).prop("zipcode"),
                 z.string().max(5),
             ),
@@ -128,32 +124,32 @@ export namespace EnergyCostModel {
     /**
      * Cost per unit
      */
-    export const costPerUnit = new Var(CostModel.DexieCostModel, energyCostOptic.prop("costPerUnit"));
+    export const costPerUnit = new Var(CostModel.cost, energyCostOptic.prop("costPerUnit"));
 
     /**
      * Annual consumption
      */
-    export const annualConsumption = new Var(CostModel.DexieCostModel, energyCostOptic.prop("annualConsumption"));
+    export const annualConsumption = new Var(CostModel.cost, energyCostOptic.prop("annualConsumption"));
 
     /**
      * Rebate
      */
-    export const rebate = new Var(CostModel.DexieCostModel, energyCostOptic.prop("rebate"));
+    export const rebate = new Var(CostModel.cost, energyCostOptic.prop("rebate"));
 
     /**
      * Demand Charge
      */
-    export const demandCharge = new Var(CostModel.DexieCostModel, energyCostOptic.prop("demandCharge"));
+    export const demandCharge = new Var(CostModel.cost, energyCostOptic.prop("demandCharge"));
 
     /**
      * Customer sector streams
      */
-    export const customerSector = new Var(CostModel.DexieCostModel, energyCostOptic.prop("customerSector"));
+    export const customerSector = new Var(CostModel.cost, energyCostOptic.prop("customerSector"));
 
     /**
      * Fuel type streams
      */
-    export const fuelType = new Var(CostModel.DexieCostModel, energyCostOptic.prop("fuelType"));
+    export const fuelType = new Var(CostModel.cost, energyCostOptic.prop("fuelType"));
 
     export const [sectorOptions] = bind(
         fuelType.$.pipe(

@@ -3,13 +3,14 @@ import type { EscalationRate } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { type Observable, combineLatest, distinctUntilChanged, map, merge } from "rxjs";
 import { filter, shareReplay } from "rxjs/operators";
+import cost = CostModel.cost;
 
 export namespace EscalationRateModel {
     /**
      * Outputs a value if the current cost has an escalation rate.
      */
     // @ts-ignore
-    const cost$: Observable<EscalationRate> = CostModel.cost$.pipe(
+    const cost$: Observable<EscalationRate> = cost.$.pipe(
         // @ts-ignore
         filter((cost): cost is EscalationRate => Object.hasOwn(cost, "escalationRate")),
     );

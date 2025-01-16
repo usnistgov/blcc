@@ -16,7 +16,7 @@ export default function useParamSync() {
         if (alternativeID !== undefined) AlternativeModel.sID$.next(Number.parseInt(alternativeID));
 
         // Load the cost ID if it exists
-        if (costID !== undefined) CostModel.sId$.next(Number.parseInt(costID));
+        if (costID !== undefined) CostModel.Actions.load(Number.parseInt(costID));
     }, [alternativeID, costID]);
 }
 

@@ -29,7 +29,7 @@ function toRateChangeInfo([changes, releaseYear]: [number[], number]): RateChang
 export namespace RecurringModel {
     const recurringOptic = O.optic<Cost>().guard(isRecurringCost).prop("recurring");
 
-    export const recurring = new Var(CostModel.DexieCostModel, recurringOptic);
+    export const recurring = new Var(CostModel.cost, recurringOptic);
 
     /**
      * True if the current cost is a recurring cost.
@@ -39,17 +39,14 @@ export namespace RecurringModel {
     /**
      * The rate of recurrence for the current recurring cost.
      */
-    export const rateOfRecurrence = new Var(
-        CostModel.DexieCostModel,
-        recurringOptic.optional().prop("rateOfRecurrence"),
-    );
+    export const rateOfRecurrence = new Var(CostModel.cost, recurringOptic.optional().prop("rateOfRecurrence"));
 
     export namespace Value {
         /**
          * The value of the rate of change of the recurring cost.
          * Either a constant value or an array of values for each year.
          */
-        export const rate = new Var(CostModel.DexieCostModel, recurringOptic.optional().prop("rateOfChangeValue"));
+        export const rate = new Var(CostModel.cost, recurringOptic.optional().prop("rateOfChangeValue"));
 
         /**
          * Is the value of the rate of change constant.
@@ -89,7 +86,7 @@ export namespace RecurringModel {
     }
 
     export namespace Units {
-        export const rate = new Var(CostModel.DexieCostModel, recurringOptic.optional().prop("rateOfChangeUnits"));
+        export const rate = new Var(CostModel.cost, recurringOptic.optional().prop("rateOfChangeUnits"));
 
         export const [isConstant] = bind(rate.$.pipe(isConstantOp()));
 

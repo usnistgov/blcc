@@ -7,6 +7,7 @@ import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
 import { map } from "rxjs/operators";
+import cost = CostModel.cost;
 
 /**
  * Component for the OMR fields for a cost
@@ -15,7 +16,7 @@ export default function OMRCostFields() {
     const [sInitialCost$, initialCost$, sInitialOccurrence$, initialOccurrence$, collection$] = useMemo(() => {
         // If we are on this page that means the cost collection can be narrowed to OMRCost.
         const collection$ = CostModel.collection$ as Observable<Collection<OMRCost, number>>;
-        const omrCost$ = CostModel.cost$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
+        const omrCost$ = cost.$.pipe(filter((cost): cost is OMRCost => cost.type === CostTypes.OMR));
 
         const sInitialCost$ = new Subject<number>();
         const initialCost$ = merge(sInitialCost$, omrCost$.pipe(map((cost) => cost.initialCost))).pipe(
