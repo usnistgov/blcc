@@ -392,14 +392,7 @@ export namespace Model {
     /**
      * The case of the project. Usually Reference or LowZTC
      */
-    export const sCase$ = new Subject<Case>();
-    export const case$ = state(
-        merge(sCase$, dbProject$.pipe(map((p) => p.case))).pipe(distinctUntilChanged()),
-        Case.REF,
-    );
-    sCase$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([pCase, collection]) => collection.modify({ case: pCase }));
+    export const eiaCase = new Var(DexieModelTest, O.optic<Project>().prop("case"));
 
     /**
      * The dollar method of the current project
@@ -464,7 +457,7 @@ export namespace Model {
         Location.zipcode.$.pipe(guard()),
         releaseYear.$,
         studyPeriod.$,
-        case$,
+        eiaCase.$,
     ]).pipe(
         switchMap(([zip, releaseYear, studyPeriod, eiaCase]) => {
             console.log("Getting emissions", zip, releaseYear, studyPeriod, eiaCase);

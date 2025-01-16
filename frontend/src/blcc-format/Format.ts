@@ -103,6 +103,7 @@ export type UseIndex = {
 };
 
 export type EscalationRate = {
+    customEscalation?: boolean;
     escalation?: number | number[];
 };
 

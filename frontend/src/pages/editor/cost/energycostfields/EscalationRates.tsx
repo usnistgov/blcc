@@ -130,7 +130,7 @@ export default function EscalationRates({ title, defaultRates$ }: EscalationRate
         <div>
             <Title level={5}>{title}</Title>
             <span className={"flex flex-row items-center gap-2 pb-2"}>
-                <p className={"text-md pb-1"}>Constant</p>
+                <p className={"pb-1 text-md"}>Constant</p>
                 <Switch value$={isConstant$} wire={sIsConstant$} checkedChildren={"Yes"} unCheckedChildren={"No"} />
             </span>
 
@@ -138,7 +138,7 @@ export default function EscalationRates({ title, defaultRates$ }: EscalationRate
                 .with(P.array(), (rates) => (
                     <div className={"w-full overflow-hidden rounded shadow-lg"}>
                         <DataGrid
-                            className={"h-full rdg-light"}
+                            className={"rdg-light h-full"}
                             rows={rates}
                             columns={COLUMNS}
                             onRowsChange={newRates}
