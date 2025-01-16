@@ -8,9 +8,9 @@ import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
 import * as htmlToImage from "html-to-image";
+import { db } from "model/db";
 import { costs$, Model, useAlternatives, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
-import { db } from "model/db";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, withLatestFrom } from "rxjs";
@@ -22,11 +22,12 @@ import {
     lccBaseline,
     lccResourceRows,
     lccRows,
-    NpvAll,
+    npvAll,
     npvComparison,
     npvCosts,
     resourceUsage
-} from "./pdf-components/Results/allResultStreams";
+} from "./allResultStreams";
+import CSVDownload from "./CSVDownload";
 
 const pdfClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
@@ -34,8 +35,8 @@ const csvClick$ = new Subject<void>();
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
-    const project = useProject();
-    const alternatives = useAlternatives();
+    const project: Project = useProject();
+    const alternatives: Alternative[] = useAlternatives();
     let costs: Cost[] = [];
     costs$.subscribe((data) => {
         costs = data;
@@ -87,10 +88,10 @@ export default function ResultsAppBar() {
                 npvComparison,
                 altNPV,
                 resourceUsage,
-                NpvAll
+                npvAll
             )
         ),
-        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, NpvAll]) => {
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, npvAll]) => {
             console.log("clicked");
             generatePdf(
                 _,
@@ -101,12 +102,38 @@ export default function ResultsAppBar() {
                 npvComparison,
                 altNPV,
                 resourceUsage,
-                NpvAll
+                npvAll
             );
         }
     ); //TODO Create and download PDF
-
-    useSubscribe(csvClick$, () => {}); // TODO Create and download CSV
+    useSubscribe(
+        csvClick$.pipe(
+            withLatestFrom(
+                lccRows,
+                lccBaseline,
+                npvCosts,
+                lccResourceRows,
+                npvComparison,
+                altNPV,
+                resourceUsage,
+                npvAll
+            )
+        ),
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, npvAll]) => {
+            const summary = { lccRows, lccBaseline, npvCosts, lccResourceRows };
+            const annual = { npvComparison, npvAll };
+            const altResults = { altNPV, resourceUsage };
+            // Trigger CSV download
+            const link = document.createElement("a");
+            const csvData = CSVDownload(project, alternatives, summary, annual, altResults);
+            const csvBlob = new Blob([csvData.join("\n")], { type: "text/csv" });
+            const url = window.URL.createObjectURL(csvBlob);
+            link.href = url;
+            link.download = "blcc_report.csv"; // Set the desired file name
+            link.click();
+            window.URL.revokeObjectURL(url); // Clean up the URL object
+        }
+    );
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     //TODO: change download filename
 
@@ -125,7 +152,7 @@ export default function ResultsAppBar() {
                 <Button icon={mdiFileDownload} onClick={() => pdfClick$.next()}>
                     Export PDF
                 </Button>
-                <Button icon={mdiTableArrowDown} onClick={() => saveClick$.next()}>
+                <Button icon={mdiTableArrowDown} onClick={() => csvClick$.next()}>
                     Export CSV
                 </Button>
             </ButtonBar>

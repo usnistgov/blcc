@@ -19,7 +19,7 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
             key={altID}
             className={`${useActiveLink(
                 `/editor/alternative/${altID}/*`,
-            )} text-left text-nowrap text-ellipsis overflow-hidden`}
+            )} overflow-hidden text-ellipsis text-nowrap text-left`}
             type={ButtonType.PRIMARY}
             icon={icon}
             onClick={() => {
@@ -43,7 +43,7 @@ export default function Navigation() {
 
     return (
         <>
-            <nav className="z-40 flex h-full w-fit flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg max-w-64">
+            <nav className="z-40 flex h-full w-fit max-w-64 flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 {/* Top level buttons */}
                 <Button
                     className={`whitespace-nowrap ${useActiveLink("/editor")}`}
@@ -59,15 +59,11 @@ export default function Navigation() {
                     icon={mdiViewList}
                     onClick={() => navigate("/editor/alternative")}
                 >
-                    Alternative Summary
+                    Alternatives
                 </Button>
 
                 {/* Alternative buttons */}
-                <span className={"flex flex-row place-items-center px-2 py-1 select-none"}>
-                    <Icon className={"mr-1 min-w-[24px]"} path={mdiFileTree} size={0.8} />
-                    Alternatives
-                </span>
-                <div className={"overflow-y-auto custom-scrollbar"}>
+                <div className={"custom-scrollbar overflow-y-auto"}>
                     <div className={"flex flex-col gap-2 pl-8"}>
                         {match([...useAlternatives().values()])
                             .when(

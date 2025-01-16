@@ -18,6 +18,10 @@ export namespace CostModel {
     export const collection$ = id$.pipe(distinctUntilChanged(), DexieOps.byId(db.costs), shareReplay(1));
 
     export const DexieCostModel = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
+    // Write changes back to database
+    DexieCostModel.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
+        collection.modify(next);
+    });
 
     /**
      * The currently selected cost object as specified by the URL parameter.

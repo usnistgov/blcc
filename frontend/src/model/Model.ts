@@ -62,6 +62,10 @@ export class DexieModel<T> {
 }
 
 const DexieModelTest = new DexieModel(dbProject$);
+// Write changes back to database
+DexieModelTest.$.pipe(withLatestFrom(projectCollection$)).subscribe(([next, collection]) => {
+    collection.modify(next);
+});
 
 export class ModelType<A> {
     subject: Subject<A> = new Subject<A>();
