@@ -1,9 +1,9 @@
-import Title from "antd/es/typography/Title";
-import Nbsp from "util/Nbsp";
+import { useStateObservable } from "@react-rxjs/core";
 import { Select } from "antd";
+import Title from "antd/es/typography/Title";
 import { Case } from "blcc-format/Format";
 import { Model } from "model/Model";
-import { useStateObservable } from "@react-rxjs/core";
+import Nbsp from "util/Nbsp";
 
 const CaseOptions = [
     {
@@ -20,7 +20,7 @@ const CaseOptions = [
  * Select component for EIA Projection Scenario Case.
  */
 export function EiaProjectScenarioSelect() {
-    const eiaCase = useStateObservable(Model.case$);
+    const eiaCase = Model.eiaCase.use();
 
     return (
         <div>

@@ -39,11 +39,11 @@ importers:
         specifier: ^10.4.3
         version: 10.4.3
       dexie:
-        specifier: ^3.2.7
-        version: 3.2.7
+        specifier: ^4.0.11
+        version: 4.0.11
       dexie-export-import:
         specifier: ^4.1.2
-        version: 4.1.2(dexie@3.2.7)
+        version: 4.1.2(dexie@4.0.11)
       effect:
         specifier: ^3.12.1
         version: 3.12.1
@@ -68,6 +68,9 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+      react-csv:
+        specifier: ^2.2.2
+        version: 2.2.2
       react-data-grid:
         specifier: 7.0.0-beta.43
         version: 7.0.0-beta.43(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1562,9 +1565,8 @@ packages:
     peerDependencies:
       dexie: ^2.0.4 || ^3.0.0 || ^4.0.1-alpha.5
 
-  dexie@3.2.7:
-    resolution: {integrity: sha512-2a+BXvVhY5op+smDRLxeBAivE7YcYaneXJ1la3HOkUfX9zKkE/AJ8CNgjiXbtXepFyFmJNGSbmjOwqbT749r/w==}
-    engines: {node: '>=6.0'}
+  dexie@4.0.11:
+    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
 
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
@@ -2581,6 +2583,9 @@ packages:
     peerDependencies:
       react: '>=16.9.0'
       react-dom: '>=16.9.0'
+
+  react-csv@2.2.2:
+    resolution: {integrity: sha512-RG5hOcZKZFigIGE8LxIEV/OgS1vigFQT4EkaHeKgyuCbUAu9Nbd/1RYq++bJcJJ9VOqO/n9TZRADsXNDR4VEpw==}
 
   react-data-grid@7.0.0-beta.43:
     resolution: {integrity: sha512-uqzhXsaeIpCnNsB1zODWzP88od6r5Q5UA5GnEhba9XmUMFUy2VcUTTfABmbAiVGdJkUzWJTx1l0hZn0WNGE/hQ==}
@@ -4626,11 +4631,11 @@ snapshots:
   detect-libc@1.0.3:
     optional: true
 
-  dexie-export-import@4.1.2(dexie@3.2.7):
+  dexie-export-import@4.1.2(dexie@4.0.11):
     dependencies:
-      dexie: 3.2.7
+      dexie: 4.0.11
 
-  dexie@3.2.7: {}
+  dexie@4.0.11: {}
 
   didyoumean@1.2.2: {}
 
@@ -5685,6 +5690,8 @@ snapshots:
       rc-util: 5.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  react-csv@2.2.2: {}
 
   react-data-grid@7.0.0-beta.43(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

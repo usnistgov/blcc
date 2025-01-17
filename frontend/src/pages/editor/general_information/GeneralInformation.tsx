@@ -40,14 +40,14 @@ function AnalysisPurpose() {
 export default function GeneralInformation() {
     return (
         <motion.div
-            className={"w-full h-full overflow-y-auto"}
+            className={"h-full w-full overflow-y-auto"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.08 }}
         >
-            <div className={"max-w-screen-lg p-6 mb-16"}>
-                <div className={" grid grid-cols-2 gap-x-16 gap-y-4"}>
+            <div className={"mb-16 max-w-screen-lg p-6"}>
+                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     {/* Project Name */}
                     <TestInput
                         id={"general-information:project-name"}
@@ -137,8 +137,8 @@ export default function GeneralInformation() {
                             info={Strings.DATA_RELEASE_YEAR}
                             required
                             optionGetter={Model.useReleaseYears}
-                            getter={Model.useReleaseYear}
-                            onChange={(releaseYear) => Model.sReleaseYear$.next(releaseYear)}
+                            getter={Model.releaseYear.use}
+                            onChange={(releaseYear) => Model.releaseYear.set(releaseYear)}
                         />
                         <EiaProjectScenarioSelect />
                     </div>

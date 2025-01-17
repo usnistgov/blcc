@@ -213,7 +213,7 @@ export namespace EnergyCostModel {
         Model.studyPeriod.$,
         Location.globalOrLocalZip$,
         customerSector$,
-        Model.case$,
+        Model.eiaCase.$,
     ]).pipe(
         tap((inputs) => console.log("Inputs: ", inputs)),
         switchMap(([releaseYear, studyPeriod, zip, sector, eiaCase]) =>
@@ -278,7 +278,7 @@ export namespace EnergyCostModel {
             Location.zipInfo$,
             Model.releaseYear$,
             Model.studyPeriod.$,
-            Model.case$,
+            Model.eiaCase.$,
             Model.emissionsRateType.$,
             Model.ghgDataSource.$,
             fuelType$,
