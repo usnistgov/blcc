@@ -12,6 +12,9 @@ export const getReleaseYears = Effect.gen(function* () {
 
 export const getDefaultReleaseYear = Effect.gen(function* () {
     const releaseYears = yield* getReleaseYears;
+
+    if (releaseYears[0] === undefined) return 2023;
+
     return releaseYears[0].year;
 });
 
