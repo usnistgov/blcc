@@ -19,6 +19,8 @@ const CaseOptions = [
  * Select component for EIA Projection Scenario Case.
  */
 export function EiaProjectScenarioSelect() {
+    const eiaCase = Model.eiaCase.use();
+
     return (
         <div>
             <Title level={5}>

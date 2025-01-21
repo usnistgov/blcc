@@ -47,7 +47,7 @@ export default function GeneralInformation() {
             transition={{ duration: 0.08 }}
         >
             <div className={"mb-16 max-w-screen-lg p-6"}>
-                <div className={" grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     {/* Project Name */}
                     <TestInput
                         id={"general-information:project-name"}

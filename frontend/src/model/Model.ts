@@ -1,5 +1,4 @@
 import { type StateObservable, bind, shareLatest, state } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
 import {
     AnalysisType,
     Case,
@@ -11,8 +10,9 @@ import {
 } from "blcc-format/Format";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
+import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
-import { db } from "model/db";
+import { db, getProject } from "model/db";
 import objectHash from "object-hash";
 import * as O from "optics-ts";
 import {
@@ -47,10 +47,11 @@ type DiscountRateResponse = {
 };
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
-
+/*
 const projectCollection$ = currentProject$.pipe(DexieOps.byId(db.projects));
 export const [useProject, dbProject$] = bind(projectCollection$.pipe(DexieOps.first()));
 
+*/
 export class DexieModel<T> {
     private sModify$: Subject<(t: T) => T> = new Subject<(t: T) => T>();
     $: Observable<T>;
@@ -72,9 +73,13 @@ export class DexieModel<T> {
     }
 }
 
-const DexieModelTest = new DexieModel(dbProject$);
+export const sProject$ = new Subject<Project>();
+export const sProjectCollection$ = new Subject<Collection<Project>>();
+export const [useProject] = bind(sProject$);
+
+const DexieModelTest = new DexieModel(sProject$);
 // Write changes back to database
-DexieModelTest.$.pipe(withLatestFrom(projectCollection$)).subscribe(([next, collection]) => {
+DexieModelTest.$.pipe(withLatestFrom(sProjectCollection$)).subscribe(([next, collection]) => {
     collection.modify(next);
 });
 
@@ -157,17 +162,8 @@ export class Var<A, B> {
             .otherwise(() => {});
     }
 }
-export const ProjectModel = new ModelType<Project>();
 
-export const [reload$, reload] = createSignal();
-reload$
-    .pipe(
-        switchMap(() => db.projects.where("id").equals(1).first()),
-        guard(),
-    )
-    .subscribe((project) => ProjectModel.subject.next(project));
-
-export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
+export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
 export const alternatives$ = alternativeIDs$.pipe(
@@ -180,7 +176,7 @@ export const baselineID$ = alternatives$.pipe(
     map((alternatives) => alternatives.find((alternative) => alternative.baseline)?.id ?? -1),
 );
 
-export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
+export const costIDs$ = sProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
 
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
@@ -199,7 +195,7 @@ const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | und
 };
 
 // Creates a hash of the current project
-export const hash$ = combineLatest([dbProject$, alternatives$, costs$]).pipe(
+export const hash$ = combineLatest([sProject$, alternatives$, costs$]).pipe(
     map(([project, alternatives, costs]) => {
         if (project === undefined) throw "Project is undefined";
 
@@ -210,6 +206,7 @@ export const hash$ = combineLatest([dbProject$, alternatives$, costs$]).pipe(
 export const isDirty$ = hash$.pipe(
     switchMap((hash) => from(liveQuery(() => db.dirty.get(hash)))),
     map((result) => result === undefined),
+    shareReplay(1),
 );
 
 /*alternatives$
@@ -314,6 +311,14 @@ export namespace Model {
         catchError(() => of(new Date().getFullYear())),
     );
 
+    type DiscountRateResponse = {
+        release_year: number;
+        rate: string;
+        year: number;
+        real: number;
+        nominal: number;
+        inflation: number;
+    };
     export const ombDiscountRates$ = releaseYear.$.pipe(
         switchMap((releaseYear) =>
             ajax<DiscountRateResponse[]>({
@@ -430,7 +435,7 @@ export namespace Model {
                 map(([real, inflation]) => calculateNominalDiscountRate(real ?? 0, inflation ?? 0)),
             );
         }),
-        withLatestFrom(projectCollection$),
+        withLatestFrom(sProjectCollection$),
     ).subscribe(([nominalDiscountRate, collection]) => collection.modify({ nominalDiscountRate }));
 
     // Real discount rate subscription
@@ -444,7 +449,7 @@ export namespace Model {
                 map(([nominal, inflation]) => calculateRealDiscountRate(nominal ?? 0, inflation ?? 0)),
             );
         }),
-        withLatestFrom(projectCollection$),
+        withLatestFrom(sProjectCollection$),
     ).subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
 
     /**
