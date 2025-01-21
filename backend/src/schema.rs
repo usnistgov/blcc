@@ -124,7 +124,6 @@ diesel::table! {
         three_percent_ninety_fifth_percentile -> Float8,
         five_percent_average -> Float8,
         three_percent_average -> Float8,
-        two_and_a_half_percent_average -> Float8,
     }
 }
 

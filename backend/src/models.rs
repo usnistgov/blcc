@@ -31,7 +31,6 @@ pub struct Scc {
     pub three_percent_ninety_fifth_percentile: f64,
     pub five_percent_average: f64,
     pub three_percent_average: f64,
-    pub two_and_a_half_percent_average: f64,
 }
 
 #[derive(Queryable, Selectable, Serialize)]

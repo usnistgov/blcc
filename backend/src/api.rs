@@ -403,7 +403,6 @@ enum SccOption {
     ThreePercentNinetyFifthPercentile,
     FivePercentAverage,
     ThreePercentAverage,
-    TwoAndAHalfPercentAverage,
 }
 
 #[derive(Deserialize)]
@@ -448,15 +447,6 @@ async fn post_scc(request: Json<SccRequest>, data: Data<AppData>) -> impl Respon
                         .and(year.between(request.from, request.to))
                 )
                 .select(three_percent_average)
-                .load(&mut db)
-        }
-        SccOption::TwoAndAHalfPercentAverage => {
-            scc
-                .filter(
-                    release_year.eq(request.release_year)
-                        .and(year.between(request.from, request.to))
-                )
-                .select(two_and_a_half_percent_average)
                 .load(&mut db)
         }
     };
