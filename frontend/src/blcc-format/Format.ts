@@ -1,4 +1,5 @@
 import type { Version } from "blcc-format/Verison";
+import type { EscalationRates } from "blcc-format/schema";
 import type { Country, State } from "constants/LOCATION";
 
 export type Project = {
@@ -18,6 +19,7 @@ export type Project = {
     nominalDiscountRate?: number;
     inflationRate?: number;
     location: Location;
+    projectEscalationRates?: typeof EscalationRates.Type;
     alternatives: ID[];
     costs: ID[];
     ghg: GHG;
@@ -307,7 +309,7 @@ export type Type<T> = {
 
 export enum Case {
     REF = "REF",
-    LOWZTC = "LRC",
+    LOWZTC = "lowZTC",
 }
 
 export enum GhgDataSource {

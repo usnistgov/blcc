@@ -10,6 +10,7 @@ import {
     type RecurringContractCost,
     type ReplacementCapitalCost,
     type USLocation,
+    type WaterCost,
 } from "blcc-format/Format";
 import { Country } from "constants/LOCATION";
 
@@ -88,4 +89,18 @@ export function isRecurringContractCost(cost: Cost): cost is RecurringContractCo
  */
 export function isReplacementCapitalCost(cost: Cost): cost is ReplacementCapitalCost {
     return cost.type === CostTypes.REPLACEMENT_CAPITAL;
+}
+
+export type EscalationCost = EnergyCost | WaterCost;
+
+/**
+ * Checks if the given cost is an escalation cost.
+ *
+ * The given cost is considered an escalation cost if its type is either `ENERGY` or `WATER`.
+ *
+ * @param cost - The cost to check.
+ * @returns True if the cost is an escalation cost, false otherwise.
+ */
+export function isEscalationCost(cost: Cost): cost is EscalationCost {
+    return cost.type === CostTypes.ENERGY || cost.type === CostTypes.WATER;
 }

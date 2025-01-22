@@ -5,7 +5,7 @@ import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { Model, hash$, isDirty$, sProject$ } from "model/Model";
-import { addProject, clearDB, db, getProject, importProject, setHash } from "model/db";
+import { clearDB, db, getAlternatives, getCosts, getProject, importProject, setHash, setProject } from "model/db";
 import { useMatch, useNavigate } from "react-router-dom";
 import "dexie-export-import";
 import { Subscribe } from "@react-rxjs/core";
@@ -97,7 +97,6 @@ export default function EditorAppBar() {
             await Effect.runPromise(
                 Effect.gen(function* () {
                     const project = yield* resetToDefaultProject;
-                    yield* setHash(project, [], []);
                     sProject$.next(project);
                 }),
             );
@@ -148,7 +147,12 @@ export default function EditorAppBar() {
 
                                 if (file.type.includes("xml")) {
                                     const convertedProject = yield* convert(file);
-                                    yield* addProject(convertedProject);
+                                    yield* setProject(convertedProject);
+
+                                    const alternatives = yield* getAlternatives;
+                                    const costs = yield* getCosts;
+                                    yield* setHash(convertedProject, alternatives, costs);
+
                                     sProject$.next(convertedProject);
                                     showMessage(
                                         "Old Format Conversion",

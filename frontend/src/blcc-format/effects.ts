@@ -1,17 +1,10 @@
 import { defaultProject } from "blcc-format/DefaultProject";
-import { fetchReleaseYears, jsonResponse } from "blcc-format/api";
-import { decodeReleaseYear } from "blcc-format/schema";
+import { fetchReleaseYears } from "blcc-format/api";
 import { Effect, Option } from "effect";
-import { addProject, clearDB, getProjectCount } from "model/db";
-
-export const getReleaseYears = Effect.gen(function* () {
-    const request = yield* fetchReleaseYears;
-    const json = yield* jsonResponse(request);
-    return yield* decodeReleaseYear(json);
-});
+import { clearDB, deleteAndReopenDB, getProjectCount, setHash, setProject } from "model/db";
 
 export const getDefaultReleaseYear = Effect.gen(function* () {
-    const releaseYears = yield* getReleaseYears;
+    const releaseYears = yield* fetchReleaseYears;
 
     if (releaseYears[0] === undefined) return 2023;
 
@@ -21,13 +14,14 @@ export const getDefaultReleaseYear = Effect.gen(function* () {
 export const resetToDefaultProject = Effect.gen(function* () {
     yield* Effect.log("Creating default project");
 
-    // Delete the entire db if it exists just in case
+    // Clear the entire db
     yield* clearDB;
 
     // Create a default project with the latest release year
     const defaultReleaseYear = yield* getDefaultReleaseYear;
     const project = defaultProject(defaultReleaseYear);
-    yield* addProject(project);
+    yield* setProject(project); // Add project to db
+    yield* setHash(project, [], []); // Set hash for change detection
 
     return project;
 });

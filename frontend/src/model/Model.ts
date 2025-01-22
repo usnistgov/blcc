@@ -8,6 +8,8 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
+import { fetchEscalationRates, jsonResponse } from "blcc-format/api";
+import { decodeEscalationRateResponse } from "blcc-format/schema";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
@@ -29,10 +31,16 @@ import {
     switchMap,
 } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { catchError, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { DexieOps, guard } from "util/Operators";
-import { calculateNominalDiscountRate, calculateRealDiscountRate, closest, getResponse } from "util/Util";
+import {
+    calculateNominalDiscountRate,
+    calculateRealDiscountRate,
+    closest,
+    getResponse,
+    makeApiRequest,
+} from "util/Util";
 import z, { type ZodError, type ZodType } from "zod";
 
 type ReleaseYearResponse = { year: number; max: number; min: number };
@@ -77,11 +85,17 @@ export const sProject$ = new Subject<Project>();
 export const sProjectCollection$ = new Subject<Collection<Project>>();
 export const [useProject] = bind(sProject$);
 
+const test = sProjectCollection$.pipe(shareReplay(1));
+test.subscribe((x) => console.log("collection", x));
+
 const DexieModelTest = new DexieModel(sProject$);
 // Write changes back to database
-DexieModelTest.$.pipe(withLatestFrom(sProjectCollection$)).subscribe(([next, collection]) => {
+DexieModelTest.$.pipe(withLatestFrom(test)).subscribe(([next, collection]) => {
+    console.log("modifying", next);
     collection.modify(next);
 });
+
+sProjectCollection$.next(db.projects.where("id").equals(1)); // FIXME this is bad
 
 export class ModelType<A> {
     subject: Subject<A> = new Subject<A>();
@@ -194,13 +208,16 @@ const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | und
     }
 };
 
-// Creates a hash of the current project
-export const hash$ = combineLatest([sProject$, alternatives$, costs$]).pipe(
-    map(([project, alternatives, costs]) => {
-        if (project === undefined) throw "Project is undefined";
+export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(1).first())).pipe(shareReplay(1));
 
-        return objectHash({ project, alternatives, costs });
-    }),
+export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(shareReplay(1));
+
+export const hashCosts$ = from(liveQuery(() => db.costs.toArray())).pipe(shareReplay(1));
+
+// Creates a hash of the current project
+export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]).pipe(
+    map(([project, alternatives, costs]) => objectHash({ project, alternatives, costs })),
+    distinctUntilChanged(),
 );
 
 export const isDirty$ = hash$.pipe(
@@ -525,6 +542,50 @@ export namespace Model {
      * The Emissions Rate Type for the current project.
      */
     export const emissionsRateType = new Var(DexieModelTest, O.optic<Project>().path("ghg.emissionsRateType"));
+
+    /**
+     * Stores the escalation rates for *each* sector. We do this since each cost may vary by sector so we need to
+     * get the rates or each one.
+     */
+    export const projectEscalationRates = new Var(DexieModelTest, O.optic<Project>().prop("projectEscalationRates"));
+
+    /**
+     * Listen for changes in variables that control escalation rates and fetch new rates if necessary.
+     */
+    combineLatest([releaseYear.$, studyPeriod.$, Location.zipcode.$, eiaCase.$])
+        .pipe(
+            distinctUntilChanged(),
+            // Make sure the zipcode exists and is 5 digits
+            filter((values) => values[2] !== undefined && values[2].length === 5),
+            switchMap(([releaseYear, studyPeriod, zipcode, eiaCase]) =>
+                Effect.runPromise(
+                    Effect.gen(function* () {
+                        yield* Effect.log(
+                            "Fetching project escalation rates",
+                            releaseYear,
+                            studyPeriod,
+                            zipcode,
+                            eiaCase,
+                        );
+                        return yield* Effect.orElse(
+                            fetchEscalationRates(
+                                releaseYear,
+                                releaseYear,
+                                releaseYear + (studyPeriod ?? 0),
+                                Number.parseInt(zipcode ?? "0"),
+                                eiaCase,
+                            ),
+                            () =>
+                                Effect.andThen(
+                                    Effect.log("Failed to fetch escalation rates, defaulting to undefined"),
+                                    Effect.succeed(undefined),
+                                ),
+                        );
+                    }),
+                ),
+            ),
+        )
+        .subscribe((rates) => projectEscalationRates.set(rates));
 
     /**
      * Sets variables associated with changing the analysis type.

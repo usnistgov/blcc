@@ -81,6 +81,7 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
     const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod);
 
     return {
+        id: 1,
         version: Version.V1,
         name: project.Name,
         description: project.Comment,

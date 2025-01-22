@@ -18,6 +18,7 @@ pub struct ErrorResponse {
 
 #[derive(Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 struct EscalationRateRequest {
     from: i32,
     to: i32,
@@ -74,7 +75,7 @@ async fn post_escalation_rates(
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct RegionCaseBARequest {
     from: i32,
     to: i32,
@@ -114,7 +115,7 @@ async fn post_region_case_ba(
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct RegionNatgasRequest {
     from: i32,
     to: i32,
@@ -151,7 +152,7 @@ async fn post_region_natgas(request: Json<RegionNatgasRequest>, data: Data<AppDa
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct RegionCasePropaneLNGRequest {
     from: i32,
     to: i32,
@@ -188,7 +189,7 @@ async fn post_region_case_propane_lng(request: Json<RegionCasePropaneLNGRequest>
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct RegionOilRequest {
     from: i32,
     to: i32,
@@ -225,7 +226,7 @@ async fn post_region_case_oil(request: Json<RegionOilRequest>, data: Data<AppDat
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct RegionCaseReedsRequest {
     from: i32,
     to: i32,
@@ -290,7 +291,7 @@ async fn post_zip_info(request: Json<ZipInfoRequest>, data: Data<AppData>) -> im
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct EmissionsRequest {
     zip: i32,
     from: i32,
@@ -398,7 +399,7 @@ async fn get_release_years(data: Data<AppData>) -> impl Responder {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "snake_case", deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 enum SccOption {
     ThreePercentNinetyFifthPercentile,
     FivePercentAverage,
@@ -406,7 +407,7 @@ enum SccOption {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct SccRequest {
     from: i32,
     to: i32,
@@ -477,7 +478,7 @@ async fn get_states(data: Data<AppData>) -> impl Responder {
 }
 
 #[derive(Deserialize, Clone)]
-#[serde(rename_all = "snake_case", deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 enum EnergyTypeOptions {
     DistillateFuelOil,
     ResidualFuelOil,
@@ -487,7 +488,7 @@ enum EnergyTypeOptions {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct EnergyPriceRequest {
     from: i32,
     to: i32,
@@ -563,7 +564,7 @@ async fn post_energy_price_indices(request: Json<EnergyPriceRequest>, data: Data
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct DiscountRateRequest {
     release_year: i32,
     rate: String,

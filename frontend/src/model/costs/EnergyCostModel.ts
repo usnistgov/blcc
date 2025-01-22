@@ -50,7 +50,7 @@ type EscalationRateResponse = {
 
 const EIA_CASE_MAP = {
     [Case.REF]: "REF",
-    [Case.LOWZTC]: "LRC",
+    [Case.LOWZTC]: "lowZTC",
 };
 
 const RATE_MAP = {

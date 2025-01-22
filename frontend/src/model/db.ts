@@ -18,8 +18,8 @@ export class BlccDexie extends Dexie {
     constructor() {
         super("BlccDatabase");
 
-        this.version(5).stores({
-            projects: "++id, name",
+        this.version(6).stores({
+            projects: "&id",
             costs: "++id, name, type",
             alternatives: "++id, name, baseline",
             results: "&hash",
@@ -36,10 +36,30 @@ export const db = new BlccDexie();
 
 export const deleteDB = Effect.promise(() => db.delete());
 export const openDB = Effect.promise(() => db.open());
-export const clearDB = Effect.andThen(deleteDB, openDB);
+
+export const clearProject = Effect.promise(() => db.projects.clear());
+export const clearCosts = Effect.promise(() => db.costs.clear());
+export const clearAlternatives = Effect.promise(() => db.alternatives.clear());
+export const clearResults = Effect.promise(() => db.results.clear());
+export const clearErrors = Effect.promise(() => db.errors.clear());
+export const clearDirty = Effect.promise(() => db.dirty.clear());
+
+export const clearDB = Effect.gen(function* () {
+    yield* clearProject;
+    yield* clearCosts;
+    yield* clearAlternatives;
+    yield* clearResults;
+    yield* clearErrors;
+    yield* clearDirty;
+});
+
+export const deleteAndReopenDB = Effect.andThen(deleteDB, openDB);
+
 export const getProjectCount = Effect.promise(() => db.projects.count());
-export const addProject = (project: Project) => Effect.promise(() => db.projects.add(project));
+export const setProject = (project: Project) => Effect.promise(() => db.projects.put({ ...project, id: 1 }));
 export const setHash = (project: Project, alternatives: Alternative[], costs: Cost[]) =>
     Effect.promise(() => db.dirty.add({ hash: objectHash({ project, alternatives, costs }) }));
 export const getProject = (id: ID) => Effect.promise(() => db.projects.where("id").equals(id).first());
+export const getAlternatives = Effect.promise(() => db.alternatives.toArray());
+export const getCosts = Effect.promise(() => db.costs.toArray());
 export const importProject = (file: File) => Effect.promise(() => db.import(file));

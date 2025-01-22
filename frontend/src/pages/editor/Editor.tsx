@@ -5,7 +5,7 @@ import PageWrapper from "components/PageWrapper";
 import Statistics from "components/Statistics";
 import CostNavigation from "components/navigation/CostNavigation";
 import Navigation from "components/navigation/Navigation";
-import { Effect, Option, pipe } from "effect";
+import { Effect, Option } from "effect";
 import { AnimatePresence } from "framer-motion";
 import { sProject$ } from "model/Model";
 import { getProject } from "model/db";
