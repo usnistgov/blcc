@@ -45,6 +45,7 @@ export default function ResidualValue() {
                     <NumberInput
                         className={"w-full"}
                         info={Strings.RESIDUAL_VALUE}
+                        id={"residual-value"}
                         addonBefore={
                             approach === DollarOrPercent.DOLLAR ? approachDropdown : undefined
                         }

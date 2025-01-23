@@ -80,12 +80,22 @@ describe("Clicking the open button", () => {
 
         beforeEach(() => {
             cy.visit("http://localhost:5173/editor");
-
+            
             // Wait for page to fully load
             cy.contains("Project Name").should("exist");
-
-            // Set file to open
+            
+            /* Change project name to guarantee triggering "Discard Changes" dialog */
+            // Get project name field
+            const projectNameField = cy.get("input[name='projectName']");
+            
+            // Enter a new project name
+            const newProjectName = "New Project Name";
+            projectNameField.clear().type(newProjectName);
+            cy.contains("Open").click();
             cy.get("#open").selectFile("cypress/e2e/old-blcc-files/OMBNon-Energy.xml", { force: true });
+            
+            // Set file to open
+            cy.contains("Discard Changes").click({ force: true });
 
             // Check that the dialog exists
             cy.contains("Old Format Conversion").should("exist");
@@ -129,18 +139,21 @@ describe("Clicking the open button", () => {
         });
 
         it("populates study period correctly", () => {
+            // Get study period
             const studyPeriodSelect = cy.get("input[name='studyPeriod'").should("exist");
-
+            // Check value of study period
             studyPeriodSelect.should("have.value", studyPeriod);
         });
 
         it("populates construction period correctly", () => {
+            // Get construction period
             const constructionPeriodSelect = cy.get("input[name='constructionPeriod'").should("exist");
-
+            // Check value of construction period
             constructionPeriodSelect.should("have.value", constructionPeriod);
         });
 
         it("populates discounting convention correctly", () => {
+            // Check to make sure "Mid Year exists on page"
             cy.contains(discountingConvention).should("exist");
         });
 
@@ -152,9 +165,8 @@ describe("Clicking the open button", () => {
             cy.contains(state).should("exist");
         });
 
-        it("populates real discount rate correctly", () => {
-            const discountRateSelect = cy.contains("Real Discount Rate").parent().siblings().children().children().children().children();
-            discountRateSelect.should("have.value", discountRate);
+        it("populates real discount rate correctly", () => {;
+            cy.get("input[id='real-discount-rate']").should("have.value", discountRate);
         });
     });
 });

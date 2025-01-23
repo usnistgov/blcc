@@ -45,6 +45,7 @@ export default function OMRCostFields() {
                     className={"w-full"}
                     addonBefore={"$"}
                     controls
+                    id={"initial-cost"}
                     label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
                     value$={initialCost$}
                     wire={sInitialCost$}

@@ -42,6 +42,7 @@ export default function InvestmentCapitalCostFields() {
 
                 <NumberInput
                     className={"w-full"}
+                    id={"expected-lifetime"}
                     info={Strings.EXPECTED_LIFETIME}
                     addonAfter={"years"}
                     controls
@@ -63,6 +64,7 @@ export default function InvestmentCapitalCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
+                    id={"cost-adjustment-factor"}
                     info={Strings.COST_ADJUSTMENT_FACTOR}
                     addonAfter={"%"}
                     controls
