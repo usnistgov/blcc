@@ -180,10 +180,7 @@ export class Var<A, B> {
 export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
-export const alternatives$ = alternativeIDs$.pipe(
-    switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray())),
-    shareLatest(),
-);
+export const alternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(distinctUntilChanged());
 export const [useAlternatives, alt$] = bind(alternatives$, []);
 
 export const baselineID$ = alternatives$.pipe(
@@ -552,7 +549,14 @@ export namespace Model {
     /**
      * Listen for changes in variables that control escalation rates and fetch new rates if necessary.
      */
-    combineLatest([releaseYear.$, studyPeriod.$, Location.zipcode.$, eiaCase.$])
+    export const escalationRateVars = combineLatest([releaseYear.$, studyPeriod.$, Location.zipcode.$, eiaCase.$]);
+
+    // If the inputs are *not* valid, set the project escalation rates to undefined
+    escalationRateVars
+        .pipe(filter((values) => !(values[2] !== undefined && values[2].length === 5)))
+        .subscribe(() => projectEscalationRates.set(undefined));
+
+    escalationRateVars
         .pipe(
             distinctUntilChanged(),
             // Make sure the zipcode exists and is 5 digits

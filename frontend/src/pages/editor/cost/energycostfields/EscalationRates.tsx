@@ -1,15 +1,14 @@
-import { bind, shareLatest } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
+import { mdiRefresh } from "@mdi/js";
 import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
-import { NumberInput } from "components/input/InputNumber";
+import { Button, ButtonType } from "components/input/Button";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { EscalationRateModel } from "model/EscalationRateModel";
 import { Model } from "model/Model";
-import { type ReactNode, useEffect, useMemo } from "react";
-import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, switchMap } from "rxjs";
-import { P, match } from "ts-pattern";
-import { isFalse, isTrue } from "util/Operators";
+import type { ReactNode } from "react";
+import type { RenderCellProps, RenderEditCellProps } from "react-data-grid";
+import { Link } from "react-router-dom";
+import { type Observable, map } from "rxjs";
 import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type EscalationRatesProps = {
@@ -93,40 +92,63 @@ export default function EscalationRates({ title, defaultRates$ }: EscalationRate
     return (
         <div>
             <Title level={5}>{title}</Title>
-            <span className={"flex flex-row items-center gap-2 pb-2"}>
-                <p className={"pb-1 text-md"}>Constant</p>
-                <Switch
-                    value={isConstant}
-                    onChange={EscalationRateModel.Actions.toggleConstant}
-                    checkedChildren={"Yes"}
-                    unCheckedChildren={"No"}
-                />
-            </span>
+            <div className={"flex flex-row justify-between pb-2"}>
+                <span className={"flex flex-row items-center gap-2"}>
+                    <p className={"pb-1 text-md"}>Constant</p>
+                    <Switch
+                        value={isConstant}
+                        onChange={EscalationRateModel.Actions.toggleConstant}
+                        checkedChildren={"Yes"}
+                        unCheckedChildren={"No"}
+                    />
+                </span>
+                {!isConstant && (
+                    <Button
+                        className={"-scale-x-100"}
+                        icon={mdiRefresh}
+                        type={ButtonType.LINK}
+                        tooltip={"Reset to default"}
+                        disabled
+                    />
+                )}
+            </div>
             {(isConstant && <ConstantEscalationInput />) || <ArrayEscalationInput />}
         </div>
     );
 }
 
 function ArrayEscalationInput() {
+    const areProjectRatesValid = EscalationRateModel.areProjectRatesValid();
+
     return (
-        <div className={"w-full overflow-hidden rounded shadow-lg"}>
-            {/*<DataGrid className={"rdg-light h-full"} rows={rates} columns={COLUMNS} onRowsChange={newRates} />*/}
-        </div>
+        (areProjectRatesValid && (
+            <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                {/*<DataGrid className={"rdg-light h-full"} rows={rates} columns={COLUMNS} onRowsChange={newRates} />*/}
+            </div>
+        )) || (
+            <div className={"flex flex-col gap-y-2 text-base-dark"}>
+                <p>Default escalation rates requires a ZIP code</p>
+                <p>
+                    Set the ZIP code for this cost or for the entire project on the{" "}
+                    <Link className={"text-primary"} to={"/editor"}>
+                        General Information
+                    </Link>{" "}
+                    page
+                </p>
+            </div>
+        )
     );
 }
 
 function ConstantEscalationInput() {
     return (
         <div>
-            {/*            <NumberInput
+            <TestNumberInput
                 className={"w-full"}
-                label={"Constant Escalation Rate"}
-                showLabel={false}
-                value$={EscalationRateModel.escalation$ as Observable<number>}
-                percent
-                wire={sConstantChange$}
+                getter={EscalationRateModel.escalation.use as () => number}
+                onChange={EscalationRateModel.Actions.setConstant}
                 addonAfter={"%"}
-            />*/}
+            />
         </div>
     );
 }

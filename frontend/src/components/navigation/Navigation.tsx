@@ -1,11 +1,12 @@
-import { mdiAlphaBBox, mdiFileDocument, mdiFileTree, mdiViewList } from "@mdi/js";
-import Icon from "@mdi/react";
+import { mdiAlphaBBox, mdiFileDocument, mdiViewList } from "@mdi/js";
+import { Subscribe, bind } from "@react-rxjs/core";
 import { Button, ButtonType } from "components/input/Button";
+import { liveQuery } from "dexie";
 import { useActiveLink } from "hooks/UseActiveLink";
 import { AlternativeModel } from "model/AlternativeModel";
-import { useAlternatives } from "model/Model";
+import { db } from "model/db";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { match } from "ts-pattern";
+import { from } from "rxjs";
 
 /*
  *  Component representing the navigation button for an alternative
@@ -65,25 +66,27 @@ export default function Navigation() {
                 {/* Alternative buttons */}
                 <div className={"custom-scrollbar overflow-y-auto"}>
                     <div className={"flex flex-col gap-2 pl-8"}>
-                        {match([...useAlternatives().values()])
-                            .when(
-                                (alts) => alts.length <= 0,
-                                () => <p className={"text-base-light"}>No Alternatives</p>,
-                            )
-                            .otherwise((alts) =>
-                                alts.map((alt) => (
-                                    <AltButton
-                                        key={alt.id}
-                                        altID={alt.id ?? 0}
-                                        name={alt.name}
-                                        icon={alt.baseline ? mdiAlphaBBox : undefined}
-                                    />
-                                )),
-                            )}
+                        <Subscribe
+                            source$={alternatives$}
+                            fallback={<p className={"text-base-light"}>No Alternatives</p>}
+                        >
+                            <AlternativeList />
+                        </Subscribe>
                     </div>
                 </div>
             </nav>
             <Outlet />
         </>
     );
+}
+
+export const alternatives$ = from(liveQuery(() => db.alternatives.toArray()));
+export const [useAlternatives] = bind(alternatives$);
+
+function AlternativeList() {
+    const alternatives = useAlternatives();
+
+    return alternatives.map((alt) => (
+        <AltButton key={alt.id} altID={alt.id ?? 0} name={alt.name} icon={alt.baseline ? mdiAlphaBBox : undefined} />
+    ));
 }

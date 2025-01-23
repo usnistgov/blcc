@@ -1,7 +1,7 @@
 import { bind, state } from "@react-rxjs/core";
 import type { Alternative, ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
-import { alternatives$, currentProject$ } from "model/Model";
+import { DexieModel, alternatives$, currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { BehaviorSubject, type Observable, Subject, distinctUntilChanged, iif, merge, of, switchMap } from "rxjs";
 import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";

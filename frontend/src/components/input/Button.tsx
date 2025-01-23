@@ -1,7 +1,7 @@
 import Icon from "@mdi/react";
+import { Tooltip } from "antd";
 import type { PropsWithChildren, ReactNode } from "react";
 import type { Subject } from "rxjs";
-import { Tooltip } from "antd";
 
 export enum ButtonType {
     PRIMARY = " bg-primary hover:bg-primary-light active:bg-primary-dark text-base-lightest ",
@@ -51,10 +51,10 @@ export function Button({
                 }
                 {...buttonProps}
             >
-                <span className={"flex flex-row place-items-center"}>
-                    {icon && iconSide === "left" && <Icon className={"mr-1 min-w-[24px]"} path={icon} size={0.8} />}
+                <span className={"flex flex-row place-items-center gap-x-1"}>
+                    {icon && iconSide === "left" && <Icon className={"min-w-[24px]"} path={icon} size={0.8} />}
                     {children}
-                    {icon && iconSide === "right" && <Icon className={"ml-1"} path={icon} size={0.8} />}
+                    {icon && iconSide === "right" && <Icon path={icon} size={0.8} />}
                 </span>
             </button>
         </Tooltip>

@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import type { Cost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { isEscalationCost } from "model/Guards";
-import { Var } from "model/Model";
+import { Model, Var } from "model/Model";
 import * as O from "optics-ts";
 import { map } from "rxjs";
 
@@ -15,6 +15,10 @@ export namespace EscalationRateModel {
 
     export const [isConstant, isConstant$] = bind(escalation.$.pipe(map((escalation) => !Array.isArray(escalation))));
 
+    export const [areProjectRatesValid] = bind(
+        Model.projectEscalationRates.$.pipe(map((rates) => Array.isArray(rates))),
+    );
+
     export namespace Actions {
         export function toggleConstant(toggle: boolean) {
             if (toggle) {
@@ -25,6 +29,10 @@ export namespace EscalationRateModel {
                 //TODO: need to get default values
                 escalation.set([]);
             }
+        }
+
+        export function setConstant(value: number | null) {
+            if (value !== null) escalation.set(value);
         }
     }
 }
