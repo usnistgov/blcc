@@ -54,7 +54,7 @@ export default function ReplacementCapitalCostFields() {
                     className={"w-full"}
                     addonBefore={"year"}
                     controls
-                    label={"InitialOccurrence"}
+                    label={"Initial Occurrence"}
                     getter={Model.initialOccurrence.use}
                     onChange={Model.Actions.setInitialOccurrence}
                 />
