@@ -1,17 +1,20 @@
 import { state } from "@react-rxjs/core";
 import { DollarOrPercent, type ResidualValueCost, type ResidualValue as ResidualValueType } from "blcc-format/Format";
+import type { Collection } from "dexie";
 import { CostModel } from "model/CostModel";
 import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
 import { filter, withLatestFrom } from "rxjs/operators";
 
 export namespace ResidualValueModel {
+    const collection$ = CostModel.collection$ as Observable<Collection<ResidualValueCost>>;
+
     export const hasResidualValue$ = state(
         // @ts-ignore
         CostModel.cost.$.pipe(map((cost) => Object.hasOwn(cost, "residualValue"))),
         false,
     );
     export const sSetResidualValue$ = new Subject<boolean>();
-    sSetResidualValue$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([hasResidualValue, collection]) => {
+    sSetResidualValue$.pipe(withLatestFrom(collection$)).subscribe(([hasResidualValue, collection]) => {
         collection.modify({
             residualValue: hasResidualValue
                 ? ({
@@ -34,7 +37,8 @@ export namespace ResidualValueModel {
         DollarOrPercent.DOLLAR,
     );
     sApproach$
-        .pipe(withLatestFrom(CostModel.collection$))
+        .pipe(withLatestFrom(collection$))
+        // @ts-ignore
         .subscribe(([approach, collection]) => collection.modify({ "residualValue.approach": approach }));
 
     export const sValue$ = new Subject<number | undefined>();
@@ -44,5 +48,6 @@ export namespace ResidualValueModel {
     );
     sValue$
         .pipe(withLatestFrom(CostModel.collection$))
+        // @ts-ignore
         .subscribe(([value, collection]) => collection.modify({ "residualValue.value": value }));
 }

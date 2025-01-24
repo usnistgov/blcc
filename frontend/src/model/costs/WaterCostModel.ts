@@ -1,22 +1,24 @@
 import { state } from "@react-rxjs/core";
 import { CostTypes, LiquidUnit, Season, type SeasonUsage, type WaterCost, type WaterUnit } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
-import { Subject, distinctUntilChanged, merge, sample } from "rxjs";
+import { type Observable, Subject, distinctUntilChanged, merge, sample } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
 import cost = CostModel.cost;
+import type { Collection } from "dexie";
 
 export namespace WaterCostModel {
     /*
      * Outputs a value if the current cost is a water cost
      */
     export const cost$ = cost.$.pipe(filter((cost): cost is WaterCost => cost.type === CostTypes.WATER));
+    const collection$ = CostModel.collection$ as Observable<Collection<WaterCost>>;
 
     export const sUnit$ = new Subject<WaterUnit>();
     export const unit$ = state(
         merge(sUnit$, cost$.pipe(map((cost) => cost.unit)).pipe(distinctUntilChanged())),
         LiquidUnit.GALLON as WaterUnit,
     );
-    sUnit$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
+    sUnit$.pipe(withLatestFrom(collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
 
     export enum SeasonOption {
         DUAL = "2 Season",
@@ -34,20 +36,20 @@ export namespace WaterCostModel {
         SeasonOption.DUAL,
     );
     sUsageSeasonNum$
-        .pipe(withLatestFrom(CostModel.collection$, usage$))
+        .pipe(withLatestFrom(collection$, usage$))
         .subscribe(([seasonNum, collection, usage]) => collection.modify({ usage: newSeasons(usage) }));
 
     export const sUsageAmount$ = new Subject<[number, number]>();
-    sUsageAmount$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, usage], collection]) =>
+    sUsageAmount$.pipe(withLatestFrom(collection$)).subscribe(([[index, usage], collection]) =>
         collection.modify((obj) => {
-            (obj as WaterCost).usage[index].amount = usage;
+            obj.usage[index].amount = usage;
         }),
     );
 
     export const sUsageCost$ = new Subject<[number, number]>();
-    sUsageCost$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, cost], collection]) => {
+    sUsageCost$.pipe(withLatestFrom(collection$)).subscribe(([[index, cost], collection]) => {
         collection.modify((obj) => {
-            (obj as WaterCost).usage[index].costPerUnit = cost;
+            obj.usage[index].costPerUnit = cost;
         });
     });
 
@@ -65,20 +67,20 @@ export namespace WaterCostModel {
         SeasonOption.DUAL,
     );
     disposal$
-        .pipe(withLatestFrom(CostModel.collection$), sample(sDisposalSeasonNum$))
+        .pipe(withLatestFrom(collection$), sample(sDisposalSeasonNum$))
         .subscribe(([disposal, collection]) => collection.modify({ disposal: newSeasons(disposal) }));
 
     export const sDisposalAmount$ = new Subject<[number, number]>();
-    sDisposalAmount$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, disposal], collection]) => {
+    sDisposalAmount$.pipe(withLatestFrom(collection$)).subscribe(([[index, disposal], collection]) => {
         collection.modify((obj) => {
-            (obj as WaterCost).disposal[index].amount = disposal;
+            obj.disposal[index].amount = disposal;
         });
     });
 
     export const sDisposalCost$ = new Subject<[number, number]>();
-    sDisposalCost$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([[index, cost], collection]) => {
+    sDisposalCost$.pipe(withLatestFrom(collection$)).subscribe(([[index, cost], collection]) => {
         collection.modify((obj) => {
-            (obj as WaterCost).disposal[index].costPerUnit = cost;
+            obj.disposal[index].costPerUnit = cost;
         });
     });
 

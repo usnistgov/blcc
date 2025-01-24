@@ -11,7 +11,7 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import type { OptionType } from "components/SelectOrCreate";
-import { liveQuery } from "dexie";
+import { type Collection, liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
 import { db } from "model/db";
 import { type Observable, Subject, distinctUntilChanged, from, merge } from "rxjs";
@@ -23,6 +23,8 @@ export namespace OtherCostModel {
      * The cost stream narrowed to an OtherCost
      */
     export const cost$ = cost.$.pipe(filter((cost): cost is OtherCost => cost.type === CostTypes.OTHER));
+
+    const collection$ = CostModel.collection$ as Observable<Collection<OtherCost>>;
 
     /**
      * Gets a list of all the tags for all Other and Other Non-monetary costs.
@@ -52,7 +54,7 @@ export namespace OtherCostModel {
      */
     export const sTags$ = new Subject<string[]>();
     export const tags$ = state(merge(sTags$, cost$.pipe(map((cost) => cost.tags))).pipe(distinctUntilChanged()), []);
-    sTags$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([tags, collection]) => collection.modify({ tags }));
+    sTags$.pipe(withLatestFrom(collection$)).subscribe(([tags, collection]) => collection.modify({ tags }));
 
     /**
      * The initial occurrence for the current other cost
@@ -63,7 +65,7 @@ export namespace OtherCostModel {
         0,
     );
     sInitialOccurrence$
-        .pipe(withLatestFrom(CostModel.collection$))
+        .pipe(withLatestFrom(collection$))
         .subscribe(([initialOccurrence, collection]) => collection.modify({ initialOccurrence }));
 
     const defaultUnits = [
@@ -97,7 +99,7 @@ export namespace OtherCostModel {
         merge(sUnit$, cost$.pipe(map((cost) => cost.unit))).pipe(distinctUntilChanged()),
         undefined,
     );
-    sUnit$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
+    sUnit$.pipe(withLatestFrom(collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
 
     /**
      *  The number of units in the current other cost
@@ -108,7 +110,7 @@ export namespace OtherCostModel {
         0,
     );
     sNumberOfUnits$
-        .pipe(withLatestFrom(CostModel.collection$))
+        .pipe(withLatestFrom(collection$))
         .subscribe(([numberOfUnits, collection]) => collection.modify({ numberOfUnits }));
 
     /**
@@ -120,6 +122,6 @@ export namespace OtherCostModel {
         0,
     );
     sValuePerUnit$
-        .pipe(withLatestFrom(CostModel.collection$))
+        .pipe(withLatestFrom(collection$))
         .subscribe(([valuePerUnit, collection]) => collection.modify({ valuePerUnit }));
 }

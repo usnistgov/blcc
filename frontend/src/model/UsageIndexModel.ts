@@ -25,6 +25,7 @@ export namespace UsageIndexModel {
         shareReplay(1),
     );
     combineLatest([newUseIndex$, CostModel.collection$]).subscribe(([useIndex, costCollection]) =>
+        // @ts-ignore
         costCollection.modify({ useIndex }),
     );
 }

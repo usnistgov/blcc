@@ -23,6 +23,7 @@ import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
 import { index, makeApiRequest } from "util/Util";
 import z from "zod";
 import cost = CostModel.cost;
+import type { Collection } from "dexie";
 
 type ZipInfoResponse = {
     zip: number;
@@ -68,6 +69,8 @@ export namespace EnergyCostModel {
     // The location must not be marked as optional since we want to be able to set it to undefined if needed
     const locationOptic = energyCostOptic.prop("location");
     export const location = new Var(CostModel.cost, locationOptic);
+
+    const collection$ = CostModel.collection$ as Observable<Collection<EnergyCost>>;
 
     // Location override
     export namespace Location {
@@ -207,7 +210,7 @@ export namespace EnergyCostModel {
     );
     export const [useUnit] = bind(unit$, EnergyUnit.KWH);
     sUnitChange$
-        .pipe(withLatestFrom(CostModel.collection$))
+        .pipe(withLatestFrom(collection$))
         .subscribe(([unit, costCollection]) => costCollection.modify({ unit }));
 
     export namespace Emissions {
@@ -224,7 +227,7 @@ export namespace EnergyCostModel {
                 getEmissions(zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType),
             ),
         );
-        emissions$.pipe(withLatestFrom(CostModel.collection$)).subscribe(([emissions, collection]) => {
+        emissions$.pipe(withLatestFrom(collection$)).subscribe(([emissions, collection]) => {
             if (emissions === undefined) {
                 collection.modify({
                     emissions: undefined,
