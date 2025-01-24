@@ -55,7 +55,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
             )} text-left text-nowrap overflow-hidden text-ellipsis`}
             type={ButtonType.PRIMARY_DARK}
             onClick={() => {
-                CostModel.sId$.next(costID ?? 0);
+                CostModel.Actions.load(costID ?? 0);
 
                 if (!location.pathname.endsWith(`cost/${costID}`)) navigate(`cost/${costID}`);
             }}

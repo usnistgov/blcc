@@ -16,6 +16,7 @@ type NumberOrUndefined<T> = T extends true ? number | undefined : number;
 type NumberInputProps<T extends true | false = false> = {
     label: ReactNode;
     subLabel?: ReactNode;
+    id?: string;
     showLabel?: boolean;
     allowEmpty?: T | false;
     rules?: Rule<number>[];
@@ -28,6 +29,7 @@ type NumberInputProps<T extends true | false = false> = {
 export function NumberInput<T extends true | false = false>({
     label,
     subLabel,
+    id,
     showLabel = true,
     children,
     allowEmpty = false,
@@ -92,6 +94,7 @@ export function NumberInput<T extends true | false = false>({
         <InputNumber
             onFocus={() => focus(true)}
             onBlur={() => focus(false)}
+            id={id}
             onChange={(value) => {
                 if (value === null) change(undefined);
                 else if (percent) change(Number.parseFloat((value / 100).toFixed(4)));

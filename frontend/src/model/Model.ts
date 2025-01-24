@@ -1,5 +1,4 @@
 import { type StateObservable, bind, shareLatest, state } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
 import {
     AnalysisType,
     Case,
@@ -9,10 +8,13 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
+import { fetchEmissions, fetchEscalationRates, fetchScc, jsonResponse } from "blcc-format/api";
+import { decodeEscalationRateResponse } from "blcc-format/schema";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
+import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
-import { db } from "model/db";
+import { db, getProject } from "model/db";
 import objectHash from "object-hash";
 import * as O from "optics-ts";
 import {
@@ -29,17 +31,35 @@ import {
     switchMap,
 } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { catchError, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { DexieOps, guard } from "util/Operators";
-import { calculateNominalDiscountRate, calculateRealDiscountRate, closest } from "util/Util";
+import {
+    calculateNominalDiscountRate,
+    calculateRealDiscountRate,
+    closest,
+    getResponse,
+    makeApiRequest,
+} from "util/Util";
 import z, { type ZodError, type ZodType } from "zod";
 
-export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
+type ReleaseYearResponse = { year: number; max: number; min: number };
 
+type DiscountRateResponse = {
+    release_year: number;
+    rate: string;
+    year: number;
+    real: number;
+    nominal: number;
+    inflation: number;
+};
+
+export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
+/*
 const projectCollection$ = currentProject$.pipe(DexieOps.byId(db.projects));
 export const [useProject, dbProject$] = bind(projectCollection$.pipe(DexieOps.first()));
 
+*/
 export class DexieModel<T> {
     private sModify$: Subject<(t: T) => T> = new Subject<(t: T) => T>();
     $: Observable<T>;
@@ -61,11 +81,21 @@ export class DexieModel<T> {
     }
 }
 
-const DexieModelTest = new DexieModel(dbProject$);
+export const sProject$ = new Subject<Project>();
+export const sProjectCollection$ = new Subject<Collection<Project>>();
+export const [useProject] = bind(sProject$);
+
+const test = sProjectCollection$.pipe(shareReplay(1));
+test.subscribe((x) => console.log("collection", x));
+
+const DexieModelTest = new DexieModel(sProject$);
 // Write changes back to database
-DexieModelTest.$.pipe(withLatestFrom(projectCollection$)).subscribe(([next, collection]) => {
+DexieModelTest.$.pipe(withLatestFrom(test)).subscribe(([next, collection]) => {
+    console.log("modifying", next);
     collection.modify(next);
 });
+
+sProjectCollection$.next(db.projects.where("id").equals(1)); // FIXME this is bad
 
 export class ModelType<A> {
     subject: Subject<A> = new Subject<A>();
@@ -146,30 +176,18 @@ export class Var<A, B> {
             .otherwise(() => {});
     }
 }
-export const ProjectModel = new ModelType<Project>();
 
-export const [reload$, reload] = createSignal();
-reload$
-    .pipe(
-        switchMap(() => db.projects.where("id").equals(1).first()),
-        guard(),
-    )
-    .subscribe((project) => ProjectModel.subject.next(project));
-
-export const alternativeIDs$ = dbProject$.pipe(map((p) => p.alternatives));
+export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
-export const alternatives$ = alternativeIDs$.pipe(
-    switchMap((ids) => liveQuery(() => db.alternatives.where("id").anyOf(ids).toArray())),
-    shareLatest(),
-);
+export const alternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(distinctUntilChanged());
 export const [useAlternatives, alt$] = bind(alternatives$, []);
 
 export const baselineID$ = alternatives$.pipe(
     map((alternatives) => alternatives.find((alternative) => alternative.baseline)?.id ?? -1),
 );
 
-export const costIDs$ = dbProject$.pipe(map((p) => p.costs));
+export const costIDs$ = sProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
 
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
@@ -187,18 +205,22 @@ const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | und
     }
 };
 
-// Creates a hash of the current project
-export const hash$ = combineLatest([dbProject$, alternatives$, costs$]).pipe(
-    map(([project, alternatives, costs]) => {
-        if (project === undefined) throw "Project is undefined";
+export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(1).first())).pipe(shareReplay(1));
 
-        return objectHash({ project, alternatives, costs });
-    }),
+export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(shareReplay(1));
+
+export const hashCosts$ = from(liveQuery(() => db.costs.toArray())).pipe(shareReplay(1));
+
+// Creates a hash of the current project
+export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]).pipe(
+    map(([project, alternatives, costs]) => objectHash({ project, alternatives, costs })),
+    distinctUntilChanged(),
 );
 
 export const isDirty$ = hash$.pipe(
     switchMap((hash) => from(liveQuery(() => db.dirty.get(hash)))),
     map((result) => result === undefined),
+    shareReplay(1),
 );
 
 /*alternatives$
@@ -282,25 +304,23 @@ export namespace Model {
      */
     export const description = new Var(DexieModelTest, O.optic<Project>().prop("description"));
 
+    function unwrapReleaseYearResponse(result: ReleaseYearResponse[]) {
+        return result === null ? [2023] : result.map((r) => r.year);
+    }
+
+    export const [useReleaseYearList, releaseYearList$] = bind(
+        ajax.getJSON<ReleaseYearResponse[]>("/api/release_year").pipe(map(unwrapReleaseYearResponse), shareReplay(1)),
+    );
+
     /**
-     * Get the release years of the data that are available
+     * The release year of the current project
      */
-    type ReleaseYearResponse = { year: number; max: number; min: number };
-    export const releaseYearsResponse$ = ajax.getJSON<ReleaseYearResponse[]>("/api/release_year");
-    export const releaseYears$ = releaseYearsResponse$.pipe(
-        map((result) => (result === null ? [2023] : result.map((r) => r.year))),
-        shareReplay(1),
-    );
-    export const sReleaseYear$ = new Subject<number>();
-    export const releaseYear$ = merge(sReleaseYear$, dbProject$.pipe(map((p) => p.releaseYear))).pipe(
-        distinctUntilChanged(),
-    );
-    export const [useReleaseYears] = bind(releaseYears$);
-    export const [useReleaseYear] = bind(releaseYear$);
-    sReleaseYear$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([releaseYear, collection]) => collection.modify({ releaseYear }));
-    export const defaultReleaseYear$ = releaseYears$.pipe(
+    export const releaseYear = new Var(DexieModelTest, O.optic<Project>().prop("releaseYear"));
+
+    /**
+     * The release year to use as the default. Either the earliest release year or the current year.
+     */
+    export const defaultReleaseYear$ = releaseYearList$.pipe(
         map((years) => years[0]),
         catchError(() => of(new Date().getFullYear())),
     );
@@ -313,7 +333,7 @@ export namespace Model {
         nominal: number;
         inflation: number;
     };
-    export const ombDiscountRates$ = releaseYear$.pipe(
+    export const ombDiscountRates$ = releaseYear.$.pipe(
         switchMap((releaseYear) =>
             ajax<DiscountRateResponse[]>({
                 url: "/api/discount_rates",
@@ -327,9 +347,9 @@ export namespace Model {
                 },
             }),
         ),
-        map((response) => response.response),
+        map(getResponse),
     );
-    export const doeDiscountRates$ = releaseYear$.pipe(
+    export const doeDiscountRates$ = releaseYear.$.pipe(
         switchMap((releaseYear) =>
             ajax<DiscountRateResponse[]>({
                 url: "/api/discount_rates",
@@ -343,7 +363,7 @@ export namespace Model {
                 },
             }),
         ),
-        map((response) => response.response),
+        map(getResponse),
     );
 
     /**
@@ -391,14 +411,7 @@ export namespace Model {
     /**
      * The case of the project. Usually Reference or LowZTC
      */
-    export const sCase$ = new Subject<Case>();
-    export const case$ = state(
-        merge(sCase$, dbProject$.pipe(map((p) => p.case))).pipe(distinctUntilChanged()),
-        Case.REF,
-    );
-    sCase$
-        .pipe(withLatestFrom(projectCollection$))
-        .subscribe(([pCase, collection]) => collection.modify({ case: pCase }));
+    export const eiaCase = new Var(DexieModelTest, O.optic<Project>().prop("case"));
 
     /**
      * The dollar method of the current project
@@ -436,7 +449,7 @@ export namespace Model {
                 map(([real, inflation]) => calculateNominalDiscountRate(real ?? 0, inflation ?? 0)),
             );
         }),
-        withLatestFrom(projectCollection$),
+        withLatestFrom(sProjectCollection$),
     ).subscribe(([nominalDiscountRate, collection]) => collection.modify({ nominalDiscountRate }));
 
     // Real discount rate subscription
@@ -450,7 +463,7 @@ export namespace Model {
                 map(([nominal, inflation]) => calculateRealDiscountRate(nominal ?? 0, inflation ?? 0)),
             );
         }),
-        withLatestFrom(projectCollection$),
+        withLatestFrom(sProjectCollection$),
     ).subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
 
     /**
@@ -461,29 +474,13 @@ export namespace Model {
     // Get the emissions data from the database.
     export const emissions$ = combineLatest([
         Location.zipcode.$.pipe(guard()),
-        releaseYear$,
+        releaseYear.$,
         studyPeriod.$,
-        case$,
+        eiaCase.$,
     ]).pipe(
-        switchMap(([zip, releaseYear, studyPeriod, eiaCase]) => {
-            console.log("Getting emissions", zip, releaseYear, studyPeriod, eiaCase);
-            return ajax<number[]>({
-                url: "/api/emissions",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0),
-                    release_year: releaseYear,
-                    zip: Number.parseInt(zip ?? "0"),
-                    case: eiaCase,
-                    rate: "Avg",
-                },
-            });
-        }),
-        map((response) => response.response),
+        switchMap(async ([zip, releaseYear, studyPeriod, eiaCase]) =>
+            Effect.runPromise(fetchEmissions(releaseYear, zip, studyPeriod ?? 25, eiaCase)),
+        ),
         startWith(undefined),
     );
 
@@ -493,26 +490,13 @@ export namespace Model {
     );
 
     export const scc$ = combineLatest([
-        releaseYear$,
+        releaseYear.$,
         studyPeriod.$,
         socialCostOfGhgScenario.$.pipe(map(getSccOption), guard()),
     ]).pipe(
         switchMap(([releaseYear, studyPeriod, option]) =>
-            ajax<number[]>({
-                url: "/api/scc",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0),
-                    release_year: releaseYear,
-                    option,
-                },
-            }),
+            Effect.runPromise(fetchScc(releaseYear, releaseYear, releaseYear + (studyPeriod ?? 0), option)),
         ),
-        map((response) => response.response),
         map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
         startWith(undefined),
     );
@@ -526,6 +510,57 @@ export namespace Model {
      * The Emissions Rate Type for the current project.
      */
     export const emissionsRateType = new Var(DexieModelTest, O.optic<Project>().path("ghg.emissionsRateType"));
+
+    /**
+     * Stores the escalation rates for *each* sector. We do this since each cost may vary by sector so we need to
+     * get the rates or each one.
+     */
+    export const projectEscalationRates = new Var(DexieModelTest, O.optic<Project>().prop("projectEscalationRates"));
+
+    /**
+     * Listen for changes in variables that control escalation rates and fetch new rates if necessary.
+     */
+    export const escalationRateVars = combineLatest([releaseYear.$, studyPeriod.$, Location.zipcode.$, eiaCase.$]);
+
+    // If the inputs are *not* valid, set the project escalation rates to undefined
+    escalationRateVars
+        .pipe(filter((values) => !(values[2] !== undefined && values[2].length === 5)))
+        .subscribe(() => projectEscalationRates.set(undefined));
+
+    escalationRateVars
+        .pipe(
+            distinctUntilChanged(),
+            // Make sure the zipcode exists and is 5 digits
+            filter((values) => values[2] !== undefined && values[2].length === 5),
+            switchMap(([releaseYear, studyPeriod, zipcode, eiaCase]) =>
+                Effect.runPromise(
+                    Effect.gen(function* () {
+                        yield* Effect.log(
+                            "Fetching project escalation rates",
+                            releaseYear,
+                            studyPeriod,
+                            zipcode,
+                            eiaCase,
+                        );
+                        return yield* Effect.orElse(
+                            fetchEscalationRates(
+                                releaseYear,
+                                releaseYear,
+                                releaseYear + (studyPeriod ?? 0),
+                                Number.parseInt(zipcode ?? "0"),
+                                eiaCase,
+                            ),
+                            () =>
+                                Effect.andThen(
+                                    Effect.log("Failed to fetch escalation rates, defaulting to undefined"),
+                                    Effect.succeed(undefined),
+                                ),
+                        );
+                    }),
+                ),
+            ),
+        )
+        .subscribe((rates) => projectEscalationRates.set(rates));
 
     /**
      * Sets variables associated with changing the analysis type.

@@ -3,6 +3,8 @@ import { type DefaultedStateObservable, state } from "@react-rxjs/core";
 import { type Cost, CostTypes } from "blcc-format/Format";
 import Decimal from "decimal.js";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
+import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
+import { ajax } from "rxjs/internal/ajax/ajax";
 import { map } from "rxjs/operators";
 
 // Returns true if the given cost is an energy cost.
@@ -157,4 +159,20 @@ export const ajaxDefault = {
  */
 export function makeArray<T>(n: number, fill: T): T[] {
     return Array.from({ length: n }, () => fill);
+}
+
+export function getResponse<T>(ajaxResponse: AjaxResponse<T>) {
+    return ajaxResponse.response;
+}
+
+export function index<T>(i: number) {
+    return (x: T[]) => x[i];
+}
+
+export function makeApiRequest<T>(url: string, body: object): Observable<T> {
+    return ajax<T>({
+        ...ajaxDefault,
+        url: `/api/${url}`,
+        body,
+    }).pipe(map(getResponse));
 }

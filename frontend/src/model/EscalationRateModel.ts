@@ -1,29 +1,38 @@
-import { createSignal } from "@react-rxjs/utils";
-import type { EscalationRate } from "blcc-format/Format";
+import { bind } from "@react-rxjs/core";
+import type { Cost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
-import { type Observable, combineLatest, distinctUntilChanged, map, merge } from "rxjs";
-import { filter, shareReplay } from "rxjs/operators";
+import { isEscalationCost } from "model/Guards";
+import { Model, Var } from "model/Model";
+import * as O from "optics-ts";
+import { map } from "rxjs";
 
 export namespace EscalationRateModel {
-    /**
-     * Outputs a value if the current cost has an escalation rate.
-     */
-    // @ts-ignore
-    const cost$: Observable<EscalationRate> = CostModel.cost$.pipe(
-        // @ts-ignore
-        filter((cost): cost is EscalationRate => Object.hasOwn(cost, "escalationRate")),
+    const escalationOptic = O.optic<Cost>().guard(isEscalationCost);
+
+    export const escalation = new Var(CostModel.cost, escalationOptic.prop("escalation"));
+
+    export const customEscalation = new Var(CostModel.cost, escalationOptic.prop("customEscalation"));
+
+    export const [isConstant, isConstant$] = bind(escalation.$.pipe(map((escalation) => !Array.isArray(escalation))));
+
+    export const [areProjectRatesValid] = bind(
+        Model.projectEscalationRates.$.pipe(map((rates) => Array.isArray(rates))),
     );
 
-    /**
-     * Escalation Rate streams
-     */
-    export const [useEscalationRate$, escalationChange] = createSignal<number | number[]>();
-    const newEscalationRate$ = useEscalationRate$.pipe(shareReplay(1));
-    export const escalation$ = merge(newEscalationRate$, cost$.pipe(map((cost) => cost.escalation))).pipe(
-        distinctUntilChanged(),
-        shareReplay(1),
-    );
-    combineLatest([newEscalationRate$, CostModel.collection$]).subscribe(([escalation, collection]) =>
-        collection.modify({ escalation }),
-    );
+    export namespace Actions {
+        export function toggleConstant(toggle: boolean) {
+            if (toggle) {
+                // Is constant
+                escalation.set(0);
+            } else {
+                // Not constant
+                //TODO: need to get default values
+                escalation.set([]);
+            }
+        }
+
+        export function setConstant(value: number | null) {
+            if (value !== null) escalation.set(value);
+        }
+    }
 }

@@ -4,6 +4,7 @@ use serde::Serialize;
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::discount_rates)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct DiscountRates {
     pub release_year: i32,
     pub rate: String,
@@ -25,18 +26,19 @@ pub struct Division {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::scc)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct Scc {
     pub year: i32,
     pub release_year: i32,
     pub three_percent_ninety_fifth_percentile: f64,
     pub five_percent_average: f64,
     pub three_percent_average: f64,
-    pub two_and_a_half_percent_average: f64,
 }
 
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::zip_info)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct ZipInfo {
     pub zip: i32,
     pub ba: String,
@@ -50,6 +52,7 @@ pub struct ZipInfo {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::region_case_ba)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct RegionCaseBA {
     pub release_year: i32,
     pub year: i32,
@@ -62,6 +65,7 @@ pub struct RegionCaseBA {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::escalation_rates)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct EscalationRate {
     pub release_year: i32,
     pub year: i32,
@@ -80,6 +84,7 @@ pub struct EscalationRate {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::region_case_oil)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct RegionCaseOil {
     pub release_year: i32,
     pub year: i32,
@@ -92,6 +97,7 @@ pub struct RegionCaseOil {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::region_case_propane_lng)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct RegionCasePropaneLNG {
     pub release_year: i32,
     pub year: i32,
@@ -104,6 +110,7 @@ pub struct RegionCasePropaneLNG {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::region_case_reeds)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct RegionCaseReeds {
     pub release_year: i32,
     pub year: i32,
@@ -116,6 +123,7 @@ pub struct RegionCaseReeds {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::region_natgas)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct RegionCaseNatgas {
     pub release_year: i32,
     pub year: i32,
@@ -128,6 +136,7 @@ pub struct RegionCaseNatgas {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::energy_prices)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct EnergyPrices {
     pub release_year: i32,
     pub year: i32,
@@ -146,6 +155,7 @@ pub struct EnergyPrices {
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::energy_price_indices)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(rename_all = "camelCase")]
 pub struct EnergyPriceIndices {
     pub release_year: i32,
     pub year: i32,

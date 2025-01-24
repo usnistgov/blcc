@@ -1,4 +1,3 @@
-import { useStateObservable } from "@react-rxjs/core";
 import type { Cost } from "blcc-format/Format";
 import { RateOfRecurrenceInput, ValueRateOfChange } from "components/Recurring";
 import { TestNumberInput } from "components/input/TestNumberInput";
@@ -11,9 +10,9 @@ import * as O from "optics-ts";
 namespace Model {
     const costOptic = O.optic<Cost>().guard(isRecurringContractCost);
 
-    export const initialCost = new Var(CostModel.DexieCostModel, costOptic.prop("initialCost"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
 
-    export const initialOccurrence = new Var(CostModel.DexieCostModel, costOptic.prop("initialOccurrence"));
+    export const initialOccurrence = new Var(CostModel.cost, costOptic.prop("initialOccurrence"));
 
     export namespace Actions {
         export function setInitialCost(change: number | null) {
@@ -27,7 +26,7 @@ namespace Model {
 }
 
 export default function RecurringContractCostFields() {
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>

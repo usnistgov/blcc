@@ -66,7 +66,7 @@ export default function UsageIndex({ title }: UsageIndexProps) {
 
         // Converts the usage rates into the format the grid needs
         const [useUsage] = bind(
-            combineLatest([Model.releaseYear$, UsageIndexModel.useIndex$]).pipe(
+            combineLatest([Model.releaseYear.$, UsageIndexModel.useIndex$]).pipe(
                 map(([releaseYear, useIndex]) =>
                     match(useIndex)
                         .with(P.array(), (usage) =>

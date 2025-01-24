@@ -15,6 +15,7 @@ import { Country } from "constants/LOCATION";
  */
 export function defaultProject(releaseYear: number): Project {
     return {
+        id: 1,
         version: Version.V1,
         name: "Untitled Project",
         dollarMethod: DollarMethod.CONSTANT,

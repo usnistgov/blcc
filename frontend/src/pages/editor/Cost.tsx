@@ -4,16 +4,17 @@ import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
 import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
+import { CostSavingsSwitch } from "components/CostSavingsSwitch";
 import Info from "components/Info";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
-import { TextArea } from "components/input/TextArea";
-import TextInput, { TextInputType } from "components/input/TextInput";
+import { TestInput } from "components/input/TestInput";
+import { TestTextArea } from "components/input/TestTextArea";
+import { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
 import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
-import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import { CostModel } from "model/CostModel";
 import { alternatives$, currentProject$ } from "model/Model";
@@ -32,10 +33,8 @@ import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
-import Switch from "../../components/input/Switch";
 import sToggleAlt$ = CostModel.sToggleAlt$;
-import { CostSavingsSwitch } from "components/CostSavingsSwitch";
-import { TestInput } from "components/input/TestInput";
+import cost = CostModel.cost;
 
 const { Title } = Typography;
 
@@ -44,7 +43,7 @@ const cloneClick$ = new Subject<void>();
 const removeClick$ = new Subject<void>();
 
 const remove$ = combineLatest([CostModel.id$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
-const clone$ = combineLatest([CostModel.cost$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
+const clone$ = combineLatest([cost.$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
 
 function removeCost([costID, projectID]: [number, number]) {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
@@ -106,8 +105,6 @@ async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
 }
 
 export default function Cost() {
-    useParamSync();
-
     const [altsThatInclude$, sConfirmBaselineChange$] = useMemo(() => {
         const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
             map(
@@ -125,7 +122,6 @@ export default function Cost() {
     useSubscribe(sConfirmBaselineChange$);
 
     const navigate = useNavigate();
-    const costType = CostModel.useType();
     const alternativeID = AlternativeModel.useID();
     const alternativeName = useStateObservable(AlternativeModel.name$);
 
@@ -135,9 +131,11 @@ export default function Cost() {
     useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
     //useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
 
+    const costType = CostModel.type.use();
+
     return (
         <motion.div
-            className={"w-full h-full flex flex-col"}
+            className={"flex h-full w-full flex-col"}
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, speed: 0.5 }}
@@ -182,7 +180,7 @@ export default function Cost() {
                 </div>
             </SubHeader>
 
-            <div className={"w-full h-full overflow-y-auto"}>
+            <div className={"h-full w-full overflow-y-auto"}>
                 <div className={"max-w-screen-lg p-6"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <TestInput
@@ -198,17 +196,17 @@ export default function Cost() {
                             <AppliedCheckboxes value$={altsThatInclude$} sToggle$={sToggleAlt$} />
                         </div>
                         <span className={"col-span-2"}>
-                            <TextArea
+                            <TestTextArea
                                 label={"Description"}
-                                className={"w-full max-h-36"}
-                                value$={CostModel.description$}
-                                wire={CostModel.sDescription$}
+                                className={"max-h-36 w-full"}
+                                getter={CostModel.description.use}
+                                onChange={(event) => CostModel.description.set(event.currentTarget.value)}
                             />
                         </span>
                         <CostSavingsSwitch />
                     </div>
                 </div>
-                <div className={"border-t border-base-lighter mb-32"}>
+                <div className={"mb-32 border-base-lighter border-t"}>
                     {match(costType)
                         .with(CostTypes.ENERGY, () => <EnergyCostFields />)
                         .with(CostTypes.WATER, () => <WaterCostFields />)

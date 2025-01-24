@@ -16,6 +16,12 @@ export default function useParamSync() {
         if (alternativeID !== undefined) AlternativeModel.sID$.next(Number.parseInt(alternativeID));
 
         // Load the cost ID if it exists
-        if (costID !== undefined) CostModel.sId$.next(Number.parseInt(costID));
+        if (costID !== undefined) CostModel.Actions.load(Number.parseInt(costID));
     }, [alternativeID, costID]);
+}
+
+// FIXME: This is a bit of a hack to load the current url parameters into the model with the suspense fallback in Editor
+export function Sync() {
+    useParamSync();
+    return <></>;
 }

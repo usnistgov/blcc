@@ -18,7 +18,7 @@ export default function WaterCostFields() {
     const disposalNum = useStateObservable(WaterCostModel.disposalSeasonNum$);
     const usage = useStateObservable(WaterCostModel.usage$);
     const disposal = useStateObservable(WaterCostModel.disposal$);
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>

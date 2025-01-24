@@ -1,6 +1,5 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
-import { createSignal } from "@react-rxjs/utils";
 import {
     AnalysisType,
     type CapitalCost,
@@ -20,6 +19,7 @@ import {
     type ImplementationContractCost,
     LiquidUnit,
     type OMRCost,
+    type Project,
     Purpose,
     type RecurringContractCost,
     type ReplacementCapitalCost,
@@ -33,88 +33,80 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
-import { showMessage } from "components/modal/MessageModal";
+import { getDefaultReleaseYear } from "blcc-format/effects";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
+import { Effect } from "effect";
 import { XMLParser } from "fast-xml-parser";
-import { Model, reload } from "model/Model";
 import { db } from "model/db";
 import objectHash from "object-hash";
-import { Subject, map, switchMap } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
 
-const [converted$, convert] = createSignal<File>();
-
-export { convert };
-
-/**
- * A RXJS operator to convert an XML string representing an old BLCC format file and converting it into the new
- * JSON format.
- */
-converted$
-    .pipe(
-        switchMap((file) => {
-            const result$ = new Subject<string>();
-
-            // Read file
-            const reader = new FileReader();
-            reader.onload = function () {
-                result$.next(this.result as string);
-            };
-            reader.readAsText(file);
-
-            return result$;
-        }),
-        map((xml) => parser.parse(xml)),
-        withLatestFrom(Model.defaultReleaseYear$),
-    )
-    .subscribe(async ([obj, releaseYear]) => {
-        const project = obj.Project;
-
-        const alternativeObjectOrArray = project.Alternatives.Alternative;
-        const alternatives = Array.isArray(alternativeObjectOrArray)
-            ? alternativeObjectOrArray
-            : [alternativeObjectOrArray];
-
-        const studyPeriod = parseStudyPeriod(parseYears(project.Duration));
-
-        const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod);
-
-        db.projects.add({
-            version: Version.V1,
-            name: project.Name,
-            description: project.Comment,
-            analyst: project.Analyst,
-            analysisType: convertAnalysisType(project.AnalysisType),
-            purpose: convertAnalysisPurpose(project.AnalysisPurpose),
-            dollarMethod: convertDollarMethod(project.DollarMethod),
-            studyPeriod,
-            case: Case.REF,
-            constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
-            discountingMethod: convertDiscountMethod(project.DiscountingMethod),
-            realDiscountRate: project.DiscountRate,
-            nominalDiscountRate: undefined,
-            inflationRate: project.InflationRate,
-            location: parseLocation(project.Location),
-            alternatives: newAlternatives,
-            costs: newCosts,
-            ghg: {
-                socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
-                dataSource: GhgDataSource.NIST_NETL,
-                emissionsRateType: EmissionsRateType.AVERAGE,
-            },
-            releaseYear,
-        });
-
-        showMessage(
-            "Old Format Conversion",
-            "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
-        );
-
-        reload();
+const readFile = (file: File) =>
+    Effect.async<string>((resume) => {
+        // Read file
+        const reader = new FileReader();
+        reader.onload = function () {
+            resume(Effect.succeed(this.result as string));
+        };
+        reader.readAsText(file);
     });
+
+const parseXml = (xml: string) => Effect.try(() => parser.parse(xml));
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const parseProject = (obj: any, releaseYear: number) => Effect.promise(() => parse(obj, releaseYear));
+
+export const convert = (file: File) =>
+    Effect.gen(function* () {
+        yield* Effect.log("Converting file", file.name);
+        const contents = yield* readFile(file);
+        const xml = yield* parseXml(contents);
+        const defaultReleaseYear = yield* getDefaultReleaseYear;
+        return yield* parseProject(xml, defaultReleaseYear);
+    });
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+async function parse(obj: any, releaseYear: number): Promise<Project> {
+    const project = obj.Project;
+
+    const alternativeObjectOrArray = project.Alternatives.Alternative;
+    const alternatives = Array.isArray(alternativeObjectOrArray)
+        ? alternativeObjectOrArray
+        : [alternativeObjectOrArray];
+
+    const studyPeriod = parseStudyPeriod(parseYears(project.Duration));
+
+    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod);
+
+    return {
+        id: 1,
+        version: Version.V1,
+        name: project.Name,
+        description: project.Comment,
+        analyst: project.Analyst,
+        analysisType: convertAnalysisType(project.AnalysisType),
+        purpose: convertAnalysisPurpose(project.AnalysisPurpose),
+        dollarMethod: convertDollarMethod(project.DollarMethod),
+        studyPeriod,
+        case: Case.REF,
+        constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
+        discountingMethod: convertDiscountMethod(project.DiscountingMethod),
+        realDiscountRate: project.DiscountRate,
+        nominalDiscountRate: undefined,
+        inflationRate: project.InflationRate,
+        location: parseLocation(project.Location),
+        alternatives: newAlternatives,
+        costs: newCosts,
+        ghg: {
+            socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
+            dataSource: GhgDataSource.NIST_NETL,
+            emissionsRateType: EmissionsRateType.AVERAGE,
+        },
+        releaseYear,
+    } as Project;
+}
 
 function parseStudyPeriod(studyPeriod: DateDiff) {
     switch (studyPeriod.type) {

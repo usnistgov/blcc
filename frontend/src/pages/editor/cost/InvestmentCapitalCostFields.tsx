@@ -1,20 +1,13 @@
-import { useStateObservable } from "@react-rxjs/core";
-import { Divider } from "antd";
-import { type CapitalCost, CostTypes } from "blcc-format/Format";
 import ResidualValue from "components/ResidualValue";
 import PhaseIn from "components/grids/PhaseIn";
 import { NumberInput } from "components/input/InputNumber";
 import { Strings } from "constants/Strings";
-import type { Collection } from "dexie";
-import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
-import React, { useMemo } from "react";
-import { type Observable, Subject, distinctUntilChanged, filter, merge } from "rxjs";
-import { map } from "rxjs/operators";
+import React from "react";
 
 export default function InvestmentCapitalCostFields() {
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings;
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -42,6 +35,7 @@ export default function InvestmentCapitalCostFields() {
 
                 <NumberInput
                     className={"w-full"}
+                    id={"expected-lifetime"}
                     info={Strings.EXPECTED_LIFETIME}
                     addonAfter={"years"}
                     controls
@@ -63,6 +57,7 @@ export default function InvestmentCapitalCostFields() {
                 />
                 <NumberInput
                     className={"w-full"}
+                    id={"cost-adjustment-factor"}
                     info={Strings.COST_ADJUSTMENT_FACTOR}
                     addonAfter={"%"}
                     controls

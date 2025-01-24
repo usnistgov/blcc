@@ -1,8 +1,20 @@
+import { AnalysisType, Purpose } from "blcc-format/Format";
+
 describe("Clicking the open button", () => {
     describe("opens a confirmation dialog that", () => {
         beforeEach(() => {
-            cy.visit("http://localhost:5173/editor/alternative");
-            cy.wait(200);
+            cy.visit("http://localhost:5173/editor/");
+
+            // Wait for page to fully load using exist statement
+            cy.contains("Project Name").should("exist");
+
+            /* Change project name to guarantee triggering "Discard Changes" dialog */
+            // Get project name field
+            const projectNameField = cy.get("input[name='projectName']");
+
+            // Enter a new project name
+            const newProjectName = "New Project Name";
+            projectNameField.clear().type(newProjectName);
         });
 
         it("exists", () => {
@@ -22,7 +34,7 @@ describe("Clicking the open button", () => {
 
         it("shows old file conversion dialog", () => {
             // Set file to open
-            cy.get("#open").selectFile("cypress/e2e/old-blcc-files/FEMPEnergy.xml", { force: true });
+            cy.get("#open").selectFile("cypress/e2e/old-blcc-files/MilconFEMP.xml", { force: true });
 
             // Open confirmation dialog
             cy.contains("Open").click();
@@ -47,19 +59,114 @@ describe("Clicking the open button", () => {
             // Close the dialog
             cy.contains("OK").click();
             cy.contains("Old Format Conversion").should("not.be.visible");
-
+ 
             // Check that the dialog exists
-            cy.url().should("eq", "http://localhost:5173/editor");
+            cy.url().should("eq", "http://localhost:5173/editor/");
         });
     });
 
-    describe("converts old blcc files properly", () => {
+    describe("converts the general information of old blcc files properly", () => {
+        const projectName = "OMB Demo";
+        const projectDesc = "Lease vs. Buy Decision";
+        const analystName = "SKF"
+        const analysisType = AnalysisType.OMB_NON_ENERGY;
+        const analysisPurpose = Purpose.COST_LEASE;
+        const studyPeriod = "15";
+        const constructionPeriod = "0";
+        const discountingConvention = "Mid Year";
+        const country = "United States of America";
+        const state = "MD";
+        const discountRate = "-0.008";
+
         beforeEach(() => {
             cy.visit("http://localhost:5173/editor");
-            cy.wait(200);
-
+            
+            // Wait for page to fully load
+            cy.contains("Project Name").should("exist");
+            
+            /* Change project name to guarantee triggering "Discard Changes" dialog */
+            // Get project name field
+            const projectNameField = cy.get("input[name='projectName']");
+            
+            // Enter a new project name
+            const newProjectName = "New Project Name";
+            projectNameField.clear().type(newProjectName);
+            cy.contains("Open").click();
+            cy.get("#open").selectFile("cypress/e2e/old-blcc-files/OMBNon-Energy.xml", { force: true });
+            
             // Set file to open
-            cy.get("#open").selectFile("cypress/e2e/old-blcc-files/FEMPEnergy.xml", { force: true });
+            cy.contains("Discard Changes").click({ force: true });
+
+            // Check that the dialog exists
+            cy.contains("Old Format Conversion").should("exist");
+
+            // Close the dialog
+            cy.contains("OK").click();
+        });
+
+        it("populates project name correctly", () => {
+            cy.contains("Project Name").should("exist");
+            cy.get("#project-name").should("have.text", projectName);
+        });
+
+        it("populates project description correctly", () => {
+            // Get input field
+            const descriptionInput = cy.get("textarea[name='description']");
+            // Check  if it was populated correctly
+            descriptionInput.should("have.value", projectDesc);
+        });
+
+        it("populates analyst name correctly", () => {
+            // Get input field
+            const analystInput = cy.get("input[name='analyst']").should("exist");
+            // Check input
+            analystInput.should("have.value", analystName);
+        });
+
+        it("populates analysis type correctly", () => {
+            // Get analysis type
+            const analysisTypeSelect = cy.get("input[id='analysisType']").should("exist");
+            // Check if it was populated correctly
+            analysisTypeSelect.parent().siblings("span").should("have.text", analysisType);
+        });
+
+        it("populates analysis purpose correctly", () => {
+            // Check that the project purpose is displayed
+            const analysisPurposeSelect = cy.get("input[id='analysisPurpose']").should("exist");
+
+            // Check that the project purpose is populated correctly
+            analysisPurposeSelect.parent().siblings("span").should("have.text", analysisPurpose);
+        });
+
+        it("populates study period correctly", () => {
+            // Get study period
+            const studyPeriodSelect = cy.get("input[name='studyPeriod'").should("exist");
+            // Check value of study period
+            studyPeriodSelect.should("have.value", studyPeriod);
+        });
+
+        it("populates construction period correctly", () => {
+            // Get construction period
+            const constructionPeriodSelect = cy.get("input[name='constructionPeriod'").should("exist");
+            // Check value of construction period
+            constructionPeriodSelect.should("have.value", constructionPeriod);
+        });
+
+        it("populates discounting convention correctly", () => {
+            // Check to make sure "Mid Year exists on page"
+            cy.contains(discountingConvention).should("exist");
+        });
+
+        it("populates country correctly", () => {
+            cy.contains(country).should("exist");
+        });
+
+        it("populates state correctly", () => {
+            cy.contains(state).should("exist");
+        });
+
+        it("populates real discount rate correctly", () => {;
+            cy.get("input[id='real-discount-rate']").should("have.value", discountRate);
         });
     });
 });
