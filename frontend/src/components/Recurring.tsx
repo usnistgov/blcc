@@ -155,6 +155,7 @@ function ValueRateOfChangeInput() {
     return (
         <div>
             <TestNumberInput
+                id={"value-rate-of-change"}
                 className={"w-full"}
                 getter={RecurringModel.Value.rate.use as () => number}
                 onChange={RecurringModel.Value.Actions.setConstant}
