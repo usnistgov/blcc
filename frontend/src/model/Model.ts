@@ -8,7 +8,7 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
-import { fetchEscalationRates, jsonResponse } from "blcc-format/api";
+import { fetchEmissions, fetchEscalationRates, fetchScc, jsonResponse } from "blcc-format/api";
 import { decodeEscalationRateResponse } from "blcc-format/schema";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
@@ -478,25 +478,9 @@ export namespace Model {
         studyPeriod.$,
         eiaCase.$,
     ]).pipe(
-        switchMap(([zip, releaseYear, studyPeriod, eiaCase]) => {
-            console.log("Getting emissions", zip, releaseYear, studyPeriod, eiaCase);
-            return ajax<number[]>({
-                url: "/api/emissions",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0),
-                    release_year: releaseYear,
-                    zip: Number.parseInt(zip ?? "0"),
-                    case: eiaCase,
-                    rate: "Avg",
-                },
-            });
-        }),
-        map(getResponse),
+        switchMap(async ([zip, releaseYear, studyPeriod, eiaCase]) =>
+            Effect.runPromise(fetchEmissions(releaseYear, zip, studyPeriod ?? 25, eiaCase)),
+        ),
         startWith(undefined),
     );
 
@@ -511,21 +495,8 @@ export namespace Model {
         socialCostOfGhgScenario.$.pipe(map(getSccOption), guard()),
     ]).pipe(
         switchMap(([releaseYear, studyPeriod, option]) =>
-            ajax<number[]>({
-                url: "/api/scc",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    from: releaseYear,
-                    to: releaseYear + (studyPeriod ?? 0),
-                    release_year: releaseYear,
-                    option,
-                },
-            }),
+            Effect.runPromise(fetchScc(releaseYear, releaseYear, releaseYear + (studyPeriod ?? 0), option)),
         ),
-        map(getResponse),
         map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
         startWith(undefined),
     );
