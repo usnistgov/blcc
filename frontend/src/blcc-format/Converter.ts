@@ -313,7 +313,7 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 residualValue: cost.ResaleValueFactor
                     ? ({
                           approach: DollarOrPercent.PERCENT,
-                          value: cost.ResaleValueFactor as number,
+                          value: cost.ResaleValueFactor * 100 as number,
                       } as ResidualValue)
                     : undefined,
             } as CapitalCost);
