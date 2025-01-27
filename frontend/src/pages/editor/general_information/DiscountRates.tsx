@@ -36,6 +36,7 @@ export default function DiscountRates() {
             <TestNumberInput
                 label={"Real Discount Rate"}
                 required
+                id={"real-discount-rate"}
                 info={Strings.REAL_DISCOUNT_RATE}
                 disabled={dollarMethod !== DollarMethod.CONSTANT}
                 addonAfter={"%"}
