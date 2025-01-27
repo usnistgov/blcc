@@ -3,6 +3,7 @@ import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
 import { Button, ButtonType } from "components/input/Button";
 import { TestNumberInput } from "components/input/TestNumberInput";
+import { Strings } from "constants/Strings";
 import { type EscalationRateInfo, EscalationRateModel } from "model/EscalationRateModel";
 import type { ReactNode } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
@@ -47,7 +48,7 @@ const COLUMNS = [
 
 export default function EscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
-    const areProjectRatesValid = EscalationRateModel.areProjectRatesValid();
+    const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
 
     return (
         <div>
@@ -79,36 +80,38 @@ export default function EscalationRates({ title }: EscalationRatesProps) {
 }
 
 function ArrayEscalationInput() {
-    const areProjectRatesValid = EscalationRateModel.areProjectRatesValid();
-    const isUsingCustomEscalationRates = EscalationRateModel.isUsingCustomEscalationRates();
+    return EscalationRateModel.showGrid() ? <EscalationRateGrid /> : <Message />;
+}
 
-    // Show the grid if the project rates are valid so we can use those values, or if there are custom rates set
-    // This allows us to display the grid if we convert an old file with escalation rates without needing to set
-    // the zip code
-    const showGrid = areProjectRatesValid || isUsingCustomEscalationRates;
-
+function EscalationRateGrid() {
     return (
-        (showGrid && (
-            <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                <DataGrid
-                    className={"rdg-light h-full"}
-                    rows={EscalationRateModel.gridValues()}
-                    columns={COLUMNS}
-                    onRowsChange={EscalationRateModel.Actions.setRates}
-                />
-            </div>
-        )) || (
-            <div className={"flex flex-col gap-y-2 text-base-dark"}>
-                <p>Default escalation rates requires a ZIP code</p>
-                <p>
-                    Set the ZIP code for this cost or for the entire project on the{" "}
-                    <Link className={"text-primary"} to={"/editor"}>
-                        General Information
-                    </Link>{" "}
-                    page
-                </p>
-            </div>
-        )
+        <div className={"w-full overflow-hidden rounded shadow-lg"}>
+            <DataGrid
+                className={"rdg-light h-full"}
+                rows={EscalationRateModel.gridValues()}
+                columns={COLUMNS}
+                onRowsChange={EscalationRateModel.Actions.setRates}
+            />
+        </div>
+    );
+}
+
+function Message() {
+    return EscalationRateModel.isProjectRatesValid() ? (
+        <div className={"flex flex-col gap-y-2 text-base-dark"}>
+            <p>Please select a Customer Sector</p>
+        </div>
+    ) : (
+        <div className={"flex flex-col gap-y-2 text-base-dark"}>
+            <p>Default escalation rates requires a ZIP code</p>
+            <p>
+                Set the ZIP code for this cost or for the entire project on the{" "}
+                <Link className={"text-primary"} to={"/editor"}>
+                    General Information
+                </Link>{" "}
+                page
+            </p>
+        </div>
     );
 }
 

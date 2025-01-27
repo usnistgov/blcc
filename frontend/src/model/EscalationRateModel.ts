@@ -33,11 +33,26 @@ export namespace EscalationRateModel {
         escalation.$.pipe(map((escalation) => escalation !== undefined && !Array.isArray(escalation))),
     );
 
-    export const [areProjectRatesValid] = bind(
+    export const [isProjectRatesValid, isProjectRatesValid$] = bind(
         Model.projectEscalationRates.$.pipe(map((rates) => Array.isArray(rates))),
     );
 
-    export const [isUsingCustomEscalationRates] = bind(customEscalation.$.pipe(map((bool) => bool ?? false)));
+    export const [isUsingCustomEscalationRates, isUsingCustomEscalationRates$] = bind(
+        customEscalation.$.pipe(map((bool) => bool ?? false)),
+    );
+
+    export const [isSectorValid, isSectorValid$] = bind(
+        EnergyCostModel.customerSector.$.pipe(map((sector) => sector !== undefined)),
+    );
+
+    export const [showGrid] = bind(
+        combineLatest([isProjectRatesValid$, isSectorValid$, isUsingCustomEscalationRates$]).pipe(
+            map(
+                ([isProjectRatesValid, isSectorValid, isUsingCustomEscalationRates]) =>
+                    (isProjectRatesValid && isSectorValid) || isUsingCustomEscalationRates,
+            ),
+        ),
+    );
 
     const values$ = combineLatest([escalation.$, customEscalation.$]).pipe(
         switchMap(([customRates, isUsingCustomRates]) =>
