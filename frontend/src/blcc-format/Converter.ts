@@ -77,11 +77,12 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         : [alternativeObjectOrArray];
 
     const studyPeriod = parseStudyPeriod(parseYears(project.Duration));
+    const studyLocation = parseLocation(project.Location)
 
-    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod);
+    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation);
+
 
     return {
-        id: 1,
         version: Version.V1,
         name: project.Name,
         description: project.Comment,
@@ -96,7 +97,7 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         realDiscountRate: project.DiscountRate,
         nominalDiscountRate: undefined,
         inflationRate: project.InflationRate,
-        location: parseLocation(project.Location),
+        location: studyLocation,
         alternatives: newAlternatives,
         costs: newCosts,
         ghg: {
@@ -211,7 +212,7 @@ type CostComponent =
     | "NonRecurringCost";
 
 // biome-ignore lint: No need to type XML format
-async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number): Promise<[ID[], ID[]]> {
+async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number, studyLocation: USLocation): Promise<[ID[], ID[]]> {
     const costCache = new Map<string, ID>();
 
     const newAlternatives = await Promise.all(
@@ -238,7 +239,7 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
 
             for (const cost of costs) {
                 const hash = objectHash(cost);
-                const costID = await convertCost(cost, studyPeriod);
+                const costID = await convertCost(cost, studyPeriod, studyLocation);
 
                 if (!costCache.has(hash)) costCache.set(hash, costID);
             }
@@ -263,7 +264,7 @@ function renameSubComponent(name: string) {
 }
 
 // biome-ignore lint: No need to type XML format
-async function convertCost(cost: any, studyPeriod: number) {
+async function convertCost(cost: any, studyPeriod: number, studyLocation: USLocation) {
     const type: CostComponent = cost.type;
     switch (type) {
         case "CapitalReplacement":
@@ -323,7 +324,7 @@ async function convertCost(cost: any, studyPeriod: number) {
                 type: CostTypes.ENERGY,
                 fuelType: parseFuelType(cost.FuelType),
                 customerSector: cost.RateSchedule as CustomerSector,
-                location: parseLocation(cost.State),
+                location: (studyLocation.state === parseLocation(cost.State).state) ? undefined : parseLocation(cost.State),
                 costPerUnit: cost.UnitCost as number,
                 annualConsumption: cost.YearlyUsage as number,
                 unit: parseUnit(cost.Units),
