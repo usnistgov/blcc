@@ -6,13 +6,24 @@ import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
+import { db } from "model/db";
 import { Model, costs$, useAlternatives, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
-import { db } from "model/db";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject } from "rxjs";
+import { Subject, withLatestFrom } from "rxjs";
 import { download } from "util/DownloadFile";
+import {
+    altNPV,
+    lccBaseline,
+    lccResourceRows,
+    lccRows,
+    npvAll,
+    npvComparison,
+    npvCosts,
+    resourceUsage
+} from "./allResultStreams";
+import CSVDownload from "./CSVDownload";
 
 const pdfClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
@@ -28,6 +39,34 @@ export default function ResultsAppBar() {
     });
 
     useSubscribe(pdfClick$, () => {}); //TODO Create and download PDF
+    useSubscribe(
+        csvClick$.pipe(
+            withLatestFrom(
+                lccRows,
+                lccBaseline,
+                npvCosts,
+                lccResourceRows,
+                npvComparison,
+                altNPV,
+                resourceUsage,
+                npvAll
+            )
+        ),
+        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, npvAll]) => {
+            const summary = { lccRows, lccBaseline, npvCosts, lccResourceRows };
+            const annual = { npvComparison, npvAll };
+            const altResults = { altNPV, resourceUsage };
+            // Trigger CSV download
+            const link = document.createElement("a");
+            const csvData = CSVDownload(project, alternatives, summary, annual, altResults);
+            const csvBlob = new Blob([csvData.join("\n")], { type: "text/csv" });
+            const url = window.URL.createObjectURL(csvBlob);
+            link.href = url;
+            link.download = `${project.name}.csv`; // Set the desired file name
+            link.click();
+            window.URL.revokeObjectURL(url); // Clean up the URL object
+        }
+    );
     useSubscribe(saveClick$, async () => download(await db.export(), "download.blcc"));
     //TODO: change download filename
 
