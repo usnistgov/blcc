@@ -222,6 +222,10 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
             const costs = [
                 ...capitalComponents,
                 ...capitalComponents.flatMap((capitalComponent) => {
+                    if ((capitalComponent as any).Name == null) {
+                        (capitalComponent as any).Name = "Unnamed Cost";
+                    }
+
                     //biome-ignore lint: No need to type the XML format
                     const rename = renameSubComponent((capitalComponent as any).Name);
 
