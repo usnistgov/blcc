@@ -288,11 +288,11 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
             return db.costs.add({
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
-                type: CostTypes.REPLACEMENT_CAPITAL,
+                type: CostTypes.OMR,
                 initialCost: cost.Amount,
+                initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                residualValue: undefined,
-            } as ReplacementCapitalCost);
+            } as OMRCost);
         case "RecurringCost":
             return db.costs.add({
                 name: cost.Name,
