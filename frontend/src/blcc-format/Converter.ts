@@ -39,9 +39,13 @@ import { Effect } from "effect";
 import { XMLParser } from "fast-xml-parser";
 import { db } from "model/db";
 import objectHash from "object-hash";
+import { calculateNominalDiscountRate } from "util/Util";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
+
+const DEFAULT_REAL_DISCOUNT_RATE = 0.03;
+const DEFAULT_INFLATION_RATE = 0.012;
 
 const readFile = (file: File) =>
     Effect.async<string>((resume) => {
@@ -80,7 +84,10 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
     const studyLocation = parseLocation(project.Location)
 
     const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation);
-
+    
+    var calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : DEFAULT_REAL_DISCOUNT_RATE;
+    var calculatedInflationRate: number = project.InflationRate ? project.InflationRate : DEFAULT_INFLATION_RATE;
+    var calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
 
     return {
         version: Version.V1,
@@ -94,9 +101,9 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         case: Case.REF,
         constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
         discountingMethod: convertDiscountMethod(project.DiscountingMethod),
-        realDiscountRate: project.DiscountRate,
-        nominalDiscountRate: undefined,
-        inflationRate: project.InflationRate,
+        realDiscountRate: calculatedRealDR,
+        nominalDiscountRate: calculatedNominalDR,
+        inflationRate: calculatedInflationRate,
         location: studyLocation,
         alternatives: newAlternatives,
         costs: newCosts,

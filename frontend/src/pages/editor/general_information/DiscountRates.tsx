@@ -2,6 +2,7 @@ import { DollarMethod } from "blcc-format/Format";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { Model } from "model/Model";
+import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 /**
  * Component to display the discount rates for the current project
@@ -18,8 +19,8 @@ export default function DiscountRates() {
                 disabled={dollarMethod !== DollarMethod.CURRENT}
                 addonAfter={"%"}
                 controls={false}
-                getter={Model.inflationRate.use}
-                onChange={(value) => Model.inflationRate.set(value ?? undefined)}
+                getter={() => +(toPercentage(Model.inflationRate.use() ?? 0).toFixed(2))}
+                onChange={(value) => Model.inflationRate.set(value ? toDecimal(value) : undefined)}
             />
             <TestNumberInput
                 label={"Nominal Discount Rate"}
@@ -30,8 +31,8 @@ export default function DiscountRates() {
                 addonAfter={"%"}
                 controls={false}
                 min={0.0}
-                getter={Model.nominalDiscountRate.use}
-                onChange={(value) => Model.nominalDiscountRate.set(value ?? undefined)}
+                getter={() => +(toPercentage(Model.nominalDiscountRate.use() ?? 0).toFixed(2))}
+                onChange={(value) => Model.nominalDiscountRate.set(value ? toDecimal(value) : undefined)}
             />
             <TestNumberInput
                 label={"Real Discount Rate"}
@@ -42,8 +43,8 @@ export default function DiscountRates() {
                 addonAfter={"%"}
                 controls={false}
                 min={0.0}
-                getter={Model.realDiscountRate.use}
-                onChange={(value) => Model.realDiscountRate.set(value ?? undefined)}
+                getter={() => +(toPercentage(Model.realDiscountRate.use() ?? 0).toFixed(2))}
+                onChange={(value) => Model.realDiscountRate.set(value ? toDecimal(value) : undefined)}
             />
         </div>
     );
