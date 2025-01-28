@@ -165,41 +165,6 @@ export namespace EnergyCostModel {
         ),
     );
 
-    // Gets the default escalation rate information from the api
-    export const fetchEscalationRates$ = combineLatest([
-        Model.releaseYear.$,
-        Model.studyPeriod.$,
-        Location.globalOrCustomZip$,
-        customerSector.$,
-        Model.eiaCase.$,
-    ]).pipe(
-        tap((inputs) => console.log("Inputs: ", inputs)),
-        switchMap(([releaseYear, studyPeriod, zip, sector, eiaCase]) =>
-            makeApiRequest<EscalationRateResponse[]>("escalation_rates", {
-                release_year: releaseYear,
-                from: releaseYear,
-                to: releaseYear + (studyPeriod ?? 0),
-                zip: Number.parseInt(zip ?? "0"),
-                sector,
-                case: eiaCase,
-            }),
-        ),
-        combineLatestWith(fuelType.$),
-        map(([response, fuelType]) =>
-            response.map((value) =>
-                match(fuelType)
-                    .with(FuelType.ELECTRICITY, () => value.electricity)
-                    .with(FuelType.PROPANE, () => value.propane)
-                    .with(FuelType.DISTILLATE_OIL, () => value.distillate_fuel_oil)
-                    .with(FuelType.RESIDUAL_OIL, () => value.residual_fuel_oil)
-                    .with(FuelType.NATURAL_GAS, () => value.natural_gas)
-                    .otherwise(() => 0),
-            ),
-        ),
-        catchError(() => of([] as number[])),
-        shareLatest(),
-    );
-
     /**
      * Unit streams
      */

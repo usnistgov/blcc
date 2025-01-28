@@ -20,7 +20,6 @@ import {
     type RecurringContractCost,
     type ReplacementCapitalCost,
     Season,
-    type Type,
     type WaterCost,
 } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
@@ -28,6 +27,7 @@ import { Button, ButtonType } from "components/input/Button";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
+import { CostModel } from "model/CostModel";
 import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
@@ -292,11 +292,18 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         if (open) return;
 
         sName$.next(undefined);
-        sType$.next(CostTypes.ENERGY);
+        sType$.next(FuelType.ELECTRICITY);
     });
 
     // Navigate to new cost page after creation
-    useSubscribe(newCostID$, ([newID, altID]) => navigate(`/editor/alternative/${altID}/cost/${newID}`), [navigate]);
+    useSubscribe(
+        newCostID$,
+        ([newID, altID]) => {
+            CostModel.Actions.load(newID ?? 0);
+            navigate(`/editor/alternative/${altID}/cost/${newID}`);
+        },
+        [navigate],
+    );
 
     const costOrFuel = useType();
 

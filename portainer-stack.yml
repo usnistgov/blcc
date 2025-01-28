@@ -28,7 +28,7 @@ services:
         - "traefik.http.services.blcc_service.loadbalancer.server.port=8080"
 
   postgres:
-    image: dockreg.el.nist.gov/blcc/db:latest
+    image: docker.nist.gov:4567/eldst/blcc:db
     restart: always
     hostname: postgres
     environment:

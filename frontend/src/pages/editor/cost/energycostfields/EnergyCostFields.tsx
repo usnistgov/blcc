@@ -84,10 +84,7 @@ export default function EnergyCostFields() {
 
                 <EnergyCostLocation />
 
-                <EscalationRates
-                    title={<Info text={Strings.ESCALATION_RATES}>Escalation Rates</Info>}
-                    defaultRates$={EnergyCostModel.fetchEscalationRates$}
-                />
+                <EscalationRates title={<Info text={Strings.ESCALATION_RATES}>Escalation Rates</Info>} />
                 <UsageIndex title={"Usage Index"} />
             </div>
         </div>

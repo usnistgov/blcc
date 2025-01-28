@@ -3,22 +3,17 @@ import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
 import { Button, ButtonType } from "components/input/Button";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import { EscalationRateModel } from "model/EscalationRateModel";
-import { Model } from "model/Model";
+import { Strings } from "constants/Strings";
+import { type EscalationRateInfo, EscalationRateModel } from "model/EscalationRateModel";
 import type { ReactNode } from "react";
-import type { RenderCellProps, RenderEditCellProps } from "react-data-grid";
+import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { Link } from "react-router-dom";
-import { type Observable, map } from "rxjs";
+import type { Observable } from "rxjs";
 import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type EscalationRatesProps = {
     title: ReactNode;
     defaultRates$?: Observable<number[]>;
-};
-
-type EscalationRateInfo = {
-    year: number;
-    escalationRate: number;
 };
 
 const COLUMNS = [
@@ -28,13 +23,13 @@ const COLUMNS = [
     },
     {
         name: "Escalation Rate (%)",
-        key: "escalationRate",
+        key: "rate",
         renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo>) => {
             return (
                 <input
                     className={"w-full pl-4"}
                     type={"number"}
-                    defaultValue={toPercentage(row.escalationRate)}
+                    defaultValue={toPercentage(row.rate)}
                     onChange={(event) =>
                         onRowChange({
                             ...row,
@@ -46,48 +41,14 @@ const COLUMNS = [
         },
         editable: true,
         renderCell: (info: RenderCellProps<EscalationRateInfo>) => {
-            return percentFormatter.format(info.row.escalationRate);
+            return percentFormatter.format(info.row.rate);
         },
     },
 ];
 
-const studyPeriodDefaultRates$ = Model.studyPeriod.$.pipe(map((studyPeriod) => Array((studyPeriod ?? 1) + 1).fill(0)));
-
-export default function EscalationRates({ title, defaultRates$ }: EscalationRatesProps) {
-    /*    const { useEscalation, newRates, sConstantChange$ } = useMemo(() => {
-        const [gridRatesChange$, newRates] = createSignal<EscalationRateInfo[]>();
-        const sConstantChange$ = new Subject<number>();
-        const escalationRateChange$ = gridRatesChange$.pipe(
-            map((newRates) => newRates.map((rate) => rate.escalationRate)),
-        );
-
-        // Converts the escalation rates into the format the grid needs
-        const [useEscalation] = bind(
-            combineLatest([Model.releaseYear.$, EscalationRateModel.escalation$]).pipe(
-                map(([releaseYear, escalation]) =>
-                    match(escalation)
-                        .with(P.array(), (escalation) =>
-                            escalation.map((rate, i) => ({
-                                year: releaseYear + i,
-                                escalationRate: rate,
-                            })),
-                        )
-                        .otherwise((constant) => constant),
-                ),
-            ),
-            [],
-        );
-
-        return {
-            useEscalation,
-            newRates,
-            sConstantChange$,
-        };
-    }, []);*/
-
-    /*const rates = useEscalation();*/
-
+export default function EscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
+    const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
 
     return (
         <div>
@@ -108,7 +69,8 @@ export default function EscalationRates({ title, defaultRates$ }: EscalationRate
                         icon={mdiRefresh}
                         type={ButtonType.LINK}
                         tooltip={"Reset to default"}
-                        disabled
+                        disabled={!areProjectRatesValid}
+                        onClick={() => EscalationRateModel.Actions.resetToDefault()}
                     />
                 )}
             </div>
@@ -118,25 +80,38 @@ export default function EscalationRates({ title, defaultRates$ }: EscalationRate
 }
 
 function ArrayEscalationInput() {
-    const areProjectRatesValid = EscalationRateModel.areProjectRatesValid();
+    return EscalationRateModel.showGrid() ? <EscalationRateGrid /> : <Message />;
+}
 
+function EscalationRateGrid() {
     return (
-        (areProjectRatesValid && (
-            <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                {/*<DataGrid className={"rdg-light h-full"} rows={rates} columns={COLUMNS} onRowsChange={newRates} />*/}
-            </div>
-        )) || (
-            <div className={"flex flex-col gap-y-2 text-base-dark"}>
-                <p>Default escalation rates requires a ZIP code</p>
-                <p>
-                    Set the ZIP code for this cost or for the entire project on the{" "}
-                    <Link className={"text-primary"} to={"/editor"}>
-                        General Information
-                    </Link>{" "}
-                    page
-                </p>
-            </div>
-        )
+        <div className={"w-full overflow-hidden rounded shadow-lg"}>
+            <DataGrid
+                className={"rdg-light h-full"}
+                rows={EscalationRateModel.gridValues()}
+                columns={COLUMNS}
+                onRowsChange={EscalationRateModel.Actions.setRates}
+            />
+        </div>
+    );
+}
+
+function Message() {
+    return EscalationRateModel.isProjectRatesValid() ? (
+        <div className={"flex flex-col gap-y-2 text-base-dark"}>
+            <p>Please select a Customer Sector</p>
+        </div>
+    ) : (
+        <div className={"flex flex-col gap-y-2 text-base-dark"}>
+            <p>Default escalation rates requires a ZIP code</p>
+            <p>
+                Set the ZIP code for this cost or for the entire project on the{" "}
+                <Link className={"text-primary"} to={"/editor"}>
+                    General Information
+                </Link>{" "}
+                page
+            </p>
+        </div>
     );
 }
 
