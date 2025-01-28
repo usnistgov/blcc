@@ -9,12 +9,12 @@ import { getOptionalTag } from "util/Util";
 export type lccRow = {
     name: string;
     baseline: boolean;
-    initialCost: number;
-    lifeCycleCost: number;
-    energy: number;
-    ghgEmissions: number;
-    scc: number;
-    lccScc: number;
+    initialCost: string;
+    lifeCycleCost: string;
+    energy: string;
+    ghgEmissions: string;
+    scc: string;
+    lccScc: string;
 };
 
 export type npvRow = {
@@ -108,6 +108,15 @@ export type altResults = {
     resourceUsage: resourceUsageRow[][];
 };
 
+const roundObjectValues = (obj: { [key: string | number]: string }) => {
+    const roundedObj = {};
+    for (const key in obj) {
+        const value = obj[key];
+        roundedObj[key] = typeof value === "number" ? value?.toFixed(2) : value; // Round only if it's a number
+    }
+    return roundedObj;
+};
+
 // summary
 export const [useLCCRows, lccRows] = bind(
     combineLatest([ResultModel.measures$, ResultModel.alternativeNames$, baselineID$]).pipe(
@@ -117,12 +126,12 @@ export const [useLCCRows, lccRows] = bind(
                     ({
                         name: alternativeNames.get(measure.altId),
                         baseline: measure.altId === baselineID,
-                        lifeCycleCost: measure.totalTagFlows.LCC,
-                        initialCost: measure.totalTagFlows["Initial Investment"],
-                        energy: measure.totalTagFlows.Energy,
-                        ghgEmissions: measure.totalTagFlows.Emissions,
-                        scc: measure.totalTagFlows.SCC,
-                        lccScc: measure.totalCosts
+                        lifeCycleCost: measure.totalTagFlows.LCC?.toFixed(2),
+                        initialCost: measure.totalTagFlows["Initial Investment"]?.toFixed(2),
+                        energy: measure.totalTagFlows.Energy?.toFixed(2),
+                        ghgEmissions: measure.totalTagFlows.Emissions?.toFixed(2),
+                        scc: measure.totalTagFlows.SCC?.toFixed(2),
+                        lccScc: measure.totalCosts?.toFixed(2)
                     } as lccRow)
             )
         )
@@ -138,15 +147,15 @@ export const [useLCCBaseline, lccBaseline] = bind(
             return measures.map((measure) => ({
                 name: names.get(measure.altId),
                 baseline: measure.altId === baselineID,
-                sir: measure.sir,
-                airr: measure.airr,
-                spp: measure.spp,
-                dpp: measure.dpp,
-                initialCost: measure.totalCosts,
-                deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
-                deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
-                deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
-                netSavings: measure.netSavings + measure.totalTagFlows.SCC
+                sir: measure.sir?.toFixed(2),
+                airr: measure.airr?.toFixed(2),
+                spp: measure.spp?.toFixed(2),
+                dpp: measure.dpp?.toFixed(2),
+                initialCost: measure.totalCosts.toFixed(2),
+                deltaEnergy: ((baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy)?.toFixed(2),
+                deltaGhg: ((baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions)?.toFixed(2),
+                deltaScc: ((baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC)?.toFixed(2),
+                netSavings: measure.netSavings + measure.totalTagFlows.SCC?.toFixed(2)
             }));
         })
     ),
@@ -156,17 +165,26 @@ export const [useLCCBaseline, lccBaseline] = bind(
 export const [useNPVCosts, npvCosts] = bind(
     combineLatest([ResultModel.measures$, ResultModel.alternativeNames$]).pipe(
         map(([measures]) => {
+            console.log(measures);
             return [
-                { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
-                { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
-                { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
-                { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
+                { category: "Investment", ...roundObjectValues(getOptionalTag(measures, "Initial Investment")) },
+                {
+                    category: "Energy",
+                    subcategory: "Consumption",
+                    ...roundObjectValues(getOptionalTag(measures, "Energy"))
+                },
+                { subcategory: "Demand", ...roundObjectValues(getOptionalTag(measures, "Demand Charge")) },
+                { subcategory: "Rebates", ...roundObjectValues(getOptionalTag(measures, "Rebate")) },
                 { category: "Water", subcategory: "Usage" },
                 { subcategory: "Disposal " },
-                { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
-                { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
-                { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
-                { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") }
+                {
+                    category: "OMR",
+                    subcategory: "Recurring",
+                    ...roundObjectValues(getOptionalTag(measures, "OMR Recurring"))
+                },
+                { subcategory: "Non-Recurring", ...roundObjectValues(getOptionalTag(measures, "OMR Non-Recurring")) },
+                { category: "Replacement", ...roundObjectValues(getOptionalTag(measures, "Replacement Capital")) },
+                { category: "Residual Value", ...roundObjectValues(getOptionalTag(measures, "Residual Value")) }
             ];
         })
     ),
@@ -195,18 +213,18 @@ export const [useLCCResourceRows, lccResourceRows] = bind(
             ].map((fuelType) => getOptionalTag(measures, `${fuelType} Emissions`));
 
             return [
-                { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...consumption[0] },
-                { subcategory: FuelType.NATURAL_GAS, ...consumption[1] },
-                { subcategory: FuelType.DISTILLATE_OIL, ...consumption[2] },
-                { subcategory: FuelType.RESIDUAL_OIL, ...consumption[3] },
-                { subcategory: FuelType.PROPANE, ...consumption[4] },
-                { subcategory: "Total", ...consumption[5] },
-                { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
-                { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
-                { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
-                { subcategory: FuelType.RESIDUAL_OIL, ...emissions[3] },
-                { subcategory: FuelType.PROPANE, ...emissions[4] },
-                { subcategory: "Total", ...emissions[5] },
+                { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...roundObjectValues(consumption[0]) },
+                { subcategory: FuelType.NATURAL_GAS, ...roundObjectValues(consumption[1]) },
+                { subcategory: FuelType.DISTILLATE_OIL, ...roundObjectValues(consumption[2]) },
+                { subcategory: FuelType.RESIDUAL_OIL, ...roundObjectValues(consumption[3]) },
+                { subcategory: FuelType.PROPANE, ...roundObjectValues(consumption[4]) },
+                { subcategory: "Total", ...roundObjectValues(consumption[5]) },
+                { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...roundObjectValues(emissions[0]) },
+                { subcategory: FuelType.NATURAL_GAS, ...roundObjectValues(emissions[1]) },
+                { subcategory: FuelType.DISTILLATE_OIL, ...roundObjectValues(emissions[2]) },
+                { subcategory: FuelType.RESIDUAL_OIL, ...roundObjectValues(emissions[3]) },
+                { subcategory: FuelType.PROPANE, ...roundObjectValues(emissions[4]) },
+                { subcategory: "Total", ...roundObjectValues(emissions[5]) },
                 { category: "Water", subcategory: "Use" } //TODO: Add in water usage category
             ];
         })
@@ -222,7 +240,7 @@ export const [useNPVComparison, npvComparison] = bind(
                 map((values, year) => {
                     const result = { key: year, year } as npvRow;
                     values.forEach((value, i) => {
-                        result[i.toString()] = value;
+                        result[i.toString()] = Number(value?.toFixed(2));
                     });
                     return result;
                 }),
@@ -253,11 +271,11 @@ export const [useNpvAll, npvAll] = bind(
                 return zip(from(req.totalCostsDiscounted), investment, consumption, recurring, nonRecurring).pipe(
                     map((values, year) => ({
                         year,
-                        investment: values[1],
-                        consumption: values[2],
-                        recurring: values[3],
-                        nonRecurring: values[4],
-                        total: values[0]
+                        investment: values[1]?.toFixed(2),
+                        consumption: values[2]?.toFixed(2),
+                        recurring: values[3]?.toFixed(2),
+                        nonRecurring: values[4]?.toFixed(2),
+                        total: values[0]?.toFixed(2)
                     })),
                     toArray()
                 );
@@ -288,11 +306,11 @@ export const [useAnnualAltNPV, annualAltNPV] = bind(
             ).pipe(
                 map(([total, investment, consumption, recurring, nonRecurring], year) => ({
                     year,
-                    investment,
-                    consumption,
-                    recurring,
-                    nonRecurring,
-                    total
+                    investment: investment?.toFixed(2),
+                    consumption: consumption?.toFixed(2),
+                    recurring: recurring?.toFixed(2),
+                    nonRecurring: nonRecurring?.toFixed(2),
+                    total: total?.toFixed(2)
                 })),
                 toArray()
             );
@@ -306,14 +324,18 @@ export const [useAltNPV, altNPV] = bind(
     combineLatest([ResultModel.measures$]).pipe(
         map(([measure]) => {
             return measure.map((req) => [
-                { category: "Investment", alternative: req.totalTagFlows["Initial Investment"] },
-                { category: "Energy", subcategory: "Consumption", alternative: req.totalTagFlows.Energy },
+                { category: "Investment", alternative: req.totalTagFlows["Initial Investment"]?.toFixed(2) },
+                { category: "Energy", subcategory: "Consumption", alternative: req.totalTagFlows.Energy?.toFixed(2) },
                 { subcategory: "Demand" },
                 { subcategory: "Rebates" },
                 { category: "Water", subcategory: "Usage" },
                 { subcategory: "Disposal" },
-                { category: "OMR", subcategory: "Recurring", alternative: req.totalTagFlows["OMR Recurring"] },
-                { subcategory: "Non-Recurring", alternative: req.totalTagFlows["OMR Non-Recurring"] },
+                {
+                    category: "OMR",
+                    subcategory: "Recurring",
+                    alternative: req.totalTagFlows["OMR Recurring"]?.toFixed(2)
+                },
+                { subcategory: "Non-Recurring", alternative: req.totalTagFlows["OMR Non-Recurring"]?.toFixed(2) },
                 { category: "Replacement" },
                 { category: "Residual Value" }
             ]);
@@ -335,8 +357,8 @@ export const [useResourceUsage, resourceUsage] = bind(
                     "Energy"
                 ];
 
-                const consumption = fuelTypes.map((fuelType) => measure.totalTagFlows[fuelType]);
-                const emissions = fuelTypes.map((fuelType) => measure.totalTagFlows[fuelType]);
+                const consumption = fuelTypes.map((fuelType) => measure.totalTagFlows[fuelType]?.toFixed(2));
+                const emissions = fuelTypes.map((fuelType) => measure.totalTagFlows[fuelType]?.toFixed(2));
 
                 return [
                     {
