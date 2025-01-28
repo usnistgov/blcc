@@ -4,20 +4,24 @@ import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { Model, hash$, isDirty$ } from "model/Model";
-import { db } from "model/db";
-import { useNavigate } from "react-router-dom";
+import { Model, hash$, isDirty$, sProject$ } from "model/Model";
+import { clearDB, db, getAlternatives, getCosts, getProject, importProject, setHash, setProject } from "model/db";
+import { useMatch, useNavigate } from "react-router-dom";
 import "dexie-export-import";
+import { Subscribe } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import { convert } from "blcc-format/Converter";
-import { defaultProject } from "blcc-format/DefaultProject";
+import { resetToDefaultProject } from "blcc-format/effects";
+import { showMessage } from "components/modal/MessageModal";
 import saveDiscardModal from "components/modal/SaveDiscardModal";
 import { Strings } from "constants/Strings";
-import objectHash from "object-hash";
+import { Effect } from "effect";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { download } from "util/DownloadFile";
+import { sampleMany } from "util/Operators";
 
-const newClick$ = new Subject<void>();
+const [newClick$, newClick] = createSignal<void>();
 const openClick$ = new Subject<void>();
 const saveClick$ = new Subject<void>();
 
@@ -59,10 +63,7 @@ const confirmSave$ = modalSaveClick$.pipe(
  * on the confirmation dialog, or when the confirmation dialog executes a save.
  */
 const new$ = merge(
-    isDirty$.pipe(
-        sample(newClick$),
-        filter((dirty) => !dirty),
-    ),
+    sampleMany(newClick$, [isDirty$]).pipe(filter(([dirty]) => !dirty)),
     merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.NEW)),
 );
 
@@ -72,10 +73,7 @@ const new$ = merge(
  * the confirmation dialog, or when the confirmation dialog executes a save.
  */
 const open$ = merge(
-    isDirty$.pipe(
-        sample(openClick$),
-        filter((dirty) => !dirty),
-    ),
+    sampleMany(openClick$, [isDirty$]).pipe(filter(([dirty]) => !dirty)),
     merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.OPEN)),
 );
 
@@ -91,23 +89,20 @@ async function save(hash: string, filename: string) {
  */
 export default function EditorAppBar() {
     const navigate = useNavigate();
+    const isOnEditorPage = useMatch("/editor");
 
     useSubscribe(
-        new$.pipe(withLatestFrom(Model.defaultReleaseYear$)),
-        async ([, releaseYear]) => {
-            const project = defaultProject(releaseYear);
-
-            // Add default project to db.
-            await db.delete();
-            await db.open();
-            await db.projects.add(project);
-
-            // Save hash so we can overwrite a project that has not changed defaults.
-            await db.dirty.clear();
-            await db.dirty.add({ hash: objectHash({ project, alternatives: [], costs: [] }) });
+        new$,
+        async () => {
+            await Effect.runPromise(
+                Effect.gen(function* () {
+                    const project = yield* resetToDefaultProject;
+                    sProject$.next(project);
+                }),
+            );
 
             // Navigate to general information page after opening file
-            navigate("/editor");
+            if (isOnEditorPage === null) navigate("/editor");
         },
         [navigate],
     );
@@ -121,7 +116,7 @@ export default function EditorAppBar() {
                 <Button
                     type={ButtonType.PRIMARY}
                     icon={mdiFileDocumentPlus}
-                    onClick={() => newClick$.next()}
+                    onClick={() => newClick()}
                     tooltip={Strings.NEW}
                 >
                     New
@@ -142,19 +137,36 @@ export default function EditorAppBar() {
                         event.currentTarget.value = "";
                     }}
                     onChange={async (event) => {
-                        if (event.currentTarget.files !== null) {
-                            const file = event.currentTarget.files[0];
+                        await Effect.runPromise(
+                            Effect.gen(function* () {
+                                if (event.currentTarget.files === null) return;
 
-                            console.log(file);
+                                const file = event.currentTarget.files[0];
 
-                            await db.delete();
-                            await db.open();
+                                yield* clearDB;
 
-                            if (file.type.includes("xml")) convert(file);
-                            else await db.import(file);
+                                if (file.type.includes("xml")) {
+                                    const convertedProject = yield* convert(file);
+                                    yield* setProject(convertedProject);
 
-                            navigate("/editor");
-                        }
+                                    const alternatives = yield* getAlternatives;
+                                    const costs = yield* getCosts;
+                                    yield* setHash(convertedProject, alternatives, costs);
+
+                                    sProject$.next(convertedProject);
+                                    showMessage(
+                                        "Old Format Conversion",
+                                        "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
+                                    );
+                                } else {
+                                    yield* importProject(file);
+                                    const project = yield* getProject(1);
+                                    if (project !== undefined) sProject$.next(project);
+                                }
+                            }),
+                        );
+
+                        if (isOnEditorPage === null) navigate("/editor");
                     }}
                 />
                 <Button
@@ -167,9 +179,9 @@ export default function EditorAppBar() {
                 </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-base-lightest"} id={"project-name"}>
-                    {Model.name.use() || "Untitled Project"}
-                </p>
+                <Subscribe>
+                    <Name />
+                </Subscribe>
                 <div className={"pl-4"}>
                     <Button
                         type={ButtonType.PRIMARY_INVERTED}
@@ -183,5 +195,13 @@ export default function EditorAppBar() {
             </div>
             <HelpButtons />
         </AppBar>
+    );
+}
+
+function Name() {
+    return (
+        <p className={"text-base-lightest"} id={"project-name"}>
+            {Model.name.use() || "Untitled Project"}
+        </p>
     );
 }

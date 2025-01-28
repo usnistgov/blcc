@@ -1,5 +1,7 @@
 import { state, useStateObservable } from "@react-rxjs/core";
 import { Divider } from "antd";
+import type { CapitalCost } from "blcc-format/Format";
+import type { Collection } from "dexie";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
@@ -77,7 +79,9 @@ export default function PhaseIn() {
     }, []);
 
     useEffect(() => {
-        const subscription = default$.subscribe(([phaseIn, collection]) => collection.modify({ phaseIn }));
+        const subscription = default$.subscribe(([phaseIn, collection]) =>
+            (collection as Collection<CapitalCost>).modify({ phaseIn }),
+        );
 
         return () => subscription.unsubscribe();
     }, [default$]);

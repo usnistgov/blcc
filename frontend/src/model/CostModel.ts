@@ -17,50 +17,33 @@ export namespace CostModel {
 
     export const collection$ = id$.pipe(distinctUntilChanged(), DexieOps.byId(db.costs), shareReplay(1));
 
-    export const DexieCostModel = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
+    export const cost = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
     // Write changes back to database
-    DexieCostModel.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
+    cost.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
         collection.modify(next);
     });
 
-    /**
-     * The currently selected cost object as specified by the URL parameter.
-     */
-    export const cost$ = id$.pipe(
-        distinctUntilChanged(),
-        switchMap((id) => liveQuery(() => db.costs.where("id").equals(id).first())),
-        guard(),
-        shareReplay(1),
-    );
+    export const id = new Var(cost, O.optic<Cost>().prop("id"));
 
     /**
      * The type of the currently selected cost.
      */
-    export const type$ = cost$.pipe(map((cost) => cost.type));
-    export const [useType] = bind(type$, CostTypes.OTHER);
+    export const type = new Var(cost, O.optic<Cost>().prop("type"));
 
     /**
      * Whether this cost is a cost or a savings.
      */
-    export const costOrSavings$ = cost$.pipe(map((cost) => cost.costSavings ?? false));
-    export const [useCostOrSavings] = bind(costOrSavings$, false);
+    export const costOrSavings = new Var(cost, O.optic<Cost>().prop("costSavings"));
 
     /**
      * The name of the current cost
      */
-    export const name = new Var(DexieCostModel, O.optic<Cost>().prop("name"));
+    export const name = new Var(cost, O.optic<Cost>().prop("name"));
 
     /**
      * The description of the current cost
      */
-    export const sDescription$ = new Subject<string | undefined>();
-    export const description$ = state(
-        merge(sDescription$, cost$.pipe(map((cost) => cost?.description))).pipe(distinctUntilChanged()),
-        undefined,
-    );
-    sDescription$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([description, collection]) => collection.modify({ description }));
+    export const description = new Var(cost, O.optic<Cost>().prop("description"));
 
     export const sToggleAlt$ = new Subject<ID>();
     sToggleAlt$.pipe(withLatestFrom(id$)).subscribe(([altID, id]) => {
@@ -71,30 +54,10 @@ export namespace CostModel {
                 alt.costs = [...toggle(new Set(alt.costs), id)];
             });
     });
-    //export const [sDescription$, description$] = costModelState((cost) => cost?.description, "description");
 
-    /**
-     * The cost/savings value for this cost
-     */
-    export const sCostSavings$ = new Subject<boolean>();
-    export const costSavings$ = state(
-        merge(sCostSavings$, cost$.pipe(map((cost) => cost?.costSavings ?? false))).pipe(distinctUntilChanged()),
-        false,
-    );
-    sCostSavings$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([costSavings, collection]) => collection.modify({ costSavings }));
+    export namespace Actions {
+        export function load(id: ID) {
+            sId$.next(id);
+        }
+    }
 }
-
-/*function createModelState<A, B, Default = undefined>(
-    input$: Observable<B>,
-    collection$: Observable<Collection<A>>,
-    key: keyof A,
-    init: Default = undefined
-): [Subject<B>, StateObservable<B | Default>] {
-    const subject$ = new Subject<B>();
-    const stream$ = state(merge(subject$, input$).pipe(distinctUntilChanged()), init);
-    subject$.pipe(withLatestFrom(collection$)).subscribe(([value, collection]) => collection.modify({ [key]: value }));
-
-    return [subject$, stream$];
-}*/

@@ -6,7 +6,7 @@ import { combineLatest, from, switchMap, zip } from "rxjs";
 import { map, toArray } from "rxjs/operators";
 import { getOptionalTag } from "util/Util";
 
-type LCCRow = {
+export type lccRow = {
     name: string;
     baseline: boolean;
     initialCost: number;
@@ -38,7 +38,7 @@ export const [useLCCRows, lccRows] = bind(
                         ghgEmissions: measure.totalTagFlows.Emissions,
                         scc: measure.totalTagFlows.SCC,
                         lccScc: measure.totalCosts
-                    } as LCCRow)
+                    } as lccRow)
             )
         )
     ),
@@ -152,7 +152,7 @@ export const [useNPVComparison, npvComparison] = bind(
 export const [useNpvAll, npvAll] = bind(
     combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
         switchMap(([allRequired, optionals]) => {
-            const defaultArray = Array(allRequired[0].totalCostsDiscounted.length).fill(0);
+            const defaultArray = Array(allRequired[0]?.totalCostsDiscounted.length).fill(0);
             const all = allRequired.map((req, index) => {
                 const investment = from(
                     optionals.get(`${index} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray

@@ -1,13 +1,13 @@
 import { CostTypes, type ImplementationContractCost } from "blcc-format/Format";
 import { NumberInput } from "components/input/InputNumber";
+import { Strings } from "constants/Strings";
 import type { Collection } from "dexie";
 import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import { filter, map } from "rxjs/operators";
-import { Strings } from "constants/Strings";
-import { useStateObservable } from "@react-rxjs/core";
+import cost = CostModel.cost;
 
 /**
  * Component for the implementation contract fields in the cost pages
@@ -18,7 +18,7 @@ export default function ImplementationContractCostFields() {
         // If we are on this page that means the cost collection can be narrowed to ImplementationContractCost.
         const collection$ = CostModel.collection$ as Observable<Collection<ImplementationContractCost, number>>;
 
-        const contractCost$ = CostModel.cost$.pipe(
+        const contractCost$ = cost.$.pipe(
             filter((cost): cost is ImplementationContractCost => cost.type === CostTypes.IMPLEMENTATION_CONTRACT),
         );
 
@@ -36,7 +36,7 @@ export default function ImplementationContractCostFields() {
     useDbUpdate(sCost$, collection$, "cost");
     useDbUpdate(sOccurrence$, collection$, "occurrence");
 
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>

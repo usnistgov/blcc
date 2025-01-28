@@ -9,7 +9,7 @@ import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
 import * as htmlToImage from "html-to-image";
 import { db } from "model/db";
-import { costs$, Model, useAlternatives, useProject } from "model/Model";
+import { Model, costs$, useAlternatives, useProject } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -129,7 +129,7 @@ export default function ResultsAppBar() {
             const csvBlob = new Blob([csvData.join("\n")], { type: "text/csv" });
             const url = window.URL.createObjectURL(csvBlob);
             link.href = url;
-            link.download = "blcc_report.csv"; // Set the desired file name
+            link.download = `${project.name}.csv`; // Set the desired file name
             link.click();
             window.URL.revokeObjectURL(url); // Clean up the URL object
         }

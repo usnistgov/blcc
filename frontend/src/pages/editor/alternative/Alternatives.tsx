@@ -2,23 +2,22 @@ import { mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import Title from "antd/es/typography/Title";
 import { type Cost, CostTypes, type EnergyCost, FuelType } from "blcc-format/Format";
+import Info from "components/Info";
 import { Button, ButtonType } from "components/input/Button";
 import Switch from "components/input/Switch";
 import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
+import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
-import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
 import CategoryTable, { type Subcategories } from "pages/editor/alternative/CategoryTable";
 import { useMemo } from "react";
-import { merge, Subject } from "rxjs";
+import { Subject, merge } from "rxjs";
 import { filter, map, withLatestFrom } from "rxjs/operators";
 import { confirm } from "util/Operators";
-import Info from "components/Info";
-import { Strings } from "constants/Strings";
 
 function group<T extends string>(costs: Cost[], keys: T[], extractor: (cost: Cost) => T): Subcategories<T> {
     const result = {};
@@ -66,8 +65,6 @@ const otherCategories$ = AlternativeModel.otherCosts$.pipe(
 );
 
 export default function Alternatives() {
-    useParamSync();
-
     // Set up streams
     const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$, openCostModal$] = useMemo(() => {
         const openCostModal$ = new Subject<CostTypes | FuelType>();

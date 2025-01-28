@@ -1,9 +1,102 @@
 import { Alternative, Project } from "blcc-format/Format";
+import { lccRow } from "./allResultStreams";
 
-const CSVDownload = (project: Project, alternatives: Alternative[], summary, annual, altResults) => {
+type lccBaselineRow = {
+    airr: number;
+    baseline: boolean;
+    deltaEnergy: number;
+    deltaGhg: number;
+    deltaScc: number;
+    dpp: number;
+    initialCost: number;
+    lifeCycleCost?: number; //has to be fixed once lifecycle cost is added to backend
+    name: string | undefined;
+    netSavings: number;
+    sir: number;
+    spp: number;
+};
+
+type lccResourceRow = {
+    category?: string;
+    subcategory: string;
+    [key: string]: string | undefined;
+};
+
+type summary = {
+    lccBaseline: lccBaselineRow[];
+    lccResourceRows: lccResourceRow[];
+    lccRows: lccRow[];
+    npvCosts: { [key: string]: string }[];
+};
+
+// remove this once Luke pushes change
+type npvAllRow = {
+    year: number;
+    investment: number;
+    consumption: number;
+    recurring: number;
+    nonRecurring: number;
+    total: number;
+};
+
+{
+    // remove previous and uncomment this
+    // type npvAllRow = {
+    //     year: number;
+    //     investment: number;
+    //     consumption: number;
+    //     demand: number;
+    //     rebates: number;
+    //     waterUse: number;
+    //     waterDisposal: number;
+    //     recurring: number;
+    //     nonRecurring: number;
+    //     replace: number;
+    //     residualValue: number;
+    //     total: number;
+    // };
+}
+
+type annualNPVComparisonRow = {
+    key: number;
+    year: number;
+    [key: string]: string | number;
+};
+
+type annual = {
+    npvAll: npvAllRow[][];
+    npvComparison: annualNPVComparisonRow[];
+};
+
+type altNpvRow = {
+    category?: string;
+    subcategory?: string;
+    alternative?: number;
+};
+
+type resourceUsageRow = {
+    category?: string;
+    subcategory?: string;
+    emissions?: number;
+    consumption?: number;
+};
+
+type altResults = {
+    altNPV: altNpvRow[][];
+    resourceUsage: resourceUsageRow[][];
+};
+
+const CSVDownload = (
+    project: Project,
+    alternatives: Alternative[],
+    summary: summary,
+    annual: annual,
+    altResults: altResults
+) => {
     let altNames: string[] = alternatives?.map((alt) => alt?.name);
+    console.log(summary, annual, altResults);
 
-    const lccComparison = summary?.lccRows?.map((row) => {
+    const lccComparison = summary?.lccRows?.map((row: lccRow) => {
         return [
             row?.name,
             row?.baseline,
@@ -16,7 +109,7 @@ const CSVDownload = (project: Project, alternatives: Alternative[], summary, ann
         ];
     });
 
-    const lccBaseline = summary?.lccBaseline?.map((row) => {
+    const lccBaseline = summary?.lccBaseline?.map((row: lccBaselineRow) => {
         return [
             row?.name,
             row?.baseline,
@@ -33,11 +126,21 @@ const CSVDownload = (project: Project, alternatives: Alternative[], summary, ann
     });
 
     const npvCosts = summary?.npvCosts?.map((row) => {
-        return [row?.category, row?.subcategory, "$" + row["0"] || "0.00", "$" + row["1"] || "0.00"];
+        const result = [row?.category, row?.subcategory];
+
+        for (let i = 0; i < altNames.length; i++) {
+            result.push("$" + (row[i] || "0.00"));
+        }
+        return result;
     });
 
     const lccResource = summary?.lccResourceRows?.map((row) => {
-        return [row?.category, row?.subcategory, "$" + row["0"] || "0.00", "$" + row["1"] || "0.00"];
+        const result = [row?.category, row?.subcategory];
+
+        for (let i = 0; i < altNames.length; i++) {
+            result.push("$" + (row[i] || "0.00"));
+        }
+        return result;
     });
 
     const summaryResults = [
@@ -84,7 +187,12 @@ const CSVDownload = (project: Project, alternatives: Alternative[], summary, ann
     ];
 
     const npvCashFlow = annual?.npvComparison?.map((alt) => {
-        return [alt.year, "$" + alt["0"] || "0.00", "$" + alt["1"] || "0.00"];
+        const result = [alt.year];
+        for (let i = 0; i < altNames.length; i++) {
+            // @ts-ignore
+            result.push("$" + (alt[i] || "0.00"));
+        }
+        return result;
     });
 
     const annualResultsByAlt = annual?.npvAll?.flatMap((alts, index: number) => {
@@ -107,9 +215,9 @@ const CSVDownload = (project: Project, alternatives: Alternative[], summary, ann
                 "Total"
             ]
         ];
-        alts?.forEach((alt) => {
+        alts?.forEach((alt: npvAllRow) => {
             rows.push([
-                alt.year,
+                `${alt?.year}`,
                 "$" + alt?.investment || "0.00",
                 "$" + alt?.consumption || "0.00",
                 "$" + alt?.recurring || "0.00",
@@ -139,15 +247,15 @@ const CSVDownload = (project: Project, alternatives: Alternative[], summary, ann
         []
     ];
 
-    const alternativeResultsByAlt = (data) => {
-        const result = [];
+    const alternativeResultsByAlt = (data: altResults) => {
+        const result: (string | (string | string[])[])[] = [];
         const { altNPV, resourceUsage } = data;
 
         for (let i = 0; i < altNPV.length; i++) {
             result.push(altNames[i], "", "NPV Cash Flow Comparison", "", ["Cost Type", "", altNames[i]]);
 
-            altNPV[i].forEach((item) => {
-                result.push([item?.category || "", item?.subcategory || "", "$" + (item?.alternative || "0.00")]);
+            altNPV[i]?.forEach((item: altNpvRow) => {
+                result.push([item?.category || "", item?.subcategory || "", `$${item?.alternative}` || "$0.00"]);
             });
 
             result.push("", "Energy and Water use Emissions and Social Cost of GHG", "", [
@@ -157,12 +265,12 @@ const CSVDownload = (project: Project, alternatives: Alternative[], summary, ann
                 "Emissions"
             ]);
 
-            resourceUsage[i].forEach((item) => {
+            resourceUsage[i]?.forEach((item: resourceUsageRow) => {
                 result.push([
-                    item?.category || "",
-                    [`${item?.subcategory}` || ""],
-                    "$" + (item?.consumption || "0.00"),
-                    "$" + (item?.emissions || "0.00")
+                    `${item?.category}` || "",
+                    `${item?.subcategory}` || "",
+                    `$${item?.consumption}` || "$0.00",
+                    `$${item?.emissions}` || "$0.00"
                 ]);
             });
 

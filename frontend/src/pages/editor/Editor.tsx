@@ -1,15 +1,35 @@
+import { Subscribe } from "@react-rxjs/core";
+import { checkDefaultProject } from "blcc-format/effects";
 import EditorAppBar from "components/EditorAppBar";
 import PageWrapper from "components/PageWrapper";
 import Statistics from "components/Statistics";
 import CostNavigation from "components/navigation/CostNavigation";
 import Navigation from "components/navigation/Navigation";
+import { liveQuery } from "dexie";
+import { Effect, Option, Sink, Stream } from "effect";
 import { AnimatePresence } from "framer-motion";
+import { sProject$ } from "model/Model";
+import { db, getProject } from "model/db";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
 import Alternatives from "pages/editor/alternative/Alternatives";
 import GeneralInformation from "pages/editor/general_information/GeneralInformation";
-import { Suspense } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+
+Effect.runPromise(
+    Effect.gen(function* () {
+        const optionDefaultProject = yield* checkDefaultProject;
+
+        if (Option.isSome(optionDefaultProject)) {
+            sProject$.next(Option.getOrThrow(optionDefaultProject));
+            return;
+        }
+
+        const project = yield* getProject(1);
+
+        if (project !== undefined) sProject$.next(project);
+    }),
+);
 
 export default function Editor() {
     const location = useLocation();
@@ -36,9 +56,9 @@ export default function Editor() {
                     <Routes location={location} key={location.key}>
                         <Route
                             element={
-                                <Suspense>
+                                <Subscribe>
                                     <PageWrapper />
-                                </Suspense>
+                                </Subscribe>
                             }
                         >
                             <Route index element={<GeneralInformation />} />

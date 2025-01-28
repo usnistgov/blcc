@@ -125,7 +125,7 @@ export function E3Request(): UnaryFunction<Observable<RequestBuilder>, Observabl
 function costToBuilders(
     cost: Cost,
     studyPeriod: number,
-    emissions: number[] | undefined,
+    emissions: readonly number[] | undefined,
     scc: number[] | undefined,
 ): BcnBuilder[] {
     switch (cost.type) {
@@ -208,7 +208,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
 
 function energyCostToBuilder(
     cost: EnergyCost,
-    emissions: number[] | undefined,
+    emissions: readonly number[] | undefined,
     scc: number[] | undefined,
 ): BcnBuilder[] {
     const result = [];
@@ -387,7 +387,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .subType(BcnSubType.DIRECT)
         .addTag("Replacement Capital", "LCC")
         .life(cost.expectedLife ?? 1)
-        .initialOccurrence(cost.initialOccurrence)
+        .initialOccurrence(cost.initialOccurrence ?? 1)
         .quantity(1)
         .quantityValue(cost.initialCost)
         .quantityValue(1);

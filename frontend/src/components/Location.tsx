@@ -3,7 +3,7 @@ import { TestSelect } from "components/input/TestSelect";
 import { TextInputType } from "components/input/TextInput";
 import { Country, State } from "constants/LOCATION";
 import { Strings } from "constants/Strings";
-import { type LocationModel, Model } from "model/Model";
+import type { LocationModel } from "model/Model";
 import type React from "react";
 
 /**
@@ -12,7 +12,7 @@ import type React from "react";
  * Otherwise, this component is a text input.
  */
 function StateOrProvince<T>({ model }: { model: LocationModel<T> }) {
-    return Model.Location.country.use() === Country.USA ? (
+    return model.country.use() === Country.USA ? (
         <TestSelect
             label={"State"}
             className={"w-full"}
@@ -85,10 +85,10 @@ function setCountryHandler<T>(model: LocationModel<T>): (country: Country) => vo
         // If the country is not the United States, clear the state and zipcode
         // otherwise clear the state/province
         if (country !== Country.USA) {
-            model.state.remove();
-            model.zipcode.remove();
+            model.state.set(undefined);
+            model.zipcode.set(undefined);
         } else {
-            model.stateProvince.remove();
+            model.stateProvince.set(undefined);
         }
 
         // Set the country

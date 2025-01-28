@@ -10,10 +10,10 @@ import * as O from "optics-ts";
 namespace Model {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
 
-    export const initialCost = new Var(CostModel.DexieCostModel, costOptic.prop("initialCost"));
-    export const initialOccurrence = new Var(CostModel.DexieCostModel, costOptic.prop("initialOccurrence"));
-    export const annualRateOfChange = new Var(CostModel.DexieCostModel, costOptic.prop("annualRateOfChange"));
-    export const expectedLife = new Var(CostModel.DexieCostModel, costOptic.prop("expectedLife"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
+    export const initialOccurrence = new Var(CostModel.cost, costOptic.prop("initialOccurrence"));
+    export const annualRateOfChange = new Var(CostModel.cost, costOptic.prop("annualRateOfChange"));
+    export const expectedLife = new Var(CostModel.cost, costOptic.prop("expectedLife"));
 
     export namespace Actions {
         export function setInitialCost(change: number | null) {
@@ -37,7 +37,7 @@ namespace Model {
 }
 
 export default function ReplacementCapitalCostFields() {
-    const isSavings = useStateObservable(CostModel.costSavings$);
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -54,7 +54,7 @@ export default function ReplacementCapitalCostFields() {
                     className={"w-full"}
                     addonBefore={"year"}
                     controls
-                    label={"InitialOccurrence"}
+                    label={"Initial Occurrence"}
                     getter={Model.initialOccurrence.use}
                     onChange={Model.Actions.setInitialOccurrence}
                 />

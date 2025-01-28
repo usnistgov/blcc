@@ -11,7 +11,6 @@ import { Strings } from "constants/Strings";
 import { liveQuery } from "dexie";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
-import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import { alternatives$ } from "model/Model";
 import { db } from "model/db";
@@ -31,7 +30,6 @@ const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternat
 
 export default function AlternativeSummary() {
     const navigate = useNavigate();
-    useParamSync();
 
     const cards = useCards();
 
