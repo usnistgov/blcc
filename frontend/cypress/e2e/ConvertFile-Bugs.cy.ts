@@ -25,8 +25,8 @@ describe("MILCON Non-energy:", () => {
         year1Ele.parent().next().children().should("contain", "50.00%");
     });
 
-    it("displays 4.2% as the nominal discount rate", () => {
-        cy.get("input[id='nominal-discount-rate']").should("have.value", "4.2");
+    it("displays -0.36% as the real discount rate", () => {
+        cy.get("input[id='real-discount-rate']").should("have.value", "-0.36");
     });
 });
 
@@ -47,8 +47,8 @@ describe("FederalFinanced:", () => {
         cy.contains("OK").click();
     });
 
-    it("displays 4.2% as the nominal discount rate", () => {
-        cy.get("input[id='nominal-discount-rate']").should("have.value", "4.2");
+    it("displays 4.24% as the nominal discount rate", () => {
+        cy.get("input[id='nominal-discount-rate']").should("have.value", "4.24");
     });
 
     it("Lighting retrofit displays rate of change of 1.1%", () => {
