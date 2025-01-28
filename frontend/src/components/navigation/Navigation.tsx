@@ -88,19 +88,21 @@ function AlternativesButton() {
 function AlternativeList() {
     const alternatives = useAlternatives();
 
-    if (alternatives.length <= 0) return <p className={"text-base-light"}>No Alternatives</p>;
-
     return (
         <div className={"custom-scrollbar overflow-y-auto"}>
             <div className={"flex flex-col gap-2 pl-8"}>
-                {alternatives.map((alt) => (
-                    <AltButton
-                        key={alt.id}
-                        altID={alt.id ?? 0}
-                        name={alt.name}
-                        icon={alt.baseline ? mdiAlphaBBox : undefined}
-                    />
-                ))}
+                {alternatives.length <= 0 ? (
+                    <p className={"text-base-light"}>No Alternatives</p>
+                ) : (
+                    alternatives.map((alt) => (
+                        <AltButton
+                            key={alt.id}
+                            altID={alt.id ?? 0}
+                            name={alt.name}
+                            icon={alt.baseline ? mdiAlphaBBox : undefined}
+                        />
+                    ))
+                )}
             </div>
         </div>
     );
