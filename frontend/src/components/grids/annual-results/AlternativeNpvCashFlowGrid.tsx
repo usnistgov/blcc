@@ -170,7 +170,6 @@ export default function AlternativeNpvCashFlowGrid() {
     return (
         <div className={"overflow-hidden rounded shadow-lg"}>
             <DataGrid
-                // @ts-ignore
                 rows={rows}
                 columns={columns}
                 style={{

@@ -82,7 +82,7 @@ export default function SelectOrCreate({
             onSearch={(query) => sSearch$.next(query)}
             onChange={(_, option) => {
                 if (Array.isArray(option)) return;
-                sOnChange$.next(option);
+                if (option !== undefined) sOnChange$.next(option);
             }}
             {...selectProps}
         />
