@@ -108,8 +108,8 @@ export type altResults = {
     resourceUsage: resourceUsageRow[][];
 };
 
-const roundObjectValues = (obj: { [key: string | number]: string }) => {
-    const roundedObj = {};
+const roundObjectValues = (obj: { [key: string]: number | string }): { [key: string]: string } => {
+    const roundedObj: { [key: string]: string } = {};
     for (const key in obj) {
         const value = obj[key];
         roundedObj[key] = typeof value === "number" ? value?.toFixed(2) : value; // Round only if it's a number
