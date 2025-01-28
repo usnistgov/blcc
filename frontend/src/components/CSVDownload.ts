@@ -1,4 +1,5 @@
-import { Alternative, Project } from "blcc-format/Format";
+import { Project } from "blcc-format/Format";
+import { db } from "model/db";
 import { lccRow } from "./allResultStreams";
 
 type lccBaselineRow = {
@@ -86,13 +87,23 @@ type altResults = {
     resourceUsage: resourceUsageRow[][];
 };
 
-const CSVDownload = (
-    project: Project,
-    alternatives: Alternative[],
-    summary: summary,
-    annual: annual,
-    altResults: altResults
-) => {
+const fetchData = async () => {
+    try {
+        const result = await db.alternatives.toArray();
+        if (!result || result.length === 0) {
+            console.log("No alternatives found.");
+            return [];
+        }
+        return result;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return [];
+    }
+};
+
+const alternatives = await fetchData();
+
+const CSVDownload = (project: Project[] | undefined, summary: summary, annual: annual, altResults: altResults) => {
     let altNames: string[] = alternatives?.map((alt) => alt?.name);
     console.log(summary, annual, altResults);
 
@@ -285,7 +296,7 @@ const CSVDownload = (
         [new Date().toLocaleTimeString()],
         [],
         ["BLCC Project Results"],
-        [project?.name],
+        [project?.[0]?.name],
         [],
         ["Summary"],
         [],
