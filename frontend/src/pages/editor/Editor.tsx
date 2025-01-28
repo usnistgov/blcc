@@ -8,7 +8,7 @@ import Navigation from "components/navigation/Navigation";
 import { liveQuery } from "dexie";
 import { Effect, Option, Sink, Stream } from "effect";
 import { AnimatePresence } from "framer-motion";
-import useParamSync from "hooks/useParamSync";
+import useParamSync, { Sync } from "hooks/useParamSync";
 import { sProject$ } from "model/Model";
 import { db, getProject, openDB } from "model/db";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
@@ -67,7 +67,14 @@ export default function Editor() {
                             <Route index element={<GeneralInformation />} />
                             <Route path={"alternative"}>
                                 <Route index element={<AlternativeSummary />} />
-                                <Route path={":alternativeID/cost/:costID"} element={<Cost />} />
+                                <Route
+                                    path={":alternativeID/cost/:costID"}
+                                    element={
+                                        <Subscribe fallback={<Sync />}>
+                                            <Cost />
+                                        </Subscribe>
+                                    }
+                                />
                                 <Route path={":alternativeID"} element={<Alternatives />} />
                             </Route>
                         </Route>
