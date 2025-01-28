@@ -11,6 +11,7 @@ import AddCostModal from "components/modal/AddCostModal";
 import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
+import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
 import CategoryTable, { type Subcategories } from "pages/editor/alternative/CategoryTable";
@@ -65,6 +66,8 @@ const otherCategories$ = AlternativeModel.otherCosts$.pipe(
 );
 
 export default function Alternatives() {
+    useParamSync();
+
     // Set up streams
     const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$, openCostModal$] = useMemo(() => {
         const openCostModal$ = new Subject<CostTypes | FuelType>();

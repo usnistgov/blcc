@@ -8,8 +8,9 @@ import Navigation from "components/navigation/Navigation";
 import { liveQuery } from "dexie";
 import { Effect, Option, Sink, Stream } from "effect";
 import { AnimatePresence } from "framer-motion";
+import useParamSync from "hooks/useParamSync";
 import { sProject$ } from "model/Model";
-import { db, getProject } from "model/db";
+import { db, getProject, openDB } from "model/db";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
 import Alternatives from "pages/editor/alternative/Alternatives";
@@ -27,6 +28,8 @@ Effect.runPromise(
 
         const project = yield* getProject(1);
 
+        yield* Effect.log("Retrieving project", project);
+
         if (project !== undefined) sProject$.next(project);
     }),
 );
@@ -42,7 +45,7 @@ export default function Editor() {
                 <AnimatePresence mode={"wait"}>
                     <Routes
                         location={location}
-                        key={location.pathname.startsWith("/editor/alternative/") ? "cost-navigation" : "navigation"}
+                        //key={location.pathname.startsWith("/editor/alternative/") ? "cost-navigation" : "navigation"}
                     >
                         <Route path={"*"} element={<Navigation />}>
                             <Route path={"alternative/:alternativeID"}>
