@@ -8,12 +8,14 @@ import Navigation from "components/navigation/Navigation";
 import { liveQuery } from "dexie";
 import { Effect, Option, Sink, Stream } from "effect";
 import { AnimatePresence } from "framer-motion";
+import useParamSync, { Sync } from "hooks/useParamSync";
 import { sProject$ } from "model/Model";
-import { db, getProject } from "model/db";
+import { db, getProject, openDB } from "model/db";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
 import Alternatives from "pages/editor/alternative/Alternatives";
 import GeneralInformation from "pages/editor/general_information/GeneralInformation";
+import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 Effect.runPromise(
@@ -27,6 +29,8 @@ Effect.runPromise(
 
         const project = yield* getProject(1);
 
+        yield* Effect.log("Retrieving project", project);
+
         if (project !== undefined) sProject$.next(project);
     }),
 );
@@ -39,16 +43,16 @@ export default function Editor() {
             <EditorAppBar />
 
             <div className={"flex h-full overflow-hidden"}>
+                <Routes location={location}>
+                    <Route path={"*"} element={<Navigation />} />
+                </Routes>
+
                 <AnimatePresence mode={"wait"}>
                     <Routes
                         location={location}
                         key={location.pathname.startsWith("/editor/alternative/") ? "cost-navigation" : "navigation"}
                     >
-                        <Route path={"*"} element={<Navigation />}>
-                            <Route path={"alternative/:alternativeID"}>
-                                <Route index path={"*"} element={<CostNavigation />} />
-                            </Route>
-                        </Route>
+                        <Route path={"alternative/:alternativeID/*"} element={<CostNavigation />} />
                     </Routes>
                 </AnimatePresence>
 
@@ -64,7 +68,14 @@ export default function Editor() {
                             <Route index element={<GeneralInformation />} />
                             <Route path={"alternative"}>
                                 <Route index element={<AlternativeSummary />} />
-                                <Route path={":alternativeID/cost/:costID"} element={<Cost />} />
+                                <Route
+                                    path={":alternativeID/cost/:costID"}
+                                    element={
+                                        <Subscribe fallback={<Sync />}>
+                                            <Cost />
+                                        </Subscribe>
+                                    }
+                                />
                                 <Route path={":alternativeID"} element={<Alternatives />} />
                             </Route>
                         </Route>

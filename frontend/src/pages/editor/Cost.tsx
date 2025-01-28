@@ -35,6 +35,7 @@ import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import sToggleAlt$ = CostModel.sToggleAlt$;
 import cost = CostModel.cost;
+import useParamSync from "hooks/useParamSync";
 
 const { Title } = Typography;
 
@@ -105,6 +106,8 @@ async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
 }
 
 export default function Cost() {
+    useParamSync();
+
     const [altsThatInclude$, sConfirmBaselineChange$] = useMemo(() => {
         const altsThatInclude$ = combineLatest([alternatives$, CostModel.id$]).pipe(
             map(
