@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { lccBaselineRow } from "components/allResultStreams";
 const border = "1px solid #000";
 const fontSize = 10;
 
@@ -127,7 +128,7 @@ export const LCCResultsTable = (props: { headers: string[]; rows: lccResults[] }
     );
 };
 
-export const LCCBaselineTable = (props: { headers: string[]; rows: lccBaseline[] }) => {
+export const LCCBaselineTable = (props: { headers: string[]; rows: lccBaselineRow[] }) => {
     const { headers, rows } = props;
     return (
         <View style={{ marginBottom: 10 }}>

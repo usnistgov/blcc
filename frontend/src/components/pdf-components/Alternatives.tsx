@@ -7,16 +7,22 @@ import OtherCostInput from "./OtherCostInput";
 import { styles } from "./pdfStyles";
 import WaterCostInput from "./WaterCostInput";
 
-const Alternatives = (props: { alternatives: Alternative[]; costs: Cost[]; releaseYear: number }) => {
+const Alternatives = (props: {
+    alternatives: Alternative[] | undefined;
+    costs: Cost[] | undefined;
+    releaseYear: number;
+}) => {
     const alts = props.alternatives;
     const costs = props.costs;
     const releaseYear = props.releaseYear;
 
+    console.log(alts, costs);
+
     const getAltCosts = (alt: Alternative) => {
         let altCost = alt.costs;
         const altCosts = [];
-        for (let i = 0; i < costs.length; i++) {
-            if (altCost.includes(costs[i]?.id)) altCosts.push(costs[i]);
+        for (let i = 0; i < costs?.length; i++) {
+            if (altCost.includes(costs?.[i]?.id)) altCosts.push(costs?.[i]);
         }
         return altCosts;
     };
@@ -26,11 +32,11 @@ const Alternatives = (props: { alternatives: Alternative[]; costs: Cost[]; relea
             <hr style={styles.titleDivider} />
             <View style={styles.titleWrapper}>
                 <Text style={{ ...styles.title, marginBottom: 5 }}>Alternatives</Text>
-                <Text style={styles.subTitle}>Total - {alts.length}</Text>
+                <Text style={styles.subTitle}>Total - {alts?.length}</Text>
             </View>
             <hr style={styles.titleDivider} />
             <br />
-            {alts.map((alt: Alternative, idx: number) => {
+            {alts?.map((alt: Alternative, idx: number) => {
                 return (
                     <View key={alt.id}>
                         <Text style={styles.altHeading}>
@@ -51,7 +57,7 @@ const Alternatives = (props: { alternatives: Alternative[]; costs: Cost[]; relea
                             <Text style={styles.text}>Total Costs:&nbsp;</Text>
                             <Text style={styles.value}> {alt.costs.length}</Text>
                         </View>
-                        {getAltCosts(alt).map((cost: Cost) => {
+                        {getAltCosts(alt)?.map((cost: Cost) => {
                             return (
                                 <View style={styles.costContainer} key={cost.id}>
                                     {(cost.type === "Capital" ||

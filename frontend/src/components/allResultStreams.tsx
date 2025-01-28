@@ -17,10 +17,95 @@ export type lccRow = {
     lccScc: number;
 };
 
-type npvRow = {
+export type npvRow = {
     key: number;
     year: number;
     [key: string]: number;
+};
+
+export type lccBaselineRow = {
+    airr: number;
+    baseline: boolean;
+    deltaEnergy: number;
+    deltaGhg: number;
+    deltaScc: number;
+    dpp: number;
+    initialCost: number;
+    lifeCycleCost?: number; //has to be fixed once lifecycle cost is added to backend
+    name: string | undefined;
+    netSavings: number;
+    sir: number;
+    spp: number;
+};
+
+export type lccResourceRow = {
+    category?: string;
+    subcategory: string;
+    [key: string]: string | undefined;
+};
+
+export type summary = {
+    lccBaseline: lccBaselineRow[];
+    lccResourceRows: lccResourceRow[];
+    lccRows: lccRow[];
+    npvCosts: { [key: string]: string }[];
+};
+
+// remove this once Luke pushes change
+export type npvAllRow = {
+    year: number;
+    investment: number;
+    consumption: number;
+    recurring: number;
+    nonRecurring: number;
+    total: number;
+};
+
+{
+    // remove previous and uncomment this
+    // export type npvAllRow = {
+    //     year: number;
+    //     investment: number;
+    //     consumption: number;
+    //     demand: number;
+    //     rebates: number;
+    //     waterUse: number;
+    //     waterDisposal: number;
+    //     recurring: number;
+    //     nonRecurring: number;
+    //     replace: number;
+    //     residualValue: number;
+    //     total: number;
+    // };
+}
+
+export type annualNPVComparisonRow = {
+    key: number;
+    year: number;
+    [key: string]: string | number;
+};
+
+export type annual = {
+    npvAll: npvAllRow[][];
+    npvComparison: annualNPVComparisonRow[];
+};
+
+export type altNpvRow = {
+    category?: string;
+    subcategory?: string;
+    alternative?: number;
+};
+
+export type resourceUsageRow = {
+    category?: string;
+    subcategory?: string;
+    emissions?: number;
+    consumption?: number;
+};
+
+export type altResults = {
+    altNPV: altNpvRow[][];
+    resourceUsage: resourceUsageRow[][];
 };
 
 // summary

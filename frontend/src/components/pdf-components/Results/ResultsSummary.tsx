@@ -1,7 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
-
+import { summary } from "components/allResultStreams";
 import { styles } from "../pdfStyles";
-
 import { LCCBaselineTable, LCCResourceTable, LCCResultsTable, NPVSubTable } from "./ResultsSummaryTables";
 
 const lifeCycleResultsColumns = [
@@ -29,9 +28,8 @@ const lifeCycleResultsBaseline = [
     "Net Savings & SCC Reductions"
 ];
 
-const ResultsSummary = (props: { altNames: string[]; summary }) => {
+const ResultsSummary = (props: { altNames: string[]; summary: summary }) => {
     const { altNames, summary } = props;
-    console.log(summary);
     return (
         <>
             <View style={styles.section}>

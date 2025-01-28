@@ -1,15 +1,22 @@
 import { Text, View } from "@react-pdf/renderer";
 import { Alternative } from "blcc-format/Format";
 
+import { altResults, annual, summary } from "../allResultStreams";
 import { styles } from "./pdfStyles";
 import AlternativeResultsPdf from "./Results/AlternativeResultsPdf";
 import AnnualResultsPdf from "./Results/AnnualResultsPdf";
 import ResultsSummary from "./Results/ResultsSummary";
 
-const Results = (props: { alternatives: Alternative[]; summary; annual; altResults; graphs }) => {
+const Results = (props: {
+    alternatives: Alternative[] | undefined;
+    summary: summary;
+    annual: annual;
+    altResults: altResults;
+    graphs: string[];
+}) => {
     const { alternatives, summary, annual, altResults, graphs } = props;
 
-    const altNames = alternatives.map((alternative) => alternative.name);
+    const altNames = alternatives?.map((alternative) => alternative.name);
 
     return (
         <View style={styles.section}>

@@ -2,10 +2,11 @@ import { Image, Text, View } from "@react-pdf/renderer";
 
 import * as htmlToImage from "html-to-image";
 import { useEffect, useState } from "react";
+import { annual } from "../../allResultStreams";
 import { styles } from "../pdfStyles";
 import { NPVAltTable, NPVComparisonTable } from "./AnnualResultsTables";
 
-const AnnualResultsPdf = (props: { altNames: string[]; annual; graphs }) => {
+const AnnualResultsPdf = (props: { altNames: string[]; annual: annual; graphs: string[] }) => {
     const { altNames, annual, graphs } = props;
     console.log(annual);
     // const [srcs, setSrcs] = useState([]);
@@ -47,14 +48,14 @@ const AnnualResultsPdf = (props: { altNames: string[]; annual; graphs }) => {
                     <View key={name}>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow by Alternative</Text>
-                        <NPVAltTable rows={annual.NpvAll[index]} />
+                        <NPVAltTable rows={annual.npvAll[index]} />
                         <Text style={styles.subHeading}>NPV Cash Flows</Text>
                         <Text style={styles.subHeading}>Tag/Object by Year</Text>
                     </View>
                 ))}
             </View>
             <View>
-                {graphs.map((src, index) => (
+                {graphs.map((src: string, index: number) => (
                     <Image key={index} src={src} />
                 ))}
             </View>

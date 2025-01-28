@@ -3,7 +3,7 @@ import { AnalysisType, DollarMethod, Project, USLocation } from "blcc-format/For
 import { styles } from "./pdfStyles";
 
 const GeneralInformation = (props: { project: Project }) => {
-    const project = props.project;
+    const project = props?.project?.[0];
     return (
         <View style={styles.section}>
             <hr style={styles.titleDivider} />
