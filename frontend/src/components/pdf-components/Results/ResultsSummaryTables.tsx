@@ -181,8 +181,11 @@ export const NPVSubTable = (props: { headers: string[]; rows: npvSubCat[] }) => 
                 <View style={styles.row} key={alt.category + alt.subCategory + "_npvCosts"}>
                     <Text style={{ ...styles.cat, width: 125 }}>{alt.category}</Text>
                     <Text style={{ ...styles.col1, width: 125 }}>{alt.subcategory}</Text>
-                    <Text style={styles.col1}>${alt["0"] || "0.00"}</Text>
-                    <Text style={styles.col1}>${alt["1"] || "0.00"}</Text>
+                    {Array.from({ length: headers.length - 2 }, (_, i) => (
+                        <Text key={i} style={styles.alt}>
+                            ${alt[`${i}`] || "0.00"}
+                        </Text>
+                    ))}
                 </View>
             ))}
         </View>
@@ -207,8 +210,11 @@ export const LCCResourceTable = (props: { headers: string[]; rows: npvSubCat[] }
                 <View style={styles.row} key={alt.category + alt.subCategory + "_resource"}>
                     <Text style={{ ...styles.cat, width: 125 }}>{alt.category}</Text>
                     <Text style={{ ...styles.col1, width: 125 }}>{alt.subcategory}</Text>
-                    <Text style={styles.col1}>${alt["0"] || "0.00"}</Text>
-                    <Text style={styles.col1}>${alt["1"] || "0.00"}</Text>
+                    {Array.from({ length: headers.length - 2 }, (_, i) => (
+                        <Text key={i} style={styles.alt}>
+                            ${alt[`${i}`] || "0.00"}
+                        </Text>
+                    ))}
                 </View>
             ))}
         </View>

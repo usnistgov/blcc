@@ -75,11 +75,14 @@ export const NPVComparisonTable = (props: {
                 ))}
             </View>
 
-            {rows.map((alt: { year: number; key: number; "0": number; "1": number }) => (
+            {rows.map((alt: { year: number; key: number; [key: string]: number }) => (
                 <View style={styles.row} key={alt.key + "_lcc"}>
                     <Text style={styles.alt}>{alt.year}</Text>
-                    <Text style={styles.alt}>${alt["0"] || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt["1"] || "0.00"}</Text>
+                    {Array.from({ length: headers.length - 1 }, (_, i) => (
+                        <Text key={i} style={styles.alt}>
+                            ${alt[`${i}`] || "0.00"}
+                        </Text>
+                    ))}
                 </View>
             ))}
         </View>
