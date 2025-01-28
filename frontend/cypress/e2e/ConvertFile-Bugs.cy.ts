@@ -51,12 +51,12 @@ describe("FederalFinanced:", () => {
         cy.get("input[id='nominal-discount-rate']").should("have.value", "4.24");
     });
 
-    it("Lighting retrofit displays rate of change of 1.1%", () => {
+    it("Lighting retrofit displays rate of change of -0.1%", () => {
         // Navigate to capital component page
         cy.contains("Lighting Retrofit").click();
         cy.contains("Annual Contract Payment").click();
         // Check vlaue
-        cy.get("input[id='value-rate-of-change']").should("have.value", "1.1");
+        cy.get("input[id='value-rate-of-change']").should("have.value", "-0.1");
     });
 
     it("displays CAF of 1.2%", () => {
