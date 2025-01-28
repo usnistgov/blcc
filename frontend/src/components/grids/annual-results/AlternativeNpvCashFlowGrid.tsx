@@ -1,6 +1,6 @@
 import { bind } from "@react-rxjs/core";
 import { ResultModel } from "model/ResultModel";
-import DataGrid from "react-data-grid";
+import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest, from, switchMap, zip } from "rxjs";
 import { map, toArray } from "rxjs/operators";
 import { dollarFormatter } from "util/Util";
@@ -130,7 +130,7 @@ const columns = [
         renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.total)}</p>,
         ...cellClasses,
     },
-];
+] as Column<Row>[];
 
 const [useRows] = bind(
     combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
@@ -149,19 +149,22 @@ const [useRows] = bind(
                 from(optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray),
                 from(optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray),
             ).pipe(
-                map(([total, investment, consumption, recurring, nonRecurring], year) => ({
-                    year,
-                    investment,
-                    consumption,
-                    recurring,
-                    nonRecurring,
-                    total,
-                })),
+                map(
+                    ([total, investment, consumption, recurring, nonRecurring], year) =>
+                        ({
+                            year,
+                            investment,
+                            consumption,
+                            recurring,
+                            nonRecurring,
+                            total,
+                        }) as Row,
+                ),
                 toArray(),
             );
         }),
     ),
-    [],
+    [] as Row[],
 );
 
 export default function AlternativeNpvCashFlowGrid() {

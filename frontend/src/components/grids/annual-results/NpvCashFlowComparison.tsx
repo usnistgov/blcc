@@ -89,7 +89,7 @@ const [useRows] = bind(
             ),
         ),
     ),
-    [],
+    [] as Row[],
 );
 
 const [useSummary] = bind(
@@ -115,8 +115,8 @@ export default function NpvCashFlowComparison() {
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
-                // @ts-ignore
                 rows={rows}
+                // @ts-ignore
                 columns={useColumns()}
                 style={{
                     // @ts-ignore

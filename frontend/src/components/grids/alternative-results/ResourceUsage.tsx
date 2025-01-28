@@ -81,10 +81,10 @@ const [useRows] = bind(
                 { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
                 { subcategory: "Total", consumption: consumption[5], emissions: emissions[5] },
                 { category: "Water", subcategory: "Use" },
-            ];
+            ] as Row[];
         }),
     ),
-    [],
+    [] as Row[],
 );
 
 export default function ResourceUsage() {
@@ -94,7 +94,6 @@ export default function ResourceUsage() {
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
                 className={"h-full"}
-                // @ts-ignore
                 rows={rows}
                 columns={columns}
                 style={{

@@ -94,10 +94,10 @@ const [useRows] = bind(
                 { subcategory: FuelType.PROPANE, ...emissions[4] },
                 { subcategory: "Total", ...emissions[5] },
                 { category: "Water", subcategory: "Use" }, //TODO: Add in water usage category
-            ];
+            ] as Row[];
         }),
     ),
-    [],
+    [] as Row[],
 );
 
 export default function LifeCycleResourceComparison() {
@@ -107,7 +107,6 @@ export default function LifeCycleResourceComparison() {
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
                 className={"h-fit"}
-                // @ts-ignore
                 rows={rows}
                 columns={useColumns()}
                 style={{

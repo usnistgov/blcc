@@ -57,10 +57,10 @@ const [useRows] = bind(
                 { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
                 { category: "Replacement" },
                 { category: "Residual Value" },
-            ];
+            ] as Row[];
         }),
     ),
-    [],
+    [] as Row[],
 );
 
 export default function AlternativeNpvCashFlow() {

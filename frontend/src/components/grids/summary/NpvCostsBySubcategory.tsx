@@ -67,10 +67,10 @@ const [useRows] = bind(
                 { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
                 { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
                 { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
-            ];
+            ] as Row[];
         }),
     ),
-    [],
+    [] as Row[],
 );
 
 export default function NpvCostsBySubcategory() {
@@ -80,7 +80,6 @@ export default function NpvCostsBySubcategory() {
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
                 className={"h-fit"}
-                // @ts-ignore
                 rows={rows}
                 columns={useColumns()}
                 style={{

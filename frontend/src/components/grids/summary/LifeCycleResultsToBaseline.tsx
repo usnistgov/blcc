@@ -136,10 +136,10 @@ const [useRows] = bind(
                 deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
                 deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
                 netSavings: measure.netSavings + measure.totalTagFlows.SCC,
-            }));
+            })) as Row[];
         }),
     ),
-    [],
+    [] as Row[],
 );
 
 export default function LifecycleResultsToBaseline() {
@@ -149,7 +149,6 @@ export default function LifecycleResultsToBaseline() {
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
             <DataGrid
                 className={"h-fit"}
-                // @ts-ignore
                 rows={rows}
                 columns={columns}
                 style={{
