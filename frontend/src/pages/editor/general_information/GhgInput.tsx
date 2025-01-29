@@ -1,11 +1,9 @@
 import { Divider } from "antd";
 import { EmissionsRateType, GhgDataSource, SocialCostOfGhgScenario } from "blcc-format/Format";
 import Info from "components/Info";
-import { Dropdown } from "components/input/Dropdown";
 import { TestSelect } from "components/input/TestSelect";
 import { Strings } from "constants/Strings";
 import { Model } from "model/Model";
-import Nbsp from "util/Nbsp";
 
 export default function GhgInput() {
     return (
@@ -19,13 +17,19 @@ export default function GhgInput() {
                 className={"w-full"}
                 options={Object.values(GhgDataSource)}
                 getter={Model.ghgDataSource.use}
-                onChange={(change) => Model.ghgDataSource.set(change)}
+                onChange={(change) => {
+                    // If we set to NIST_NETL, make sure emissions rate type is Average since we do not have LRM data
+                    // for that data source
+                    if (change === GhgDataSource.NIST_NETL) Model.emissionsRateType.set(EmissionsRateType.AVERAGE);
+
+                    Model.ghgDataSource.set(change);
+                }}
             />
             <TestSelect
                 label={"Emissions Rate Type"}
                 required
                 className={"w-full"}
-                options={Object.values(EmissionsRateType)}
+                optionGetter={Model.useEmissionsRateOptions}
                 getter={Model.emissionsRateType.use}
                 onChange={(change) => Model.emissionsRateType.set(change)}
             />

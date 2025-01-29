@@ -1,49 +1,30 @@
-import { type StateObservable, bind, shareLatest, state } from "@react-rxjs/core";
+import { type StateObservable, bind } from "@react-rxjs/core";
+import { Defaults } from "blcc-format/Defaults";
 import {
     AnalysisType,
-    Case,
     DiscountingMethod,
     DollarMethod,
+    EmissionsRateType,
+    GhgDataSource,
     type Project,
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
-import { fetchEmissions, fetchEscalationRates, fetchScc, jsonResponse } from "blcc-format/api";
-import { decodeEscalationRateResponse } from "blcc-format/schema";
+import { fetchEmissions, fetchEscalationRates, fetchReleaseYears, fetchScc } from "blcc-format/api";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
-import { db, getProject } from "model/db";
+import { db } from "model/db";
 import objectHash from "object-hash";
 import * as O from "optics-ts";
-import {
-    NEVER,
-    type Observable,
-    Subject,
-    combineLatest,
-    distinctUntilChanged,
-    from,
-    map,
-    merge,
-    of,
-    scan,
-    switchMap,
-} from "rxjs";
+import { NEVER, type Observable, Subject, combineLatest, distinctUntilChanged, from, map, scan, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { catchError, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
+import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
-import { DexieOps, guard } from "util/Operators";
-import {
-    calculateNominalDiscountRate,
-    calculateRealDiscountRate,
-    closest,
-    getResponse,
-    makeApiRequest,
-} from "util/Util";
+import { guard } from "util/Operators";
+import { calculateNominalDiscountRate, calculateRealDiscountRate, closest, getResponse } from "util/Util";
 import z, { type ZodError, type ZodType } from "zod";
-
-type ReleaseYearResponse = { year: number; max: number; min: number };
 
 type DiscountRateResponse = {
     release_year: number;
@@ -223,32 +204,6 @@ export const isDirty$ = hash$.pipe(
     shareReplay(1),
 );
 
-/*alternatives$
-    .pipe(
-        validate({
-            name: "At least one baseline alternative",
-            test: (alts) => alts.find((alt) => alt.baseline) !== undefined,
-            message: () => "Must have at least one baseline alternative",
-        }),
-        withLatestFrom(from(liveQuery(() => db.errors.where("id").equals("Has Baseline").toArray()))),
-    )
-    .subscribe(([result, dbValue]) => {
-        if (result === undefined) return;
-
-        const collection = db.errors.where("id").equals("Has Baseline");
-
-        // If the validation succeeded, remove error from db
-        if (result.valid) collection.delete();
-
-        // If an entry does not exist for this input, add it to the db
-        if (dbValue.length <= 0)
-            db.errors.add({ id: "Has Baseline", url: "/editor/alternative", messages: result.messages ?? [] });
-
-        // If an entry exists but the error message has changed, update it
-        collection.modify({ messages: result.messages ?? [] });
-    });
-*/
-
 export type LocationModel<T> = {
     country: Var<T, Country | undefined>;
     city: Var<T, string | undefined>;
@@ -304,26 +259,33 @@ export namespace Model {
      */
     export const description = new Var(DexieModelTest, O.optic<Project>().prop("description"));
 
-    function unwrapReleaseYearResponse(result: ReleaseYearResponse[]) {
-        return result === null ? [2023] : result.map((r) => r.year);
-    }
+    /**
+     * The list of all possible release years that we have data for. If an error occurs while fetching the release year
+     * the list will be defaulted to 2023.
+     */
+    export const [useReleaseYearList] = bind(
+        from(
+            Effect.runPromise(
+                Effect.gen(function* () {
+                    // Get release years and default to [2023] if an error occurs.
+                    const releaseYears = yield* fetchReleaseYears.pipe(
+                        Effect.map((years) => years.map((release) => release.year)),
+                        Effect.catchAll(() => Effect.succeed([Defaults.RELEASE_YEAR])),
+                    );
 
-    export const [useReleaseYearList, releaseYearList$] = bind(
-        ajax.getJSON<ReleaseYearResponse[]>("/api/release_year").pipe(map(unwrapReleaseYearResponse), shareReplay(1)),
+                    yield* Effect.log("Got release years", releaseYears);
+
+                    return releaseYears;
+                }),
+            ),
+        ),
+        [Defaults.RELEASE_YEAR],
     );
 
     /**
      * The release year of the current project
      */
     export const releaseYear = new Var(DexieModelTest, O.optic<Project>().prop("releaseYear"));
-
-    /**
-     * The release year to use as the default. Either the earliest release year or the current year.
-     */
-    export const defaultReleaseYear$ = releaseYearList$.pipe(
-        map((years) => years[0]),
-        catchError(() => of(new Date().getFullYear())),
-    );
 
     type DiscountRateResponse = {
         release_year: number;
@@ -510,6 +472,19 @@ export namespace Model {
      * The Emissions Rate Type for the current project.
      */
     export const emissionsRateType = new Var(DexieModelTest, O.optic<Project>().path("ghg.emissionsRateType"));
+
+    /**
+     * Gives the select options for the emissions rate type. If the data source is NIST_NETL, only give the option for
+     * Average sine we do not have LRM data for that data source.
+     */
+    export const [useEmissionsRateOptions] = bind(
+        ghgDataSource.$.pipe(
+            map((dataSource) =>
+                dataSource === GhgDataSource.NIST_NETL ? [EmissionsRateType.AVERAGE] : Object.values(EmissionsRateType),
+            ),
+        ),
+        Object.values(EmissionsRateType),
+    );
 
     /**
      * Stores the escalation rates for *each* sector. We do this since each cost may vary by sector so we need to

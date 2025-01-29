@@ -1,7 +1,7 @@
-import type { Key, ReactNode } from "react";
-import { Select, SelectProps } from "antd";
+import { Select, type SelectProps } from "antd";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
+import type { Key, ReactNode } from "react";
 
 export function TestSelect<T extends Key>({
     optionGetter,

@@ -15,7 +15,7 @@ const snakeCaseToCamelCase = Schema.transform(Schema.String, Schema.String, {
     encode: (literal) => (literal.match(/[A-Z][a-z]+/g) ?? [""]).map((str) => str.toLowerCase()).join("_"),
 });
 
-class ReleaseYear extends Schema.Class<ReleaseYear>("ReleaseYear")({
+export class ReleaseYear extends Schema.Class<ReleaseYear>("ReleaseYear")({
     year: Schema.Number,
     max: Schema.Number,
     min: Schema.Number,
