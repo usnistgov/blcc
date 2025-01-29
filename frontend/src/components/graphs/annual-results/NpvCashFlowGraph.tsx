@@ -24,28 +24,28 @@ export default function NpvCashFlowGraph() {
         const chart = bb.generate({
             data: {
                 columns: [],
-                type: "bar",
+                type: "bar"
             },
             bindto: `#${GRAPH_ID}`,
             axis: {
                 y: {
                     tick: {
-                        format: dollarFormatter.format,
-                    },
+                        format: dollarFormatter.format
+                    }
                 },
                 x: {
                     label: {
                         text: "Year",
-                        position: "outer-center",
-                    },
-                },
+                        position: "outer-center"
+                    }
+                }
             },
             tooltip: {
                 format: {
                     title: (x) => `Year ${x}`,
-                    value: dollarFormatter.format,
-                },
-            },
+                    value: dollarFormatter.format
+                }
+            }
         });
 
         setChart(chart);
@@ -53,5 +53,5 @@ export default function NpvCashFlowGraph() {
         return () => chart.destroy();
     }, []);
 
-    return <div id={GRAPH_ID} className={"h-[23rem]"} />;
+    return <div id={GRAPH_ID} className={"h-[23rem] result-graph"} />;
 }
