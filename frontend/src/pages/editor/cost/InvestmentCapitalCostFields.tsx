@@ -5,6 +5,8 @@ import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
 import React from "react";
+import { map } from "rxjs";
+import { toPercentage } from "util/Util";
 
 export default function InvestmentCapitalCostFields() {
     const isSavings = CostModel.costOrSavings;
@@ -65,7 +67,8 @@ export default function InvestmentCapitalCostFields() {
                     label={"Cost Adjustment Factor"}
                     subLabel={"for phased-in investments"}
                     wire={CapitalCostModel.sCostAdjustmentFactor$}
-                    value$={CapitalCostModel.costAdjustmentFactor$}
+                    value$={CapitalCostModel.costAdjustmentFactor$.pipe(
+                        map(value => toPercentage(value ?? 0)))}
                 />
             </div>
 

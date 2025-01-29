@@ -39,9 +39,13 @@ import { Effect } from "effect";
 import { XMLParser } from "fast-xml-parser";
 import { db } from "model/db";
 import objectHash from "object-hash";
+import { calculateNominalDiscountRate } from "util/Util";
 
 const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 const parser = new XMLParser();
+
+const DEFAULT_REAL_DISCOUNT_RATE = 0.03;
+const DEFAULT_INFLATION_RATE = 0.012;
 
 const readFile = (file: File) =>
     Effect.async<string>((resume) => {
@@ -77,10 +81,14 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         : [alternativeObjectOrArray];
 
     const studyPeriod = parseStudyPeriod(parseYears(project.Duration));
-    const studyLocation = parseLocation(project.Location)
+    const studyLocation = parseLocation(project.Location);
+    const dollarMethod = convertDollarMethod(project.DollarMethod);
 
-    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation);
-
+    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation, dollarMethod);
+    
+    var calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : DEFAULT_REAL_DISCOUNT_RATE;
+    var calculatedInflationRate: number = project.InflationRate ? project.InflationRate : DEFAULT_INFLATION_RATE;
+    var calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
 
     return {
         version: Version.V1,
@@ -89,14 +97,14 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         analyst: project.Analyst,
         analysisType: convertAnalysisType(project.AnalysisType),
         purpose: convertAnalysisPurpose(project.AnalysisPurpose),
-        dollarMethod: convertDollarMethod(project.DollarMethod),
+        dollarMethod: dollarMethod,
         studyPeriod,
         case: Case.REF,
         constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
         discountingMethod: convertDiscountMethod(project.DiscountingMethod),
-        realDiscountRate: project.DiscountRate,
-        nominalDiscountRate: undefined,
-        inflationRate: project.InflationRate,
+        realDiscountRate: calculatedRealDR,
+        nominalDiscountRate: calculatedNominalDR,
+        inflationRate: calculatedInflationRate,
         location: studyLocation,
         alternatives: newAlternatives,
         costs: newCosts,
@@ -212,7 +220,7 @@ type CostComponent =
     | "NonRecurringCost";
 
 // biome-ignore lint: No need to type XML format
-async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number, studyLocation: USLocation): Promise<[ID[], ID[]]> {
+async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number, studyLocation: USLocation, dollarMethod: DollarMethod): Promise<[ID[], ID[]]> {
     const costCache = new Map<string, ID>();
 
     const newAlternatives = await Promise.all(
@@ -243,7 +251,7 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
 
             for (const cost of costs) {
                 const hash = objectHash(cost);
-                const costID = await convertCost(cost, studyPeriod, studyLocation);
+                const costID = await convertCost(cost, studyPeriod, studyLocation, dollarMethod);
 
                 if (!costCache.has(hash)) costCache.set(hash, costID);
             }
@@ -268,7 +276,7 @@ function renameSubComponent(name: string) {
 }
 
 // biome-ignore lint: No need to type XML format
-async function convertCost(cost: any, studyPeriod: number, studyLocation: USLocation) {
+async function convertCost(cost: any, studyPeriod: number, studyLocation: USLocation, dollarMethod: DollarMethod) {
     const type: CostComponent = cost.type;
     switch (type) {
         case "CapitalReplacement":
@@ -291,7 +299,9 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
+                recurring: {
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod)
+                }
             } as OMRCost);
         case "RecurringCost":
             return db.costs.add({
@@ -300,8 +310,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                rateOfRecurrence: 1, //parseUseIndex(cost["Index"], studyPeriod)
+                recurring: {
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
+                    rateOfRecurrence: 1
+                }
             } as OMRCost);
         case "CapitalComponent":
             return db.costs.add({
@@ -312,12 +324,12 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 amountFinanced: cost.AmountFinanced,
                 annualRateOfChange: undefined,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
-                costAdjustment: parseEscalation(cost.Escalation, studyPeriod),
+                costAdjustment: parseEscalation(cost.Escalation, studyPeriod) ?? dollarMethod == DollarMethod.CONSTANT ? 0 : DEFAULT_INFLATION_RATE,
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost.ResaleValueFactor
                     ? ({
                           approach: DollarOrPercent.PERCENT,
-                          value: cost.ResaleValueFactor * 100 as number,
+                          value: cost.ResaleValueFactor as number,
                       } as ResidualValue)
                     : undefined,
             } as CapitalCost);
@@ -356,8 +368,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
+                recurring: {
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
+                    rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value
+                }
             } as RecurringContractCost);
         case "NonRecurringContractCost":
             return db.costs.add({

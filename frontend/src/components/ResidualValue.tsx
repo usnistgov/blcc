@@ -7,6 +7,8 @@ import Switch from "components/input/Switch";
 import { Strings } from "constants/Strings";
 import { ResidualValueModel } from "model/ResidualValueModel";
 import { useMemo } from "react";
+import { map } from "rxjs";
+import { toPercentage } from "util/Util";
 
 /**
  * Component to display the inputs associated with residual value
@@ -54,7 +56,8 @@ export default function ResidualValue() {
                         }
                         label={"Value"}
                         allowEmpty
-                        value$={ResidualValueModel.value$}
+                        value$={ResidualValueModel.value$.pipe(
+                            map(value => toPercentage(value ?? 0)))}
                         wire={ResidualValueModel.sValue$}
                     />
                 </div>
