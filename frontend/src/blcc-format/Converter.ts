@@ -81,9 +81,10 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         : [alternativeObjectOrArray];
 
     const studyPeriod = parseStudyPeriod(parseYears(project.Duration));
-    const studyLocation = parseLocation(project.Location)
+    const studyLocation = parseLocation(project.Location);
+    const dollarMethod = convertDollarMethod(project.DollarMethod);
 
-    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation);
+    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation, dollarMethod);
     
     var calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : DEFAULT_REAL_DISCOUNT_RATE;
     var calculatedInflationRate: number = project.InflationRate ? project.InflationRate : DEFAULT_INFLATION_RATE;
@@ -96,7 +97,7 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
         analyst: project.Analyst,
         analysisType: convertAnalysisType(project.AnalysisType),
         purpose: convertAnalysisPurpose(project.AnalysisPurpose),
-        dollarMethod: convertDollarMethod(project.DollarMethod),
+        dollarMethod: dollarMethod,
         studyPeriod,
         case: Case.REF,
         constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
@@ -219,7 +220,7 @@ type CostComponent =
     | "NonRecurringCost";
 
 // biome-ignore lint: No need to type XML format
-async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number, studyLocation: USLocation): Promise<[ID[], ID[]]> {
+async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number, studyLocation: USLocation, dollarMethod: DollarMethod): Promise<[ID[], ID[]]> {
     const costCache = new Map<string, ID>();
 
     const newAlternatives = await Promise.all(
@@ -250,7 +251,7 @@ async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: n
 
             for (const cost of costs) {
                 const hash = objectHash(cost);
-                const costID = await convertCost(cost, studyPeriod, studyLocation);
+                const costID = await convertCost(cost, studyPeriod, studyLocation, dollarMethod);
 
                 if (!costCache.has(hash)) costCache.set(hash, costID);
             }
@@ -275,7 +276,7 @@ function renameSubComponent(name: string) {
 }
 
 // biome-ignore lint: No need to type XML format
-async function convertCost(cost: any, studyPeriod: number, studyLocation: USLocation) {
+async function convertCost(cost: any, studyPeriod: number, studyLocation: USLocation, dollarMethod: DollarMethod) {
     const type: CostComponent = cost.type;
     switch (type) {
         case "CapitalReplacement":
@@ -319,7 +320,7 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 amountFinanced: cost.AmountFinanced,
                 annualRateOfChange: undefined,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
-                costAdjustment: parseEscalation(cost.Escalation, studyPeriod),
+                costAdjustment: parseEscalation(cost.Escalation, studyPeriod) ?? dollarMethod == DollarMethod.CONSTANT ? 0 : DEFAULT_INFLATION_RATE,
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost.ResaleValueFactor
                     ? ({
