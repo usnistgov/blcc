@@ -76,7 +76,7 @@ describe("Clicking the open button", () => {
         const discountingConvention = "Mid Year";
         const country = "United States of America";
         const state = "MD";
-        const discountRate = "-0.008";
+        const discountRate = "-0.8";
 
         beforeEach(() => {
             cy.visit("http://localhost:5173/editor");
