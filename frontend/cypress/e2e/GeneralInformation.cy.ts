@@ -17,7 +17,7 @@ describe("General Information page", () => {
 
     describe("has a nav bar that", () => {
         it("can navigate to alternative summary page", () => {
-            cy.contains("Alternative Summary").click();
+            cy.contains("Alternatives").click();
             cy.url().should("include", "/alternative");
         });
     });
@@ -168,7 +168,7 @@ describe("General Information page", () => {
 
             // Enter a value
             const newValue = 10;
-            studyPeriodInput.clear().type(newValue.toString());
+            studyPeriodInput.clear().type("{backspace}").type(newValue.toString());
 
             // Check that the input field is filled
             studyPeriodInput.should("have.value", newValue);
