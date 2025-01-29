@@ -8,7 +8,7 @@ import AnnualResultsPdf from "./Results/AnnualResultsPdf";
 import ResultsSummary from "./Results/ResultsSummary";
 
 const Results = (props: {
-    alternatives: Alternative[] | undefined;
+    alternatives: Alternative[];
     summary: summary;
     annual: annual;
     altResults: altResults;
@@ -16,7 +16,7 @@ const Results = (props: {
 }) => {
     const { alternatives, summary, annual, altResults, graphs } = props;
 
-    const altNames = alternatives?.map((alternative) => alternative.name);
+    const altNames: string[] | undefined = alternatives?.map((alternative) => alternative.name);
 
     return (
         <View style={styles.section}>

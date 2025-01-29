@@ -1,5 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
-import { Alternative, Cost } from "blcc-format/Format";
+import { Alternative, Cost, Recurring } from "blcc-format/Format";
 import CapitalCostInput from "./CapitalCostInput";
 import ContractCostInput from "./ContractCostInput";
 import EnergyCostInput from "./EnergyCostInput";
@@ -8,8 +8,8 @@ import { styles } from "./pdfStyles";
 import WaterCostInput from "./WaterCostInput";
 
 const Alternatives = (props: {
-    alternatives: Alternative[] | undefined;
-    costs: Cost[] | undefined;
+    alternatives: Alternative[];
+    costs: Cost[] & { recurring: Recurring; occurrence: string; cost: string };
     releaseYear: number;
 }) => {
     const alts = props.alternatives;
@@ -21,7 +21,8 @@ const Alternatives = (props: {
     const getAltCosts = (alt: Alternative) => {
         let altCost = alt.costs;
         const altCosts = [];
-        for (let i = 0; i < costs?.length; i++) {
+        let len = costs?.length || 0;
+        for (let i = 0; i < len; i++) {
             if (altCost.includes(costs?.[i]?.id)) altCosts.push(costs?.[i]);
         }
         return altCosts;

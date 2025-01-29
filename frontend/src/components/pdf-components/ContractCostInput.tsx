@@ -1,5 +1,11 @@
 import { Text, View } from "@react-pdf/renderer";
 import {
+    Cost,
+    ImplementationContractCost,
+    RecurringContractCost,
+    Recurring as RecurringType
+} from "blcc-format/Format";
+import {
     AnnualRateOfChange,
     CostName,
     CostSavings,
@@ -12,7 +18,10 @@ import {
 } from "./CostComponents";
 import { styles } from "./pdfStyles";
 
-const ContractCostInput = (props: { cost; year: number }) => {
+const ContractCostInput = (props: {
+    cost: Cost & { recurring: RecurringType; occurrence: string; cost: string };
+    year: number;
+}) => {
     //TODO: specify type for cost
     const { cost, year } = props;
     return (

@@ -39,7 +39,7 @@ const fetchData = async () => {
 const [alternatives, costs] = await fetchData();
 
 const Pdf = (props: {
-    project: Project[] | undefined;
+    project: Project[];
     summary: summary;
     annual: annual;
     altResults: altResults;
@@ -64,7 +64,7 @@ const Pdf = (props: {
             </Page>
             <Page size="LETTER">
                 <NISTHeader />
-                <Alternatives alternatives={alternatives} costs={costs} releaseYear={project?.releaseYear} />
+                <Alternatives alternatives={alternatives} costs={costs} releaseYear={project[0]?.releaseYear} />
                 <PageNumber />
             </Page>
             <Page size="LETTER">

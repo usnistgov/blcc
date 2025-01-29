@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { WaterCost } from "blcc-format/Format";
 import { CostName, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
 import { styles } from "./pdfStyles";
 
@@ -27,7 +28,7 @@ const localStyles = StyleSheet.create({
     }
 });
 
-const WaterCostInput = (props: { cost; year: number }) => {
+const WaterCostInput = (props: { cost: WaterCost; year: number }) => {
     //TODO: specify type for cost
     const cost = props.cost;
     const year = props.year;

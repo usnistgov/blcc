@@ -1,9 +1,10 @@
 import { Text, View } from "@react-pdf/renderer";
 import { CostName, CostPerUnit, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
 
+import { EnergyCost } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 
-const EnergyCostInput = (props: { cost; year: number }) => {
+const EnergyCostInput = (props: { cost: EnergyCost; year: number }) => {
     //TODO: specify type for cost
     const { cost, year } = props;
     return (

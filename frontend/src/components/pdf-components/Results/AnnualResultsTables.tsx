@@ -58,10 +58,7 @@ const npvAltTableHeaders = [
     ]
 ];
 
-export const NPVComparisonTable = (props: {
-    headers: string[];
-    rows: { year: number; key: number; "0": number; "1": number }[];
-}) => {
+export const NPVComparisonTable = (props: { headers: string[]; rows: { year: number; [key: string]: number }[] }) => {
     const { headers, rows } = props;
 
     return (
@@ -75,7 +72,7 @@ export const NPVComparisonTable = (props: {
                 ))}
             </View>
 
-            {rows.map((alt: { year: number; key: number; [key: string]: number }) => (
+            {rows?.map((alt: { year: number; [key: string]: number }) => (
                 <View style={styles.row} key={alt.key + "_lcc"}>
                     <Text style={styles.alt}>{alt.year}</Text>
                     {Array.from({ length: headers.length - 1 }, (_, i) => (

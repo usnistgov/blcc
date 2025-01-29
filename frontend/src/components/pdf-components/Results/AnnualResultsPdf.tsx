@@ -6,7 +6,7 @@ import { annual } from "../../allResultStreams";
 import { styles } from "../pdfStyles";
 import { NPVAltTable, NPVComparisonTable } from "./AnnualResultsTables";
 
-const AnnualResultsPdf = (props: { altNames: string[]; annual: annual; graphs: string[] }) => {
+const AnnualResultsPdf = (props: { altNames: string[] | undefined; annual: annual; graphs: string[] }) => {
     const { altNames, annual, graphs } = props;
     console.log(annual);
     // const [srcs, setSrcs] = useState([]);
@@ -41,14 +41,14 @@ const AnnualResultsPdf = (props: { altNames: string[]; annual: annual; graphs: s
 
             <View>
                 <Text style={styles.subHeading}>NPV Cash Flow Comparison</Text>
-                <NPVComparisonTable headers={["Year", ...altNames]} rows={annual.npvComparison} />
+                <NPVComparisonTable headers={["Year", ...altNames]} rows={annual?.npvComparison} />
                 <Text style={styles.subHeading}>NPV Cash Flows</Text>
                 <Text style={styles.subHeading}>Annual Results for Alternative</Text>
-                {altNames.map((name, index) => (
+                {altNames?.map((name, index) => (
                     <View key={name}>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow by Alternative</Text>
-                        <NPVAltTable rows={annual.npvAll[index]} />
+                        <NPVAltTable rows={annual?.npvAll[index]} />
                         <Text style={styles.subHeading}>NPV Cash Flows</Text>
                         <Text style={styles.subHeading}>Tag/Object by Year</Text>
                     </View>

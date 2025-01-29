@@ -28,7 +28,7 @@ const lifeCycleResultsBaseline = [
     "Net Savings & SCC Reductions"
 ];
 
-const ResultsSummary = (props: { altNames: string[]; summary: summary }) => {
+const ResultsSummary = (props: { altNames: string[] | undefined; summary: summary }) => {
     const { altNames, summary } = props;
     return (
         <>

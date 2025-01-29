@@ -1,4 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
+import { EscalationRate, Recurring as RecurringType } from "blcc-format/Format";
 import InputTable from "./InputTable";
 import { styles } from "./pdfStyles";
 

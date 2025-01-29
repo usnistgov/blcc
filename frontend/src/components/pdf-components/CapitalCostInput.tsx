@@ -1,4 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
+import { CapitalCost, Recurring as RecurringType } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
     CostAdjustmentFactor,
@@ -16,8 +17,7 @@ import {
 } from "./CostComponents";
 import { styles } from "./pdfStyles";
 
-const CapitalCostInput = (props: { cost; year: number }) => {
-    //TODO: specify type for cost
+const CapitalCostInput = (props: { cost: CapitalCost & { recurring: RecurringType }; year: number }) => {
     const { cost, year } = props;
     return (
         <View key={cost.id}>

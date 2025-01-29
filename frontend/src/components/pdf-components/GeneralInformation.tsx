@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import { AnalysisType, DollarMethod, Project, USLocation } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 
-const GeneralInformation = (props: { project: Project }) => {
+const GeneralInformation = (props: { project: Project[] }) => {
     const project = props?.project?.[0];
     return (
         <View style={styles.section}>

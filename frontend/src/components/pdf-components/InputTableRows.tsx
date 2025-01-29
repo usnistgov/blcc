@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
 
 const InputTableRows = ({ tableRows }: { tableRows }) => {
     const rows: JSX.Element[] = [];
+    console.log(tableRows);
 
     tableRows?.forEach((item) =>
         rows.push(

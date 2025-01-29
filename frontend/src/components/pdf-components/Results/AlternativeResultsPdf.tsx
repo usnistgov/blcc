@@ -1,8 +1,9 @@
 import { Text, View } from "@react-pdf/renderer";
+import { altResults } from "components/allResultStreams";
 import { styles } from "../pdfStyles";
 import { NpvAltCashflowTable, NpvAltResourceTable } from "./AlternativeResultsTables";
 
-const AlternativeResultsPdf = (props: { altNames: string[]; altResults }) => {
+const AlternativeResultsPdf = (props: { altNames: string[] | undefined; altResults: altResults }) => {
     const { altNames, altResults } = props;
 
     return (
@@ -14,15 +15,15 @@ const AlternativeResultsPdf = (props: { altNames: string[]; altResults }) => {
             <hr style={styles.titleDivider} />
 
             <View>
-                {altNames.map((name, index) => (
+                {altNames?.map((name, index) => (
                     <View key={name}>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow Comparison</Text>
-                        <NpvAltCashflowTable headers={["Cost Type", "", name]} rows={altResults.altNPV[index]} />
+                        <NpvAltCashflowTable headers={["Cost Type", "", name]} rows={altResults?.altNPV?.[index]} />
                         <Text style={styles.subHeading}>Energy and Water use, Emissions, and Social Cost of GHG</Text>
                         <NpvAltResourceTable
                             headers={["Resource Type", "", "Consumption", "Emissions"]}
-                            rows={altResults.resourceUsage[index]}
+                            rows={altResults?.resourceUsage?.[index]}
                         />
                         <Text style={styles.subHeading}>Share of LCC</Text>
                         <Text style={styles.subHeading}>Share of Energy Use</Text>

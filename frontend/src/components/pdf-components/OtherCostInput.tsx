@@ -9,9 +9,10 @@ import {
     Recurring
 } from "./CostComponents";
 
+import { OtherCost } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 
-const OtherCostInput = (props: { cost; year: number }) => {
+const OtherCostInput = (props: { cost: OtherCost; year: number }) => {
     //TODO: specify type for cost
     const { cost, year } = props;
     return (
