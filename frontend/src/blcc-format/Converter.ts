@@ -299,7 +299,9 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
+                recurring: {
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod)
+                }
             } as OMRCost);
         case "RecurringCost":
             return db.costs.add({
@@ -308,8 +310,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                rateOfRecurrence: 1, //parseUseIndex(cost["Index"], studyPeriod)
+                recurring: {
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
+                    rateOfRecurrence: 1
+                }
             } as OMRCost);
         case "CapitalComponent":
             return db.costs.add({
@@ -364,8 +368,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
-                rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
+                recurring: {
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
+                    rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value
+                }
             } as RecurringContractCost);
         case "NonRecurringContractCost":
             return db.costs.add({

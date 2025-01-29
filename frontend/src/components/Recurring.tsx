@@ -7,7 +7,7 @@ import { type RateChangeInfo, RecurringModel } from "model/costs/RecurringModel"
 import type React from "react";
 import { useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { percentFormatter } from "util/Util";
+import { percentFormatter, toPercentage } from "util/Util";
 
 /**
  * Renders the value for the rate of change or unit rate of chang as a percent.
@@ -157,7 +157,7 @@ function ValueRateOfChangeInput() {
             <TestNumberInput
                 id={"value-rate-of-change"}
                 className={"w-full"}
-                getter={RecurringModel.Value.rate.use as () => number}
+                getter={() => +(toPercentage((RecurringModel.Value.rate.use() as number) ?? 0).toFixed(2))}
                 onChange={RecurringModel.Value.Actions.setConstant}
                 addonAfter={"%"}
             />
