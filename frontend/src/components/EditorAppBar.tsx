@@ -18,7 +18,7 @@ import { Strings } from "constants/Strings";
 import { Effect } from "effect";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
-import { download } from "util/DownloadFile";
+import { download, downloadBlccFile } from "util/DownloadFile";
 import { sampleMany } from "util/Operators";
 
 const [newClick$, newClick] = createSignal<void>();
@@ -106,7 +106,7 @@ export default function EditorAppBar() {
         },
         [navigate],
     );
-    useSubscribe(hash$.pipe(sample(saveClick$)), async (hash) => await save(hash, "download.blcc"));
+    useSubscribe(saveClick$, () => Effect.runPromise(downloadBlccFile));
     useSubscribe(open$, () => document.getElementById("open")?.click());
 
     return (
