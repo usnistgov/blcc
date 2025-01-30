@@ -1,6 +1,8 @@
+const testUrl = "http://localhost:5173";
+
 describe("MILCON Non-energy:", () => {
     beforeEach(() => {  
-        cy.visit("http://localhost:5173/editor");
+        cy.visit(`${testUrl}/editor`);
     
         // Wait for page to fully load
         cy.contains("Project Name").should("exist");
@@ -32,7 +34,7 @@ describe("MILCON Non-energy:", () => {
 
 describe("FederalFinanced:", () => {
     beforeEach(() => {  
-        cy.visit("http://localhost:5173/editor");
+        cy.visit(`${testUrl}/editor`);
     
         // Wait for page to fully load
         cy.contains("Project Name").should("exist");
@@ -70,7 +72,7 @@ describe("FederalFinanced:", () => {
 
 describe("FEMP Energy:", () => {
     beforeEach(() => {  
-        cy.visit("http://localhost:5173/editor");
+        cy.visit(`${testUrl}/editor`);
     
         // Wait for page to fully load
         cy.contains("Project Name").should("exist");
