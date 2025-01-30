@@ -10,6 +10,11 @@ export default defineConfig({
             "/api": "http://localhost:8080",
         },
     },
+    preview: {
+        proxy: {
+            "/api": "http://localhost:8080",
+        },
+    },
     build: {
         assetsInlineLimit: 0,
         //outDir: "../backend/public/dist",

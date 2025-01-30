@@ -1,6 +1,12 @@
+variables:
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
+  POSTGRES_DB: BLCC
+
 stages:
   - build
   - docker
+  - test
   - deploy
 
 backend-build:
@@ -10,6 +16,13 @@ backend-build:
     - cd backend
     - rustup target add "x86_64-unknown-linux-musl"
     - cargo build --release --locked --target "x86_64-unknown-linux-musl"
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/main'
+        paths:
+          - './backend/*'
+          - './frontend/*'
   cache:
     - key:
         files:
@@ -32,6 +45,13 @@ frontend-build:
   script:
     - pnpm install
     - pnpm run build
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/main'
+        paths:
+          - './frontend/*'
+          - './backend/*'
   cache:
     - key:
         files:
@@ -41,10 +61,79 @@ frontend-build:
   artifacts:
     paths:
       - frontend/dist/*
+      - root/.cache/Cypress/*
+
+
+testing:
+  image: cypress/browsers:22.13.1
+  services:
+    - name: docker.nist.gov:4567/eldst/blcc:db
+      alias: postgres
+  stage: test
+  before_script:
+    - cd frontend
+    - corepack enable pnpm
+    - pnpm config set @lrd:registry=$CI_API_V4_URL/projects/$E3_SDK_PROJECT_ID/packages/npm/
+    - pnpm config set //gitlab.nist.gov/gitlab/api/v4/projects/$E3_SDK_PROJECT_ID/packages/npm/:_authToken="$E3_SDK_PROJECT_TOKEN"
+    - pnpm config list
+    - cd ../backend
+    - echo "DATABASE_URL=postgres://admin:MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj@postgres/BLCC" >> .env
+    - echo "ALLOWED_ORIGIN=http://localhost:8080" >> .env
+    - echo "E3_URL=https://e3test.el.nist.gov/api/v2/analysis" >> .env
+    - echo "E3_API_KEY=$E3_API_KEY" >> .env
+  script: 
+    - cd ../backend
+    - apt update && apt install curl libssl-dev build-essential -y
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y
+    - ~/.cargo/bin/cargo build
+    - ~/.cargo/bin/cargo run &
+    - cd ../frontend
+    - pnpm install
+    - pnpm cypress install
+    - pnpm run dev &
+    - pnpm cypress run
+
+docker-db-build:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: docker
+  tags: [dind]
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/main'
+        paths:
+          - './database/*'
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - cd database
+    - docker build -t $CI_REGISTRY_IMAGE:db .
+    - docker push $CI_REGISTRY_IMAGE:db
+
+# Builds 
+docker-build:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: docker
+  tags: [dind]
+  rules: 
+    - !reference [frontend-build, rules]
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:latest -f gitlab-dockerfile .
+    - docker push $CI_REGISTRY_IMAGE:latest
+  needs:
+    - job: "frontend-build"
+      artifacts: true
+    - job: "backend-build"
+      artifacts: true
 
 include:
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/docker-build@1.1.1
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.1.1
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.2.0
     inputs:
       url: haproxy-p.el.nist.gov:9000
       name: blcc
