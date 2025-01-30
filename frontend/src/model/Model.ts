@@ -247,7 +247,7 @@ export namespace Model {
     /**
      * The name of the current project.
      */
-    export const name = new Var(DexieModelTest, O.optic<Project>().prop("name"), z.string().max(10));
+    export const name = new Var(DexieModelTest, O.optic<Project>().prop("name"), z.string().max(50));
 
     /**
      * The analyst for the current project
