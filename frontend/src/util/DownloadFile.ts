@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { exportDB, getProject, hashCurrent } from "model/db";
+import { exportDB, getProject, hashCurrentAndSet } from "model/db";
 
 /**
  * Accepts a JSON object and a filename and converts it to a string and downloads the file.
@@ -24,7 +24,7 @@ export const downloadBlccFile = Effect.gen(function* () {
 
     if (project === undefined) return;
 
-    yield* hashCurrent;
+    yield* hashCurrentAndSet;
     const blob = yield* exportDB;
     download(blob, `${project.name}.blcc`);
 });

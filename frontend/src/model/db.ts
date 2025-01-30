@@ -65,8 +65,20 @@ export const getAlternatives = Effect.promise(() => db.alternatives.toArray());
 export const getCosts = Effect.promise(() => db.costs.toArray());
 export const importProject = (file: File) => Effect.promise(() => db.import(file));
 export const clearHash = Effect.promise(() => db.dirty.clear());
+export const getResults = Effect.promise(() => db.results.get());
 
 export const hashCurrent = Effect.gen(function* () {
+    const project = yield* getProject(1);
+
+    if (project === undefined) return;
+
+    const alternatives = yield* getAlternatives;
+    const costs = yield* getCosts;
+
+    return objectHash({ project, alternatives, costs });
+});
+
+export const hashCurrentAndSet = Effect.gen(function* () {
     const project = yield* getProject(1);
 
     if (project === undefined) return;
