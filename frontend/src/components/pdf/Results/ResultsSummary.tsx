@@ -1,6 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { Summary } from "components/allResultStreams";
-import { styles } from "../pdfStyles";
+import type { Summary } from "blcc-format/ExportTypes";
+import { styles } from "components/pdf/pdfStyles";
 import { LCCBaselineTable, LCCResourceTable, LCCResultsTable, NPVSubTable } from "./ResultsSummaryTables";
 
 const lifeCycleResultsColumns = [
@@ -28,8 +28,12 @@ const lifeCycleResultsBaseline = [
     "Net Savings & SCC Reductions",
 ];
 
-const ResultsSummary = (props: { altNames: string[] | undefined; summary: Summary }) => {
-    const { altNames, summary } = props;
+type ResultSummaryProps = {
+    altNames: string[];
+    summary: Summary;
+};
+
+export default function ResultsSummary({ altNames, summary }: ResultSummaryProps) {
     return (
         <>
             <View style={styles.section}>
@@ -41,7 +45,7 @@ const ResultsSummary = (props: { altNames: string[] | undefined; summary: Summar
             </View>
             <View>
                 <Text style={styles.subHeading}>Life Cycle Results Comparison</Text>
-                <LCCResultsTable headers={lifeCycleResultsColumns} rows={summary.lccRows} />
+                <LCCResultsTable headers={lifeCycleResultsColumns} rows={summary.lccComparisonRows} />
                 <Text style={styles.subHeading}>Life Cycle Results Relative to Baseline Alternative</Text>
                 <LCCBaselineTable headers={lifeCycleResultsBaseline} rows={summary.lccBaseline} />
                 <Text style={styles.subHeading}>NPV Costs by Cost Subcategory</Text>
@@ -51,6 +55,4 @@ const ResultsSummary = (props: { altNames: string[] | undefined; summary: Summar
             </View>
         </>
     );
-};
-
-export default ResultsSummary;
+}

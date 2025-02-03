@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { Cost } from "blcc-format/Format";
+import { percentFormatter } from "util/Util";
 import InputTableRows from "./InputTableRows";
 
 const border = "1px solid #000";
@@ -14,27 +14,30 @@ const styles = StyleSheet.create({
         color: "#fff",
         textAlign: "center",
         backgroundColor: "#005fa3ff",
-        border
+        border,
     },
     year: {
         width: "50px",
         borderRight: border,
-        fontSize
+        fontSize,
     },
     value: {
         width: "130px",
-        fontSize
-    }
+        fontSize,
+    },
 });
 
-const InputTable = (props: { cost: Cost; header: string; inputRows: number[]; year: number }) => {
-    //TODO: specify type for cost
+type InputTableProps = {
+    header: string;
+    inputRows: number[];
+    year: number;
+};
 
-    const { header, inputRows, year } = props;
-
-    const tableRows = inputRows?.map((val: number, idx: number) => {
-        return [year + idx, `${val * 100}%`];
-    });
+const InputTable = ({ header, inputRows, year }: InputTableProps) => {
+    const tableRows = inputRows.map((val: number, i: number): [number, string] => [
+        year + i,
+        percentFormatter.format(val),
+    ]);
 
     return (
         <View>

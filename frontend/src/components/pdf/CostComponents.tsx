@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
-import { EscalationRate, Recurring as RecurringType } from "blcc-format/Format";
+import type { Recurring as RecurringType } from "blcc-format/Format";
+import { percentFormatter } from "util/Util";
 import InputTable from "./InputTable";
 import { styles } from "./pdfStyles";
 
@@ -8,18 +9,18 @@ interface Props {
         type?: string;
         name?: string;
         description?: string;
-        costSavings?: Boolean;
+        costSavings?: boolean;
         initialCost?: number;
         costPerUnit?: number;
         expectedLifetime?: number;
         costAdjustment?: number;
         initialOccurrence?: number;
         annualRateOfChange?: number;
-        recurring?: any; // TODO: specify the correct type
+        recurring?: RecurringType;
         rateOfRecurrence?: number;
         useIndex?: number | number[];
         phaseIn?: number[];
-        escalation?: any; // TODO: specify the correct type
+        escalation?: number | number[];
     };
     year?: number;
 }
@@ -114,7 +115,7 @@ export const AnnualRateOfChange = ({ cost }: Props) => (
 export const Recurring = ({ cost }: Props) => (
     <View style={styles.key}>
         <Text style={styles.text}>Recurring:&nbsp;</Text>
-        <Text style={styles.value}> {cost?.recurring ? "Yes" : "No"}</Text>
+        <Text style={styles.value}> {cost?.recurring !== undefined ? "Yes" : "No"}</Text>
     </View>
 );
 
@@ -140,14 +141,14 @@ export const RateOfRecurrence = ({ cost }: Props) => (
     </>
 );
 export const UseIndex = ({ cost, year }: Props) => {
-    const value = Array.isArray(cost?.useIndex);
+    const isArray = Array.isArray(cost?.useIndex);
     return (
-        <View style={value ? { margin: 0 } : styles.key}>
+        <View style={isArray ? { margin: 0 } : styles.key}>
             <Text style={styles.text}>Usage Index:&nbsp;</Text>
-            {value ? (
+            {isArray ? (
                 <View style={{ marginBottom: 6 }}>
                     <View style={{ margin: 2 }} />
-                    <InputTable cost={cost} header={"Usage (%)"} inputRows={cost?.useIndex} year={year} />
+                    <InputTable header={"Usage (%)"} inputRows={(cost.useIndex as number[]) ?? []} year={year ?? -1} />
                 </View>
             ) : (
                 <Text style={styles.value}> {cost?.useIndex}%</Text>
@@ -162,25 +163,24 @@ export const PhaseIn = ({ cost, year }: Props) => (
             <View style={styles.tableWrapper}>
                 <Text style={styles.text}>Phase In:&nbsp;</Text>
                 <View style={{ margin: 2 }} />
-                <InputTable cost={cost} header="Phase In (%)" inputRows={cost?.phaseIn} year={year} />
+                <InputTable header="Phase In (%)" inputRows={cost?.phaseIn} year={year ?? -1} />
             </View>
         )}
     </>
 );
 
 export const RateOfChangeValue = ({ cost, year }: Props) => {
-    const value = Array.isArray(cost?.recurring?.rateOfChangeValue);
+    const isArray = Array.isArray(cost?.recurring?.rateOfChangeValue);
     return (
-        <View style={value ? { margin: 0 } : styles.key}>
+        <View style={isArray ? { margin: 0 } : styles.key}>
             <Text style={styles.text}>Rate Of Change of Value:&nbsp;</Text>
-            {value ? (
+            {isArray ? (
                 <View style={{ marginBottom: 6 }}>
                     <View style={{ margin: 2 }} />
                     <InputTable
-                        cost={cost}
                         header={"Value Rate of Change (%)"}
-                        inputRows={cost?.recurring?.rateOfChangeValue}
-                        year={year}
+                        inputRows={cost?.recurring?.rateOfChangeValue as number[]}
+                        year={year ?? -1}
                     />
                 </View>
             ) : (
@@ -191,18 +191,17 @@ export const RateOfChangeValue = ({ cost, year }: Props) => {
 };
 
 export const RateOfChangeUnits = ({ cost, year }: Props) => {
-    const value = Array.isArray(cost?.recurring?.rateOfChangeUnits);
+    const isArray = Array.isArray(cost?.recurring?.rateOfChangeUnits);
     return (
-        <View style={value ? { margin: 0 } : styles.key}>
+        <View style={isArray ? { margin: 0 } : styles.key}>
             <Text style={styles.text}>Rate Of Change Units:&nbsp;</Text>
-            {value ? (
+            {isArray ? (
                 <View style={{ marginBottom: 6 }}>
                     <View style={{ margin: 2 }} />
                     <InputTable
-                        cost={cost}
                         header={"Unit Rate of Change (%)"}
-                        inputRows={cost?.recurring?.rateOfChangeUnits}
-                        year={year}
+                        inputRows={cost?.recurring?.rateOfChangeUnits as number[]}
+                        year={year ?? -1}
                     />
                 </View>
             ) : (
@@ -220,15 +219,10 @@ export const EscalationRates = ({ cost, year }: Props) => (
                 {Array.isArray(cost?.escalation) ? (
                     <View style={{ marginBottom: 6 }}>
                         <View style={{ margin: 2 }} />
-                        <InputTable
-                            cost={cost}
-                            header={"Escalation Rates (%)"}
-                            inputRows={cost?.escalation}
-                            year={year}
-                        />
+                        <InputTable header={"Escalation Rates (%)"} inputRows={cost?.escalation} year={year ?? -1} />
                     </View>
                 ) : (
-                    <Text style={styles.value}> {cost?.escalation}%</Text>
+                    <Text style={styles.value}>{percentFormatter.format((cost?.escalation as number) ?? 0)}</Text>
                 )}
             </View>
         ) : null}

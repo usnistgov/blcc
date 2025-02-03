@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { WaterCost } from "blcc-format/Format";
+import type { WaterCost } from "blcc-format/Format";
 import { CostName, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
 import { styles } from "./pdfStyles";
 
@@ -15,23 +15,25 @@ const localStyles = StyleSheet.create({
         textAlign: "center",
         backgroundColor: "#005fa3ff",
         border,
-        width: "300px"
+        width: "300px",
     },
     year: {
         width: "50px",
         borderRight: border,
-        fontSize
+        fontSize,
     },
     value: {
         width: "130px",
-        fontSize
-    }
+        fontSize,
+    },
 });
 
-const WaterCostInput = (props: { cost: WaterCost; year: number }) => {
-    //TODO: specify type for cost
-    const cost = props.cost;
-    const year = props.year;
+type WaterCostInputProps = {
+    cost: WaterCost;
+    year: number;
+};
+
+export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -56,7 +58,7 @@ const WaterCostInput = (props: { cost: WaterCost; year: number }) => {
                 </View>
                 {cost?.usage?.map((use) => {
                     return (
-                        <View style={styles.table}>
+                        <View key={use.season} style={styles.table}>
                             <Text style={styles.alt}>{use?.season}</Text>
                             <Text style={styles.alt}>
                                 {use?.amount}/{cost?.unit}
@@ -87,7 +89,7 @@ const WaterCostInput = (props: { cost: WaterCost; year: number }) => {
                 </View>
                 {cost?.disposal?.map((dis) => {
                     return (
-                        <View style={styles.table}>
+                        <View key={dis.season} style={styles.table}>
                             <Text style={styles.alt}>{dis?.season}</Text>
                             <Text style={styles.alt}>
                                 {dis?.amount}/{cost?.unit}
@@ -105,6 +107,4 @@ const WaterCostInput = (props: { cost: WaterCost; year: number }) => {
             <UseIndex cost={cost} year={year} />
         </View>
     );
-};
-
-export default WaterCostInput;
+}

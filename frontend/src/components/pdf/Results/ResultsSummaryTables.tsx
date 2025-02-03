@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { LccBaselineRow } from "components/allResultStreams";
+import type { CategorySubcategoryRow, LccBaselineRow, LccComparisonRow } from "util/ResultCalculations";
+import { dollarFormatter } from "util/Util";
+
 const border = "1px solid #000";
 const fontSize = 10;
 
@@ -63,73 +65,46 @@ const styles = StyleSheet.create({
     },
 });
 
-type lccResults = {
-    name: string;
-    baseline: boolean;
-    initialCost: number;
-    lifeCycleCost: number;
-    energy: number;
-    ghgEmissions: number;
-    scc: number;
-    lccScc: number;
+type LccResultsTableProps = {
+    headers: string[];
+    rows: LccComparisonRow[];
 };
 
-type lccBaseline = {
-    name: string;
-    baseline: boolean;
-    sir: number;
-    airr: number;
-    spp: number;
-    dpp: number;
-    initialCost: number;
-    deltaEnergy: number;
-    deltaGhg: number;
-    deltaScc: number;
-    netSavings: number;
-};
-
-type npvSubCat = {
-    category: string;
-    subcategory: string;
-} & {
-    [key: string]: number;
-};
-
-export const LCCResultsTable = (props: { headers: string[]; rows: lccResults[] }) => {
-    //TODO: specify type for cost
-
-    const { headers, rows } = props;
-
+export function LCCResultsTable({ headers, rows }: LccResultsTableProps) {
     return (
         <View style={{ marginBottom: 10, maxWidth: 800 }}>
             {/* results Table Header */}
             <View style={styles.container}>
                 {headers.map((header) => (
-                    <Text style={styles.value} key={header + "_lcc"}>
+                    <Text style={styles.value} key={`${header}_lcc`}>
                         {header}
                     </Text>
                 ))}
             </View>
 
             {rows.map((alt) => (
-                <View style={styles.row} key={alt.name + "_lcc"}>
+                <View style={styles.row} key={`${alt.name}_lcc`}>
                     <Text style={styles.alt}>{alt.name}</Text>
                     {/* change to base cost */}
-                    <Text style={styles.alt}>${alt.initialCost || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.initialCost || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.lifeCycleCost || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.energy || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.ghgEmissions || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.scc || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.lccScc || "0.00"}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.lifeCycleCost)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.energy)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.ghgEmissions)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.scc)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.lccScc)}</Text>
                 </View>
             ))}
         </View>
     );
+}
+
+type LccBaselineTableProps = {
+    headers: string[];
+    rows: LccBaselineRow[];
 };
 
-export const LCCBaselineTable = (props: { headers: string[]; rows: LccBaselineRow[] }) => {
-    const { headers, rows } = props;
+export function LCCBaselineTable({ headers, rows }: LccBaselineTableProps) {
     return (
         <View style={{ marginBottom: 10 }}>
             {/* results Table Header */}
@@ -137,7 +112,7 @@ export const LCCBaselineTable = (props: { headers: string[]; rows: LccBaselineRo
                 {headers.map((header) => {
                     const width = ["SIRR", "AIRR", "SPP", "DPP"].includes(header) ? 75 : 114;
                     return (
-                        <Text style={{ ...styles.value, width }} key={header + "_lccBaseline"}>
+                        <Text style={{ ...styles.value, width }} key={`${header}_lccBaseline`}>
                             {header}
                         </Text>
                     );
@@ -145,78 +120,79 @@ export const LCCBaselineTable = (props: { headers: string[]; rows: LccBaselineRo
             </View>
 
             {rows.map((alt) => (
-                <View style={styles.row} key={alt.name + "_lccBaseline"}>
+                <View style={styles.row} key={`${alt.name}_lccBaseline`}>
                     <Text style={styles.alt}>{alt.name}</Text>
-                    <Text style={styles.alt}>${alt.initialCost || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.initialCost || "0.00"}</Text>
-                    <Text style={styles.smallCol}>${alt.sir || "0.00"}</Text>
-                    <Text style={styles.smallCol}>${alt.airr || "0.00"}</Text>
-                    <Text style={styles.smallCol}>${alt.spp || "0.00"}</Text>
-                    <Text style={styles.smallCol}>${alt.dpp || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.deltaEnergy || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.deltaGhg || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.deltaScc || "0.00"}</Text>
-                    <Text style={styles.alt}>${alt.netSavings || "0.00"}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
+                    <Text style={styles.smallCol}>{dollarFormatter.format(alt.sir)}</Text>
+                    <Text style={styles.smallCol}>{dollarFormatter.format(alt.airr)}</Text>
+                    <Text style={styles.smallCol}>{dollarFormatter.format(alt.spp)}</Text>
+                    <Text style={styles.smallCol}>{dollarFormatter.format(alt.dpp)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.deltaEnergy)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.deltaGhg)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.deltaScc)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.netSavings)}</Text>
                 </View>
             ))}
         </View>
     );
+}
+
+type NpvSubCatProps = {
+    headers: string[];
+    rows: CategorySubcategoryRow[];
 };
 
-export const NPVSubTable = (props: { headers: string[]; rows: npvSubCat[] }) => {
-    const { headers, rows } = props;
-
+export function NPVSubTable({ headers, rows }: NpvSubCatProps) {
     return (
         <View style={{ marginBottom: 10, maxWidth: 500 }}>
             {/* results Table Header */}
             <View style={styles.container}>
                 {headers.map((header) => (
-                    <Text style={styles.header1} key={header + "_npvCosts"}>
+                    <Text style={styles.header1} key={`${header}_npvCosts`}>
                         {header}
                     </Text>
                 ))}
             </View>
 
             {rows.map((alt) => (
-                <View style={styles.row} key={alt.category + alt.subCategory + "_npvCosts"}>
+                <View style={styles.row} key={`${alt.category}_${alt.subCategory}_npvCosts`}>
                     <Text style={{ ...styles.cat, width: 125 }}>{alt.category}</Text>
                     <Text style={{ ...styles.col1, width: 125 }}>{alt.subcategory}</Text>
                     {Array.from({ length: headers.length - 2 }, (_, i) => (
-                        <Text key={i} style={styles.alt}>
-                            ${alt[`${i}`] || "0.00"}
+                        <Text key={`${alt.category}_${alt.subCategory}_npvCosts_${i}`} style={styles.alt}>
+                            {dollarFormatter.format(alt[`${i}`])}
                         </Text>
                     ))}
                 </View>
             ))}
         </View>
     );
-};
+}
 
-export const LCCResourceTable = (props: { headers: string[]; rows: npvSubCat[] }) => {
-    const { headers, rows } = props;
-
+export function LCCResourceTable({ headers, rows }: NpvSubCatProps) {
     return (
         <View style={{ marginBottom: 10, maxWidth: 500 }}>
             {/* results Table Header */}
             <View style={styles.container}>
                 {headers.map((header) => (
-                    <Text style={styles.header1} key={header + "_resource"}>
+                    <Text style={styles.header1} key={`${header}_resource`}>
                         {header}
                     </Text>
                 ))}
             </View>
 
             {rows.map((alt) => (
-                <View style={styles.row} key={alt.category + alt.subCategory + "_resource"}>
+                <View style={styles.row} key={`${alt.category}_${alt.subCategory}_resource`}>
                     <Text style={{ ...styles.cat, width: 125 }}>{alt.category}</Text>
                     <Text style={{ ...styles.col1, width: 125 }}>{alt.subcategory}</Text>
                     {Array.from({ length: headers.length - 2 }, (_, i) => (
-                        <Text key={i} style={styles.alt}>
-                            ${alt[`${i}`] || "0.00"}
+                        <Text key={`${alt.category}_${alt.subcategory}_resource_${i}`} style={styles.alt}>
+                            {dollarFormatter.format(alt[`${i}`])}
                         </Text>
                     ))}
                 </View>
             ))}
         </View>
     );
-};
+}

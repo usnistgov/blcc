@@ -1,54 +1,25 @@
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
-import type { Project } from "blcc-format/Format";
+import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
+import type { Alternative, Cost, Project } from "blcc-format/Format";
+import Alternatives from "components/pdf/Alternatives";
+import GeneralInformation from "components/pdf/GeneralInformation";
+import NISTHeader from "components/pdf/NISTHeader";
+import PageNumber from "components/pdf/PageNumber";
+import PdfDisclaimer from "components/pdf/PdfDisclaimer";
+import Results from "components/pdf/Results";
+import { styles } from "components/pdf/pdfStyles";
 
-import { db } from "model/db";
-import type { AltResults, Annual, Summary } from "./allResultStreams";
-import Alternatives from "./pdf-components/Alternatives";
-import GeneralInformation from "./pdf-components/GeneralInformation";
-import NISTHeader from "./pdf-components/NISTHeader";
-import PageNumber from "./pdf-components/PageNumber";
-import PdfDisclaimer from "./pdf-components/PdfDisclaimer";
-import Results from "./pdf-components/Results";
-import { styles } from "./pdf-components/pdfStyles";
-
-const fetchData = async () => {
-    try {
-        const [alternatives, costs] = await Promise.all([
-            db.alternatives.toArray().then((result) => {
-                if (result === undefined || result.length === 0) {
-                    console.log("No alternatives found.");
-                    return [];
-                }
-                return result;
-            }),
-            db.costs.toArray().then((result) => {
-                if (result === undefined || result.length === 0) {
-                    console.log("No costs found.");
-                    return [];
-                }
-                return result;
-            }),
-        ]);
-        return [alternatives, costs];
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        return [[], []];
-    }
-};
-
-const [alternatives, costs] = await fetchData();
-
-const Pdf = (props: {
-    project: Project[];
+type PdfProps = {
+    project: Project;
+    alternatives: Alternative[];
+    costs: Cost[];
     summary: Summary;
     annual: Annual;
     altResults: AltResults;
     graphSources: string[];
-}) => {
-    const { project, summary, annual, altResults, graphSources } = props;
+};
 
-    console.log(project, alternatives, costs);
-
+export default function Pdf({ project, alternatives, costs, summary, annual, altResults, graphSources }: PdfProps) {
     return (
         <Document>
             <Page style={styles.page} size="LETTER">
@@ -64,7 +35,7 @@ const Pdf = (props: {
             </Page>
             <Page size="LETTER">
                 <NISTHeader />
-                <Alternatives alternatives={alternatives} costs={costs} releaseYear={project[0]?.releaseYear} />
+                <Alternatives alts={alternatives} costs={costs} releaseYear={project.releaseYear} />
                 <PageNumber />
             </Page>
             <Page size="LETTER">
@@ -81,6 +52,4 @@ const Pdf = (props: {
             </Page>
         </Document>
     );
-};
-
-export default Pdf;
+}

@@ -23,7 +23,13 @@ import { ajax } from "rxjs/internal/ajax/ajax";
 import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
-import { calculateNominalDiscountRate, calculateRealDiscountRate, closest, getResponse } from "util/Util";
+import {
+    calculateNominalDiscountRate,
+    calculateRealDiscountRate,
+    closest,
+    findBaselineID,
+    getResponse,
+} from "util/Util";
 import z, { type ZodError, type ZodType } from "zod";
 
 type DiscountRateResponse = {
@@ -165,7 +171,8 @@ export const alternatives$ = from(liveQuery(() => db.alternatives.toArray())).pi
 export const [useAlternatives, alt$] = bind(alternatives$, []);
 
 export const baselineID$ = alternatives$.pipe(
-    map((alternatives) => alternatives.find((alternative) => alternative.baseline)?.id ?? -1),
+    map((alternatives) => findBaselineID(alternatives)),
+    guard(),
 );
 
 export const costIDs$ = sProject$.pipe(map((p) => p.costs));

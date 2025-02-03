@@ -1,10 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
-import {
-    Cost,
-    ImplementationContractCost,
-    RecurringContractCost,
-    Recurring as RecurringType
-} from "blcc-format/Format";
+import type { ImplementationContractCost } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
     CostName,
@@ -12,25 +7,21 @@ import {
     Description,
     InitialCost,
     InitialOccurence,
-    RateOfChangeValue,
-    RateOfRecurrence,
-    Recurring
 } from "./CostComponents";
 import { styles } from "./pdfStyles";
 
-const ContractCostInput = (props: {
-    cost: Cost & { recurring: RecurringType; occurrence: string; cost: string };
-    year: number;
-}) => {
-    //TODO: specify type for cost
-    const { cost, year } = props;
+type ImplementationContractCostInputProps = {
+    cost: ImplementationContractCost;
+};
+
+export default function ImplementationContractCostInput({ cost }: ImplementationContractCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
 
             <Description cost={cost} />
 
-            {cost?.occurrence ? (
+            {cost.occurrence ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Occurrence:&nbsp;</Text>
                     <Text style={styles.value}> Year - {cost?.occurrence}</Text>
@@ -41,9 +32,9 @@ const ContractCostInput = (props: {
 
             <CostSavings cost={cost} />
 
-            {cost?.cost ? (
+            {cost.cost ? (
                 <View style={styles.key}>
-                    {cost?.costSavings ? (
+                    {cost.costSavings ? (
                         <Text style={styles.text}>Savings:&nbsp;</Text>
                     ) : (
                         <Text style={styles.text}>Cost:&nbsp;</Text>
@@ -55,16 +46,6 @@ const ContractCostInput = (props: {
             <InitialCost cost={cost} />
 
             <AnnualRateOfChange cost={cost} />
-
-            <Recurring cost={cost} />
-            {cost?.recurring ? (
-                <>
-                    <RateOfRecurrence cost={cost} year={year} />
-                    <RateOfChangeValue cost={cost} year={year} />
-                </>
-            ) : null}
         </View>
     );
-};
-
-export default ContractCostInput;
+}

@@ -1,11 +1,14 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { AltResults } from "components/allResultStreams";
+import type { AltResults } from "blcc-format/ExportTypes";
 import { styles } from "../pdfStyles";
 import { NpvAltCashflowTable, NpvAltResourceTable } from "./AlternativeResultsTables";
 
-const AlternativeResultsPdf = (props: { altNames: string[] | undefined; altResults: AltResults }) => {
-    const { altNames, altResults } = props;
+type AlternativeResultsPdfProps = {
+    altNames: string[];
+    altResults: AltResults;
+};
 
+export default function AlternativeResultsPdf({ altNames, altResults }: AlternativeResultsPdfProps) {
     return (
         <View style={styles.section}>
             <hr style={styles.titleDivider} />
@@ -15,11 +18,14 @@ const AlternativeResultsPdf = (props: { altNames: string[] | undefined; altResul
             <hr style={styles.titleDivider} />
 
             <View>
-                {altNames?.map((name, index) => (
+                {altNames.map((name, index) => (
                     <View key={name}>
                         <Text>{name}</Text>
                         <Text style={styles.subHeading}>NPV Cash Flow Comparison</Text>
-                        <NpvAltCashflowTable headers={["Cost Type", "", name]} rows={altResults?.altNPV?.[index]} />
+                        <NpvAltCashflowTable
+                            headers={["Cost Type", "", name]}
+                            rows={altResults.alternativeNpvCashflowTotal[index]}
+                        />
                         <Text style={styles.subHeading}>Energy and Water use, Emissions, and Social Cost of GHG</Text>
                         <NpvAltResourceTable
                             headers={["Resource Type", "", "Consumption", "Emissions"]}
@@ -32,6 +38,4 @@ const AlternativeResultsPdf = (props: { altNames: string[] | undefined; altResul
             </View>
         </View>
     );
-};
-
-export default AlternativeResultsPdf;
+}

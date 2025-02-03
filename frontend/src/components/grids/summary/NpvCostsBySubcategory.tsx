@@ -4,14 +4,8 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
+import { type CategorySubcategoryRow, createNpvCategoryRow } from "util/ResultCalculations";
 import { dollarFormatter, getOptionalTag } from "util/Util";
-
-type Row = {
-    category: string;
-    subcategory: string;
-} & {
-    [key: string]: number;
-};
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
@@ -26,11 +20,11 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
-                        renderCell: ({ row }: { row: Row }) => (
+                        renderCell: ({ row }: { row: CategorySubcategoryRow }) => (
                             <p className={"text-right"}>{dollarFormatter.format(row[i.toString()] ?? 0)}</p>
                         ),
                         ...cellClasses,
-                    }) as Column<Row>,
+                    }) as Column<CategorySubcategoryRow>,
             );
 
             cols.unshift(
@@ -55,22 +49,9 @@ const [useColumns] = bind(
 
 const [useRows] = bind(
     combineLatest([ResultModel.measures$, ResultModel.alternativeNames$]).pipe(
-        map(([measures]) => {
-            return [
-                { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
-                { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
-                { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
-                { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
-                { category: "Water", subcategory: "Usage" },
-                { subcategory: "Disposal " },
-                { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
-                { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
-                { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
-                { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
-            ] as Row[];
-        }),
+        map(([measures]) => createNpvCategoryRow(measures)),
     ),
-    [] as Row[],
+    [],
 );
 
 export default function NpvCostsBySubcategory() {
@@ -88,7 +69,9 @@ export default function NpvCostsBySubcategory() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowClass={(_row: CategorySubcategoryRow, index: number) =>
+                    index % 2 === 0 ? "bg-white" : "bg-base-lightest"
+                }
                 rowGetter={rows}
                 rowsCount={rows.length}
             />

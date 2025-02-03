@@ -1,4 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
+import type { OtherCost, OtherNonMonetary } from "blcc-format/Format";
 import {
     CostName,
     Description,
@@ -6,15 +7,16 @@ import {
     RateOfChangeUnits,
     RateOfChangeValue,
     RateOfRecurrence,
-    Recurring
-} from "./CostComponents";
+    Recurring,
+} from "components/pdf/CostComponents";
+import { styles } from "components/pdf/pdfStyles";
 
-import { OtherCost } from "blcc-format/Format";
-import { styles } from "./pdfStyles";
+type OtherNonMonetaryCostInputProps = {
+    cost: OtherNonMonetary;
+    year: number;
+};
 
-const OtherCostInput = (props: { cost: OtherCost; year: number }) => {
-    //TODO: specify type for cost
-    const { cost, year } = props;
+export default function OtherNonMonetaryCostInput({ cost, year }: OtherNonMonetaryCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -32,23 +34,7 @@ const OtherCostInput = (props: { cost: OtherCost; year: number }) => {
                 </View>
             ) : null}
 
-            {cost?.costOrBenefit ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Cost or Benefit:&nbsp;</Text>
-                    <Text style={styles.value}>{cost?.costOrBenefit}</Text>
-                </View>
-            ) : null}
-
             <InitialOccurence cost={cost} />
-
-            {cost?.valuePerUnit ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Value per Unit:&nbsp;</Text>
-                    <Text style={styles.value}>
-                        {cost?.valuePerUnit} per {cost?.unit}
-                    </Text>
-                </View>
-            ) : null}
 
             {cost?.numberOfUnits ? (
                 <View style={styles.key}>
@@ -70,6 +56,4 @@ const OtherCostInput = (props: { cost: OtherCost; year: number }) => {
             ) : null}
         </View>
     );
-};
-
-export default OtherCostInput;
+}

@@ -1,12 +1,14 @@
 import { Text, View } from "@react-pdf/renderer";
+import type { EnergyCost, USLocation } from "blcc-format/Format";
 import { CostName, CostPerUnit, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
-
-import { EnergyCost } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 
-const EnergyCostInput = (props: { cost: EnergyCost; year: number }) => {
-    //TODO: specify type for cost
-    const { cost, year } = props;
+type EnergyCostInputProps = {
+    cost: EnergyCost;
+    year: number;
+};
+
+export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -34,7 +36,7 @@ const EnergyCostInput = (props: { cost: EnergyCost; year: number }) => {
                     ) : (
                         <Text style={styles.text}>Annual Consumption:&nbsp;</Text>
                     )}
-                    <Text style={styles.value}>{cost?.annualConsumption + " " + cost?.unit}</Text>
+                    <Text style={styles.value}>{`${cost?.annualConsumption} ${cost?.unit}`}</Text>
                 </View>
             ) : null}
 
@@ -63,7 +65,7 @@ const EnergyCostInput = (props: { cost: EnergyCost; year: number }) => {
                         </View>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>State:&nbsp;</Text>
-                            <Text style={styles.value}> {cost?.location?.state}</Text>
+                            <Text style={styles.value}> {(cost.location as USLocation)?.state ?? ""}</Text>
                         </View>
                     </View>
                     <View style={styles.row}>
@@ -73,7 +75,7 @@ const EnergyCostInput = (props: { cost: EnergyCost; year: number }) => {
                         </View>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>Zipcode:&nbsp;</Text>
-                            <Text style={styles.value}> {cost?.location?.zipcode}</Text>
+                            <Text style={styles.value}> {(cost.location as USLocation)?.zipcode ?? ""}</Text>
                         </View>
                     </View>
                 </View>
@@ -88,6 +90,4 @@ const EnergyCostInput = (props: { cost: EnergyCost; year: number }) => {
             <UseIndex cost={cost} year={year} />
         </View>
     );
-};
-
-export default EnergyCostInput;
+}

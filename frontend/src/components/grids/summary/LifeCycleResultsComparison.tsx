@@ -6,18 +6,8 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
+import { type LccComparisonRow, createLccComparisonRows } from "util/ResultCalculations";
 import { dollarFormatter, numberFormatter } from "util/Util";
-
-type Row = {
-    name: string;
-    baseline: boolean;
-    initialCost: number;
-    lifeCycleCost: number;
-    energy: number;
-    ghgEmissions: number;
-    scc: number;
-    lccScc: number;
-};
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
@@ -33,7 +23,7 @@ const columns = [
     {
         name: "Base Case",
         key: "baseline",
-        renderCell: ({ row }: { row: Row }) => {
+        renderCell: ({ row }: { row: LccComparisonRow }) => {
             if (row.baseline)
                 return (
                     <div className={"flex h-full pl-6"}>
@@ -46,7 +36,7 @@ const columns = [
     {
         name: "Initial Cost",
         key: "initialCost",
-        renderCell: ({ row }: { row: Row }) => (
+        renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.initialCost)}</p>
         ),
         ...cellClasses,
@@ -54,7 +44,7 @@ const columns = [
     {
         name: "Life Cycle Cost",
         key: "lifeCycleCost",
-        renderCell: ({ row }: { row: Row }) => (
+        renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.lifeCycleCost)}</p>
         ),
         ...cellClasses,
@@ -62,7 +52,7 @@ const columns = [
     {
         name: "Energy",
         key: "energy",
-        renderCell: ({ row }: { row: Row }) => (
+        renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.energy ?? 0)}</p>
         ),
         ...cellClasses,
@@ -70,7 +60,7 @@ const columns = [
     {
         name: "GHG Emissions (kg co2)",
         key: "ghgEmissions",
-        renderCell: ({ row }: { row: Row }) => (
+        renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{numberFormatter.format(row.ghgEmissions ?? 0)}</p>
         ),
         ...cellClasses,
@@ -78,13 +68,15 @@ const columns = [
     {
         name: "SCC",
         key: "scc",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.scc ?? 0)}</p>,
+        renderCell: ({ row }: { row: LccComparisonRow }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row.scc ?? 0)}</p>
+        ),
         ...cellClasses,
     },
     {
         name: "LCC + SCC",
         key: "lccScc",
-        renderCell: ({ row }: { row: Row }) => (
+        renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.lccScc ?? 0)}</p>
         ),
         ...cellClasses,
@@ -93,21 +85,7 @@ const columns = [
 
 const [useRows] = bind(
     combineLatest([ResultModel.measures$, ResultModel.alternativeNames$, baselineID$]).pipe(
-        map(([measures, alternativeNames, baselineID]) =>
-            measures.map(
-                (measure) =>
-                    ({
-                        name: alternativeNames.get(measure.altId),
-                        baseline: measure.altId === baselineID,
-                        lifeCycleCost: measure.totalTagFlows.LCC,
-                        initialCost: measure.totalTagFlows["Initial Investment"],
-                        energy: measure.totalTagFlows.Energy,
-                        ghgEmissions: measure.totalTagFlows.Emissions,
-                        scc: measure.totalTagFlows.SCC,
-                        lccScc: measure.totalCosts,
-                    }) as Row,
-            ),
-        ),
+        map(([measures, names, id]) => createLccComparisonRows(measures, names, id)),
     ),
     [],
 );
@@ -128,7 +106,9 @@ export default function LifecycleResultsComparison() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowClass={(_row: LccComparisonRow, index: number) =>
+                    index % 2 === 0 ? "bg-white" : "bg-base-lightest"
+                }
                 rowGetter={rows}
                 rowsCount={rows.length}
             />

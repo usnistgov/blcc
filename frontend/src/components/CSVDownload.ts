@@ -1,3 +1,4 @@
+/*
 import type { Project } from "blcc-format/Format";
 import { db } from "model/db";
 import { dollarFormatter } from "util/Util";
@@ -32,37 +33,11 @@ const CSVDownload = (project: Project[] | undefined, summary: Summary, annual: A
     const altNames: string[] = alternatives?.map((alt) => alt?.name);
     console.log(summary, annual, altResults);
 
-    const lccComparison = summary?.lccRows?.map((row: LccRow) => {
-        return [
-            row?.name,
-            row?.baseline,
-            dollarFormatter.format(Number.parseFloat(row.initialCost)),
-            dollarFormatter.format(Number.parseFloat(row.lifeCycleCost)),
-            dollarFormatter.format(Number.parseFloat(row.energy)),
-            dollarFormatter.format(Number.parseFloat(row.ghgEmissions)),
-            dollarFormatter.format(Number.parseFloat(row.scc)),
-            dollarFormatter.format(Number.parseFloat(row.lccScc)),
-        ];
-    });
+    const lccComparison = summary.lccRows.map((row: LccRow) => Object.values(row)); //TODO: add dollar formatting
+    const lccBaseline = summary.lccBaseline.map((row: LccBaselineRow) => Object.values(row)); //TODO: add dollar formatting
 
-    const lccBaseline = summary?.lccBaseline?.map((row: LccBaselineRow) => {
-        return [
-            row?.name,
-            row?.baseline,
-            "$" + row?.initialCost || "0.00",
-            "$" + row?.sir || "0.00",
-            "$" + row?.airr || "0.00",
-            "$" + row?.spp || "0.00",
-            "$" + row?.dpp || "0.00",
-            "$" + row?.deltaEnergy || "0.00",
-            "$" + row?.deltaGhg || "0.00",
-            "$" + row?.deltaScc || "0.00",
-            "$" + row?.netSavings || "0.00",
-        ];
-    });
-
-    const npvCosts = summary?.npvCosts?.map((row) => {
-        const result = [row?.category, row?.subcategory];
+    const npvCosts = summary.npvCosts.map((row) => {
+        const result = [row.category, row.subcategory];
 
         for (let i = 0; i < altNames.length; i++) {
             result.push("$" + (row[i] || "0.00"));
@@ -70,8 +45,8 @@ const CSVDownload = (project: Project[] | undefined, summary: Summary, annual: A
         return result;
     });
 
-    const lccResource = summary?.lccResourceRows?.map((row) => {
-        const result = [row?.category, row?.subcategory];
+    const lccResource = summary.lccResourceRows.map((row) => {
+        const result = [row.category, row.subcategory];
 
         for (let i = 0; i < altNames.length; i++) {
             result.push("$" + (row[i] || "0.00"));
@@ -239,3 +214,4 @@ const CSVDownload = (project: Project[] | undefined, summary: Summary, annual: A
 };
 
 export default CSVDownload;
+*/

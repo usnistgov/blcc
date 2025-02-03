@@ -1,5 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
-import { CapitalCost, Recurring as RecurringType } from "blcc-format/Format";
+import type { CapitalCost } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
     CostAdjustmentFactor,
@@ -10,15 +10,15 @@ import {
     InitialCost,
     InitialOccurence,
     PhaseIn,
-    RateOfChangeUnits,
-    RateOfChangeValue,
-    RateOfRecurrence,
-    Recurring
 } from "./CostComponents";
 import { styles } from "./pdfStyles";
 
-const CapitalCostInput = (props: { cost: CapitalCost & { recurring: RecurringType }; year: number }) => {
-    const { cost, year } = props;
+type CapitalCostInputProps = {
+    cost: CapitalCost;
+    year: number;
+};
+
+export default function CapitalCostInput({ cost, year }: CapitalCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -59,18 +59,7 @@ const CapitalCostInput = (props: { cost: CapitalCost & { recurring: RecurringTyp
                 </View>
             ) : null}
 
-            <Recurring cost={cost} />
-
-            {cost?.recurring ? (
-                <>
-                    <RateOfRecurrence cost={cost} />
-                    <RateOfChangeValue cost={cost} year={year} />
-                    <RateOfChangeUnits cost={cost} year={year} />
-                </>
-            ) : null}
             <PhaseIn cost={cost} year={year} />
         </View>
     );
-};
-
-export default CapitalCostInput;
+}

@@ -81,7 +81,7 @@ const open$ = merge(
 async function save(hash: string, filename: string) {
     await db.dirty.clear();
     await db.dirty.add({ hash });
-    download(await db.export(), filename);
+    download(await db.export(), filename, "application/json");
 }
 
 /**

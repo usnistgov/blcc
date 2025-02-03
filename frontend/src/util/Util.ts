@@ -1,7 +1,8 @@
-import type { Measures } from "@lrd/e3-sdk";
+import type { Measures, Optional } from "@lrd/e3-sdk";
 import { type DefaultedStateObservable, state } from "@react-rxjs/core";
-import { type Cost, CostTypes } from "blcc-format/Format";
+import { type Alternative, type Cost, CostTypes, type ID } from "blcc-format/Format";
 import Decimal from "decimal.js";
+import { identity } from "effect";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
 import { ajax } from "rxjs/internal/ajax/ajax";
@@ -56,10 +57,15 @@ export const percentFormatter = Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
 });
 
-export function getOptionalTag(measures: Measures[], tag: string) {
+export function getOptionalTag<T = number>(
+    measures: Measures[],
+    tag: string,
+    map: ((value: number) => T) | undefined = undefined,
+): { [key: string]: T } {
     return measures.reduce((acc, next, i) => {
+        const value = next.totalTagFlows[tag];
         // @ts-ignore
-        acc[i.toString()] = next.totalTagFlows[tag];
+        acc[i.toString()] = map === undefined ? value : map(next.totalTagFlows[tag]);
         return acc;
     }, {});
 }
@@ -175,4 +181,28 @@ export function makeApiRequest<T>(url: string, body: object): Observable<T> {
         url: `/api/${url}`,
         body,
     }).pipe(map(getResponse));
+}
+
+/**
+ * Finds the ID of the baseline alternative if one exists, otherwise returns undefined.
+ * @param alternatives The list of alternatives to find the baseline ID from.
+ */
+export function findBaselineID(alternatives: Alternative[]): ID | undefined {
+    return alternatives.find((alternative) => alternative.baseline)?.id;
+}
+
+/**
+ * Creates a map of alternative ID's to the name of the corresponding alternative.
+ * @param alternatives The list of alternative to create the name map for.
+ */
+export function createAlternativeNameMap(alternatives: Alternative[]): Map<ID, string> {
+    return new Map(alternatives.map((x) => [x.id ?? 0, x.name]));
+}
+
+/**
+ * Returns a map of tags to optionals
+ * @param optionals
+ */
+export function groupOptionalByTag(optionals: Optional[]): Map<string, Optional> {
+    return new Map<string, Optional>(optionals.map((optional) => [`${optional.altId} ${optional.tag}`, optional]));
 }
