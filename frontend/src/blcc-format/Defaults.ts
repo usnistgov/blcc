@@ -12,4 +12,7 @@ export namespace Defaults {
 
     // Represents an invalid ID that no object should ever have.
     export const INVALID_ID: ID = -1;
+
+    // The ID of the project in the database.
+    export const PROJECT_ID: ID = 1;
 }

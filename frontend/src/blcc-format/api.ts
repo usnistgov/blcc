@@ -1,3 +1,4 @@
+import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { Case } from "blcc-format/Format";
 import {
     decodeDiscountRatesResponse,
@@ -7,7 +8,7 @@ import {
 } from "blcc-format/schema";
 import { Data, Effect } from "effect";
 
-class FetchError extends Data.TaggedError("FetchError") {}
+export class FetchError extends Data.TaggedError("FetchError") {}
 
 export const jsonResponse = (response: Response) =>
     Effect.tryPromise({
@@ -125,4 +126,27 @@ export const fetchEmissions = (releaseYear: number, zip: string, studyPeriod: nu
                 }),
             catch: () => new FetchError(),
         }).pipe(Effect.andThen(jsonResponse), Effect.andThen(decodeNumberArray));
+    });
+
+export const fetchE3Request = (builder: RequestBuilder) =>
+    Effect.gen(function* () {
+        const request = builder.build();
+
+        yield* Effect.log("Sending E3 request", request);
+
+        const result = yield* Effect.tryPromise({
+            try: () =>
+                fetch("/api/e3_request", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ request: JSON.stringify(request) }),
+                }),
+            catch: () => new FetchError(),
+        }).pipe(Effect.andThen(jsonResponse));
+
+        yield* Effect.log("Got E3 result", result);
+
+        return result as Output;
     });

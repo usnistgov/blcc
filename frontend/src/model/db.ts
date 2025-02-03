@@ -41,7 +41,6 @@ export const exportDB = Effect.promise(() => db.export());
 export const clearProject = Effect.promise(() => db.projects.clear());
 export const clearCosts = Effect.promise(() => db.costs.clear());
 export const clearAlternatives = Effect.promise(() => db.alternatives.clear());
-export const clearResults = Effect.promise(() => db.results.clear());
 export const clearErrors = Effect.promise(() => db.errors.clear());
 export const clearDirty = Effect.promise(() => db.dirty.clear());
 
@@ -65,7 +64,15 @@ export const getAlternatives = Effect.promise(() => db.alternatives.toArray());
 export const getCosts = Effect.promise(() => db.costs.toArray());
 export const importProject = (file: File) => Effect.promise(() => db.import(file));
 export const clearHash = Effect.promise(() => db.dirty.clear());
+
+/*
+ * Results
+ */
 export const getResults = Effect.promise(() => db.results.toArray());
+export const clearResults = Effect.promise(() => db.results.clear());
+export const removeResult = (hash: string) => Effect.promise(() => db.results.delete(hash));
+export const addResult = (hash: string, timestamp: Date, result: Output) =>
+    Effect.promise(() => db.results.add({ hash, timestamp, ...result }));
 
 export const hashCurrent = Effect.gen(function* () {
     const project = yield* getProject(1);

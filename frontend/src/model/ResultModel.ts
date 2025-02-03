@@ -1,15 +1,15 @@
-import type { Optional } from "@lrd/e3-sdk";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { bar, pie } from "billboard.js";
 import { liveQuery } from "dexie";
-import { alternatives$, currentProject$, hash$ } from "model/Model";
-import { db } from "model/db";
+import { alternatives$, hash$ } from "model/Model";
+import { addResult, clearResults, db, hashCurrent } from "model/db";
 import { Subject, combineLatest, merge, switchMap } from "rxjs";
-import { filter, map, tap, withLatestFrom } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
-import { E3Request, toE3Object } from "model/E3Request";
+import { Effect } from "effect";
+import { e3Request } from "model/E3Request";
 import { createAlternativeNameMap, groupOptionalByTag } from "util/Util";
 
 /**
@@ -22,40 +22,35 @@ function initializeBillboardJS() {
 initializeBillboardJS();
 
 export namespace ResultModel {
-    export const sRun$ = new Subject<void>();
+    export const [loading$, setLoading] = createSignal<boolean>();
 
     export namespace Actions {
         export function run() {
-            sRun$.next();
+            Effect.runPromise(
+                Effect.gen(function* () {
+                    setLoading(true);
+
+                    const results = yield* e3Request;
+                    const timestamp = new Date();
+                    const hash = yield* hashCurrent;
+
+                    if (hash === undefined) return;
+
+                    yield* clearResults;
+                    yield* addResult(hash, timestamp, results);
+                }),
+            );
         }
     }
 
     // Result stream that pulls from cache if available.
     export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
-    result$.subscribe((x) => console.log("Hash", x));
-    export const [useResult] = bind(result$, undefined);
     export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
+
+    hash$.subscribe((x) => console.log("Hash", x));
 
     // True if the project has been run before, if anything has changed since, false.
     export const isCached$ = result$.pipe(map((result) => result !== undefined));
-
-    // Send the E3 request when the run button is clicked
-    export const e3Result$ = sRun$.pipe(
-        withLatestFrom(currentProject$),
-        map(([, id]) => id),
-        toE3Object(),
-        tap((x) => console.log("E3 Object: ", x)),
-        E3Request(),
-        tap((x) => console.log("E3 Result: ", x)),
-        shareLatest(),
-    );
-
-    // Store the E3 result into the database with the hash of the project file to identify it.
-    ResultModel.e3Result$.pipe(withLatestFrom(hash$)).subscribe(async ([result, hash]) => {
-        const timestamp = new Date();
-        await db.results.delete(hash);
-        await db.results.add({ hash, timestamp, ...result });
-    });
 
     /**
      * The timestamp that the result was received at.
@@ -65,7 +60,7 @@ export namespace ResultModel {
     /**
      * True if a request has been sent but not response has been received yet, otherwise false.
      */
-    export const [isLoading] = bind(merge(sRun$.pipe(map(() => true)), e3Result$.pipe(map(() => false))), false);
+    export const [isLoading] = bind(merge(loading$, result$.pipe(map(() => false))), false);
 
     export const required$ = result$.pipe(map((data) => data?.required ?? []));
 

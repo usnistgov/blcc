@@ -5,7 +5,6 @@ import {
     BcnBuilder,
     BcnSubType,
     BcnType,
-    type Output,
     ProjectType,
     RecurBuilder,
     RequestBuilder,
@@ -13,6 +12,7 @@ import {
     TimestepValue,
     VarRate,
 } from "@lrd/e3-sdk";
+import { Defaults } from "blcc-format/Defaults";
 import {
     type CapitalCost,
     type Cost,
@@ -21,133 +21,136 @@ import {
     DiscountingMethod,
     DollarOrPercent,
     type EnergyCost,
-    type ID,
     type ImplementationContractCost,
     type OMRCost,
     type OtherCost,
     type OtherNonMonetary,
+    type Project,
     type RecurringContractCost,
     type ReplacementCapitalCost,
     type ResidualValue,
+    SocialCostOfGhgScenario,
+    type USLocation,
     type WaterCost,
 } from "blcc-format/Format";
-import { Model } from "model/Model";
-import { db } from "model/db";
-import { type Observable, type UnaryFunction, map, pipe, switchMap } from "rxjs";
-import { ajax } from "rxjs/internal/ajax/ajax";
-import { withLatestFrom } from "rxjs/operators";
+import { fetchE3Request, fetchEmissions, fetchScc } from "blcc-format/api";
+import { Data, Effect } from "effect";
+import { getAlternatives, getCosts, getProject } from "model/db";
+import { match } from "ts-pattern";
 import { getConvertMap } from "util/UnitConversion";
 
-/**
- * RXJS operator to take the project and create an E3 request.
- */
-export function toE3Object(): UnaryFunction<Observable<ID>, Observable<RequestBuilder>> {
-    return pipe(
-        withLatestFrom(Model.emissions$, Model.scc$),
-        switchMap(async ([projectID, emissions, scc]) => {
-            const project = await db.projects.get(projectID);
+const getEmissions = (project: Project) =>
+    Effect.gen(function* () {
+        const location = project.location as USLocation;
+        if (location.zipcode === undefined || location.zipcode.length < 5) return undefined;
 
-            if (project === undefined) throw "No project in database";
+        if (project.studyPeriod === undefined) return undefined;
 
-            const builder = new RequestBuilder();
+        return yield* fetchEmissions(project.releaseYear, location.zipcode, project.studyPeriod, project.case);
+    });
 
-            // Setup base E3 options
-            const analysisBuilder = new AnalysisBuilder()
-                .type(AnalysisType.LCCA)
-                .projectType(ProjectType.OTHER)
-                .addOutputType("measure", "optional", "required")
-                .studyPeriod(project.studyPeriod ?? 0)
-                .timestepValue(TimestepValue.YEAR)
-                .timestepComp(
-                    project.discountingMethod === DiscountingMethod.END_OF_YEAR
-                        ? TimestepComp.END_OF_YEAR
-                        : TimestepComp.MID_YEAR,
-                )
-                .real()
-                .discountRateReal(project.realDiscountRate ?? 0)
-                .discountRateNominal(project.nominalDiscountRate ?? 0)
-                .inflationRate(project.inflationRate ?? 0)
-                .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
+const getSccOption = (option: SocialCostOfGhgScenario): string => {
+    switch (option) {
+        case SocialCostOfGhgScenario.LOW:
+            return "threePercentAverage";
+        case SocialCostOfGhgScenario.MEDIUM:
+            return "fivePercentAverage";
+        case SocialCostOfGhgScenario.HIGH:
+            return "threePercentNinetyFifthPercentile";
+        default:
+            return "threePercentAverage";
+    }
+};
 
-            // Create costs
-            const costs = await db.costs.where("id").anyOf(project.costs).toArray();
-            const costMap = new Map(
-                costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod ?? 0, emissions, scc)]),
+const getScc = (project: Project) =>
+    Effect.gen(function* () {
+        if (project.studyPeriod === undefined) return undefined;
+
+        return yield* fetchScc(
+            project.releaseYear,
+            project.releaseYear,
+            project.releaseYear + project.studyPeriod,
+            getSccOption(project.ghg.socialCostOfGhgScenario),
+        );
+    });
+
+export class E3GenerationError extends Data.TaggedError("E3GenerationError") {}
+
+const toE3ObjectEffect = Effect.gen(function* () {
+    const project = yield* getProject(Defaults.PROJECT_ID);
+
+    if (project === undefined) return yield* Effect.fail(new E3GenerationError());
+
+    const emissions = yield* getEmissions(project);
+    const scc = yield* getScc(project);
+
+    const builder = new RequestBuilder();
+
+    // Setup base E3 options
+    const analysisBuilder = new AnalysisBuilder()
+        .type(AnalysisType.LCCA)
+        .projectType(ProjectType.OTHER)
+        .addOutputType("measure", "optional", "required")
+        .studyPeriod(project.studyPeriod ?? 0)
+        .timestepValue(TimestepValue.YEAR)
+        .timestepComp(
+            project.discountingMethod === DiscountingMethod.END_OF_YEAR
+                ? TimestepComp.END_OF_YEAR
+                : TimestepComp.MID_YEAR,
+        )
+        .real()
+        .discountRateReal(project.realDiscountRate ?? 0)
+        .discountRateNominal(project.nominalDiscountRate ?? 0)
+        .inflationRate(project.inflationRate ?? 0)
+        .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
+
+    // Create costs
+    const costs = yield* getCosts;
+    const costMap = new Map(
+        costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod ?? 0, emissions, scc)]),
+    );
+
+    // Define alternatives
+    const alternatives = yield* getAlternatives;
+    const alternativeBuilders = alternatives.map((alternative) => {
+        const builder = new AlternativeBuilder()
+            .name(alternative.name)
+            .addBcn(
+                ...alternative.costs.flatMap((id) => costMap.get(id)).filter((x): x is BcnBuilder => x !== undefined),
             );
 
-            // Define alternatives
-            const alternatives = await db.alternatives.where("id").anyOf(project.alternatives).toArray();
-            const alternativeBuilders = alternatives.map((alternative) => {
-                const builder = new AlternativeBuilder()
-                    .name(alternative.name)
-                    .addBcn(
-                        ...alternative.costs
-                            .flatMap((id) => costMap.get(id))
-                            .filter((x): x is BcnBuilder => x !== undefined),
-                    );
+        if (alternative.id) builder.id(alternative.id);
+        if (alternative.baseline) return builder.baseline();
 
-                if (alternative.id) builder.id(alternative.id);
-                if (alternative.baseline) return builder.baseline();
+        return builder;
+    });
 
-                return builder;
-            });
+    const hasBaseline = !!alternatives.find((alt) => alt.baseline);
+    if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
-            const hasBaseline = !!alternatives.find((alt) => alt.baseline);
-            if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
+    // Create complete Request Builder and return
+    return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
+});
 
-            // Create complete Request Builder and return
-            return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
-        }),
-    );
-}
-
-/**
- * RXJS operator that tasks an E3 Request Builder object and executes the request and returns the E3 output object.
- */
-export function E3Request(): UnaryFunction<Observable<RequestBuilder>, Observable<Output>> {
-    return pipe(
-        switchMap((builder) =>
-            ajax<Output>({
-                url: "/api/e3_request",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    request: JSON.stringify(builder.build()),
-                },
-            }),
-        ),
-        map((response) => response.response),
-    );
-}
+export const e3Request = toE3ObjectEffect.pipe(Effect.andThen(fetchE3Request));
 
 function costToBuilders(
     cost: Cost,
     studyPeriod: number,
     emissions: readonly number[] | undefined,
-    scc: number[] | undefined,
+    scc: readonly number[] | undefined,
 ): BcnBuilder[] {
-    switch (cost.type) {
-        case CostTypes.CAPITAL:
-            return capitalCostToBuilder(cost, studyPeriod);
-        case CostTypes.ENERGY:
-            return energyCostToBuilder(cost, emissions, scc);
-        case CostTypes.WATER:
-            return waterCostToBuilder(cost);
-        case CostTypes.REPLACEMENT_CAPITAL:
-            return replacementCapitalCostToBuilder(cost, studyPeriod);
-        case CostTypes.OMR:
-            return omrCostToBuilder(cost);
-        case CostTypes.IMPLEMENTATION_CONTRACT:
-            return implementationContractCostToBuilder(cost);
-        case CostTypes.RECURRING_CONTRACT:
-            return recurringContractCostToBuilder(cost);
-        case CostTypes.OTHER:
-            return otherCostToBuilder(cost);
-        case CostTypes.OTHER_NON_MONETARY:
-            return otherNonMonetaryCostToBuilder(cost);
-    }
+    return match(cost)
+        .with({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod))
+        .with({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(cost, emissions, scc))
+        .with({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost))
+        .with({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) => replacementCapitalCostToBuilder(cost, studyPeriod))
+        .with({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(cost))
+        .with({ type: CostTypes.IMPLEMENTATION_CONTRACT }, (cost) => implementationContractCostToBuilder(cost))
+        .with({ type: CostTypes.RECURRING_CONTRACT }, (cost) => recurringContractCostToBuilder(cost))
+        .with({ type: CostTypes.OTHER }, (cost) => otherCostToBuilder(cost))
+        .with({ type: CostTypes.OTHER_NON_MONETARY }, (cost) => otherNonMonetaryCostToBuilder(cost))
+        .exhaustive();
 }
 
 function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilder[] {
@@ -209,7 +212,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
 function energyCostToBuilder(
     cost: EnergyCost,
     emissions: readonly number[] | undefined,
-    scc: number[] | undefined,
+    scc: readonly number[] | undefined,
 ): BcnBuilder[] {
     const result = [];
 

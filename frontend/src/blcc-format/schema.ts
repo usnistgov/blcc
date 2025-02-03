@@ -5,6 +5,12 @@ function literals(values: string[]) {
     return values.map((str) => Schema.Literal(str));
 }
 
+export class ErrorResponse extends Schema.Class<ErrorResponse>("ErrorResponse")({
+    error: Schema.String,
+}) {}
+
+export const decodeErrorResponse = Schema.decodeUnknown(ErrorResponse);
+
 export class ReleaseYear extends Schema.Class<ReleaseYear>("ReleaseYear")({
     year: Schema.Number,
     max: Schema.Number,

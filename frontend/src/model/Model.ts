@@ -10,12 +10,13 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
-import { fetchEmissions, fetchEscalationRates, fetchReleaseYears, fetchScc } from "blcc-format/api";
+import { FetchError, fetchEmissions, fetchEscalationRates, fetchReleaseYears, fetchScc } from "blcc-format/api";
+import { decodeErrorResponse } from "blcc-format/schema";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
-import { db } from "model/db";
+import { db, hashCurrent } from "model/db";
 import objectHash from "object-hash";
 import * as O from "optics-ts";
 import { NEVER, type Observable, Subject, combineLatest, distinctUntilChanged, from, map, scan, switchMap } from "rxjs";
@@ -193,15 +194,16 @@ const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | und
     }
 };
 
-export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(1).first())).pipe(shareReplay(1));
+export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(Defaults.PROJECT_ID).first()));
 
-export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(shareReplay(1));
+export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray()));
 
-export const hashCosts$ = from(liveQuery(() => db.costs.toArray())).pipe(shareReplay(1));
+export const hashCosts$ = from(liveQuery(() => db.costs.toArray()));
 
 // Creates a hash of the current project
 export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]).pipe(
-    map(([project, alternatives, costs]) => objectHash({ project, alternatives, costs })),
+    switchMap(() => Effect.runPromise(hashCurrent)),
+    guard(),
     distinctUntilChanged(),
 );
 
@@ -440,34 +442,9 @@ export namespace Model {
      */
     export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"));
 
-    // Get the emissions data from the database.
-    export const emissions$ = combineLatest([
-        Location.zipcode.$.pipe(guard()),
-        releaseYear.$,
-        studyPeriod.$,
-        eiaCase.$,
-    ]).pipe(
-        switchMap(async ([zip, releaseYear, studyPeriod, eiaCase]) =>
-            Effect.runPromise(fetchEmissions(releaseYear, zip, studyPeriod ?? 25, eiaCase)),
-        ),
-        startWith(undefined),
-    );
-
     export const socialCostOfGhgScenario = new Var(
         DexieModelTest,
         O.optic<Project>().path("ghg.socialCostOfGhgScenario"),
-    );
-
-    export const scc$ = combineLatest([
-        releaseYear.$,
-        studyPeriod.$,
-        socialCostOfGhgScenario.$.pipe(map(getSccOption), guard()),
-    ]).pipe(
-        switchMap(([releaseYear, studyPeriod, option]) =>
-            Effect.runPromise(fetchScc(releaseYear, releaseYear, releaseYear + (studyPeriod ?? 0), option)),
-        ),
-        map((dollarsPerMetricTon) => dollarsPerMetricTon.map((value) => value / 1000)),
-        startWith(undefined),
     );
 
     /**
