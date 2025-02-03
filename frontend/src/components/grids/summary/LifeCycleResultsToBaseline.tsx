@@ -6,21 +6,8 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
+import { type LccBaselineRow, createLccBaselineRows } from "util/ResultCalculations";
 import { dollarFormatter, numberFormatter } from "util/Util";
-
-type Row = {
-    name: string;
-    baseline: boolean;
-    sir: number;
-    airr: number;
-    spp: number;
-    dpp: number;
-    initialCost: number;
-    deltaEnergy: number;
-    deltaGhg: number;
-    deltaScc: number;
-    netSavings: number;
-};
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
@@ -36,7 +23,7 @@ const columns = [
     {
         name: "Base Case",
         key: "baseline",
-        renderCell: ({ row }: { row: Row }) => {
+        renderCell: ({ row }: { row: LccBaselineRow }) => {
             if (row.baseline)
                 return (
                     <div className={"flex h-full pl-6"}>
@@ -49,7 +36,7 @@ const columns = [
     {
         name: "Initial Cost",
         key: "initialCost",
-        renderCell: ({ row }: { row: Row }) => (
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.initialCost ?? 0)}</p>
         ),
         ...cellClasses,
@@ -57,31 +44,39 @@ const columns = [
     {
         name: "SIR",
         key: "sir",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.sir)}</p>,
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{numberFormatter.format(row.sir)}</p>
+        ),
         ...cellClasses,
     },
     {
         name: "AIRR",
         key: "airr",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.airr)}</p>,
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{numberFormatter.format(row.airr)}</p>
+        ),
         ...cellClasses,
     },
     {
         name: "SPP",
         key: "spp",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.spp)}</p>,
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{numberFormatter.format(row.spp)}</p>
+        ),
         ...cellClasses,
     },
     {
         name: "DPP",
         key: "dpp",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{numberFormatter.format(row.dpp)}</p>,
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{numberFormatter.format(row.dpp)}</p>
+        ),
         ...cellClasses,
     },
     {
         name: "Change in Energy",
         key: "deltaEnergy",
-        renderCell: ({ row }: { row: Row }) => {
+        renderCell: ({ row }: { row: LccBaselineRow }) => {
             const value = row.deltaEnergy;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
@@ -92,7 +87,7 @@ const columns = [
     {
         name: "Change in GHG (kg co2)",
         key: "deltaGhg",
-        renderCell: ({ row }: { row: Row }) => {
+        renderCell: ({ row }: { row: LccBaselineRow }) => {
             const value = row.deltaGhg;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
@@ -103,7 +98,7 @@ const columns = [
     {
         name: "Change in SCC",
         key: "deltaScc",
-        renderCell: ({ row }: { row: Row }) => {
+        renderCell: ({ row }: { row: LccBaselineRow }) => {
             const value = row.deltaScc;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
@@ -114,32 +109,18 @@ const columns = [
     {
         name: "Net Savings and SCC Reductions",
         key: "netSavings",
-        renderCell: ({ row }: { row: Row }) => <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>,
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>
+        ),
         ...cellClasses,
     },
 ];
 
 const [useRows] = bind(
     combineLatest([ResultModel.measures$, ResultModel.alternativeNames$, baselineID$]).pipe(
-        map(([measures, names, baselineID]) => {
-            const baseline = measures.find((measure) => measure.altId === baselineID);
-
-            return measures.map((measure) => ({
-                name: names.get(measure.altId),
-                baseline: measure.altId === baselineID,
-                sir: measure.sir,
-                airr: measure.airr,
-                spp: measure.spp,
-                dpp: measure.dpp,
-                initialCost: measure.totalCosts,
-                deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
-                deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
-                deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
-                netSavings: measure.netSavings + measure.totalTagFlows.SCC,
-            })) as Row[];
-        }),
+        map(([measures, names, baselineID]) => createLccBaselineRows(measures, names, baselineID)),
     ),
-    [] as Row[],
+    [],
 );
 
 export default function LifecycleResultsToBaseline() {
@@ -157,7 +138,7 @@ export default function LifecycleResultsToBaseline() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowClass={(_row: LccBaselineRow, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
                 rowGetter={rows}
                 rowsCount={rows.length}
             />

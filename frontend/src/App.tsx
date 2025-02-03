@@ -1,10 +1,31 @@
 import { Subscribe } from "@react-rxjs/core";
+import { checkDefaultProject } from "blcc-format/effects";
 import ConfirmationModal from "components/modal/ConfirmationModal";
 import MessageModal from "components/modal/MessageModal";
+import { Effect, Option } from "effect";
+import { sProject$ } from "model/Model";
+import { getProject } from "model/db";
 import Index from "pages/Index";
 import Editor from "pages/editor/Editor";
 import Results from "pages/results/Results";
 import { Route, Routes } from "react-router-dom";
+
+Effect.runPromise(
+    Effect.gen(function* () {
+        const optionDefaultProject = yield* checkDefaultProject;
+
+        if (Option.isSome(optionDefaultProject)) {
+            sProject$.next(Option.getOrThrow(optionDefaultProject));
+            return;
+        }
+
+        const project = yield* getProject(1);
+
+        yield* Effect.log("Retrieving project", project);
+
+        if (project !== undefined) sProject$.next(project);
+    }),
+);
 
 /**
  * Component containing the top level elements and router for the entire application.
@@ -30,14 +51,7 @@ export default function App() {
                     }
                 />
                 <Route path={"/editor/*"} element={<Editor />} />
-                <Route
-                    path={"/results/*"}
-                    element={
-                        <Subscribe>
-                            <Results />
-                        </Subscribe>
-                    }
-                />
+                <Route path={"/results/*"} element={<Results />} />
             </Routes>
         </div>
     );

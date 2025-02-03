@@ -1,20 +1,15 @@
 import { bind } from "@react-rxjs/core";
 import DataGrid, { type Column } from "react-data-grid";
-import { type Observable, from, switchMap, zip } from "rxjs";
-import { map, toArray } from "rxjs/operators";
+import { type Observable, switchMap } from "rxjs";
+import { map } from "rxjs/operators";
 import "react-data-grid/lib/styles.css";
 import type { Required } from "@lrd/e3-sdk";
 import type { Alternative } from "blcc-format/Format";
 import { alternatives$ } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import { db } from "model/db";
+import { type NpvCashflowComparisonRow, createNpvCashflowComparisonRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
-
-type Row = {
-    key: number;
-    year: number;
-    [key: string]: number;
-};
 
 type SummaryRow = {
     key: string;
@@ -42,7 +37,7 @@ const [useColumns] = bind(
                         name: alternative?.name,
                         key: i.toString(),
                         editable: false,
-                        renderHeaderCell: ({ column }: { column: Column<Row> }) => (
+                        renderHeaderCell: ({ column }: { column: Column<NpvCashflowComparisonRow> }) => (
                             <p className={"text-right"}>{column.name}</p>
                         ),
                         renderCell: ({ row }: { row: { [x: string]: number | bigint } }) => (
@@ -55,7 +50,7 @@ const [useColumns] = bind(
                                 {alternative?.name ? dollarFormatter.format(row[alternative?.name]) : "N/A"}
                             </p>
                         ),
-                    }) as Column<Row>,
+                    }) as Column<NpvCashflowComparisonRow>,
             );
 
             cols.unshift({
@@ -66,7 +61,7 @@ const [useColumns] = bind(
                 headerCellClass: "bg-primary text-white",
                 cellClass: "text-ink",
                 renderSummaryCell: () => <p className={"font-bold"}>Total</p>,
-            } as Column<Row>);
+            } as Column<NpvCashflowComparisonRow>);
 
             return cols;
         }),
@@ -74,23 +69,7 @@ const [useColumns] = bind(
     [],
 );
 
-const [useRows] = bind(
-    ResultModel.required$.pipe(
-        switchMap((required) =>
-            zip(required.map((required) => from(required.totalCostsDiscounted))).pipe(
-                map((values, year) => {
-                    const result = { key: year, year } as Row;
-                    values.forEach((value, i) => {
-                        result[i.toString()] = value;
-                    });
-                    return result;
-                }),
-                toArray(),
-            ),
-        ),
-    ),
-    [] as Row[],
-);
+const [useRows] = bind(ResultModel.required$.pipe(map((required) => createNpvCashflowComparisonRow(required))), []);
 
 const [useSummary] = bind(
     requiredWithAlternative$.pipe(
@@ -124,7 +103,9 @@ export default function NpvCashFlowComparison() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowClass={(_row: NpvCashflowComparisonRow, index: number) =>
+                    index % 2 === 0 ? "bg-white" : "bg-base-lightest"
+                }
                 bottomSummaryRows={[useSummary()]}
                 rowGetter={rows}
                 rowsCount={rows.length}

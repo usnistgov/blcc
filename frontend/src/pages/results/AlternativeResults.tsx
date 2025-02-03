@@ -2,8 +2,8 @@ import Header from "components/Header";
 import ResultAlternativeSelect from "components/ResultAlternativeSelect";
 import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
-import AlternativeNpvCashFlow from "components/grids/alternative-results/AlternativeNpvCashFlow";
-import ResourceUsage from "components/grids/alternative-results/ResourceUsage";
+import AlternativeNpvCashFlowTotalGrid from "components/grids/alternative-results/AlternativeNpvCashFlowTotalGrid";
+import ResourceUsageGrid from "components/grids/alternative-results/ResourceUsageGrid";
 
 export default function AlternativeResults() {
     return (
@@ -14,11 +14,11 @@ export default function AlternativeResults() {
             <div className="grid grid-cols-2 gap-8">
                 <div>
                     <Header>NPV Cash Flow Comparison</Header>
-                    <AlternativeNpvCashFlow />
+                    <AlternativeNpvCashFlowTotalGrid />
                 </div>
                 <div>
                     <Header>Energy and Water use, Emissions, and Social Cost of GHG</Header>
-                    <ResourceUsage />
+                    <ResourceUsageGrid />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-8">

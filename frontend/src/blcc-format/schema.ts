@@ -5,16 +5,6 @@ function literals(values: string[]) {
     return values.map((str) => Schema.Literal(str));
 }
 
-const snakeCaseToCamelCase = Schema.transform(Schema.String, Schema.String, {
-    strict: true,
-    decode: (literal) =>
-        literal
-            .split("_")
-            .map((str, i) => (i !== 0 ? str.charAt(0).toUpperCase() + str.slice(1) : str))
-            .join(""),
-    encode: (literal) => (literal.match(/[A-Z][a-z]+/g) ?? [""]).map((str) => str.toLowerCase()).join("_"),
-});
-
 export class ReleaseYear extends Schema.Class<ReleaseYear>("ReleaseYear")({
     year: Schema.Number,
     max: Schema.Number,

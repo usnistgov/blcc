@@ -1,3 +1,5 @@
+import type { ID } from "blcc-format/Format";
+
 export namespace Defaults {
     export const STUDY_PERIOD: number = 40;
     export const CONSTRUCTION_PERIOD: number = 3;
@@ -7,4 +9,7 @@ export namespace Defaults {
      * the release years.
      */
     export const RELEASE_YEAR: number = 2023;
+
+    // Represents an invalid ID that no object should ever have.
+    export const INVALID_ID: ID = -1;
 }

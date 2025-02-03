@@ -1,15 +1,9 @@
 import { bind } from "@react-rxjs/core";
 import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
-import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
+import { type AlternativeNpvCashflowTotalRow, createAlternativeNpvCashflowTotalRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
-
-type Row = {
-    category: string;
-    subcategory: string;
-    alternative: number;
-};
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
@@ -33,7 +27,7 @@ const [useColumns] = bind(
             {
                 name: alternative.name,
                 key: "alternative",
-                renderCell: ({ row }: { row: Row }) => (
+                renderCell: ({ row }: { row: AlternativeNpvCashflowTotalRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.alternative ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -44,26 +38,11 @@ const [useColumns] = bind(
 );
 
 const [useRows] = bind(
-    combineLatest([ResultModel.selectedMeasure$]).pipe(
-        map(([measure]) => {
-            return [
-                { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
-                { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
-                { subcategory: "Demand" },
-                { subcategory: "Rebates" },
-                { category: "Water", subcategory: "Usage" },
-                { subcategory: "Disposal " },
-                { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
-                { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
-                { category: "Replacement" },
-                { category: "Residual Value" },
-            ] as Row[];
-        }),
-    ),
-    [] as Row[],
+    ResultModel.selectedMeasure$.pipe(map((measure) => createAlternativeNpvCashflowTotalRow(measure))),
+    [],
 );
 
-export default function AlternativeNpvCashFlow() {
+export default function AlternativeNpvCashFlowTotalGrid() {
     const rows = useRows();
 
     return (
@@ -79,7 +58,9 @@ export default function AlternativeNpvCashFlow() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowClass={(_row: AlternativeNpvCashflowTotalRow, index: number) =>
+                    index % 2 === 0 ? "bg-white" : "bg-base-lightest"
+                }
             />
         </div>
     );

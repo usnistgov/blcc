@@ -18,23 +18,6 @@ import GeneralInformation from "pages/editor/general_information/GeneralInformat
 import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
-Effect.runPromise(
-    Effect.gen(function* () {
-        const optionDefaultProject = yield* checkDefaultProject;
-
-        if (Option.isSome(optionDefaultProject)) {
-            sProject$.next(Option.getOrThrow(optionDefaultProject));
-            return;
-        }
-
-        const project = yield* getProject(1);
-
-        yield* Effect.log("Retrieving project", project);
-
-        if (project !== undefined) sProject$.next(project);
-    }),
-);
-
 export default function Editor() {
     const location = useLocation();
 

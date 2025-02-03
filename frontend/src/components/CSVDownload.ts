@@ -1,132 +1,43 @@
-import { Alternative, Project } from "blcc-format/Format";
-import { lccRow } from "./allResultStreams";
+/*
+import type { Project } from "blcc-format/Format";
+import { db } from "model/db";
+import { dollarFormatter } from "util/Util";
+import type {
+    AltNpvRow,
+    AltResults,
+    Annual,
+    LccBaselineRow,
+    LccRow,
+    NpvAllRow,
+    ResourceUsageRow,
+    Summary,
+} from "./allResultStreams";
 
-type lccBaselineRow = {
-    airr: number;
-    baseline: boolean;
-    deltaEnergy: number;
-    deltaGhg: number;
-    deltaScc: number;
-    dpp: number;
-    initialCost: number;
-    lifeCycleCost?: number; //has to be fixed once lifecycle cost is added to backend
-    name: string | undefined;
-    netSavings: number;
-    sir: number;
-    spp: number;
+const fetchData = async () => {
+    try {
+        const result = await db.alternatives.toArray();
+        if (!result || result.length === 0) {
+            console.log("No alternatives found.");
+            return [];
+        }
+        return result;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return [];
+    }
 };
 
-type lccResourceRow = {
-    category?: string;
-    subcategory: string;
-    [key: string]: string | undefined;
-};
+const alternatives = await fetchData();
 
-type summary = {
-    lccBaseline: lccBaselineRow[];
-    lccResourceRows: lccResourceRow[];
-    lccRows: lccRow[];
-    npvCosts: { [key: string]: string }[];
-};
-
-// remove this once Luke pushes change
-type npvAllRow = {
-    year: number;
-    investment: number;
-    consumption: number;
-    recurring: number;
-    nonRecurring: number;
-    total: number;
-};
-
-{
-    // remove previous and uncomment this
-    // type npvAllRow = {
-    //     year: number;
-    //     investment: number;
-    //     consumption: number;
-    //     demand: number;
-    //     rebates: number;
-    //     waterUse: number;
-    //     waterDisposal: number;
-    //     recurring: number;
-    //     nonRecurring: number;
-    //     replace: number;
-    //     residualValue: number;
-    //     total: number;
-    // };
-}
-
-type annualNPVComparisonRow = {
-    key: number;
-    year: number;
-    [key: string]: string | number;
-};
-
-type annual = {
-    npvAll: npvAllRow[][];
-    npvComparison: annualNPVComparisonRow[];
-};
-
-type altNpvRow = {
-    category?: string;
-    subcategory?: string;
-    alternative?: number;
-};
-
-type resourceUsageRow = {
-    category?: string;
-    subcategory?: string;
-    emissions?: number;
-    consumption?: number;
-};
-
-type altResults = {
-    altNPV: altNpvRow[][];
-    resourceUsage: resourceUsageRow[][];
-};
-
-const CSVDownload = (
-    project: Project,
-    alternatives: Alternative[],
-    summary: summary,
-    annual: annual,
-    altResults: altResults
-) => {
-    let altNames: string[] = alternatives?.map((alt) => alt?.name);
+const CSVDownload = (project: Project[] | undefined, summary: Summary, annual: Annual, altResults: AltResults) => {
+    const altNames: string[] = alternatives?.map((alt) => alt?.name);
     console.log(summary, annual, altResults);
 
-    const lccComparison = summary?.lccRows?.map((row: lccRow) => {
-        return [
-            row?.name,
-            row?.baseline,
-            "$" + row?.initialCost || "0.00",
-            "$" + row?.lifeCycleCost || "0.00",
-            "$" + row?.energy || "0.00",
-            "$" + row?.ghgEmissions || "0.00",
-            "$" + row?.scc || "0.00",
-            "$" + row?.lccScc || "0.00"
-        ];
-    });
+    const lccComparison = summary.lccRows.map((row: LccRow) => Object.values(row)); //TODO: add dollar formatting
+    const lccBaseline = summary.lccBaseline.map((row: LccBaselineRow) => Object.values(row)); //TODO: add dollar formatting
 
-    const lccBaseline = summary?.lccBaseline?.map((row: lccBaselineRow) => {
-        return [
-            row?.name,
-            row?.baseline,
-            "$" + row?.initialCost || "0.00",
-            "$" + row?.sir || "0.00",
-            "$" + row?.airr || "0.00",
-            "$" + row?.spp || "0.00",
-            "$" + row?.dpp || "0.00",
-            "$" + row?.deltaEnergy || "0.00",
-            "$" + row?.deltaGhg || "0.00",
-            "$" + row?.deltaScc || "0.00",
-            "$" + row?.netSavings || "0.00"
-        ];
-    });
-
-    const npvCosts = summary?.npvCosts?.map((row) => {
-        const result = [row?.category, row?.subcategory];
+    const npvCosts = summary.npvCosts.map((row) => {
+        const result = [row.category, row.subcategory];
 
         for (let i = 0; i < altNames.length; i++) {
             result.push("$" + (row[i] || "0.00"));
@@ -134,8 +45,8 @@ const CSVDownload = (
         return result;
     });
 
-    const lccResource = summary?.lccResourceRows?.map((row) => {
-        const result = [row?.category, row?.subcategory];
+    const lccResource = summary.lccResourceRows.map((row) => {
+        const result = [row.category, row.subcategory];
 
         for (let i = 0; i < altNames.length; i++) {
             result.push("$" + (row[i] || "0.00"));
@@ -154,7 +65,7 @@ const CSVDownload = (
             "Energy",
             "GHG Emissions (kg co2)",
             "SCC",
-            "LCC + SCC"
+            "LCC + SCC",
         ],
         ...lccComparison, //tableData
         [],
@@ -171,7 +82,7 @@ const CSVDownload = (
             "Change in Energy",
             "Change in GHG (kg co2)",
             "Change in SCC",
-            "Net Savings & SCC Reductions"
+            "Net Savings & SCC Reductions",
         ],
         ...lccBaseline, // tableData
         [],
@@ -183,7 +94,7 @@ const CSVDownload = (
         ["Life Cycle Resource Consumption and Emissions Comparison"],
         [],
         ["Resource Type", "", ...altNames],
-        ...lccResource //tableData
+        ...lccResource, //tableData
     ];
 
     const npvCashFlow = annual?.npvComparison?.map((alt) => {
@@ -196,7 +107,7 @@ const CSVDownload = (
     });
 
     const annualResultsByAlt = annual?.npvAll?.flatMap((alts, index: number) => {
-        let rows = [
+        const rows = [
             [altNames[index] || "Unknown"],
             [],
             ["", "", "Energy", "", "", "Water", "", "OMR", "", "", "", ""],
@@ -212,10 +123,10 @@ const CSVDownload = (
                 "Non-Recurring",
                 "Replace",
                 "Residual Value",
-                "Total"
-            ]
+                "Total",
+            ],
         ];
-        alts?.forEach((alt: npvAllRow) => {
+        alts?.forEach((alt: NpvAllRow) => {
             rows.push([
                 `${alt?.year}`,
                 "$" + alt?.investment || "0.00",
@@ -228,7 +139,7 @@ const CSVDownload = (
                 "$" + alt?.nonRecurring || "0.00",
                 "$" + alt?.nonRecurring || "0.00",
                 "$" + alt?.nonRecurring || "0.00",
-                "$" + alt.total || "0.00"
+                "$" + alt.total || "0.00",
             ]);
         });
         rows.push([]);
@@ -244,17 +155,17 @@ const CSVDownload = (
         "Annual Results for Alternative",
         [],
         ...annualResultsByAlt,
-        []
+        [],
     ];
 
-    const alternativeResultsByAlt = (data: altResults) => {
+    const alternativeResultsByAlt = (data: AltResults) => {
         const result: (string | (string | string[])[])[] = [];
         const { altNPV, resourceUsage } = data;
 
         for (let i = 0; i < altNPV.length; i++) {
             result.push(altNames[i], "", "NPV Cash Flow Comparison", "", ["Cost Type", "", altNames[i]]);
 
-            altNPV[i]?.forEach((item: altNpvRow) => {
+            altNPV[i]?.forEach((item: AltNpvRow) => {
                 result.push([item?.category || "", item?.subcategory || "", `$${item?.alternative}` || "$0.00"]);
             });
 
@@ -262,15 +173,15 @@ const CSVDownload = (
                 "Resource Type",
                 "",
                 "Consumption",
-                "Emissions"
+                "Emissions",
             ]);
 
-            resourceUsage[i]?.forEach((item: resourceUsageRow) => {
+            resourceUsage[i]?.forEach((item: ResourceUsageRow) => {
                 result.push([
                     `${item?.category}` || "",
                     `${item?.subcategory}` || "",
                     `$${item?.consumption}` || "$0.00",
-                    `$${item?.emissions}` || "$0.00"
+                    `$${item?.emissions}` || "$0.00",
                 ]);
             });
 
@@ -280,12 +191,12 @@ const CSVDownload = (
         return result;
     };
 
-    let csvData = [
+    return [
         [new Date().toLocaleDateString()],
         [new Date().toLocaleTimeString()],
         [],
         ["BLCC Project Results"],
-        [project?.name],
+        [project?.[0]?.name],
         [],
         ["Summary"],
         [],
@@ -298,9 +209,9 @@ const CSVDownload = (
         ["Alternative Results"],
         [],
         ...alternativeResultsByAlt(altResults),
-        []
+        [],
     ];
-    return csvData;
 };
 
 export default CSVDownload;
+*/

@@ -36,6 +36,7 @@ export const db = new BlccDexie();
 
 export const deleteDB = Effect.promise(() => db.delete());
 export const openDB = Effect.promise(() => db.open());
+export const exportDB = Effect.promise(() => db.export());
 
 export const clearProject = Effect.promise(() => db.projects.clear());
 export const clearCosts = Effect.promise(() => db.costs.clear());
@@ -63,3 +64,28 @@ export const getProject = (id: ID) => Effect.promise(() => db.projects.where("id
 export const getAlternatives = Effect.promise(() => db.alternatives.toArray());
 export const getCosts = Effect.promise(() => db.costs.toArray());
 export const importProject = (file: File) => Effect.promise(() => db.import(file));
+export const clearHash = Effect.promise(() => db.dirty.clear());
+export const getResults = Effect.promise(() => db.results.toArray());
+
+export const hashCurrent = Effect.gen(function* () {
+    const project = yield* getProject(1);
+
+    if (project === undefined) return;
+
+    const alternatives = yield* getAlternatives;
+    const costs = yield* getCosts;
+
+    return objectHash({ project, alternatives, costs });
+});
+
+export const hashCurrentAndSet = Effect.gen(function* () {
+    const project = yield* getProject(1);
+
+    if (project === undefined) return;
+
+    const alternatives = yield* getAlternatives;
+    const costs = yield* getCosts;
+
+    yield* clearHash;
+    yield* setHash(project, alternatives, costs);
+});

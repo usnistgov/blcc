@@ -10,6 +10,7 @@ import { filter, map, tap, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { E3Request, toE3Object } from "model/E3Request";
+import { createAlternativeNameMap, groupOptionalByTag } from "util/Util";
 
 /**
  * Initializes all Billboard.js elements.
@@ -31,6 +32,7 @@ export namespace ResultModel {
 
     // Result stream that pulls from cache if available.
     export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
+    result$.subscribe((x) => console.log("Hash", x));
     export const [useResult] = bind(result$, undefined);
     export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
 
@@ -67,9 +69,7 @@ export namespace ResultModel {
 
     export const required$ = result$.pipe(map((data) => data?.required ?? []));
 
-    export const alternativeNames$ = alternatives$.pipe(
-        map((alternatives) => new Map(alternatives.map((x) => [x.id ?? 0, x.name]))),
-    );
+    export const alternativeNames$ = alternatives$.pipe(map(createAlternativeNameMap));
 
     export const [selectChange$, selectAlternative] = createSignal<number>();
     export const selection$ = merge(selectChange$, alternatives$.pipe(map((alternatives) => alternatives[0].id ?? 0)));
@@ -100,10 +100,5 @@ export namespace ResultModel {
     );
 
     export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));
-    export const optionalsByTag$ = optionals$.pipe(
-        map(
-            (optionals) =>
-                new Map<string, Optional>(optionals.map((optional) => [`${optional.altId} ${optional.tag}`, optional])),
-        ),
-    );
+    export const optionalsByTag$ = optionals$.pipe(map((optionals) => groupOptionalByTag(optionals)));
 }

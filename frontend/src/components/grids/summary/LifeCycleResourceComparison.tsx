@@ -1,17 +1,10 @@
 import { bind } from "@react-rxjs/core";
-import { FuelType } from "blcc-format/Format";
 import { alternatives$ } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
-import { dollarFormatter, getOptionalTag, numberFormatter } from "util/Util";
-
-type Row = {
-    category: string;
-    subcategory: string;
-} & {
-    [key: string]: number;
-};
+import { type CategorySubcategoryRow, createLccResourceRows } from "util/ResultCalculations";
+import { dollarFormatter, numberFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white",
@@ -26,7 +19,7 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
-                        renderCell: ({ row, rowIdx }: { row: Row; rowIdx: number }) => {
+                        renderCell: ({ row, rowIdx }: { row: CategorySubcategoryRow; rowIdx: number }) => {
                             const formatter = rowIdx > 5 ? numberFormatter : dollarFormatter;
                             return (
                                 <p className={"text-right"}>
@@ -35,7 +28,7 @@ const [useColumns] = bind(
                             );
                         },
                         ...cellClasses,
-                    }) as Column<Row>,
+                    }) as Column<CategorySubcategoryRow>,
             );
 
             cols.unshift(
@@ -59,46 +52,7 @@ const [useColumns] = bind(
     [],
 );
 
-const [useRows] = bind(
-    ResultModel.measures$.pipe(
-        map((measures) => {
-            const consumption = [
-                FuelType.ELECTRICITY,
-                FuelType.NATURAL_GAS,
-                FuelType.DISTILLATE_OIL,
-                FuelType.RESIDUAL_OIL,
-                FuelType.PROPANE,
-                "Energy",
-            ].map((fuelType) => getOptionalTag(measures, fuelType));
-
-            const emissions = [
-                FuelType.ELECTRICITY,
-                FuelType.NATURAL_GAS,
-                FuelType.DISTILLATE_OIL,
-                FuelType.RESIDUAL_OIL,
-                FuelType.PROPANE,
-                "Emissions",
-            ].map((fuelType) => getOptionalTag(measures, `${fuelType} Emissions`));
-
-            return [
-                { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...consumption[0] },
-                { subcategory: FuelType.NATURAL_GAS, ...consumption[1] },
-                { subcategory: FuelType.DISTILLATE_OIL, ...consumption[2] },
-                { subcategory: FuelType.RESIDUAL_OIL, ...consumption[3] },
-                { subcategory: FuelType.PROPANE, ...consumption[4] },
-                { subcategory: "Total", ...consumption[5] },
-                { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
-                { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
-                { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
-                { subcategory: FuelType.RESIDUAL_OIL, ...emissions[3] },
-                { subcategory: FuelType.PROPANE, ...emissions[4] },
-                { subcategory: "Total", ...emissions[5] },
-                { category: "Water", subcategory: "Use" }, //TODO: Add in water usage category
-            ] as Row[];
-        }),
-    ),
-    [] as Row[],
-);
+const [useRows] = bind(ResultModel.measures$.pipe(map((measures) => createLccResourceRows(measures))), []);
 
 export default function LifeCycleResourceComparison() {
     const rows = useRows();
@@ -115,7 +69,9 @@ export default function LifeCycleResourceComparison() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: Row, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
+                rowClass={(_row: CategorySubcategoryRow, index: number) =>
+                    index % 2 === 0 ? "bg-white" : "bg-base-lightest"
+                }
                 rowGetter={rows}
                 rowsCount={rows.length}
             />
