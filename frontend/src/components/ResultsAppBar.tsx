@@ -1,5 +1,6 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
+import { Subscribe } from "@react-rxjs/core";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -46,11 +47,6 @@ export default function ResultsAppBar() {
         },
     );*/
 
-    const loading = ResultModel.isLoading();
-    const timestamp = ResultModel.useTimestamp();
-
-    const name = Model.name.use();
-
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
             <ButtonBar className={"p-2"}>
@@ -67,27 +63,39 @@ export default function ResultsAppBar() {
                     Export CSV
                 </Button>
             </ButtonBar>
-            <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-                <p className={"text-white"}>{name}</p>
-                <div className={"flex flex-row items-center gap-4"}>
-                    <div className={"pl-4"}>
-                        <Button
-                            type={ButtonType.PRIMARY_INVERTED}
-                            icon={mdiPlay}
-                            iconSide={"right"}
-                            onClick={() => ResultModel.Actions.run()}
-                            disabled={loading}
-                        >
-                            Run
-                        </Button>
-                    </div>
-                    {loading && <Icon className={"animate-spin text-off-white"} path={mdiLoading} size={1} />}
-                    {!loading && timestamp && (
-                        <p className={"text-base-lighter"}>Last run at {timestamp.toLocaleString()}</p>
-                    )}
-                </div>
-            </div>
+            <Subscribe>
+                <CenterContent />
+            </Subscribe>
             <HelpButtons />
         </AppBar>
+    );
+}
+
+function CenterContent() {
+    const loading = ResultModel.isLoading();
+    const timestamp = ResultModel.useTimestamp();
+    const name = Model.name.use();
+
+    return (
+        <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
+            <p className={"text-white"}>{name}</p>
+            <div className={"flex flex-row items-center gap-4"}>
+                <div className={"pl-4"}>
+                    <Button
+                        type={ButtonType.PRIMARY_INVERTED}
+                        icon={mdiPlay}
+                        iconSide={"right"}
+                        onClick={() => ResultModel.Actions.run()}
+                        disabled={loading}
+                    >
+                        Run
+                    </Button>
+                </div>
+                {loading && <Icon className={"animate-spin text-off-white"} path={mdiLoading} size={1} />}
+                {!loading && timestamp && (
+                    <p className={"text-base-lighter"}>Last run at {timestamp.toLocaleString()}</p>
+                )}
+            </div>
+        </div>
     );
 }

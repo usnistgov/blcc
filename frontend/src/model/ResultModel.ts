@@ -32,6 +32,7 @@ export namespace ResultModel {
 
     // Result stream that pulls from cache if available.
     export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
+    result$.subscribe((x) => console.log("Hash", x));
     export const [useResult] = bind(result$, undefined);
     export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
 
