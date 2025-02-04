@@ -46,6 +46,7 @@ export type LccBaselineRow = {
     spp: number;
     dpp: number;
     initialCost: number;
+    lcc: number;
     deltaEnergy: number;
     deltaGhg: number;
     deltaScc: number;
@@ -62,7 +63,8 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
         airr: measure.airr,
         spp: measure.spp,
         dpp: measure.dpp,
-        initialCost: measure.totalCosts,
+        initialCost: measure.totalTagFlows["Initial Investment"],
+        lcc: measure.totalCosts,
         deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
         deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
         deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
