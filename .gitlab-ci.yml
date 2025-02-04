@@ -58,6 +58,7 @@ frontend-build:
           - frontend/pnpm-lock.yaml
       paths:
         - frontend/node_modules
+        - ~/.cache/Cypress
   artifacts:
     paths:
       - frontend/dist/*
@@ -70,6 +71,18 @@ testing:
     - name: docker.nist.gov:4567/eldst/blcc:db
       alias: postgres
   stage: test
+  cache:
+    - key:
+        files:
+          - backend/Cargo.lock
+      paths:
+        - backend/target
+    - key:
+        files:
+          - frontend/pnpm-lock.yaml
+      paths:
+        - frontend/node_modules
+        - ~/.cache/Cypress
   before_script:
     - cd frontend
     - npm install -g corepack@latest
