@@ -1,12 +1,21 @@
-import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
+import {
+    mdiArrowLeft,
+    mdiCodeJson,
+    mdiContentSave,
+    mdiFileDownload,
+    mdiLoading,
+    mdiPlay,
+    mdiTableArrowDown,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import { Subscribe } from "@react-rxjs/core";
-import { downloadBlccFile, downloadCsv, downloadPdf } from "blcc-format/DownloadFile";
+import { downloadBlccFile, downloadCsv, downloadE3Request, downloadPdf } from "blcc-format/DownloadFile";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { Effect } from "effect";
+import { toE3ObjectEffect } from "model/E3Request";
 import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import React from "react";
@@ -29,6 +38,12 @@ export default function ResultsAppBar() {
                 </Button>
                 <Button icon={mdiTableArrowDown} onClick={() => Effect.runPromise(downloadCsv)}>
                     Export CSV
+                </Button>
+                <Button
+                    icon={mdiCodeJson}
+                    onClick={() => Effect.runPromise(toE3ObjectEffect.pipe(Effect.andThen(downloadE3Request)))}
+                >
+                    E3 Request
                 </Button>
             </ButtonBar>
             <Subscribe>

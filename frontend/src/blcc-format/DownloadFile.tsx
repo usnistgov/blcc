@@ -1,4 +1,4 @@
-import type { Output } from "@lrd/e3-sdk";
+import type { AnalysisBuilder, Output, RequestBuilder } from "@lrd/e3-sdk";
 import { pdf } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
@@ -319,3 +319,16 @@ export const downloadCsv = Effect.gen(function* () {
 });
 
 const createCsvBlob = (csv: string) => Effect.sync(() => new Blob([csv], { type: "text/csv" }));
+
+export const downloadE3Request = (builder: RequestBuilder) =>
+    Effect.gen(function* () {
+        const project = yield* getProject(Defaults.PROJECT_ID);
+
+        if (project === undefined) return;
+
+        download(
+            new Blob([JSON.stringify(builder.build(), null, 2)], { type: "application/json" }),
+            `${project.name}-E3.json`,
+            "application/json",
+        );
+    });

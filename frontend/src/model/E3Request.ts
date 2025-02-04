@@ -76,7 +76,7 @@ const getScc = (project: Project) =>
 
 export class E3GenerationError extends Data.TaggedError("E3GenerationError") {}
 
-const toE3ObjectEffect = Effect.gen(function* () {
+export const toE3ObjectEffect = Effect.gen(function* () {
     const project = yield* getProject(Defaults.PROJECT_ID);
 
     if (project === undefined) return yield* Effect.fail(new E3GenerationError());
