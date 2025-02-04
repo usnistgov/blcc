@@ -17,7 +17,7 @@ const columns = [
         name: "Investment",
         key: "investment",
         renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.total)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.investment)}</p>
         ),
         ...cellClasses,
     },

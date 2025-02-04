@@ -1,6 +1,7 @@
 import { mdiArrowLeft, mdiContentSave, mdiFileDownload, mdiLoading, mdiPlay, mdiTableArrowDown } from "@mdi/js";
 import Icon from "@mdi/react";
 import { Subscribe } from "@react-rxjs/core";
+import { downloadBlccFile, downloadCsv, downloadPdf } from "blcc-format/DownloadFile";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -10,42 +11,9 @@ import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject } from "rxjs";
-import { downloadBlccFile, downloadPdf } from "util/DownloadFile";
-
-const csvClick$ = new Subject<void>();
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
-
-    /*    useSubscribe(
-        csvClick$.pipe(
-            withLatestFrom(
-                lccRows,
-                lccBaseline,
-                npvCosts,
-                lccResourceRows,
-                npvComparison,
-                altNPV,
-                resourceUsage,
-                npvAll,
-            ),
-        ),
-        ([_, lccRows, lccBaseline, npvCosts, lccResourceRows, npvComparison, altNPV, resourceUsage, npvAll]) => {
-            const summary = { lccRows, lccBaseline, npvCosts, lccResourceRows };
-            const annual = { npvComparison, npvAll };
-            const altResults = { altNPV, resourceUsage };
-            // Trigger CSV download
-            const link = document.createElement("a");
-            const csvData = CSVDownload(project, summary, annual, altResults);
-            const csvBlob = new Blob([csvData.join("\n")], { type: "text/csv" });
-            const url = window.URL.createObjectURL(csvBlob);
-            link.href = url;
-            link.download = `${project?.[0]?.name}.csv`; // Set the desired file name
-            link.click();
-            window.URL.revokeObjectURL(url); // Clean up the URL object
-        },
-    );*/
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
@@ -59,7 +27,7 @@ export default function ResultsAppBar() {
                 <Button icon={mdiFileDownload} onClick={() => Effect.runPromise(downloadPdf)}>
                     Export PDF
                 </Button>
-                <Button icon={mdiTableArrowDown} onClick={() => csvClick$.next()}>
+                <Button icon={mdiTableArrowDown} onClick={() => Effect.runPromise(downloadCsv)}>
                     Export CSV
                 </Button>
             </ButtonBar>
