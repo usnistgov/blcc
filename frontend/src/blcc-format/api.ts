@@ -6,7 +6,7 @@ import {
     decodeNumberArray,
     decodeReleaseYear,
 } from "blcc-format/schema";
-import { Data, Effect } from "effect";
+import { Console, Data, Effect } from "effect";
 
 export class FetchError extends Data.TaggedError("FetchError") {}
 
@@ -132,7 +132,7 @@ export const fetchE3Request = (builder: RequestBuilder) =>
     Effect.gen(function* () {
         const request = builder.build();
 
-        yield* Effect.log("Sending E3 request", request);
+        yield* Console.log("Sending E3 request", request);
 
         const result = yield* Effect.tryPromise({
             try: () =>
@@ -146,7 +146,7 @@ export const fetchE3Request = (builder: RequestBuilder) =>
             catch: () => new FetchError(),
         }).pipe(Effect.andThen(jsonResponse));
 
-        yield* Effect.log("Got E3 result", result);
+        yield* Console.log("Got E3 result", result);
 
         return result as Output;
     });

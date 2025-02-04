@@ -34,6 +34,7 @@ import {
     type WaterCost,
 } from "blcc-format/Format";
 import { fetchE3Request, fetchEmissions, fetchScc } from "blcc-format/api";
+import Decimal from "decimal.js";
 import { Data, Effect } from "effect";
 import { getAlternatives, getCosts, getProject } from "model/db";
 import { match } from "ts-pattern";
@@ -64,7 +65,8 @@ const getSccOption = (option: SocialCostOfGhgScenario): string => {
 
 const getScc = (project: Project) =>
     Effect.gen(function* () {
-        if (project.studyPeriod === undefined) return undefined;
+        if (project.studyPeriod === undefined || project.ghg.socialCostOfGhgScenario === SocialCostOfGhgScenario.NONE)
+            return undefined;
 
         return yield* fetchScc(
             project.releaseYear,
@@ -319,7 +321,8 @@ function energyCostToBuilder(
                 .quantity(1)
                 .quantityValue(1)
                 .quantityVarRate(VarRate.YEAR_BY_YEAR)
-                .quantityVarValue(scc.map((v, i) => v * emissionValues[i]))
+                // Convert scc from $/ton to $/kg and multiply by emissions
+                .quantityVarValue(scc.map((v, i) => new Decimal(v).div(1000).mul(emissionValues[i]).toNumber()))
                 .quantityUnit("$/kg co2"),
         );
     }

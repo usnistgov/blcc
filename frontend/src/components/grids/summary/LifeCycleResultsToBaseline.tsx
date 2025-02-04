@@ -110,7 +110,8 @@ const columns = [
         key: "deltaScc",
         renderCell: ({ row }: { row: LccBaselineRow }) => {
             const value = row.deltaScc;
-            if (value === undefined || Number.isNaN(value)) return undefined;
+            if (value === undefined || Number.isNaN(value))
+                return <p className={"text-right"}>{dollarFormatter.format(0)}</p>;
 
             return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
         },
@@ -119,9 +120,13 @@ const columns = [
     {
         name: "Net Savings and SCC Reductions",
         key: "netSavings",
-        renderCell: ({ row }: { row: LccBaselineRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>
-        ),
+        renderCell: ({ row }: { row: LccBaselineRow }) => {
+            const value = row.netSavings;
+            if (value === undefined || Number.isNaN(value))
+                return <p className={"text-right"}>{dollarFormatter.format(0)}</p>;
+
+            return <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>;
+        },
         ...cellClasses,
     },
 ];
