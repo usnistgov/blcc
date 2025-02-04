@@ -10,7 +10,7 @@ import { type LccBaselineRow, createLccBaselineRows } from "util/ResultCalculati
 import { dollarFormatter, numberFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
@@ -18,7 +18,8 @@ const columns = [
     {
         name: "Alternative",
         key: "name",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Base Case",
@@ -31,6 +32,15 @@ const columns = [
                     </div>
                 );
         },
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
+    },
+    {
+        name: "LCC",
+        key: "lcc",
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row.lcc ?? 0)}</p>
+        ),
         ...cellClasses,
     },
     {
