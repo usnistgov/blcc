@@ -72,6 +72,7 @@ testing:
   stage: test
   before_script:
     - cd frontend
+    - npm install -g corepack@latest
     - corepack enable pnpm
     - pnpm config set @lrd:registry=$CI_API_V4_URL/projects/$E3_SDK_PROJECT_ID/packages/npm/
     - pnpm config set //gitlab.nist.gov/gitlab/api/v4/projects/$E3_SDK_PROJECT_ID/packages/npm/:_authToken="$E3_SDK_PROJECT_TOKEN"
