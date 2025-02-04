@@ -16,13 +16,6 @@ backend-build:
     - cd backend
     - rustup target add "x86_64-unknown-linux-musl"
     - cargo build --release --locked --target "x86_64-unknown-linux-musl"
-  rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        compare_to: 'refs/heads/main'
-        paths:
-          - './backend/*'
-          - './frontend/*'
   cache:
     - key:
         files:
@@ -45,13 +38,6 @@ frontend-build:
   script:
     - pnpm install
     - pnpm run build
-  rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        compare_to: 'refs/heads/main'
-        paths:
-          - './frontend/*'
-          - './backend/*'
   cache:
     - key:
         files:
@@ -133,8 +119,6 @@ docker-build:
     - docker:dind
   stage: docker
   tags: [dind]
-  rules: 
-    - !reference [frontend-build, rules]
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
