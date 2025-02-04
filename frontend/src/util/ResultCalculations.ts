@@ -64,11 +64,11 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
         spp: measure.spp,
         dpp: measure.dpp,
         initialCost: measure.totalTagFlows["Initial Investment"],
-        lcc: measure.totalCosts,
+        lcc: measure.totalTagFlows.LCC,
         deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
         deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
         deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
-        netSavings: measure.netSavings + measure.totalTagFlows.SCC,
+        netSavings: measure.netSavings + (measure.totalTagFlows.SCC ?? 0),
     }));
 }
 
