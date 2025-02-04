@@ -11,6 +11,7 @@ import "dexie-export-import";
 import { Subscribe } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { convert } from "blcc-format/Converter";
+import { download, downloadBlccFile } from "blcc-format/DownloadFile";
 import { resetToDefaultProject } from "blcc-format/effects";
 import { showMessage } from "components/modal/MessageModal";
 import saveDiscardModal from "components/modal/SaveDiscardModal";
@@ -18,7 +19,6 @@ import { Strings } from "constants/Strings";
 import { Effect } from "effect";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
-import { download, downloadBlccFile } from "util/DownloadFile";
 import { sampleMany } from "util/Operators";
 
 const [newClick$, newClick] = createSignal<void>();
