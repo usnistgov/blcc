@@ -1,7 +1,5 @@
-import type { Project } from "blcc-format/Format";
 import { type ConfirmConfig, confirm as modalConfirm } from "components/modal/ConfirmationModal";
 import type { Collection, Table } from "dexie";
-import { db } from "model/db";
 import {
     type Observable,
     type ObservableInputTuple,
@@ -175,5 +173,17 @@ export function sampleMany<T, Rest extends unknown[]>(
     return sampler.pipe(
         withLatestFrom(...inputs),
         map(([_, ...inputs]) => [...inputs]),
+    );
+}
+
+/**
+ * Only lets the observable emit when the given gate observabale is currently true.
+ * @param gate the observable to gate behind.
+ */
+export function gate<T>(gate: Observable<boolean>): UnaryFunction<Observable<T>, Observable<T>> {
+    return pipe(
+        withLatestFrom(gate),
+        filter(([t, gate]) => gate),
+        map(([t]) => t),
     );
 }

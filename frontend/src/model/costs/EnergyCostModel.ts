@@ -98,7 +98,13 @@ export namespace EnergyCostModel {
          * True if the location property exists, otherwise false.
          * Indicates we are using a custom location for this cost.
          */
-        export const [isUsingCustomLocation] = bind(location.$.pipe(map((location) => location !== undefined)));
+        export const [isUsingCustomLocation, isUsingCustomLocation$] = bind(
+            location.$.pipe(map((location) => location !== undefined)),
+        );
+
+        export const [isZipValid, isZipValid$] = bind(
+            model.zipcode.$.pipe(map((zip) => zip !== undefined && zip !== "" && zip.length === 5)),
+        );
 
         /**
          * Returns the global zipcode if location is undefined, otherwise returns the overridden zipcode
@@ -118,6 +124,8 @@ export namespace EnergyCostModel {
             switchMap((zip) => makeApiRequest<ZipInfoResponse[]>("zip_info", { zip: Number.parseInt(zip ?? "0") })),
             map(index(0)),
         );
+
+        zipInfo$.subscribe((x) => console.log("Hello", x));
 
         export namespace Actions {
             export const toggleLocation = Location.toggleLocation;

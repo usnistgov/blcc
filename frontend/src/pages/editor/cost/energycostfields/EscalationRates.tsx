@@ -3,12 +3,13 @@ import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
 import { Button, ButtonType } from "components/input/Button";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import { Strings } from "constants/Strings";
+import { useSubscribe } from "hooks/UseSubscribe";
 import { type EscalationRateInfo, EscalationRateModel } from "model/EscalationRateModel";
+import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import type { ReactNode } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { Link } from "react-router-dom";
-import type { Observable } from "rxjs";
+import { type Observable, combineLatest } from "rxjs";
 import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type EscalationRatesProps = {
@@ -49,6 +50,23 @@ const COLUMNS = [
 export default function EscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
     const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
+
+    // If the location is set to null, and we are not using custom rates, reset to project rates if available
+    useSubscribe(
+        combineLatest([
+            EnergyCostModel.location.$,
+            EnergyCostModel.Location.isZipValid$,
+            EscalationRateModel.isUsingCustomEscalationRates$,
+        ]),
+        ([location, isZipValid, isUsingCustomEscalationRates]) => {
+            if ((location === undefined || !isZipValid) && !isUsingCustomEscalationRates) {
+                EscalationRateModel.escalation.set(undefined);
+            }
+        },
+    );
+
+    // Set the rates when the custom zipcode get set
+    useSubscribe(EscalationRateModel.setCustomZipRates$, (rates) => EscalationRateModel.escalation.set(rates));
 
     return (
         <div>
@@ -97,11 +115,27 @@ function EscalationRateGrid() {
 }
 
 function Message() {
-    return EscalationRateModel.isProjectRatesValid() ? (
-        <div className={"flex flex-col gap-y-2 text-base-dark"}>
-            <p>Please select a Customer Sector</p>
-        </div>
-    ) : (
+    const isUsingCustomLocation = EnergyCostModel.Location.isUsingCustomLocation();
+    const isCustomZipValid = EnergyCostModel.Location.isZipValid();
+    const isSectorValid = EnergyCostModel;
+
+    if (!isSectorValid) {
+        return (
+            <div className={"flex flex-col gap-y-2 text-base-dark"}>
+                <p>Please select a Customer Sector</p>
+            </div>
+        );
+    }
+
+    if (isUsingCustomLocation && !isCustomZipValid) {
+        return (
+            <div className={"flex flex-col gap-y-2 text-base-dark"}>
+                <p>Custom ZIP code is invalid</p>
+            </div>
+        );
+    }
+
+    return (
         <div className={"flex flex-col gap-y-2 text-base-dark"}>
             <p>Default escalation rates requires a ZIP code</p>
             <p>
