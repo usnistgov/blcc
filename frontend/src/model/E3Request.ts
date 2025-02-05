@@ -204,7 +204,6 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 cost.residualValue,
                 studyPeriod,
                 cost.annualRateOfChange ?? 0,
-                [tag],
             ),
         );
 
@@ -532,12 +531,12 @@ function residualValueBcn(
 ): BcnBuilder {
     return new BcnBuilder()
         .name(`${cost.name} Residual Value`)
-        .type(BcnType.BENEFIT)
+        .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .addTag(...tags)
         .addTag("LCC", "Residual Value")
         .real()
-        .initialOccurrence(studyPeriod + 1)
+        .initialOccurrence(studyPeriod)
         .quantity(1)
         .quantityValue(
             obj.approach === DollarOrPercent.PERCENT
