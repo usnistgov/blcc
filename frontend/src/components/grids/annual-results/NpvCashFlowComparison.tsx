@@ -101,6 +101,7 @@ export default function NpvCashFlowComparison() {
                     // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#b3b9bd",
+                    "--rdg-color": "#000000",
                     "--rdg-row-hover-background-color": "#A9AEB1",
                 }}
                 rowClass={(_row: NpvCashflowComparisonRow, index: number) =>
