@@ -7,12 +7,12 @@ import { type AlternativeNpvCashflowRow, createAlternativeNpvCashflowRow } from 
 import { dollarFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
 const columns = [
-    { name: "Year", key: "year", ...cellClasses },
+    { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-left", cellClass: "text-ink" },
     {
         name: "Investment",
         key: "investment",
@@ -23,7 +23,8 @@ const columns = [
     },
     {
         name: "Energy",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
         children: [
             {
                 name: "Consumption",
@@ -54,7 +55,8 @@ const columns = [
 
     {
         name: "Water",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
         children: [
             {
                 name: "Use",
@@ -76,7 +78,8 @@ const columns = [
     },
     {
         name: "OMR",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
         children: [
             {
                 name: "Recurring",

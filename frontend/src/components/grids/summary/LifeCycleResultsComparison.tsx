@@ -10,7 +10,7 @@ import { type LccComparisonRow, createLccComparisonRows } from "util/ResultCalcu
 import { dollarFormatter, numberFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
@@ -18,7 +18,8 @@ const columns = [
     {
         name: "Alternative",
         key: "name",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Base Case",
@@ -31,7 +32,8 @@ const columns = [
                     </div>
                 );
         },
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Initial Cost",
