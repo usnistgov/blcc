@@ -166,10 +166,13 @@ export function createAlternativeNpvCashflowRow(
     const id = required.altId;
     const defaultArray = Array.apply(null, Array(required.totalCostsDiscounted.length)).map(() => 0);
 
+    console.log(optionals);
+
     const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
     const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
     const recurring = optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
     const nonRecurring = optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const residualValue = optionals.get(`${id} Residual Value`)?.totalTagCashflowDiscounted ?? defaultArray;
 
     return required.totalCostsDiscounted.map(
         (total, i) =>
@@ -179,6 +182,7 @@ export function createAlternativeNpvCashflowRow(
                 consumption: consumption[i],
                 recurring: recurring[i],
                 nonRecurring: nonRecurring[i],
+                residualValue: residualValue[i],
                 total,
             }) as AlternativeNpvCashflowRow,
     );
@@ -230,8 +234,8 @@ export function createAlternativeNpvCashflowTotalRow(measure: Measures): Alterna
         { subcategory: "Disposal " },
         { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
         { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
-        { category: "Replacement" },
-        { category: "Residual Value" },
+        { category: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
+        { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
     ] as AlternativeNpvCashflowTotalRow[]; //FIXME this could be typed better
 }
 
