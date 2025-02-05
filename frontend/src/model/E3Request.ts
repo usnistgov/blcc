@@ -418,8 +418,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .life(cost.expectedLife ?? 1)
         .initialOccurrence(cost.initialOccurrence ?? 1)
         .quantity(1)
-        .quantityValue(cost.initialCost)
-        .quantityValue(1);
+        .quantityValue(cost.initialCost);
 
     if (cost.residualValue)
         return [
