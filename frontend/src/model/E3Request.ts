@@ -220,19 +220,22 @@ function energyCostToBuilder(
 ): BcnBuilder[] {
     const result = [];
 
+    console.log(cost);
+
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit, "LCC")
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .recur(recurrence(cost))
         .quantityValue(cost.costPerUnit)
         .quantity(cost.annualConsumption);
 
+    console.log(builder);
+
     if (cost.escalation !== undefined) {
         // @ts-ignore
-        builder.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+        builder.recur(new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation));
     } else if (project.projectEscalationRates !== undefined) {
         // Get project escalation rates
         const escalation = project.projectEscalationRates
@@ -248,7 +251,9 @@ function energyCostToBuilder(
                     .otherwise(() => 0),
             ) as number[];
 
-        builder.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(escalation);
+        builder.recur(new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation));
+    } else {
+        builder.recur(recurrence(cost));
     }
 
     result.push(builder);
@@ -289,11 +294,11 @@ function energyCostToBuilder(
 
         result.push(rebateBcn);
     }
-    // FIXME Re-add use index
-    /*    if (cost.useIndex) {
+
+    if (cost.useIndex) {
         const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
         builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
-    }*/
+    }
 
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
@@ -413,8 +418,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .life(cost.expectedLife ?? 1)
         .initialOccurrence(cost.initialOccurrence ?? 1)
         .quantity(1)
-        .quantityValue(cost.initialCost)
-        .quantityValue(1);
+        .quantityValue(cost.initialCost);
 
     if (cost.residualValue)
         return [

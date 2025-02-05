@@ -68,12 +68,12 @@ export function NPVComparisonTable({ headers, rows }: NpvComparisonTableProps) {
                 ))}
             </View>
 
-            {rows?.map((alt: { year: number; [key: string]: number }) => (
-                <View style={styles.row} key={`${alt.key}_lcc`}>
+            {rows?.map((alt: { year: number; [key: string]: number }, i) => (
+                <View style={styles.row} key={`${alt.key}_lcc_${i}`}>
                     <Text style={styles.alt}>{alt.year}</Text>
-                    {Array.from({ length: headers.length - 1 }, (_, i) => (
-                        <Text key={i} style={styles.alt}>
-                            {dollarFormatter.format(alt[`${i}`])}
+                    {Array.from({ length: headers.length - 1 }, (_, j) => (
+                        <Text key={j} style={styles.alt}>
+                            {dollarFormatter.format(alt[`${j}`])}
                         </Text>
                     ))}
                 </View>
@@ -90,10 +90,10 @@ export function NPVAltTable({ rows }: NpvAltTableProps) {
     return (
         <View style={{ marginBottom: 10 }}>
             {/* results Table Header */}
-            {npvAltTableHeaders.map((headers, index) => (
-                <View key={`row_${index}`} style={styles.container}>
-                    {headers.map((header) => (
-                        <Text style={styles.value} key={`${header}_npvAlt`}>
+            {npvAltTableHeaders.map((headers, i) => (
+                <View key={`row_${i}`} style={styles.container}>
+                    {headers.map((header, j) => (
+                        <Text style={styles.value} key={`${header}_npvAlt_${j}`}>
                             {header}
                         </Text>
                     ))}

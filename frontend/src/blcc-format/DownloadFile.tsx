@@ -118,7 +118,8 @@ export const downloadPdf = Effect.gen(function* () {
     download(blob, `${project.name}.pdf`, "application/pdf");
 });
 
-const createPdfBlob = (element: React.ReactElement<DocumentProps>) => Effect.tryPromise(() => pdf(element).toBlob());
+const createPdfBlob = (element: React.ReactElement<DocumentProps>) =>
+    Effect.tryPromise({ try: () => pdf(element).toBlob(), catch: (error) => Effect.logError(error) });
 
 function wrapCell(value: number | string | boolean): string {
     return `"${value}"`;
