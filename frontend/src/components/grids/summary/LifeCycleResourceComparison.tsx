@@ -7,7 +7,7 @@ import { type CategorySubcategoryRow, createLccResourceRows } from "util/ResultC
 import { dollarFormatter, numberFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
@@ -37,12 +37,14 @@ const [useColumns] = bind(
                     key: "category",
                     // @ts-ignore
                     colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
-                    ...cellClasses,
+                    headerCellClass: "bg-primary text-white text-left",
+                    cellClass: "text-ink",
                 },
                 {
                     name: "Subcategory",
                     key: "subcategory",
-                    ...cellClasses,
+                    headerCellClass: "bg-primary text-white text-left",
+                    cellClass: "text-ink",
                 },
             );
 

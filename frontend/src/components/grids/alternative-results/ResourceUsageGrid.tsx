@@ -6,7 +6,7 @@ import { type ResourceUsageRow, createResourceUsageRow } from "util/ResultCalcul
 import { dollarFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
@@ -15,12 +15,14 @@ const columns = [
         name: "Resource Type",
         key: "category",
         colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Subcategory",
         key: "subcategory",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Consumption",
