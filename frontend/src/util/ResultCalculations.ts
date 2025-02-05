@@ -101,7 +101,7 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
  * Lifecycle Resource
  */
 export function createLccResourceRows(measures: Measures[]): CategorySubcategoryRow[] {
-    const consumption = [
+    const energy = [
         FuelType.ELECTRICITY,
         FuelType.NATURAL_GAS,
         FuelType.DISTILLATE_OIL,
@@ -120,12 +120,12 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
     ].map((fuelType) => getOptionalTag(measures, `${fuelType} Emissions`));
 
     return [
-        { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...consumption[0] },
-        { subcategory: FuelType.NATURAL_GAS, ...consumption[1] },
-        { subcategory: FuelType.DISTILLATE_OIL, ...consumption[2] },
-        { subcategory: FuelType.RESIDUAL_OIL, ...consumption[3] },
-        { subcategory: FuelType.PROPANE, ...consumption[4] },
-        { subcategory: "Total", ...consumption[5] },
+        { category: "Energy", subcategory: FuelType.ELECTRICITY, ...energy[0] },
+        { subcategory: FuelType.NATURAL_GAS, ...energy[1] },
+        { subcategory: FuelType.DISTILLATE_OIL, ...energy[2] },
+        { subcategory: FuelType.RESIDUAL_OIL, ...energy[3] },
+        { subcategory: FuelType.PROPANE, ...energy[4] },
+        { subcategory: "Total", ...energy[5] },
         { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
         { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
         { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
@@ -270,7 +270,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
 
     return [
         {
-            category: "Consumption",
+            category: "Energy",
             subcategory: FuelType.ELECTRICITY,
             consumption: consumption[0],
             emissions: emissions[0],
