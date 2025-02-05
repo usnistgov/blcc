@@ -7,7 +7,7 @@ import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
 import { type LccBaselineRow, createLccBaselineRows } from "util/ResultCalculations";
-import { dollarFormatter, numberFormatter } from "util/Util";
+import { dollarFormatter, numberFormatter, percentFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",
@@ -63,7 +63,7 @@ const columns = [
         name: "AIRR",
         key: "airr",
         renderCell: ({ row }: { row: LccBaselineRow }) => (
-            <p className={"text-right"}>{numberFormatter.format(row.airr)}</p>
+            <p className={"text-right"}>{percentFormatter.format(row.airr)}</p>
         ),
         ...cellClasses,
     },
