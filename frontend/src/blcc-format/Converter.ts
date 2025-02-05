@@ -294,15 +294,15 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 },
             } as ReplacementCapitalCost);
         case "NonRecurringCost":
+            const escalation = parseEscalation(cost.Escalation, studyPeriod);
+            const recurring = escalation === undefined ? undefined : { rateOfChangeValue : escalation };
             return db.costs.add({
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                recurring: {
-                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod)
-                }
+                recurring
             } as OMRCost);
         case "RecurringCost":
             return db.costs.add({
