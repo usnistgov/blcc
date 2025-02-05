@@ -21,6 +21,7 @@ import {
     DiscountingMethod,
     DollarOrPercent,
     type EnergyCost,
+    FuelType,
     type ImplementationContractCost,
     type OMRCost,
     type OtherCost,
@@ -109,7 +110,7 @@ export const toE3ObjectEffect = Effect.gen(function* () {
     // Create costs
     const costs = yield* getCosts;
     const costMap = new Map(
-        costs.map((cost) => [cost.id, costToBuilders(cost, project.studyPeriod ?? 0, emissions, scc)]),
+        costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions, scc)]),
     );
 
     // Define alternatives
@@ -137,6 +138,7 @@ export const toE3ObjectEffect = Effect.gen(function* () {
 export const e3Request = toE3ObjectEffect.pipe(Effect.andThen(fetchE3Request));
 
 function costToBuilders(
+    project: Project,
     cost: Cost,
     studyPeriod: number,
     emissions: readonly number[] | undefined,
@@ -144,7 +146,7 @@ function costToBuilders(
 ): BcnBuilder[] {
     return match(cost)
         .with({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod))
-        .with({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(cost, emissions, scc))
+        .with({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions, scc))
         .with({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost))
         .with({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) => replacementCapitalCostToBuilder(cost, studyPeriod))
         .with({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(cost))
@@ -211,6 +213,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
 }
 
 function energyCostToBuilder(
+    project: Project,
     cost: EnergyCost,
     emissions: readonly number[] | undefined,
     scc: readonly number[] | undefined,
@@ -230,6 +233,22 @@ function energyCostToBuilder(
     if (cost.escalation !== undefined) {
         // @ts-ignore
         builder.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
+    } else if (project.projectEscalationRates !== undefined) {
+        // Get project escalation rates
+        const escalation = project.projectEscalationRates
+            .filter((rate) => rate.sector === cost.customerSector)
+            .map((rate) =>
+                match(cost.fuelType)
+                    .with(FuelType.ELECTRICITY, () => rate.electricity)
+                    .with(FuelType.PROPANE, () => rate.propane)
+                    .with(FuelType.NATURAL_GAS, () => rate.naturalGas)
+                    .with(FuelType.COAL, () => rate.coal)
+                    .with(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil)
+                    .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
+                    .otherwise(() => 0),
+            ) as number[];
+
+        builder.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(escalation);
     }
 
     result.push(builder);
@@ -270,11 +289,11 @@ function energyCostToBuilder(
 
         result.push(rebateBcn);
     }
-
-    if (cost.useIndex) {
+    // FIXME Re-add use index
+    /*    if (cost.useIndex) {
         const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
         builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
-    }
+    }*/
 
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
