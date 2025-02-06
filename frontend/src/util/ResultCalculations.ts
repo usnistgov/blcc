@@ -152,6 +152,7 @@ export type AlternativeNpvCashflowRow = {
     nonRecurring: number;
     replace: number;
     residualValue: number;
+    otherCosts: number;
     total: number;
 };
 
@@ -174,6 +175,7 @@ export function createAlternativeNpvCashflowRow(
     const recurring = optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
     const nonRecurring = optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
     const residualValue = optionals.get(`${id} Residual Value`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const otherCosts = optionals.get(`${id} Other`)?.totalTagCashflowDiscounted ?? defaultArray;
 
     return required.totalCostsDiscounted.map(
         (total, i) =>
@@ -184,6 +186,7 @@ export function createAlternativeNpvCashflowRow(
                 recurring: recurring[i],
                 nonRecurring: nonRecurring[i],
                 residualValue: residualValue[i],
+                otherCosts: otherCosts[i],
                 total,
             }) as AlternativeNpvCashflowRow,
     );
