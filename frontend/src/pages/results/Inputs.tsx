@@ -86,10 +86,6 @@ export default function Inputs() {
                         </Divider>
                         <ResultsInput label="Data Source" dataVal={project.ghg.dataSource} />
                         <ResultsInput label={"Emissions Rate Type"} dataVal={project.ghg.emissionsRateType} />
-                        <ResultsInput
-                            label="Social Cost of GHG Scenario"
-                            dataVal={project.ghg.socialCostOfGhgScenario}
-                        />
                     </div>
                 </div>
             )}
