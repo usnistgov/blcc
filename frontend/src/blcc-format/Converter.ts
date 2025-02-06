@@ -402,7 +402,7 @@ function parseFuelType(fuelType: string): FuelType {
     }
 }
 
-function parseUnit(unit: string): Unit | undefined {
+export function parseUnit(unit: string): Unit | undefined {
     switch (unit) {
         //Energy
         case "kWh":

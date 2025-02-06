@@ -20,10 +20,9 @@ const [useColumns] = bind(
                         name: alternative.name,
                         key: i.toString(),
                         renderCell: ({ row, rowIdx }: { row: CategorySubcategoryRow; rowIdx: number }) => {
-                            const formatter = rowIdx > 5 ? numberFormatter : dollarFormatter;
                             return (
                                 <p className={"text-right"}>
-                                    {formatter.format(row[i.toString()] ?? 0)} {rowIdx > 5 && "kg co2"}
+                                    {numberFormatter.format(row[i.toString()] ?? 0)} {rowIdx > 5 && "kg co2"} {rowIdx <= 5 && "MWh"}
                                 </p>
                             );
                         },

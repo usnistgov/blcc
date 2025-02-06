@@ -220,8 +220,6 @@ function energyCostToBuilder(
 ): BcnBuilder[] {
     const result = [];
 
-    console.log(cost);
-
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit, "LCC")
@@ -229,9 +227,8 @@ function energyCostToBuilder(
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .quantityValue(cost.costPerUnit)
-        .quantity(cost.annualConsumption);
-
-    console.log(builder);
+        .quantity(cost.annualConsumption)
+        .quantityUnit(cost.unit ?? "");
 
     if (cost.escalation !== undefined) {
         // @ts-ignore
@@ -377,7 +374,8 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .invest()
                 .recur(recurBuilder)
                 .quantity(usage.amount)
-                .quantityValue(usage.costPerUnit);
+                .quantityValue(usage.costPerUnit)
+                .quantityUnit(cost.unit ?? "");;
 
             if (cost.useIndex) {
                 const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
@@ -510,7 +508,8 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
         .type(BcnType.NON_MONETARY)
         .subType(BcnSubType.DIRECT)
         .quantity(cost.numberOfUnits)
-        .quantityValue(1);
+        .quantityValue(1)
+        .quantityUnit(cost.unit ?? "");
 
     applyRateOfChange(builder, cost);
 

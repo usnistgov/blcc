@@ -1,7 +1,8 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
-import { EnergyUnit, FuelType, type ID } from "blcc-format/Format";
+import { EnergyUnit, FuelType, Unit, type ID } from "blcc-format/Format";
 import { getOptionalTag } from "util/Util";
 import { getConvertMap } from "./UnitConversion";
+import { parseUnit } from "blcc-format/Converter";
 
 /*
  * Lifecycle Comparison
@@ -107,9 +108,8 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
         FuelType.NATURAL_GAS,
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
-        FuelType.PROPANE,
-        "Energy",
-    ].map((fuelType) => getOptionalTag(measures, fuelType));
+        FuelType.PROPANE
+    ].map((fuelType) => getMWhByFuelTypeForMeasures(measures, fuelType));
 
     const emissions = [
         FuelType.ELECTRICITY,
@@ -126,7 +126,7 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
         { subcategory: FuelType.DISTILLATE_OIL, ...energy[2] },
         { subcategory: FuelType.RESIDUAL_OIL, ...energy[3] },
         { subcategory: FuelType.PROPANE, ...energy[4] },
-        { subcategory: "Total", ...energy[5] },
+        { subcategory: "Total", ...getTotalEnergyForMeasures(measures) },
         { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
         { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
         { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
@@ -256,9 +256,8 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.NATURAL_GAS,
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
-        FuelType.PROPANE,
-        "Energy",
-    ].map((fuelType) => measure.totalTagFlows[fuelType]);
+        FuelType.PROPANE
+    ].map((fuelType) => getMWhByFuelType(measure, fuelType));
 
     const emissions = [
         FuelType.ELECTRICITY,
@@ -280,7 +279,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         { subcategory: FuelType.DISTILLATE_OIL, consumption: consumption[2], emissions: emissions[2] },
         { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
         { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
-        { subcategory: "Total", consumption: consumption[5], emissions: emissions[5] },
+        { subcategory: "Total", consumption: getTotalEnergy(measure), emissions: emissions[5] },
         { category: "Water", subcategory: "Use" },
     ] as ResourceUsageRow[]; //FIXME this could be typed better
 }
@@ -294,5 +293,27 @@ function getTotalEnergy(measure: Measures): number {
         } 
     }
     return totalEnergy;
+}
+
+function getMWhByFuelType(measure: Measures, fuelType: string): number {
+    const amount = measure.quantitySum[fuelType];
+    const unit = parseUnit(measure.quantityUnits[fuelType]);
+    return (amount != null && unit != null) ? (getConvertMap(FuelType.ELECTRICITY)[unit]?.(amount) ?? 0) : 0;
+}
+
+function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: number } {
+    const MWhByFuelType: { [key: string]: number} = {};
+    for (let i = 0; i < measures.length; i++) {
+        MWhByFuelType[i.toString()] = getTotalEnergy(measures[i]);
+    }
+    return MWhByFuelType;
+}
+
+function getMWhByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: number } {
+    const MWhByFuelType: { [key: string]: number} = {};
+    for (let i = 0; i < measures.length; i++) {
+        MWhByFuelType[i.toString()] = getMWhByFuelType(measures[i], fuelType);
+    }
+    return MWhByFuelType;
 }
 
