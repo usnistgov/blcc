@@ -95,7 +95,7 @@ async fn main() -> std::io::Result<()> {
                     .add((
                         "Content-Security-Policy",
                         "default-src 'self' https://*.nist.gov; \
-                        script-src 'self'; \
+                        script-src 'self' 'wasm-unsafe-eval'; \
                         style-src 'self' 'unsafe-inline'; \
                         img-src 'self' https://pages.nist.gov; \
                         connect-src 'self' https://*.nist.gov; \
