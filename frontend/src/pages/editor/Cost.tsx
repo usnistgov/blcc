@@ -2,7 +2,7 @@ import { mdiArrowLeft, mdiChevronRight, mdiContentCopy, mdiMinus, mdiPlus } from
 import Icon from "@mdi/react";
 import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
-import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
+import { CostTypes, type EnergyCost, type Cost as FormatCost, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
 import { CostSavingsSwitch } from "components/CostSavingsSwitch";
 import Info from "components/Info";
@@ -36,6 +36,7 @@ import { cloneName } from "util/Util";
 import sToggleAlt$ = CostModel.sToggleAlt$;
 import cost = CostModel.cost;
 import useParamSync from "hooks/useParamSync";
+import { EnergyCostModel } from "model/costs/EnergyCostModel";
 
 const { Title } = Typography;
 
@@ -135,6 +136,7 @@ export default function Cost() {
     //useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
 
     const costType = CostModel.type.use();
+    const fuelType = EnergyCostModel.fuelType.use();
 
     return (
         <motion.div
@@ -144,7 +146,9 @@ export default function Cost() {
             animate={{ opacity: 1, speed: 0.5 }}
             transition={{ duration: 0.2 }}
         >
-            <AddCostModal open$={openCostModal$.pipe(map(() => costType))} />
+            <AddCostModal
+                open$={openCostModal$.pipe(map(() => (costType === CostTypes.ENERGY ? fuelType : costType)))}
+            />
 
             <SubHeader>
                 <div className="flex justify-between">
