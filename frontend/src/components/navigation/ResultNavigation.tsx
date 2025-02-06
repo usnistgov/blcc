@@ -1,13 +1,13 @@
 import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEditOutline } from "@mdi/js";
+import { Button } from "components/input/Button";
+import { useActiveLink } from "hooks/UseActiveLink";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useActiveLink } from "../../hooks/UseActiveLink";
-import { Button } from "../input/Button";
 
 export default function ResultNavigation() {
     const navigate = useNavigate();
     return (
         <>
-            <nav className="z-40 shadow-lg flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest">
+            <nav className="z-40 flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 <Button
                     className={useActiveLink("/results")}
                     icon={mdiFormatListText}
