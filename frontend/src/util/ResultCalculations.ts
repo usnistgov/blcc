@@ -301,16 +301,16 @@ function getMWhByFuelType(measure: Measures, fuelType: string): number {
     return (amount != null && unit != null) ? (getConvertMap(FuelType.ELECTRICITY)[unit]?.(amount) ?? 0) : 0;
 }
 
-function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: any } {
-    let MWhByFuelType: { [key: string]: number} = {};
+function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: number } {
+    const MWhByFuelType: { [key: string]: number} = {};
     for (let i = 0; i < measures.length; i++) {
         MWhByFuelType[i.toString()] = getTotalEnergy(measures[i]);
     }
     return MWhByFuelType;
 }
 
-function getMWhByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: any } {
-    let MWhByFuelType: { [key: string]: number} = {};
+function getMWhByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: number } {
+    const MWhByFuelType: { [key: string]: number} = {};
     for (let i = 0; i < measures.length; i++) {
         MWhByFuelType[i.toString()] = getMWhByFuelType(measures[i], fuelType);
     }
