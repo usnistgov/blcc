@@ -240,6 +240,7 @@ export function createAlternativeNpvCashflowTotalRow(measure: Measures): Alterna
         { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
         { category: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
         { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
+        { category: "Other Monetary Costs", alternative: measure.totalTagFlows["Other"]}
     ] as AlternativeNpvCashflowTotalRow[]; //FIXME this could be typed better
 }
 
