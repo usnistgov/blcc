@@ -28,7 +28,7 @@ const columns = [
         name: "Consumption",
         key: "consumption",
         renderCell: ({ row }: { row: ResourceUsageRow }) => (
-            <p className={"text-right"}>{numberFormatter.format(row.consumption ?? 0)} MWh</p>
+            <p className={"text-right"}>{numberFormatter.format(row.consumption ?? 0)} gJ</p>
         ),
         ...cellClasses,
     },

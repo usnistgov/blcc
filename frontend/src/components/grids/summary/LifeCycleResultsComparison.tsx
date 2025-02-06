@@ -55,7 +55,7 @@ const columns = [
         name: "Energy",
         key: "energy",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{numberFormatter.format(row.energy ?? 0)} MWh</p>
+            <p className={"text-right"}>{numberFormatter.format(row.energy ?? 0)} gJ</p>
         ),
         ...cellClasses,
     },

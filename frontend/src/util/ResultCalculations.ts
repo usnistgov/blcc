@@ -1,7 +1,7 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
 import { EnergyUnit, FuelType, Unit, type ID } from "blcc-format/Format";
 import { getOptionalTag } from "util/Util";
-import { getConvertMap } from "./UnitConversion";
+import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 import { parseUnit } from "blcc-format/Converter";
 
 /*
@@ -109,7 +109,7 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE
-    ].map((fuelType) => getMWhByFuelTypeForMeasures(measures, fuelType));
+    ].map((fuelType) => getGJByFuelTypeForMeasures(measures, fuelType));
 
     const emissions = [
         FuelType.ELECTRICITY,
@@ -257,7 +257,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE
-    ].map((fuelType) => getMWhByFuelType(measure, fuelType));
+    ].map((fuelType) => getGJByFuelType(measure, fuelType));
 
     const emissions = [
         FuelType.ELECTRICITY,
@@ -289,16 +289,16 @@ function getTotalEnergy(measure: Measures): number {
     for (const energyUnit of Object.values(EnergyUnit)) {
         const amount: number = measure.quantitySum[energyUnit] ?? 0;
         if (amount > 0) {
-            totalEnergy += getConvertMap(FuelType.ELECTRICITY)[energyUnit]?.(amount) ?? 0;
+            totalEnergy += getConvertMapGJ(FuelType.ELECTRICITY)[energyUnit]?.(amount) ?? 0;
         } 
     }
     return totalEnergy;
 }
 
-function getMWhByFuelType(measure: Measures, fuelType: string): number {
+function getGJByFuelType(measure: Measures, fuelType: string): number {
     const amount = measure.quantitySum[fuelType];
     const unit = parseUnit(measure.quantityUnits[fuelType]);
-    return (amount != null && unit != null) ? (getConvertMap(FuelType.ELECTRICITY)[unit]?.(amount) ?? 0) : 0;
+    return (amount != null && unit != null) ? (getConvertMapGJ(FuelType.ELECTRICITY)[unit]?.(amount) ?? 0) : 0;
 }
 
 function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: number } {
@@ -309,10 +309,10 @@ function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: numbe
     return MWhByFuelType;
 }
 
-function getMWhByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: number } {
+function getGJByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: number } {
     const MWhByFuelType: { [key: string]: number} = {};
     for (let i = 0; i < measures.length; i++) {
-        MWhByFuelType[i.toString()] = getMWhByFuelType(measures[i], fuelType);
+        MWhByFuelType[i.toString()] = getGJByFuelType(measures[i], fuelType);
     }
     return MWhByFuelType;
 }
