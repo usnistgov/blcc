@@ -169,7 +169,6 @@ namespace DefaultCosts {
 
     export const OTHER_NON_MONETARY: Props<OtherNonMonetary> = {
         type: CostTypes.OTHER_NON_MONETARY,
-        tags: ["Other Non Monetary"],
         initialOccurrence: 0,
         numberOfUnits: 0,
     };
