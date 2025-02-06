@@ -226,10 +226,9 @@ function energyCostToBuilder(
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .recur(recurrence(cost))
         .quantityValue(cost.costPerUnit)
         .quantity(cost.annualConsumption)
-        .quantityUnit(cost.unit ?? "");;
+        .quantityUnit(cost.unit ?? "");
 
     if (cost.escalation !== undefined) {
         // @ts-ignore
