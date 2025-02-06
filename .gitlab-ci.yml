@@ -131,7 +131,7 @@ docker-build:
       artifacts: true
 
 include:
-  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.2.0
+  - component: $CI_SERVER_FQDN/ELDST/ci-components/portainer-deploy@1.2.1
     inputs:
       url: haproxy-p.el.nist.gov:9000
       name: blcc
