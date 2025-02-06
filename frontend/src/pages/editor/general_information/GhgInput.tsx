@@ -33,15 +33,6 @@ export default function GhgInput() {
                 getter={Model.emissionsRateType.use}
                 onChange={(change) => Model.emissionsRateType.set(change)}
             />
-            <TestSelect
-                label={"Social Cost of GHG Scenario"}
-                required
-                className={"w-full"}
-                info={Strings.SOCIAL_COST_GHG}
-                options={Object.values(SocialCostOfGhgScenario)}
-                getter={Model.socialCostOfGhgScenario.use}
-                onChange={(change) => Model.socialCostOfGhgScenario.set(change)}
-            />
         </div>
     );
 }
