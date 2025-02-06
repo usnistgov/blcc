@@ -52,7 +52,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
             key={costID}
             className={`${useActiveLink(
                 `/editor/alternative/:alternativeID/cost/${costID}`,
-            )} text-left text-nowrap overflow-hidden text-ellipsis`}
+            )} overflow-hidden text-ellipsis text-nowrap text-left`}
             type={ButtonType.PRIMARY_DARK}
             onClick={() => {
                 CostModel.Actions.load(costID ?? 0);
@@ -60,7 +60,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
                 if (!location.pathname.endsWith(`cost/${costID}`)) navigate(`cost/${costID}`);
             }}
         >
-            <p className={"w-full text-ellipsis overflow-hidden"}>{name}</p>
+            <p className={"w-full overflow-hidden text-ellipsis"}>{name}</p>
         </Button>
     );
 }
@@ -70,7 +70,7 @@ function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: 
 
     return (
         <>
-            <span className={"flex flex-row place-items-center px-2 py-1 select-none"}>
+            <span className={"flex select-none flex-row place-items-center px-2 py-1"}>
                 <Icon className={"mr-1 min-w-[24px]"} path={item.icon} size={0.8} />
                 {item.title}
             </span>
@@ -91,7 +91,7 @@ export default function CostNavigation() {
             animate={{ translateX: 0 }}
             transition={{ duration: 0.08 }}
         >
-            <nav className="flex h-full max-w-64 w-fit flex-col gap-2 overflow-y-auto bg-primary-dark p-2 text-base-lightest ">
+            <nav className="flex h-full w-fit min-w-48 max-w-64 flex-col gap-2 overflow-y-auto bg-primary-dark p-2 text-base-lightest ">
                 {items.map((item) => (
                     <CostButtons key={item.title} item={item} costs$={item.costs$} />
                 ))}
