@@ -90,7 +90,7 @@ const columns = [
             const value = row.deltaEnergy;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
-            return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
+            return <p className={"text-right"}>{numberFormatter.format(value)} MWh</p>;
         },
         ...cellClasses,
     },

@@ -1,6 +1,7 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
-import { FuelType, type ID } from "blcc-format/Format";
+import { EnergyUnit, FuelType, type ID } from "blcc-format/Format";
 import { getOptionalTag } from "util/Util";
+import { getConvertMap } from "./UnitConversion";
 
 /*
  * Lifecycle Comparison
@@ -27,7 +28,7 @@ export function createLccComparisonRows(
             baseline: measure.altId === baselineID,
             initialCost: measure.totalTagFlows["Initial Investment"],
             lifeCycleCost: measure.totalTagFlows.LCC,
-            energy: measure.totalTagFlows.Energy,
+            energy: getTotalEnergy(measure),
             ghgEmissions: measure.totalTagFlows.Emissions,
             scc: measure.totalTagFlows.SCC,
             lccScc: measure.totalCosts,
@@ -65,9 +66,9 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
         dpp: measure.dpp,
         initialCost: measure.totalTagFlows["Initial Investment"],
         lcc: measure.totalTagFlows.LCC,
-        deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
-        deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
-        deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
+        deltaEnergy: (baseline == null ? 0 : getTotalEnergy(measure) - getTotalEnergy(baseline)),
+        deltaGhg: measure.totalTagFlows.Emissions - (baseline?.totalTagFlows.Emissions ?? 0),
+        deltaScc: measure.totalTagFlows.SCC - (baseline?.totalTagFlows.SCC ?? 0),
         netSavings: measure.netSavings + (measure.totalTagFlows.SCC ?? 0),
     }));
 }
@@ -283,3 +284,15 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         { category: "Water", subcategory: "Use" },
     ] as ResourceUsageRow[]; //FIXME this could be typed better
 }
+
+function getTotalEnergy(measure: Measures): number {
+    let totalEnergy = 0;
+    for (const energyUnit of Object.values(EnergyUnit)) {
+        const amount: number = measure.quantitySum[energyUnit] ?? 0;
+        if (amount > 0) {
+            totalEnergy += getConvertMap(FuelType.ELECTRICITY)[energyUnit]?.(amount) ?? 0;
+        } 
+    }
+    return totalEnergy;
+}
+
