@@ -65,7 +65,7 @@ const NATURAL_GAS = 1.09e6; // J/ft^3
 const OIL = 41.868; // GJ/m ton
 const COAL = 18.2; // GJ/m ton
 
-export const COAL_KG_CO2_PER_MEGAJOULE = 0.09042;
+export const COAL_KG_CO2E_PER_MEGAJOULE = 0.09042;
 
 function thermToMWh(therm: number) {
     return therm / 34.13;

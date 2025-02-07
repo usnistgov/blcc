@@ -163,7 +163,7 @@ export const downloadCsv = Effect.gen(function* () {
             "Initial Cost",
             "Life Cycle Cost",
             "Energy",
-            "GHG Emissions (kg co2)"
+            "GHG Emissions (kg CO2e)"
         ],
         ...summary.lccComparisonRows.map((row) =>
             [
@@ -187,7 +187,7 @@ export const downloadCsv = Effect.gen(function* () {
             "SPP",
             "DPP",
             "Change in Energy",
-            "Change in GHG (kg co2)"
+            "Change in GHG (kg CO2e)"
         ],
         ...summary.lccBaseline.map((row) =>
             [

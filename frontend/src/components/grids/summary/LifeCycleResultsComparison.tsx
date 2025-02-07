@@ -60,7 +60,7 @@ const columns = [
         ...cellClasses,
     },
     {
-        name: "GHG Emissions (kg co2)",
+        name: "GHG Emissions (kg CO2e)",
         key: "ghgEmissions",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{numberFormatter.format(row.ghgEmissions ?? 0)}</p>
