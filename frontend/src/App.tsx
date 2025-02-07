@@ -1,31 +1,32 @@
 import { Subscribe } from "@react-rxjs/core";
-import { checkDefaultProject } from "blcc-format/effects";
 import ConfirmationModal from "components/modal/ConfirmationModal";
 import MessageModal from "components/modal/MessageModal";
-import { Effect, Option } from "effect";
+import { Effect } from "effect";
+import { resetToDefaultProject } from "effect/DefaultProject";
 import { sProject$ } from "model/Model";
-import { getProject } from "model/db";
+import { DexieService } from "model/db";
 import Index from "pages/Index";
 import Editor from "pages/editor/Editor";
 import Results from "pages/results/Results";
 import { Route, Routes } from "react-router-dom";
+import { BlccRuntime } from "util/runtime";
 
-Effect.runPromise(
-    Effect.gen(function* () {
-        const optionDefaultProject = yield* checkDefaultProject;
+/**
+ * Load the project from the database and put into model or create default project if not project is found.
+ */
+const loadProject = Effect.gen(function* () {
+    const db = yield* DexieService;
 
-        if (Option.isSome(optionDefaultProject)) {
-            sProject$.next(Option.getOrThrow(optionDefaultProject));
-            return;
-        }
+    // Get project or default project if it is undefined
+    const project = yield* db.getProject().pipe(Effect.catchTag("UndefinedError", () => resetToDefaultProject));
+    yield* Effect.log(`Retrieving project ID: ${project.id}`);
 
-        const project = yield* getProject(1);
+    // Load project into model
+    sProject$.next(project);
+}).pipe(Effect.withSpan("Load Project Or Create Default"));
 
-        yield* Effect.log("Retrieving project", project);
-
-        if (project !== undefined) sProject$.next(project);
-    }),
-);
+// Run loading
+BlccRuntime.runPromise(loadProject);
 
 /**
  * Component containing the top level elements and router for the entire application.

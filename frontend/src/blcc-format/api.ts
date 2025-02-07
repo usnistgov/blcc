@@ -19,7 +19,14 @@ export const jsonResponse = (response: Response) =>
 export const fetchReleaseYears = Effect.tryPromise({
     try: () => fetch("/api/release_year", { method: "GET" }),
     catch: () => new FetchError(),
-}).pipe(Effect.andThen(jsonResponse), Effect.andThen(decodeReleaseYear));
+}).pipe(
+    Effect.filterOrFail(
+        (response) => response.ok,
+        () => new FetchError(),
+    ),
+    Effect.andThen(jsonResponse),
+    Effect.andThen(decodeReleaseYear),
+);
 
 export const fetchEscalationRates = (releaseYear: number, from: number, to: number, zip: number, eiaCase: Case) =>
     Effect.tryPromise({

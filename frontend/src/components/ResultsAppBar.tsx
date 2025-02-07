@@ -20,6 +20,7 @@ import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { BlccRuntime } from "util/runtime";
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
@@ -30,18 +31,18 @@ export default function ResultsAppBar() {
                 <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>
                     Back to Editor
                 </Button>
-                <Button icon={mdiContentSave} onClick={() => Effect.runPromise(downloadBlccFile)}>
+                <Button icon={mdiContentSave} onClick={() => BlccRuntime.runPromise(downloadBlccFile)}>
                     Save
                 </Button>
-                <Button icon={mdiFileDownload} onClick={() => Effect.runPromise(downloadPdf)}>
+                <Button icon={mdiFileDownload} onClick={() => BlccRuntime.runPromise(downloadPdf)}>
                     Export PDF
                 </Button>
-                <Button icon={mdiTableArrowDown} onClick={() => Effect.runPromise(downloadCsv)}>
+                <Button icon={mdiTableArrowDown} onClick={() => BlccRuntime.runPromise(downloadCsv)}>
                     Export CSV
                 </Button>
                 <Button
                     icon={mdiCodeJson}
-                    onClick={() => Effect.runPromise(toE3ObjectEffect.pipe(Effect.andThen(downloadE3Request)))}
+                    onClick={() => BlccRuntime.runPromise(toE3ObjectEffect.pipe(Effect.andThen(downloadE3Request)))}
                 >
                     E3 Request
                 </Button>

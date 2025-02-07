@@ -1,16 +1,11 @@
 import { Subscribe } from "@react-rxjs/core";
-import { checkDefaultProject } from "blcc-format/effects";
 import EditorAppBar from "components/EditorAppBar";
 import PageWrapper from "components/PageWrapper";
 import Statistics from "components/Statistics";
 import CostNavigation from "components/navigation/CostNavigation";
 import Navigation from "components/navigation/Navigation";
-import { liveQuery } from "dexie";
-import { Effect, Option, Sink, Stream } from "effect";
 import { AnimatePresence } from "framer-motion";
-import useParamSync, { Sync } from "hooks/useParamSync";
-import { sProject$ } from "model/Model";
-import { db, getProject, openDB } from "model/db";
+import { Sync } from "hooks/useParamSync";
 import AlternativeSummary from "pages/editor/AlternativeSummary";
 import Cost from "pages/editor/Cost";
 import Alternatives from "pages/editor/alternative/Alternatives";

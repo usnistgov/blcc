@@ -3,11 +3,12 @@ import { createSignal } from "@react-rxjs/utils";
 import type { Cost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { isRecurringCost } from "model/Guards";
-import { Model, Var } from "model/Model";
+import { Model } from "model/Model";
 import * as O from "optics-ts";
 import { combineLatestWith, filter, map } from "rxjs/operators";
 import { isConstant as isConstantOp, sampleMany } from "util/Operators";
 import { makeArray } from "util/Util";
+import { Var } from "util/var";
 
 export type RateChangeInfo = {
     year: number;

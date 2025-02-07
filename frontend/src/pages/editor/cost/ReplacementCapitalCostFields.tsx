@@ -4,8 +4,8 @@ import ResidualValue from "components/ResidualValue";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { CostModel } from "model/CostModel";
 import { isReplacementCapitalCost } from "model/Guards";
-import { Var } from "model/Model";
 import * as O from "optics-ts";
+import { Var } from "util/var";
 
 namespace Model {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);

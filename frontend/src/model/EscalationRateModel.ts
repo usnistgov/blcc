@@ -4,13 +4,14 @@ import { fetchEscalationRates } from "blcc-format/api";
 import { Effect } from "effect";
 import { CostModel } from "model/CostModel";
 import { isEscalationCost } from "model/Guards";
-import { Location, Model, Var, eiaCase, projectEscalationRates, releaseYear, studyPeriod } from "model/Model";
+import { Model } from "model/Model";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import * as O from "optics-ts";
-import { combineLatest, distinctUntilChanged, iif, map, of } from "rxjs";
+import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { combineLatestWith, filter, switchMap } from "rxjs/operators";
 import { match } from "ts-pattern";
 import { gate, guard } from "util/Operators";
+import { Var } from "util/var";
 
 export type EscalationRateInfo = {
     year: number;

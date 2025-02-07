@@ -1,11 +1,11 @@
-import type { AnalysisBuilder, Output, RequestBuilder } from "@lrd/e3-sdk";
-import { pdf } from "@react-pdf/renderer";
+import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { DocumentProps } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
 import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
 import Pdf from "components/Pdf";
-import { Console, Effect } from "effect";
-import { exportDB, getAlternatives, getCosts, getProject, getResults, hashCurrentAndSet } from "model/db";
+import { Effect } from "effect";
+import { DexieService } from "model/db";
 import type React from "react";
 import {
     createAlternativeNpvCashflowRow,
@@ -45,28 +45,27 @@ export function download(blob: Blob, filename: string, mime: string) {
  * An effect that downloads a file and sets the dirty check hash to be the hash of the current project.
  */
 export const downloadBlccFile = Effect.gen(function* () {
-    const project = yield* getProject(1);
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
-    if (project === undefined) return;
+    yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
 
-    yield* hashCurrentAndSet;
-    const blob = yield* exportDB;
+    const blob = yield* db.exportDB;
     download(blob, `${project.name}.blcc`, "text/json");
 });
 
 export const downloadPdf = Effect.gen(function* () {
-    const project = yield* getProject(Defaults.PROJECT_ID);
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
-    if (project === undefined) return;
-
-    const alternatives = yield* getAlternatives;
-    const costs = yield* getCosts;
+    const alternatives = yield* db.getAlternatives;
+    const costs = yield* db.getCosts;
 
     // If no baseline ID is found, return -1 since that will just mean no baseline matches it.
     const baselineID = findBaselineID(alternatives) ?? Defaults.INVALID_ID;
     const nameMap = createAlternativeNameMap(alternatives);
 
-    const results: Output[] = yield* getResults;
+    const results: Output[] = yield* db.getResults;
     const firstResult = results[0]; //FIXME Make the results getting more intelligent
 
     const required = firstResult.required ?? [];
@@ -126,18 +125,17 @@ function wrapCell(value: number | string | boolean): string {
 }
 
 export const downloadCsv = Effect.gen(function* () {
-    const project = yield* getProject(Defaults.PROJECT_ID);
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
-    if (project === undefined) return;
-
-    const alternatives = yield* getAlternatives;
-    const costs = yield* getCosts;
+    const alternatives = yield* db.getAlternatives;
+    const costs = yield* db.getCosts;
 
     // If no baseline ID is found, return -1 since that will just mean no baseline matches it.
     const baselineID = findBaselineID(alternatives) ?? Defaults.INVALID_ID;
     const nameMap = createAlternativeNameMap(alternatives);
 
-    const results: Output[] = yield* getResults;
+    const results: Output[] = yield* db.getResults;
     const firstResult = results[0]; //FIXME Make the results getting more intelligent
 
     const required = firstResult.required ?? [];
@@ -157,14 +155,7 @@ export const downloadCsv = Effect.gen(function* () {
     const summaryResults = [
         "Life Cycle Results Comparison",
         [],
-        [
-            "Alternative",
-            "Base Case",
-            "Initial Cost",
-            "Life Cycle Cost",
-            "Energy",
-            "GHG Emissions (kg CO2e)"
-        ],
+        ["Alternative", "Base Case", "Initial Cost", "Life Cycle Cost", "Energy", "GHG Emissions (kg CO2e)"],
         ...summary.lccComparisonRows.map((row) =>
             [
                 row.name,
@@ -172,7 +163,7 @@ export const downloadCsv = Effect.gen(function* () {
                 dollarFormatter.format(row.initialCost),
                 dollarFormatter.format(row.lifeCycleCost),
                 numberFormatter.format(row.energy),
-                numberFormatter.format(row.ghgEmissions)
+                numberFormatter.format(row.ghgEmissions),
             ].map(wrapCell),
         ),
         [],
@@ -187,7 +178,7 @@ export const downloadCsv = Effect.gen(function* () {
             "SPP",
             "DPP",
             "Change in Energy",
-            "Change in GHG (kg CO2e)"
+            "Change in GHG (kg CO2e)",
         ],
         ...summary.lccBaseline.map((row) =>
             [
@@ -199,7 +190,7 @@ export const downloadCsv = Effect.gen(function* () {
                 numberFormatter.format(row.spp),
                 numberFormatter.format(row.dpp),
                 numberFormatter.format(row.deltaEnergy),
-                numberFormatter.format(row.deltaGhg)
+                numberFormatter.format(row.deltaGhg),
             ].map(wrapCell),
         ),
         [],
@@ -315,7 +306,8 @@ const createCsvBlob = (csv: string) => Effect.sync(() => new Blob([csv], { type:
 
 export const downloadE3Request = (builder: RequestBuilder) =>
     Effect.gen(function* () {
-        const project = yield* getProject(Defaults.PROJECT_ID);
+        const db = yield* DexieService;
+        const project = yield* db.getProject();
 
         if (project === undefined) return;
 

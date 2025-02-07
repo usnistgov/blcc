@@ -12,7 +12,6 @@ import {
     TimestepValue,
     VarRate,
 } from "@lrd/e3-sdk";
-import { Defaults } from "blcc-format/Defaults";
 import {
     type CapitalCost,
     type Cost,
@@ -34,8 +33,8 @@ import {
     type WaterCost,
 } from "blcc-format/Format";
 import { fetchE3Request, fetchEmissions } from "blcc-format/api";
-import { Data, Effect } from "effect";
-import { getAlternatives, getCosts, getProject } from "model/db";
+import { Effect } from "effect";
+import { DexieService } from "model/db";
 import { match } from "ts-pattern";
 import { getConvertMap } from "util/UnitConversion";
 
@@ -49,12 +48,9 @@ const getEmissions = (project: Project) =>
         return yield* fetchEmissions(project.releaseYear, location.zipcode, project.studyPeriod, project.case);
     });
 
-export class E3GenerationError extends Data.TaggedError("E3GenerationError") {}
-
 export const toE3ObjectEffect = Effect.gen(function* () {
-    const project = yield* getProject(Defaults.PROJECT_ID);
-
-    if (project === undefined) return yield* Effect.fail(new E3GenerationError());
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
     const emissions = yield* getEmissions(project);
 
@@ -79,13 +75,13 @@ export const toE3ObjectEffect = Effect.gen(function* () {
         .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
 
     // Create costs
-    const costs = yield* getCosts;
+    const costs = yield* db.getCosts;
     const costMap = new Map(
         costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions)]),
     );
 
     // Define alternatives
-    const alternatives = yield* getAlternatives;
+    const alternatives = yield* db.getAlternatives;
     const alternativeBuilders = alternatives.map((alternative) => {
         const builder = new AlternativeBuilder()
             .name(alternative.name)

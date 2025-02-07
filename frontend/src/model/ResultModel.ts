@@ -1,16 +1,17 @@
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { bar, pie } from "billboard.js";
 import { liveQuery } from "dexie";
 import { alternatives$, hash$ } from "model/Model";
-import { addResult, clearResults, db, hashCurrent } from "model/db";
-import { Subject, combineLatest, merge, switchMap } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { DexieService, db } from "model/db";
+import { combineLatest, merge, switchMap } from "rxjs";
+import { map } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { Effect } from "effect";
 import { e3Request } from "model/E3Request";
 import { createAlternativeNameMap, groupOptionalByTag } from "util/Util";
+import { BlccRuntime } from "util/runtime";
 
 /**
  * Initializes all Billboard.js elements.
@@ -26,18 +27,20 @@ export namespace ResultModel {
 
     export namespace Actions {
         export function run() {
-            Effect.runPromise(
+            BlccRuntime.runPromise(
                 Effect.gen(function* () {
                     setLoading(true);
 
+                    const db = yield* DexieService;
+
                     const results = yield* e3Request;
                     const timestamp = new Date();
-                    const hash = yield* hashCurrent;
+                    const hash = yield* db.hashCurrent;
 
                     if (hash === undefined) return;
 
-                    yield* clearResults;
-                    yield* addResult(hash, timestamp, results);
+                    yield* db.clearResults;
+                    yield* db.addResult(hash, timestamp, results);
                 }),
             );
         }
