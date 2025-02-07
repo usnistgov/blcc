@@ -24,7 +24,7 @@ export namespace Strings {
 
     export const AMOUNT_FINANCED = (
         <p>
-            In Financed Projects, the initial capital cost is divided into Initial Cost (Paid by Agency) and Amount
+            In Financed Projects, the initial capital component cost is divided into Initial Cost (Paid by Agency) and Amount
             Financed. Their sum, adjusted by the Annual Rate of Change during the Study Period, is the basis for
             calculating the Residual Value of the capital component. Note: The Amount Financed is used only to calculate
             the Residual Value; it is not included in the LCC calculations, since any financed amounts would be included
@@ -108,7 +108,7 @@ export namespace Strings {
 
     export const COST_ADJUSTMENT_FACTOR = (
         <p>
-            If initial capital costs are phased in over the construction phase, the Cost Adjustment Factor is the
+            If initial capital component costs are phased in over the construction phase, the Cost Adjustment Factor is the
             average annual rate at which the Initial Cost of this component is adjusted to its value in any year of the
             P/C/I Period. The Cost Adjustment Factor can, for example, be a contractual rate (sometimes equal to zero)
             or a rate determined by the agency. It may be different from the general Rate of Increase that represents
@@ -135,7 +135,7 @@ export namespace Strings {
 
     export const INITIAL_PHASE_IN = (
         <p>
-            Initial capital costs may be phased in over a Planning/Construction or Installation (P/C/I) Period. BLCC
+            Initial capital component costs may be phased in over a Planning/Construction or Installation (P/C/I) Period. BLCC
             discounts from the date shown in the schedule to the base date the portion of Initial Cost allocated to any
             year in the P/C/I Period. Note: For MILCON analysis, if the Beneficial Occupancy Date is later than the Base
             Date, the Initial Cost may be entered at the Midpoint of Construction. This procedure is suggested in the

@@ -48,7 +48,7 @@ export namespace AlternativeModel {
     export const waterCosts$ = state(altCosts$.pipe(arrayFilter(isWaterCost)), []);
 
     /**
-     * The capital costs of the current alternative.
+     * The capital component costs of the current alternative.
      */
     export const capitalCosts$ = state(altCosts$.pipe(arrayFilter(isCapitalCost)), []);
 

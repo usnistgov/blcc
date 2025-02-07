@@ -119,7 +119,7 @@ export function createAlternativeCard(alternative: Alternative) {
             hook: waterCosts,
         },
         {
-            label: "Capital Costs",
+            label: "Capital Component Costs",
             hook: capitalCosts,
             children: capitalSubcategories,
         },
