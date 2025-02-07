@@ -1,7 +1,7 @@
 import { type StateObservable, bind } from "@react-rxjs/core";
 import * as O from "optics-ts";
 import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap } from "rxjs";
-import { shareReplay, startWith } from "rxjs/operators/index";
+import { shareReplay, startWith } from "rxjs/operators";
 import { match } from "ts-pattern";
 import type { ZodError, ZodType } from "zod";
 
