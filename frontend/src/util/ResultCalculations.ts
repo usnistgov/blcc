@@ -96,6 +96,7 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
         { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
         { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
         { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Total LCC", ...getOptionalTag(measures, "LCC")}
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
 }
 
