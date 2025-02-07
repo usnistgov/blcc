@@ -1,6 +1,6 @@
 import { state, useStateObservable } from "@react-rxjs/core";
 import Title from "antd/es/typography/Title";
-import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
+import { getDisplayNameCostType, type Cost, type CostTypes, type FuelType } from "blcc-format/Format";
 import { SubcategoryTable } from "pages/editor/alternative/SubcategoryTable";
 import { type ReactNode, useMemo } from "react";
 import type { Observable, Subject } from "rxjs";
@@ -34,7 +34,7 @@ export default function CategoryTable({ name, info, category$, sAddCostModal$ }:
                 {Object.entries(children).map(([name, costs]) => (
                     <SubcategoryTable
                         key={name}
-                        name={name}
+                        name={getDisplayNameCostType(name as CostTypes)}
                         costs={costs as unknown as Cost[]}
                         sAddCostModal$={sAddCostModal$}
                     />

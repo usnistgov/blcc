@@ -89,15 +89,26 @@ export type Alternative = {
 };
 
 export enum CostTypes {
-    CAPITAL = "Capital Investment Cost",
+    CAPITAL = "Capital",
     ENERGY = "Energy",
     WATER = "Water",
-    REPLACEMENT_CAPITAL = "Capital Replacement Cost",
+    REPLACEMENT_CAPITAL = "Replacement Capital",
     OMR = "OMR",
     IMPLEMENTATION_CONTRACT = "Contract Implementation",
     RECURRING_CONTRACT = "Recurring Contract",
     OTHER = "Other Monetary",
     OTHER_NON_MONETARY = "Other Non-Monetary",
+}
+
+export function getDisplayNameCostType(costType: CostTypes): string {
+    switch (costType) {
+        case CostTypes.CAPITAL:
+            return "Capital Investment Cost";
+        case CostTypes.REPLACEMENT_CAPITAL:
+            return "Capital Replacement Cost";
+        default:
+            return costType;
+    }
 }
 
 export type UseIndex = {
