@@ -9,9 +9,7 @@ const lifeCycleResultsColumns = [
     "Initial Cost",
     "Life Cycle Cost",
     "Energy",
-    "GHG Emissions (kg co2)",
-    "SCC",
-    "LCC + SCC",
+    "GHG Emissions (kg co2)"
 ];
 
 const lifeCycleResultsBaseline = [
@@ -23,9 +21,7 @@ const lifeCycleResultsBaseline = [
     "SPP",
     "DPP",
     "Change in Energy",
-    "Change in GHG (kg co2)",
-    "Change in SCC",
-    "Net Savings & SCC Reductions",
+    "Change in GHG (kg co2)"
 ];
 
 type ResultSummaryProps = {

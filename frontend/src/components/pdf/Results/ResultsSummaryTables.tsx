@@ -91,8 +91,6 @@ export function LCCResultsTable({ headers, rows }: LccResultsTableProps) {
                     <Text style={styles.alt}>{dollarFormatter.format(alt.lifeCycleCost)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.energy)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.ghgEmissions)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.scc)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.lccScc)}</Text>
                 </View>
             ))}
         </View>
@@ -130,8 +128,6 @@ export function LCCBaselineTable({ headers, rows }: LccBaselineTableProps) {
                     <Text style={styles.smallCol}>{dollarFormatter.format(alt.dpp)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.deltaEnergy)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.deltaGhg)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.deltaScc)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.netSavings)}</Text>
                 </View>
             ))}
         </View>
