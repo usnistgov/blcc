@@ -30,12 +30,10 @@ import {
     type RecurringContractCost,
     type ReplacementCapitalCost,
     type ResidualValue,
-    SocialCostOfGhgScenario,
     type USLocation,
     type WaterCost,
 } from "blcc-format/Format";
-import { fetchE3Request, fetchEmissions, fetchScc } from "blcc-format/api";
-import Decimal from "decimal.js";
+import { fetchE3Request, fetchEmissions } from "blcc-format/api";
 import { Data, Effect } from "effect";
 import { getAlternatives, getCosts, getProject } from "model/db";
 import { match } from "ts-pattern";
@@ -51,32 +49,6 @@ const getEmissions = (project: Project) =>
         return yield* fetchEmissions(project.releaseYear, location.zipcode, project.studyPeriod, project.case);
     });
 
-const getSccOption = (option: SocialCostOfGhgScenario): string => {
-    switch (option) {
-        case SocialCostOfGhgScenario.LOW:
-            return "threePercentAverage";
-        case SocialCostOfGhgScenario.MEDIUM:
-            return "fivePercentAverage";
-        case SocialCostOfGhgScenario.HIGH:
-            return "threePercentNinetyFifthPercentile";
-        default:
-            return "threePercentAverage";
-    }
-};
-
-const getScc = (project: Project) =>
-    Effect.gen(function* () {
-        if (project.studyPeriod === undefined || project.ghg.socialCostOfGhgScenario === SocialCostOfGhgScenario.NONE)
-            return undefined;
-
-        return yield* fetchScc(
-            project.releaseYear,
-            project.releaseYear,
-            project.releaseYear + project.studyPeriod,
-            getSccOption(project.ghg.socialCostOfGhgScenario),
-        );
-    });
-
 export class E3GenerationError extends Data.TaggedError("E3GenerationError") {}
 
 export const toE3ObjectEffect = Effect.gen(function* () {
@@ -85,7 +57,6 @@ export const toE3ObjectEffect = Effect.gen(function* () {
     if (project === undefined) return yield* Effect.fail(new E3GenerationError());
 
     const emissions = yield* getEmissions(project);
-    const scc = yield* getScc(project);
 
     const builder = new RequestBuilder();
 
@@ -110,7 +81,7 @@ export const toE3ObjectEffect = Effect.gen(function* () {
     // Create costs
     const costs = yield* getCosts;
     const costMap = new Map(
-        costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions, scc)]),
+        costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions)]),
     );
 
     // Define alternatives
@@ -142,11 +113,10 @@ function costToBuilders(
     cost: Cost,
     studyPeriod: number,
     emissions: readonly number[] | undefined,
-    scc: readonly number[] | undefined,
 ): BcnBuilder[] {
     return match(cost)
         .with({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod))
-        .with({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions, scc))
+        .with({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions))
         .with({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost))
         .with({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) => replacementCapitalCostToBuilder(cost, studyPeriod))
         .with({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(cost))
@@ -216,7 +186,6 @@ function energyCostToBuilder(
     project: Project,
     cost: EnergyCost,
     emissions: readonly number[] | undefined,
-    scc: readonly number[] | undefined,
 ): BcnBuilder[] {
     const result = [];
 
@@ -328,23 +297,6 @@ function energyCostToBuilder(
                 .quantityVarValue(emissionValues)
                 .quantityUnit("kg CO2e"),
         );
-
-        if (scc === undefined) return result;
-
-        result.push(
-            new BcnBuilder()
-                .name(`${cost.name} SCC`)
-                .addTag("SCC", `${cost.fuelType} SCC`, "$/kg")
-                .real()
-                .type(BcnType.COST)
-                .recur(recurrence(cost))
-                .quantity(1)
-                .quantityValue(1)
-                .quantityVarRate(VarRate.YEAR_BY_YEAR)
-                // Convert scc from $/ton to $/kg and multiply by emissions
-                .quantityVarValue(scc.map((v, i) => new Decimal(v).div(1000).mul(emissionValues[i]).toNumber()))
-                .quantityUnit("$/kg CO2e"),
-        );
     }
 
     return result;
@@ -375,7 +327,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .recur(recurBuilder)
                 .quantity(usage.amount)
                 .quantityValue(usage.costPerUnit)
-                .quantityUnit(cost.unit ?? "");;
+                .quantityUnit(cost.unit ?? "");
 
             if (cost.useIndex) {
                 const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];

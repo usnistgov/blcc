@@ -89,22 +89,6 @@ export const fetchDoeDiscountRates = (releaseYear: number) =>
         catch: () => new FetchError(),
     }).pipe(Effect.andThen(jsonResponse), Effect.andThen(decodeDiscountRatesResponse));
 
-export const fetchScc = (releaseYear: number, from: number, to: number, option: string) =>
-    Effect.gen(function* () {
-        yield* Effect.log("Fetch SCC");
-        return yield* Effect.tryPromise({
-            try: () =>
-                fetch("/api/scc", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ releaseYear, from, to, option }),
-                }),
-            catch: () => new FetchError(),
-        }).pipe(Effect.andThen(jsonResponse), Effect.andThen(decodeNumberArray));
-    });
-
 export const fetchEmissions = (releaseYear: number, zip: string, studyPeriod: number, eiaCase: Case) =>
     Effect.gen(function* () {
         yield* Effect.log("Fetch emissions");
