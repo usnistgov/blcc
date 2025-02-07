@@ -27,7 +27,7 @@ const items: MenuItem[] = [
         costs$: AlternativeModel.waterCosts$,
     },
     {
-        title: "Capital Costs",
+        title: "Capital Component Costs",
         icon: mdiCurrencyUsd,
         costs$: AlternativeModel.capitalCosts$,
     },
