@@ -44,7 +44,7 @@ const columns = [
         ...cellClasses,
     },
     {
-        name: "Initial Cost",
+        name: "Investment",
         key: "initialCost",
         renderCell: ({ row }: { row: LccBaselineRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.initialCost ?? 0)}</p>

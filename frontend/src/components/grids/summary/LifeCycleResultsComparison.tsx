@@ -36,7 +36,7 @@ const columns = [
         cellClass: "text-ink",
     },
     {
-        name: "Initial Cost",
+        name: "Investment",
         key: "initialCost",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.initialCost)}</p>
