@@ -19,7 +19,7 @@ import * as O from "optics-ts";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
-import { COAL_KG_CO2_PER_MEGAJOULE } from "util/UnitConversion";
+import { COAL_KG_CO2E_PER_MEGAJOULE } from "util/UnitConversion";
 import { index, makeApiRequest } from "util/Util";
 import z from "zod";
 import cost = CostModel.cost;
@@ -245,7 +245,7 @@ export namespace EnergyCostModel {
                         padd: zipInfo.padd,
                     }),
                 )
-                .with(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2_PER_MEGAJOULE)))
+                .with(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2E_PER_MEGAJOULE)))
                 .otherwise(() => of(Array(studyPeriod).fill(0)));
         }
     }

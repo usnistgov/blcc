@@ -95,7 +95,7 @@ const columns = [
         ...cellClasses,
     },
     {
-        name: "Change in GHG (kg co2)",
+        name: "Change in GHG (kg CO2e)",
         key: "deltaGhg",
         renderCell: ({ row }: { row: LccBaselineRow }) => {
             const value = row.deltaGhg;

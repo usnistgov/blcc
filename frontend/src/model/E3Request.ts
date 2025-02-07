@@ -318,7 +318,7 @@ function energyCostToBuilder(
         result.push(
             new BcnBuilder()
                 .name(`${cost.name} Emissions`)
-                .addTag("Emissions", `${cost.fuelType} Emissions`, "kg co2")
+                .addTag("Emissions", `${cost.fuelType} Emissions`, "kg CO2e")
                 .real()
                 .type(BcnType.NON_MONETARY)
                 .recur(recurrence(cost))
@@ -326,7 +326,7 @@ function energyCostToBuilder(
                 .quantityValue(1)
                 .quantityVarRate(VarRate.YEAR_BY_YEAR)
                 .quantityVarValue(emissionValues)
-                .quantityUnit("kg co2"),
+                .quantityUnit("kg CO2e"),
         );
 
         if (scc === undefined) return result;
@@ -343,7 +343,7 @@ function energyCostToBuilder(
                 .quantityVarRate(VarRate.YEAR_BY_YEAR)
                 // Convert scc from $/ton to $/kg and multiply by emissions
                 .quantityVarValue(scc.map((v, i) => new Decimal(v).div(1000).mul(emissionValues[i]).toNumber()))
-                .quantityUnit("$/kg co2"),
+                .quantityUnit("$/kg CO2e"),
         );
     }
 
