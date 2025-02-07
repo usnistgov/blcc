@@ -1,12 +1,5 @@
 import { Defaults } from "blcc-format/Defaults";
-import {
-    Case,
-    DollarMethod,
-    EmissionsRateType,
-    GhgDataSource,
-    type Project,
-    SocialCostOfGhgScenario,
-} from "blcc-format/Format";
+import { Case, DollarMethod, EmissionsRateType, GhgDataSource, type Project } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
 import { fetchReleaseYears } from "blcc-format/api";
 import { Country } from "constants/LOCATION";
@@ -33,7 +26,6 @@ export function createDefaultProject(releaseYear: number): Project {
         ghg: {
             dataSource: GhgDataSource.NIST_NETL,
             emissionsRateType: EmissionsRateType.AVERAGE,
-            socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
         },
         releaseYear,
     };

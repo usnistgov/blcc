@@ -29,15 +29,7 @@ export type Project = {
 export type GHG = {
     dataSource: GhgDataSource;
     emissionsRateType: EmissionsRateType;
-    socialCostOfGhgScenario: SocialCostOfGhgScenario;
 };
-
-export enum SocialCostOfGhgScenario {
-    NONE = "$0 / ton",
-    LOW = "5% Discount Rate – Average (“Low”)",
-    MEDIUM = "3% Discount Rate – Average (“Medium”)",
-    HIGH = "3% Discount Rate – 95th Percentile (“High”)",
-}
 
 export type Location = USLocation | NonUSLocation;
 

@@ -330,11 +330,6 @@ export namespace Model {
      */
     export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"));
 
-    export const socialCostOfGhgScenario = new Var(
-        DexieModelTest,
-        O.optic<Project>().path("ghg.socialCostOfGhgScenario"),
-    );
-
     /**
      * The data source for the current project.
      */

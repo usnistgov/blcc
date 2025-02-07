@@ -29,7 +29,6 @@ import {
     type ResidualValue,
     Season,
     type SeasonUsage,
-    SocialCostOfGhgScenario,
     type USLocation,
     type Unit,
     type WaterCost,
@@ -135,7 +134,6 @@ function parse(obj: any, releaseYear: number): ConverterResult {
             alternatives: parsedAlternatives.map(getID),
             costs: parsedCosts.map(getID),
             ghg: {
-                socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
                 dataSource: GhgDataSource.NIST_NETL,
                 emissionsRateType: EmissionsRateType.AVERAGE,
             },
