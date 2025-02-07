@@ -253,6 +253,8 @@ export namespace Strings {
 
     export const GHG_ASSUMPTIONS = <p>Assumptions used to estimate the energy-related emissions and societal costs</p>;
 
+    export const HOME = <p>Return to homepage</p>
+
     export const INFLATION_RATE = (
         <p>
             If current dollar analysis is selected, the general rate of inflation is required and will be defaulted
