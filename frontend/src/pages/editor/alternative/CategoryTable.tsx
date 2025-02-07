@@ -34,7 +34,7 @@ export default function CategoryTable({ name, info, category$, sAddCostModal$ }:
                 {Object.entries(children).map(([name, costs]) => (
                     <SubcategoryTable
                         key={name}
-                        name={getDisplayNameCostType(name as CostTypes)}
+                        name={name}
                         costs={costs as unknown as Cost[]}
                         sAddCostModal$={sAddCostModal$}
                     />
