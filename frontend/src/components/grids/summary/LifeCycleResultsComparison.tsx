@@ -66,23 +66,7 @@ const columns = [
             <p className={"text-right"}>{numberFormatter.format(row.ghgEmissions ?? 0)}</p>
         ),
         ...cellClasses,
-    },
-    {
-        name: "SCC",
-        key: "scc",
-        renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.scc ?? 0)}</p>
-        ),
-        ...cellClasses,
-    },
-    {
-        name: "LCC + SCC",
-        key: "lccScc",
-        renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.lccScc ?? 0)}</p>
-        ),
-        ...cellClasses,
-    },
+    }
 ];
 
 const [useRows] = bind(

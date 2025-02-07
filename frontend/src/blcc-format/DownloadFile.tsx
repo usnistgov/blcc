@@ -163,9 +163,7 @@ export const downloadCsv = Effect.gen(function* () {
             "Initial Cost",
             "Life Cycle Cost",
             "Energy",
-            "GHG Emissions (kg co2)",
-            "SCC",
-            "LCC + SCC",
+            "GHG Emissions (kg co2)"
         ],
         ...summary.lccComparisonRows.map((row) =>
             [
@@ -174,9 +172,7 @@ export const downloadCsv = Effect.gen(function* () {
                 dollarFormatter.format(row.initialCost),
                 dollarFormatter.format(row.lifeCycleCost),
                 numberFormatter.format(row.energy),
-                numberFormatter.format(row.ghgEmissions),
-                dollarFormatter.format(row.scc),
-                dollarFormatter.format(row.lccScc),
+                numberFormatter.format(row.ghgEmissions)
             ].map(wrapCell),
         ),
         [],
@@ -191,9 +187,7 @@ export const downloadCsv = Effect.gen(function* () {
             "SPP",
             "DPP",
             "Change in Energy",
-            "Change in GHG (kg co2)",
-            "Change in SCC",
-            "Net Savings & SCC Reductions",
+            "Change in GHG (kg co2)"
         ],
         ...summary.lccBaseline.map((row) =>
             [
@@ -205,9 +199,7 @@ export const downloadCsv = Effect.gen(function* () {
                 numberFormatter.format(row.spp),
                 numberFormatter.format(row.dpp),
                 numberFormatter.format(row.deltaEnergy),
-                numberFormatter.format(row.deltaGhg),
-                dollarFormatter.format(row.deltaScc),
-                dollarFormatter.format(row.netSavings),
+                numberFormatter.format(row.deltaGhg)
             ].map(wrapCell),
         ),
         [],

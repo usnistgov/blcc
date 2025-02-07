@@ -14,8 +14,6 @@ export type LccComparisonRow = {
     lifeCycleCost: number;
     energy: number;
     ghgEmissions: number;
-    scc: number;
-    lccScc: number;
 };
 
 export function createLccComparisonRows(
@@ -30,9 +28,7 @@ export function createLccComparisonRows(
             initialCost: measure.totalTagFlows["Initial Investment"],
             lifeCycleCost: measure.totalTagFlows.LCC,
             energy: getTotalEnergy(measure),
-            ghgEmissions: measure.totalTagFlows.Emissions,
-            scc: measure.totalTagFlows.SCC,
-            lccScc: measure.totalCosts,
+            ghgEmissions: measure.totalTagFlows.Emissions
         }),
     );
 }
@@ -51,8 +47,6 @@ export type LccBaselineRow = {
     lcc: number;
     deltaEnergy: number;
     deltaGhg: number;
-    deltaScc: number;
-    netSavings: number;
 };
 
 export function createLccBaselineRows(measures: Measures[], names: Map<ID, string>, baselineID: ID): LccBaselineRow[] {
@@ -68,9 +62,7 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
         initialCost: measure.totalTagFlows["Initial Investment"],
         lcc: measure.totalTagFlows.LCC,
         deltaEnergy: (baseline == null ? 0 : getTotalEnergy(measure) - getTotalEnergy(baseline)),
-        deltaGhg: measure.totalTagFlows.Emissions - (baseline?.totalTagFlows.Emissions ?? 0),
-        deltaScc: measure.totalTagFlows.SCC - (baseline?.totalTagFlows.SCC ?? 0),
-        netSavings: measure.netSavings + (measure.totalTagFlows.SCC ?? 0),
+        deltaGhg: measure.totalTagFlows.Emissions - (baseline?.totalTagFlows.Emissions ?? 0)
     }));
 }
 

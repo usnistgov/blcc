@@ -104,31 +104,7 @@ const columns = [
             return <p className={"text-right"}>{numberFormatter.format(value)}</p>;
         },
         ...cellClasses,
-    },
-    {
-        name: "Change in SCC",
-        key: "deltaScc",
-        renderCell: ({ row }: { row: LccBaselineRow }) => {
-            const value = row.deltaScc;
-            if (value === undefined || Number.isNaN(value))
-                return <p className={"text-right"}>{dollarFormatter.format(0)}</p>;
-
-            return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
-        },
-        ...cellClasses,
-    },
-    {
-        name: "Net Savings and SCC Reductions",
-        key: "netSavings",
-        renderCell: ({ row }: { row: LccBaselineRow }) => {
-            const value = row.netSavings;
-            if (value === undefined || Number.isNaN(value))
-                return <p className={"text-right"}>{dollarFormatter.format(0)}</p>;
-
-            return <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>;
-        },
-        ...cellClasses,
-    },
+    }
 ];
 
 const [useRows] = bind(
