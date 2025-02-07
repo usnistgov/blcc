@@ -50,12 +50,22 @@ export const getConvertMap = (fuelType: FuelType): ConvertMap => {
     }
 };
 
+export const getConvertMapgJ = (fuelType: FuelType): ConvertMap => {
+    return {
+        [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("gigajoules"),
+        [EnergyUnit.THERM]: thermToGJ,
+        [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("gigajoules"),
+        [EnergyUnit.MJ]: (mj: number) => convert(mj, "megajoules").to("gigajoules"),
+        [EnergyUnit.MBTU]: mbtuToGJ,
+    }
+}
+
 const PROPANE = 9.63e7; // J/gallon
 const NATURAL_GAS = 1.09e6; // J/ft^3
 const OIL = 41.868; // GJ/m ton
 const COAL = 18.2; // GJ/m ton
 
-export const COAL_KG_CO2_PER_MEGAJOULE = 0.09042;
+export const COAL_KG_CO2E_PER_MEGAJOULE = 0.09042;
 
 function thermToMWh(therm: number) {
     return therm / 34.13;
@@ -95,4 +105,12 @@ function propaneCubicMetersToMWh(cubicMeters: number) {
 
 function propaneCubicFeetToMWh(cubicFeet: number) {
     return convert(convert(cubicFeet, "cubic feet").to("gallons") * PROPANE, "joules").to("MWh");
+}
+
+function thermToGJ(therm: number) {
+    return therm / 9.48;
+}
+
+function mbtuToGJ(mbtu: number) {
+    return mbtu * 1.06;
 }

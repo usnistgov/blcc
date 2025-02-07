@@ -3,10 +3,10 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
 import { type ResourceUsageRow, createResourceUsageRow } from "util/ResultCalculations";
-import { dollarFormatter } from "util/Util";
+import { dollarFormatter, numberFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
@@ -15,18 +15,20 @@ const columns = [
         name: "Resource Type",
         key: "category",
         colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Subcategory",
         key: "subcategory",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Consumption",
         key: "consumption",
         renderCell: ({ row }: { row: ResourceUsageRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.consumption ?? 0)}</p>
+            <p className={"text-right"}>{numberFormatter.format(row.consumption ?? 0)} gJ</p>
         ),
         ...cellClasses,
     },

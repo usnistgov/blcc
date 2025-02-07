@@ -137,12 +137,6 @@ export default function GeneralInformation({ project }: GeneralInformationProps)
                             <Text style={styles.value}>{project.ghg?.emissionsRateType}</Text>
                         </View>
                     </View>
-                    <View style={styles.row}>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Social Cost of GHG Scenario:&nbsp;</Text>
-                            <Text style={styles.value}>{project.ghg?.socialCostOfGhgScenario}</Text>
-                        </View>
-                    </View>
                 </View>
             </View>
         </View>

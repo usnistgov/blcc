@@ -286,6 +286,7 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost.InitialCost,
                 annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
+                initialOccurrence: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 residualValue: {
                     approach: DollarOrPercent.PERCENT,
@@ -293,15 +294,15 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 },
             } as ReplacementCapitalCost);
         case "NonRecurringCost":
+            const escalation = parseEscalation(cost.Escalation, studyPeriod);
+            const recurring = escalation === undefined ? undefined : { rateOfChangeValue : escalation };
             return db.costs.add({
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                recurring: {
-                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod)
-                }
+                recurring
             } as OMRCost);
         case "RecurringCost":
             return db.costs.add({
@@ -401,7 +402,7 @@ function parseFuelType(fuelType: string): FuelType {
     }
 }
 
-function parseUnit(unit: string): Unit | undefined {
+export function parseUnit(unit: string): Unit | undefined {
     switch (unit) {
         //Energy
         case "kWh":

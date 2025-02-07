@@ -10,7 +10,7 @@ import { type LccComparisonRow, createLccComparisonRows } from "util/ResultCalcu
 import { dollarFormatter, numberFormatter } from "util/Util";
 
 const cellClasses = {
-    headerCellClass: "bg-primary text-white",
+    headerCellClass: "bg-primary text-white text-right",
     cellClass: "text-ink",
 };
 
@@ -18,7 +18,8 @@ const columns = [
     {
         name: "Alternative",
         key: "name",
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
         name: "Base Case",
@@ -31,10 +32,11 @@ const columns = [
                     </div>
                 );
         },
-        ...cellClasses,
+        headerCellClass: "bg-primary text-white text-left",
+        cellClass: "text-ink",
     },
     {
-        name: "Initial Cost",
+        name: "Investment",
         key: "initialCost",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.initialCost)}</p>
@@ -53,34 +55,18 @@ const columns = [
         name: "Energy",
         key: "energy",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.energy ?? 0)}</p>
+            <p className={"text-right"}>{numberFormatter.format(row.energy ?? 0)} gJ</p>
         ),
         ...cellClasses,
     },
     {
-        name: "GHG Emissions (kg co2)",
+        name: "GHG Emissions (kg CO2e)",
         key: "ghgEmissions",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
             <p className={"text-right"}>{numberFormatter.format(row.ghgEmissions ?? 0)}</p>
         ),
         ...cellClasses,
-    },
-    {
-        name: "SCC",
-        key: "scc",
-        renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.scc ?? 0)}</p>
-        ),
-        ...cellClasses,
-    },
-    {
-        name: "LCC + SCC",
-        key: "lccScc",
-        renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.lccScc ?? 0)}</p>
-        ),
-        ...cellClasses,
-    },
+    }
 ];
 
 const [useRows] = bind(

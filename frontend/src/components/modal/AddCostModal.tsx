@@ -35,7 +35,7 @@ import { useNavigate } from "react-router-dom";
 import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import { match } from "ts-pattern";
-import { guard } from "util/Operators";
+import { guard, sampleMany } from "util/Operators";
 
 type AddCostModalProps = {
     open$: Observable<CostTypes | FuelType>;
@@ -169,7 +169,6 @@ namespace DefaultCosts {
 
     export const OTHER_NON_MONETARY: Props<OtherNonMonetary> = {
         type: CostTypes.OTHER_NON_MONETARY,
-        tags: ["Other Non Monetary"],
         initialOccurrence: 0,
         numberOfUnits: 0,
     };
@@ -242,7 +241,6 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         sCancelClick$,
         isOpen$,
         defaultChecked,
-        newCostID$,
         useType,
     ] = useMemo(() => {
         const sName$ = new BehaviorSubject<string | undefined>(undefined);
@@ -252,16 +250,16 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         const sCheckAlt$ = new Subject<Set<ID>>();
 
         // Create the new cost in the DB
-        const newCostID$ = combineLatest([currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
-            sample(sAddClick$),
+        const newCostID$ = sampleMany(sAddClick$, [currentProject$, sName$.pipe(guard()), sType$, sCheckAlt$]).pipe(
             switchMap(createCostInDB),
-            shareLatest(),
             withLatestFrom(AlternativeModel.ID$),
         );
 
+        newCostID$.subscribe(([newID, altID]) => navigate(`/editor/alternative/${altID}/cost/${newID}`));
+
         const [modalCancel$, cancel] = createSignal();
         const [useOpen, isOpen$] = bind(
-            merge(open$.pipe(map(() => true)), merge(sCancelClick$, newCostID$, modalCancel$).pipe(map(() => false))),
+            merge(open$.pipe(map(() => true)), merge(sCancelClick$, modalCancel$).pipe(map(() => false))),
             false,
         );
 
@@ -280,10 +278,9 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
             sCancelClick$,
             isOpen$,
             defaultChecked,
-            newCostID$,
             useType,
         ];
-    }, [open$]);
+    }, [open$, navigate]);
 
     useSubscribe(open$, sType$);
 
@@ -294,16 +291,6 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         sName$.next(undefined);
         sType$.next(FuelType.ELECTRICITY);
     });
-
-    // Navigate to new cost page after creation
-    useSubscribe(
-        newCostID$,
-        ([newID, altID]) => {
-            CostModel.Actions.load(newID ?? 0);
-            navigate(`/editor/alternative/${altID}/cost/${newID}`);
-        },
-        [navigate],
-    );
 
     const costOrFuel = useType();
 

@@ -75,15 +75,15 @@ export function LCCResultsTable({ headers, rows }: LccResultsTableProps) {
         <View style={{ marginBottom: 10, maxWidth: 800 }}>
             {/* results Table Header */}
             <View style={styles.container}>
-                {headers.map((header) => (
-                    <Text style={styles.value} key={`${header}_lcc`}>
+                {headers.map((header, i) => (
+                    <Text style={styles.value} key={`${header}_lcc_${i}`}>
                         {header}
                     </Text>
                 ))}
             </View>
 
-            {rows.map((alt) => (
-                <View style={styles.row} key={`${alt.name}_lcc`}>
+            {rows.map((alt, i) => (
+                <View style={styles.row} key={`${alt.name}_lcc_${i}`}>
                     <Text style={styles.alt}>{alt.name}</Text>
                     {/* change to base cost */}
                     <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
@@ -91,8 +91,6 @@ export function LCCResultsTable({ headers, rows }: LccResultsTableProps) {
                     <Text style={styles.alt}>{dollarFormatter.format(alt.lifeCycleCost)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.energy)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.ghgEmissions)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.scc)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.lccScc)}</Text>
                 </View>
             ))}
         </View>
@@ -130,8 +128,6 @@ export function LCCBaselineTable({ headers, rows }: LccBaselineTableProps) {
                     <Text style={styles.smallCol}>{dollarFormatter.format(alt.dpp)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.deltaEnergy)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.deltaGhg)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.deltaScc)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.netSavings)}</Text>
                 </View>
             ))}
         </View>
@@ -155,8 +151,8 @@ export function NPVSubTable({ headers, rows }: NpvSubCatProps) {
                 ))}
             </View>
 
-            {rows.map((alt) => (
-                <View style={styles.row} key={`${alt.category}_${alt.subCategory}_npvCosts`}>
+            {rows.map((alt, i) => (
+                <View style={styles.row} key={`${alt.category}_${alt.subCategory}_npvCosts_${i}`}>
                     <Text style={{ ...styles.cat, width: 125 }}>{alt.category}</Text>
                     <Text style={{ ...styles.col1, width: 125 }}>{alt.subcategory}</Text>
                     {Array.from({ length: headers.length - 2 }, (_, i) => (
@@ -182,8 +178,8 @@ export function LCCResourceTable({ headers, rows }: NpvSubCatProps) {
                 ))}
             </View>
 
-            {rows.map((alt) => (
-                <View style={styles.row} key={`${alt.category}_${alt.subCategory}_resource`}>
+            {rows.map((alt, i) => (
+                <View style={styles.row} key={`${alt.category}_${alt.subCategory}_resource_${i}`}>
                     <Text style={{ ...styles.cat, width: 125 }}>{alt.category}</Text>
                     <Text style={{ ...styles.col1, width: 125 }}>{alt.subcategory}</Text>
                     {Array.from({ length: headers.length - 2 }, (_, i) => (

@@ -1,6 +1,8 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
-import { FuelType, type ID } from "blcc-format/Format";
+import { EnergyUnit, FuelType, Unit, type ID } from "blcc-format/Format";
 import { getOptionalTag } from "util/Util";
+import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
+import { parseUnit } from "blcc-format/Converter";
 
 /*
  * Lifecycle Comparison
@@ -12,8 +14,6 @@ export type LccComparisonRow = {
     lifeCycleCost: number;
     energy: number;
     ghgEmissions: number;
-    scc: number;
-    lccScc: number;
 };
 
 export function createLccComparisonRows(
@@ -27,10 +27,8 @@ export function createLccComparisonRows(
             baseline: measure.altId === baselineID,
             initialCost: measure.totalTagFlows["Initial Investment"],
             lifeCycleCost: measure.totalTagFlows.LCC,
-            energy: measure.totalTagFlows.Energy,
-            ghgEmissions: measure.totalTagFlows.Emissions,
-            scc: measure.totalTagFlows.SCC,
-            lccScc: measure.totalCosts,
+            energy: getTotalEnergy(measure),
+            ghgEmissions: measure.totalTagFlows.Emissions
         }),
     );
 }
@@ -49,8 +47,6 @@ export type LccBaselineRow = {
     lcc: number;
     deltaEnergy: number;
     deltaGhg: number;
-    deltaScc: number;
-    netSavings: number;
 };
 
 export function createLccBaselineRows(measures: Measures[], names: Map<ID, string>, baselineID: ID): LccBaselineRow[] {
@@ -65,10 +61,8 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
         dpp: measure.dpp,
         initialCost: measure.totalTagFlows["Initial Investment"],
         lcc: measure.totalTagFlows.LCC,
-        deltaEnergy: (baseline?.totalTagFlows.Energy ?? 0) - measure.totalTagFlows.Energy,
-        deltaGhg: (baseline?.totalTagFlows.Emissions ?? 0) - measure.totalTagFlows.Emissions,
-        deltaScc: (baseline?.totalTagFlows.SCC ?? 0) - measure.totalTagFlows.SCC,
-        netSavings: measure.netSavings + (measure.totalTagFlows.SCC ?? 0),
+        deltaEnergy: (baseline == null ? 0 : getTotalEnergy(measure) - getTotalEnergy(baseline)),
+        deltaGhg: measure.totalTagFlows.Emissions - (baseline?.totalTagFlows.Emissions ?? 0)
     }));
 }
 
@@ -94,6 +88,7 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
         { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
         { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
         { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Total LCC", ...getOptionalTag(measures, "LCC")}
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
 }
 
@@ -101,14 +96,13 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
  * Lifecycle Resource
  */
 export function createLccResourceRows(measures: Measures[]): CategorySubcategoryRow[] {
-    const consumption = [
+    const energy = [
         FuelType.ELECTRICITY,
         FuelType.NATURAL_GAS,
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
-        FuelType.PROPANE,
-        "Energy",
-    ].map((fuelType) => getOptionalTag(measures, fuelType));
+        FuelType.PROPANE
+    ].map((fuelType) => getGJByFuelTypeForMeasures(measures, fuelType));
 
     const emissions = [
         FuelType.ELECTRICITY,
@@ -120,12 +114,12 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
     ].map((fuelType) => getOptionalTag(measures, `${fuelType} Emissions`));
 
     return [
-        { category: "Consumption", subcategory: FuelType.ELECTRICITY, ...consumption[0] },
-        { subcategory: FuelType.NATURAL_GAS, ...consumption[1] },
-        { subcategory: FuelType.DISTILLATE_OIL, ...consumption[2] },
-        { subcategory: FuelType.RESIDUAL_OIL, ...consumption[3] },
-        { subcategory: FuelType.PROPANE, ...consumption[4] },
-        { subcategory: "Total", ...consumption[5] },
+        { category: "Energy", subcategory: FuelType.ELECTRICITY, ...energy[0] },
+        { subcategory: FuelType.NATURAL_GAS, ...energy[1] },
+        { subcategory: FuelType.DISTILLATE_OIL, ...energy[2] },
+        { subcategory: FuelType.RESIDUAL_OIL, ...energy[3] },
+        { subcategory: FuelType.PROPANE, ...energy[4] },
+        { subcategory: "Total", ...getTotalEnergyForMeasures(measures) },
         { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
         { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
         { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
@@ -151,6 +145,7 @@ export type AlternativeNpvCashflowRow = {
     nonRecurring: number;
     replace: number;
     residualValue: number;
+    otherCosts: number;
     total: number;
 };
 
@@ -166,10 +161,14 @@ export function createAlternativeNpvCashflowRow(
     const id = required.altId;
     const defaultArray = Array.apply(null, Array(required.totalCostsDiscounted.length)).map(() => 0);
 
+    console.log(optionals);
+
     const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
     const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
     const recurring = optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
     const nonRecurring = optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const residualValue = optionals.get(`${id} Residual Value`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const otherCosts = optionals.get(`${id} Other`)?.totalTagCashflowDiscounted ?? defaultArray;
 
     return required.totalCostsDiscounted.map(
         (total, i) =>
@@ -179,6 +178,8 @@ export function createAlternativeNpvCashflowRow(
                 consumption: consumption[i],
                 recurring: recurring[i],
                 nonRecurring: nonRecurring[i],
+                residualValue: residualValue[i],
+                otherCosts: otherCosts[i],
                 total,
             }) as AlternativeNpvCashflowRow,
     );
@@ -230,8 +231,9 @@ export function createAlternativeNpvCashflowTotalRow(measure: Measures): Alterna
         { subcategory: "Disposal " },
         { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
         { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
-        { category: "Replacement" },
-        { category: "Residual Value" },
+        { category: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
+        { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
+        { category: "Other Monetary Costs", alternative: measure.totalTagFlows["Other"]}
     ] as AlternativeNpvCashflowTotalRow[]; //FIXME this could be typed better
 }
 
@@ -251,9 +253,8 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.NATURAL_GAS,
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
-        FuelType.PROPANE,
-        "Energy",
-    ].map((fuelType) => measure.totalTagFlows[fuelType]);
+        FuelType.PROPANE
+    ].map((fuelType) => getGJByFuelType(measure, fuelType));
 
     const emissions = [
         FuelType.ELECTRICITY,
@@ -266,7 +267,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
 
     return [
         {
-            category: "Consumption",
+            category: "Energy",
             subcategory: FuelType.ELECTRICITY,
             consumption: consumption[0],
             emissions: emissions[0],
@@ -275,7 +276,41 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         { subcategory: FuelType.DISTILLATE_OIL, consumption: consumption[2], emissions: emissions[2] },
         { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
         { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
-        { subcategory: "Total", consumption: consumption[5], emissions: emissions[5] },
+        { subcategory: "Total", consumption: getTotalEnergy(measure), emissions: emissions[5] },
         { category: "Water", subcategory: "Use" },
     ] as ResourceUsageRow[]; //FIXME this could be typed better
 }
+
+function getTotalEnergy(measure: Measures): number {
+    let totalEnergy = 0;
+    for (const energyUnit of Object.values(EnergyUnit)) {
+        const amount: number = measure.quantitySum[energyUnit] ?? 0;
+        if (amount > 0) {
+            totalEnergy += getConvertMapGJ(FuelType.ELECTRICITY)[energyUnit]?.(amount) ?? 0;
+        } 
+    }
+    return totalEnergy;
+}
+
+function getGJByFuelType(measure: Measures, fuelType: string): number {
+    const amount = measure.quantitySum[fuelType];
+    const unit = parseUnit(measure.quantityUnits[fuelType]);
+    return (amount != null && unit != null) ? (getConvertMapGJ(FuelType.ELECTRICITY)[unit]?.(amount) ?? 0) : 0;
+}
+
+function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: number } {
+    const MWhByFuelType: { [key: string]: number} = {};
+    for (let i = 0; i < measures.length; i++) {
+        MWhByFuelType[i.toString()] = getTotalEnergy(measures[i]);
+    }
+    return MWhByFuelType;
+}
+
+function getGJByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: number } {
+    const MWhByFuelType: { [key: string]: number} = {};
+    for (let i = 0; i < measures.length; i++) {
+        MWhByFuelType[i.toString()] = getGJByFuelType(measures[i], fuelType);
+    }
+    return MWhByFuelType;
+}
+

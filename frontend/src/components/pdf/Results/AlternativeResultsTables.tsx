@@ -47,15 +47,15 @@ export function NpvAltCashflowTable({ headers, rows }: NpvAltCashflowTableProps)
         <View style={{ marginBottom: 10, maxWidth: 390 }}>
             {/* results Table Header */}
             <View style={styles.container}>
-                {headers.map((header) => (
-                    <Text style={styles.value} key={`${header}_lcc`}>
+                {headers.map((header, i) => (
+                    <Text style={styles.value} key={`${header}_lcc_${i}`}>
                         {header}
                     </Text>
                 ))}
             </View>
 
-            {rows.map((alt) => (
-                <View style={styles.row} key={`${alt.category}_lcc`}>
+            {rows.map((alt, i) => (
+                <View style={styles.row} key={`${alt.category}_lcc_${i}`}>
                     <Text style={styles.alt}>{alt.category}</Text>
                     <Text style={styles.alt}>{alt.subcategory}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.alternative)}</Text>

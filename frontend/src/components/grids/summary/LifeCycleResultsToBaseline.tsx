@@ -7,7 +7,7 @@ import DataGrid from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
 import { type LccBaselineRow, createLccBaselineRows } from "util/ResultCalculations";
-import { dollarFormatter, numberFormatter } from "util/Util";
+import { dollarFormatter, numberFormatter, percentFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",
@@ -44,7 +44,7 @@ const columns = [
         ...cellClasses,
     },
     {
-        name: "Initial Cost",
+        name: "Investment",
         key: "initialCost",
         renderCell: ({ row }: { row: LccBaselineRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.initialCost ?? 0)}</p>
@@ -63,7 +63,7 @@ const columns = [
         name: "AIRR",
         key: "airr",
         renderCell: ({ row }: { row: LccBaselineRow }) => (
-            <p className={"text-right"}>{numberFormatter.format(row.airr)}</p>
+            <p className={"text-right"}>{percentFormatter.format(row.airr)}</p>
         ),
         ...cellClasses,
     },
@@ -90,12 +90,12 @@ const columns = [
             const value = row.deltaEnergy;
             if (value === undefined || Number.isNaN(value)) return undefined;
 
-            return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
+            return <p className={"text-right"}>{numberFormatter.format(value)} gJ</p>;
         },
         ...cellClasses,
     },
     {
-        name: "Change in GHG (kg co2)",
+        name: "Change in GHG (kg CO2e)",
         key: "deltaGhg",
         renderCell: ({ row }: { row: LccBaselineRow }) => {
             const value = row.deltaGhg;
@@ -104,31 +104,7 @@ const columns = [
             return <p className={"text-right"}>{numberFormatter.format(value)}</p>;
         },
         ...cellClasses,
-    },
-    {
-        name: "Change in SCC",
-        key: "deltaScc",
-        renderCell: ({ row }: { row: LccBaselineRow }) => {
-            const value = row.deltaScc;
-            if (value === undefined || Number.isNaN(value))
-                return <p className={"text-right"}>{dollarFormatter.format(0)}</p>;
-
-            return <p className={"text-right"}>{dollarFormatter.format(value)}</p>;
-        },
-        ...cellClasses,
-    },
-    {
-        name: "Net Savings and SCC Reductions",
-        key: "netSavings",
-        renderCell: ({ row }: { row: LccBaselineRow }) => {
-            const value = row.netSavings;
-            if (value === undefined || Number.isNaN(value))
-                return <p className={"text-right"}>{dollarFormatter.format(0)}</p>;
-
-            return <p className={"text-right"}>{dollarFormatter.format(row.netSavings)}</p>;
-        },
-        ...cellClasses,
-    },
+    }
 ];
 
 const [useRows] = bind(
