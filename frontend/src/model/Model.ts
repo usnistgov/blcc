@@ -10,14 +10,12 @@ import {
     Purpose,
     SocialCostOfGhgScenario,
 } from "blcc-format/Format";
-import { FetchError, fetchEmissions, fetchEscalationRates, fetchReleaseYears, fetchScc } from "blcc-format/api";
-import { decodeErrorResponse } from "blcc-format/schema";
+import { fetchEscalationRates, fetchReleaseYears } from "blcc-format/api";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { db, hashCurrent } from "model/db";
-import objectHash from "object-hash";
 import * as O from "optics-ts";
 import { NEVER, type Observable, Subject, combineLatest, distinctUntilChanged, from, map, scan, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
