@@ -48,61 +48,72 @@ const getEmissions = (project: Project) =>
         return yield* fetchEmissions(project.releaseYear, location.zipcode, project.studyPeriod, project.case);
     });
 
-export const toE3ObjectEffect = Effect.gen(function* () {
-    const db = yield* DexieService;
-    const project = yield* db.getProject();
+export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
+    effect: Effect.gen(function* () {
+        const db = yield* DexieService;
 
-    const emissions = yield* getEmissions(project);
+        const createE3Object = Effect.gen(function* () {
+            const project = yield* db.getProject();
 
-    const builder = new RequestBuilder();
+            const emissions = yield* getEmissions(project);
 
-    // Setup base E3 options
-    const analysisBuilder = new AnalysisBuilder()
-        .type(AnalysisType.LCCA)
-        .projectType(ProjectType.OTHER)
-        .addOutputType("measure", "optional", "required")
-        .studyPeriod(project.studyPeriod ?? 0)
-        .timestepValue(TimestepValue.YEAR)
-        .timestepComp(
-            project.discountingMethod === DiscountingMethod.END_OF_YEAR
-                ? TimestepComp.END_OF_YEAR
-                : TimestepComp.MID_YEAR,
-        )
-        .real()
-        .discountRateReal(project.realDiscountRate ?? 0)
-        .discountRateNominal(project.nominalDiscountRate ?? 0)
-        .inflationRate(project.inflationRate ?? 0)
-        .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
+            const builder = new RequestBuilder();
 
-    // Create costs
-    const costs = yield* db.getCosts;
-    const costMap = new Map(
-        costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions)]),
-    );
+            // Setup base E3 options
+            const analysisBuilder = new AnalysisBuilder()
+                .type(AnalysisType.LCCA)
+                .projectType(ProjectType.OTHER)
+                .addOutputType("measure", "optional", "required")
+                .studyPeriod(project.studyPeriod ?? 0)
+                .timestepValue(TimestepValue.YEAR)
+                .timestepComp(
+                    project.discountingMethod === DiscountingMethod.END_OF_YEAR
+                        ? TimestepComp.END_OF_YEAR
+                        : TimestepComp.MID_YEAR,
+                )
+                .real()
+                .discountRateReal(project.realDiscountRate ?? 0)
+                .discountRateNominal(project.nominalDiscountRate ?? 0)
+                .inflationRate(project.inflationRate ?? 0)
+                .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
 
-    // Define alternatives
-    const alternatives = yield* db.getAlternatives;
-    const alternativeBuilders = alternatives.map((alternative) => {
-        const builder = new AlternativeBuilder()
-            .name(alternative.name)
-            .addBcn(
-                ...alternative.costs.flatMap((id) => costMap.get(id)).filter((x): x is BcnBuilder => x !== undefined),
+            // Create costs
+            const costs = yield* db.getCosts;
+            const costMap = new Map(
+                costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions)]),
             );
 
-        if (alternative.id) builder.id(alternative.id);
-        if (alternative.baseline) return builder.baseline();
+            // Define alternatives
+            const alternatives = yield* db.getAlternatives;
+            const alternativeBuilders = alternatives.map((alternative) => {
+                const builder = new AlternativeBuilder()
+                    .name(alternative.name)
+                    .addBcn(
+                        ...alternative.costs
+                            .flatMap((id) => costMap.get(id))
+                            .filter((x): x is BcnBuilder => x !== undefined),
+                    );
 
-        return builder;
-    });
+                if (alternative.id) builder.id(alternative.id);
+                if (alternative.baseline) return builder.baseline();
 
-    const hasBaseline = !!alternatives.find((alt) => alt.baseline);
-    if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
+                return builder;
+            });
 
-    // Create complete Request Builder and return
-    return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
-});
+            const hasBaseline = !!alternatives.find((alt) => alt.baseline);
+            if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
-export const e3Request = toE3ObjectEffect.pipe(Effect.andThen(fetchE3Request));
+            // Create complete Request Builder and return
+            return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
+        });
+
+        return {
+            request: createE3Object.pipe(Effect.andThen(fetchE3Request)),
+            createE3Object,
+        };
+    }),
+    dependencies: [DexieService.Default],
+}) {}
 
 function costToBuilders(
     project: Project,

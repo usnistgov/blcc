@@ -15,11 +15,11 @@ import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { Effect } from "effect";
-import { toE3ObjectEffect } from "model/E3Request";
 import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { E3ObjectService } from "services/E3ObjectService";
 import { BlccRuntime } from "util/runtime";
 
 export default function ResultsAppBar() {
@@ -42,7 +42,14 @@ export default function ResultsAppBar() {
                 </Button>
                 <Button
                     icon={mdiCodeJson}
-                    onClick={() => BlccRuntime.runPromise(toE3ObjectEffect.pipe(Effect.andThen(downloadE3Request)))}
+                    onClick={() =>
+                        BlccRuntime.runPromise(
+                            Effect.gen(function* () {
+                                const e3ObjectService = yield* E3ObjectService;
+                                yield* e3ObjectService.createE3Object.pipe(Effect.andThen(downloadE3Request));
+                            }),
+                        )
+                    }
                 >
                     E3 Request
                 </Button>

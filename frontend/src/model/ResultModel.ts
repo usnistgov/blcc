@@ -9,7 +9,7 @@ import { map } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { Effect } from "effect";
-import { e3Request } from "model/E3Request";
+import { E3ObjectService } from "services/E3ObjectService";
 import { createAlternativeNameMap, groupOptionalByTag } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 
@@ -31,9 +31,10 @@ export namespace ResultModel {
                 Effect.gen(function* () {
                     setLoading(true);
 
+                    const e3ObjectService = yield* E3ObjectService;
                     const db = yield* DexieService;
 
-                    const results = yield* e3Request;
+                    const results = yield* e3ObjectService.request;
                     const timestamp = new Date();
                     const hash = yield* db.hashCurrent;
 
