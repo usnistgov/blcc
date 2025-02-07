@@ -1,6 +1,5 @@
 import { bind } from "@react-rxjs/core";
 import { type Cost, FuelType } from "blcc-format/Format";
-import { fetchEscalationRates } from "blcc-format/api";
 import { Effect } from "effect";
 import { CostModel } from "model/CostModel";
 import { isEscalationCost } from "model/Guards";
@@ -9,8 +8,10 @@ import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import * as O from "optics-ts";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { combineLatestWith, filter, switchMap } from "rxjs/operators";
+import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
 import { gate, guard } from "util/Operators";
+import { BlccRuntime } from "util/runtime";
 import { Var } from "util/var";
 
 export type EscalationRateInfo = {
@@ -87,8 +88,10 @@ export namespace EscalationRateModel {
         // Make sure the zipcode exists and is 5 digits
         filter((values) => values[2] !== undefined && values[2].length === 5),
         switchMap(([releaseYear, studyPeriod, zipcode, eiaCase]) =>
-            Effect.runPromise(
+            BlccRuntime.runPromise(
                 Effect.gen(function* () {
+                    const api = yield* BlccApiService;
+
                     yield* Effect.log(
                         "Fetching custom location escalation rates",
                         releaseYear,
@@ -97,7 +100,7 @@ export namespace EscalationRateModel {
                         eiaCase,
                     );
                     return yield* Effect.orElse(
-                        fetchEscalationRates(
+                        api.fetchEscalationRates(
                             releaseYear,
                             releaseYear,
                             releaseYear + (studyPeriod ?? 0),

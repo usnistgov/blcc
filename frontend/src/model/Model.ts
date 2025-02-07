@@ -9,7 +9,6 @@ import {
     type Project,
     Purpose,
 } from "blcc-format/Format";
-import { fetchEscalationRates, fetchReleaseYears } from "blcc-format/api";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
@@ -19,6 +18,7 @@ import * as O from "optics-ts";
 import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 import {
@@ -162,10 +162,11 @@ export namespace Model {
      */
     export const [useReleaseYearList] = bind(
         from(
-            Effect.runPromise(
+            BlccRuntime.runPromise(
                 Effect.gen(function* () {
+                    const api = yield* BlccApiService;
                     // Get release years and default to [2023] if an error occurs.
-                    const releaseYears = yield* fetchReleaseYears.pipe(
+                    const releaseYears = yield* api.fetchReleaseYears.pipe(
                         Effect.map((years) => years.map((release) => release.year)),
                         Effect.catchAll(() => Effect.succeed([Defaults.RELEASE_YEAR])),
                     );
@@ -375,8 +376,10 @@ export namespace Model {
             // Make sure the zipcode exists and is 5 digits
             filter((values) => values[2] !== undefined && values[2].length === 5),
             switchMap(([releaseYear, studyPeriod, zipcode, eiaCase]) =>
-                Effect.runPromise(
+                BlccRuntime.runPromise(
                     Effect.gen(function* () {
+                        const api = yield* BlccApiService;
+
                         yield* Effect.log(
                             "Fetching project escalation rates",
                             releaseYear,
@@ -385,7 +388,7 @@ export namespace Model {
                             eiaCase,
                         );
                         return yield* Effect.orElse(
-                            fetchEscalationRates(
+                            api.fetchEscalationRates(
                                 releaseYear,
                                 releaseYear,
                                 releaseYear + (studyPeriod ?? 0),

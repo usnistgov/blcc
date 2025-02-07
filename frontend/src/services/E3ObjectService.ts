@@ -32,25 +32,31 @@ import {
     type USLocation,
     type WaterCost,
 } from "blcc-format/Format";
-import { fetchE3Request, fetchEmissions } from "blcc-format/api";
 import { Effect } from "effect";
 import { DexieService } from "model/db";
+import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
 import { getConvertMap } from "util/UnitConversion";
-
-const getEmissions = (project: Project) =>
-    Effect.gen(function* () {
-        const location = project.location as USLocation;
-        if (location.zipcode === undefined || location.zipcode.length < 5) return undefined;
-
-        if (project.studyPeriod === undefined) return undefined;
-
-        return yield* fetchEmissions(project.releaseYear, location.zipcode, project.studyPeriod, project.case);
-    });
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
     effect: Effect.gen(function* () {
         const db = yield* DexieService;
+        const api = yield* BlccApiService;
+
+        const getEmissions = (project: Project) =>
+            Effect.gen(function* () {
+                const location = project.location as USLocation;
+                if (location.zipcode === undefined || location.zipcode.length < 5) return undefined;
+
+                if (project.studyPeriod === undefined) return undefined;
+
+                return yield* api.fetchEmissions(
+                    project.releaseYear,
+                    location.zipcode,
+                    project.studyPeriod,
+                    project.case,
+                );
+            });
 
         const createE3Object = Effect.gen(function* () {
             const project = yield* db.getProject();
@@ -108,11 +114,11 @@ export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3Object
         });
 
         return {
-            request: createE3Object.pipe(Effect.andThen(fetchE3Request)),
+            request: createE3Object.pipe(Effect.andThen(api.fetchE3Request)),
             createE3Object,
         };
     }),
-    dependencies: [DexieService.Default],
+    dependencies: [DexieService.Default, BlccApiService.Default],
 }) {}
 
 function costToBuilders(

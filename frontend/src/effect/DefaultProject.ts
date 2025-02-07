@@ -1,10 +1,10 @@
 import { Defaults } from "blcc-format/Defaults";
 import { Case, DollarMethod, EmissionsRateType, GhgDataSource, type Project } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
-import { fetchReleaseYears } from "blcc-format/api";
 import { Country } from "constants/LOCATION";
 import { Effect } from "effect";
 import { DexieService } from "model/db";
+import { BlccApiService } from "services/BlccApiService";
 
 /**
  * Creates a project object with default values given a release year.
@@ -35,7 +35,8 @@ export function createDefaultProject(releaseYear: number): Project {
  * Get the default release year in order to generate the default project.
  */
 export const getDefaultReleaseYear = Effect.gen(function* () {
-    const releaseYears = yield* fetchReleaseYears;
+    const api = yield* BlccApiService;
+    const releaseYears = yield* api.fetchReleaseYears;
     if (releaseYears[0] === undefined) return Defaults.RELEASE_YEAR;
     return releaseYears[0].year;
 });
