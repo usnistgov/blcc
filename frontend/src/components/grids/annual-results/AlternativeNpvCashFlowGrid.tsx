@@ -116,6 +116,14 @@ const columns = [
         ...cellClasses,
     },
     {
+        name: "Other Costs",
+        key: "otherCosts",
+        renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row.otherCosts)}</p>
+        ),
+        ...cellClasses,
+    },
+    {
         name: "Total",
         key: "total",
         renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
