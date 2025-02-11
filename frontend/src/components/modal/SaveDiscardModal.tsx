@@ -47,7 +47,7 @@ export default function saveDiscardModal<T>(open$: Observable<T>) {
                         </div>
                     }
                 >
-                    <div className={"flex flex-row justify-center mt-8"}>
+                    <div className={"mt-8 flex flex-row justify-center"}>
                         <p className={"w-80 text-justify"}>
                             There are unsaved changes to the current project. Would you like to save or discard changes?
                         </p>

@@ -20,6 +20,9 @@ import { Effect } from "effect";
 import { Subject, merge } from "rxjs";
 import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
 import { sampleMany } from "util/Operators";
+import saveAsModal from "./modal/SaveAsModal";
+import SaveAsModal from "./modal/SaveAsModal";
+import { EditorModel } from "model/EditorModel";
 
 const [newClick$, newClick] = createSignal<void>();
 const openClick$ = new Subject<void>();
@@ -112,6 +115,9 @@ export default function EditorAppBar() {
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
             <SaveDiscardModal />
+            <Subscribe>
+                <SaveAsModal />
+            </Subscribe>
             <ButtonBar className={"p-2"}>
                 <Button
                     type={ButtonType.PRIMARY}
@@ -176,6 +182,14 @@ export default function EditorAppBar() {
                     tooltip={Strings.SAVE}
                 >
                     Save
+                </Button>
+                <Button
+                    type={ButtonType.PRIMARY}
+                    icon={mdiContentSave}
+                    onClick={() => EditorModel.saveAsClick$.next()}
+                    tooltip={Strings.SAVE}
+                >
+                    Save As
                 </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
