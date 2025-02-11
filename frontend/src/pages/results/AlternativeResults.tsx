@@ -17,7 +17,7 @@ export default function AlternativeResults() {
                     <AlternativeNpvCostTypeGrid/>
                 </div>
                 <div>
-                    <Header>Energy and Water use, Emissions, and Social Cost of GHG</Header>
+                    <Header>Resource Use and Emissions</Header>
                     <ResourceUsageGrid />
                 </div>
             </div>
