@@ -89,6 +89,8 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
         { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
         { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
         { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
+        { category: "Contract", subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost")},
+        { subcategory: "Implementation", ...getOptionalTag(measures, "Implementation Contract Cost")},
         { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
         { category: "Total LCC", ...getOptionalTag(measures, "LCC")}
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
@@ -145,6 +147,8 @@ export type AlternativeNpvCashflowRow = {
     waterDisposal: number;
     recurring: number;
     nonRecurring: number;
+    recurringContract: number;
+    implementation: number;
     replace: number;
     residualValue: number;
     otherCosts: number;
@@ -167,8 +171,12 @@ export function createAlternativeNpvCashflowRow(
 
     const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
     const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const demand = optionals.get(`${id} Demand Charge`)?.totalTagCashflowDiscounted ?? defaultArray;
     const recurring = optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
     const nonRecurring = optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const recurringContract = optionals.get(`${id} Recurring Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const implementation = optionals.get(`${id} Implementation Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const replace = optionals.get(`${id} Replacement Capital`)?.totalTagCashflowDiscounted ?? defaultArray;
     const residualValue = optionals.get(`${id} Residual Value`)?.totalTagCashflowDiscounted ?? defaultArray;
     const otherCosts = optionals.get(`${id} Other`)?.totalTagCashflowDiscounted ?? defaultArray;
 
@@ -178,8 +186,12 @@ export function createAlternativeNpvCashflowRow(
                 year: i,
                 investment: investment[i],
                 consumption: consumption[i],
+                demand: demand[i],
                 recurring: recurring[i],
                 nonRecurring: nonRecurring[i],
+                recurringContract: recurringContract[i],
+                implementation: implementation[i],
+                replace: replace[i],
                 residualValue: residualValue[i],
                 otherCosts: otherCosts[i],
                 total,
@@ -234,6 +246,8 @@ export function createAlternativeNpvCashflowTotalRow(measure: Measures): Alterna
         { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
         { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
         { category: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
+        { category: "Contract", subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"]},
+        { subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"]},
         { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
         { category: "Other Monetary Costs", alternative: measure.totalTagFlows["Other"]}
     ] as AlternativeNpvCashflowTotalRow[]; //FIXME this could be typed better
