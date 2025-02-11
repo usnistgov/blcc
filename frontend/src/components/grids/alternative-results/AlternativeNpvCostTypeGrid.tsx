@@ -44,7 +44,7 @@ const [useRows] = bind(
     [],
 );
 
-export default function AlternativeNpvCashFlowTotalGrid() {
+export default function AlternativeNpvCostTypeGrid() {
     const rows = useRows();
 
     return (
