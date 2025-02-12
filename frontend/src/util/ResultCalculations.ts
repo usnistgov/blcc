@@ -229,13 +229,13 @@ export function createNpvCashflowComparisonRow(allRequired: Required[]): NpvCash
 /*
  * Alternative NPV Cashflow
  */
-export type AlternativeNpvCashflowTotalRow = {
+export type AlternativeNpvCostTypeTotalRow = {
     category: string;
     subcategory: string;
     alternative: number;
 };
 
-export function createAlternativeNpvCashflowTotalRow(measure: Measures): AlternativeNpvCashflowTotalRow[] {
+export function createAlternativeNpvCostTypeTotalRow(measure: Measures): AlternativeNpvCostTypeTotalRow[] {
     return [
         { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
         { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
@@ -250,7 +250,7 @@ export function createAlternativeNpvCashflowTotalRow(measure: Measures): Alterna
         { subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"]},
         { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
         { category: "Other Monetary Costs", alternative: measure.totalTagFlows["Other"]}
-    ] as AlternativeNpvCashflowTotalRow[]; //FIXME this could be typed better
+    ] as AlternativeNpvCostTypeTotalRow[]; //FIXME this could be typed better
 }
 
 /*

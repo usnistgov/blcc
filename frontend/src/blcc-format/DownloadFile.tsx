@@ -9,7 +9,7 @@ import { exportDB, getAlternatives, getCosts, getProject, getResults, hashCurren
 import type React from "react";
 import {
     createAlternativeNpvCashflowRow,
-    createAlternativeNpvCashflowTotalRow,
+    createAlternativeNpvCostTypeTotalRow,
     createLccBaselineRows,
     createLccComparisonRows,
     createLccResourceRows,
@@ -89,7 +89,7 @@ export const downloadPdf = Effect.gen(function* () {
     };
 
     const altResults: AltResults = {
-        alternativeNpvCashflowTotal: measures.map((measure) => createAlternativeNpvCashflowTotalRow(measure)),
+        alternativeNpvCashflowTotal: measures.map((measure) => createAlternativeNpvCostTypeTotalRow(measure)),
         resourceUsage: measures.map((measure) => createResourceUsageRow(measure)),
     };
 
