@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
-import { type AlternativeNpvCashflowTotalRow, createAlternativeNpvCashflowTotalRow } from "util/ResultCalculations";
+import { type AlternativeNpvCostTypeTotalRow, createAlternativeNpvCostTypeTotalRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
 
 const cellClasses = {
@@ -29,7 +29,7 @@ const [useColumns] = bind(
             {
                 name: alternative.name,
                 key: "alternative",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowTotalRow }) => (
+                renderCell: ({ row }: { row: AlternativeNpvCostTypeTotalRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.alternative ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -40,7 +40,7 @@ const [useColumns] = bind(
 );
 
 const [useRows] = bind(
-    ResultModel.selectedMeasure$.pipe(map((measure) => createAlternativeNpvCashflowTotalRow(measure))),
+    ResultModel.selectedMeasure$.pipe(map((measure) => createAlternativeNpvCostTypeTotalRow(measure))),
     [],
 );
 
@@ -60,7 +60,7 @@ export default function AlternativeNpvCostTypeGrid() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: AlternativeNpvCashflowTotalRow, index: number) =>
+                rowClass={(_row: AlternativeNpvCostTypeTotalRow, index: number) =>
                     index % 2 === 0 ? "bg-white" : "bg-base-lightest"
                 }
             />
