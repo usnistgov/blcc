@@ -44,14 +44,15 @@ export function download(blob: Blob, filename: string, mime: string) {
 /**
  * An effect that downloads a file and sets the dirty check hash to be the hash of the current project.
  */
-export const downloadBlccFile = Effect.gen(function* () {
+export const downloadBlccFile = (downloadName?: string) => Effect.gen(function* () {
     const project = yield* getProject(1);
 
     if (project === undefined) return;
+    
 
     yield* hashCurrentAndSet;
     const blob = yield* exportDB;
-    download(blob, `${project.name}.blcc`, "text/json");
+    download(blob, `${downloadName ?? project.name}.blcc`, "text/json");
 });
 
 export const downloadPdf = Effect.gen(function* () {

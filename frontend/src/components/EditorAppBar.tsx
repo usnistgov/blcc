@@ -9,80 +9,14 @@ import { clearDB, db, getAlternatives, getCosts, getProject, importProject, setH
 import { useMatch, useNavigate } from "react-router-dom";
 import "dexie-export-import";
 import { Subscribe } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
 import { convert } from "blcc-format/Converter";
-import { download, downloadBlccFile } from "blcc-format/DownloadFile";
 import { resetToDefaultProject } from "blcc-format/effects";
 import { showMessage } from "components/modal/MessageModal";
-import saveDiscardModal from "components/modal/SaveDiscardModal";
 import { Strings } from "constants/Strings";
 import { Effect } from "effect";
-import { Subject, merge } from "rxjs";
-import { filter, map, sample, tap, withLatestFrom } from "rxjs/operators";
-import { sampleMany } from "util/Operators";
+import SaveAsModal from "./modal/SaveAsModal";
+import { EditorModel } from "model/EditorModel";
 
-const [newClick$, newClick] = createSignal<void>();
-const openClick$ = new Subject<void>();
-const saveClick$ = new Subject<void>();
-
-// Actions that can open the confirmation dialog
-enum OpenDiscard {
-    NEW = 0,
-    OPEN = 1,
-}
-
-// Click streams mapped to their respective actions
-const newOpen$ = merge(newClick$.pipe(map(() => OpenDiscard.NEW)), openClick$.pipe(map(() => OpenDiscard.OPEN)));
-
-// Create the confirmation dialog. Only opens if the current project is dirty.
-const {
-    component: SaveDiscardModal,
-    saveClick$: modalSaveClick$,
-    discardClick$,
-} = saveDiscardModal<OpenDiscard>(
-    newOpen$.pipe(
-        withLatestFrom(isDirty$),
-        filter(([, dirty]) => dirty),
-        map(([value]) => value),
-    ),
-);
-
-/*
- * Performs a save when the save button on the confirmation modal is clicked.
- * Outputs the save action.
- */
-const confirmSave$ = modalSaveClick$.pipe(
-    withLatestFrom(hash$),
-    tap(async ([, hash]) => await save(hash, "download.blcc")),
-    map(([action]) => action),
-);
-
-/*
- * Stream that represents when new project should be created. Either when the new button
- * is clicked and the current project is not dirty, or when the discard button is clicked
- * on the confirmation dialog, or when the confirmation dialog executes a save.
- */
-const new$ = merge(
-    sampleMany(newClick$, [isDirty$]).pipe(filter(([dirty]) => !dirty)),
-    merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.NEW)),
-);
-
-/*
- * Stream that represents when project should be opened. Either when the open button is
- * clicked and the current project is not dirty, or when the discard button is clicked on
- * the confirmation dialog, or when the confirmation dialog executes a save.
- */
-const open$ = merge(
-    sampleMany(openClick$, [isDirty$]).pipe(filter(([dirty]) => !dirty)),
-    merge(discardClick$, confirmSave$).pipe(filter((action) => action === OpenDiscard.OPEN)),
-);
-
-// Saves the current project and saves the hash for dirty detection.
-async function save(hash: string, filename: string) {
-    await db.dirty.clear();
-    await db.dirty.add({ hash });
-    download(await db.export(), filename, "application/json");
-}
 
 /**
  * The app bar for the editor context.
@@ -92,7 +26,7 @@ export default function EditorAppBar() {
     const isOnEditorPage = useMatch("/editor");
 
     useSubscribe(
-        new$,
+        EditorModel.new$,
         async () => {
             await Effect.runPromise(
                 Effect.gen(function* () {
@@ -106,17 +40,19 @@ export default function EditorAppBar() {
         },
         [navigate],
     );
-    useSubscribe(saveClick$, () => Effect.runPromise(downloadBlccFile));
-    useSubscribe(open$, () => document.getElementById("open")?.click());
+    useSubscribe(EditorModel.open$, () => document.getElementById("open")?.click());
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
-            <SaveDiscardModal />
+            <EditorModel.SaveDiscardModal />
+            <Subscribe>
+                <SaveAsModal />
+            </Subscribe>
             <ButtonBar className={"p-2"}>
                 <Button
                     type={ButtonType.PRIMARY}
                     icon={mdiFileDocumentPlus}
-                    onClick={() => newClick()}
+                    onClick={() => EditorModel.newClick()}
                     tooltip={Strings.NEW}
                 >
                     New
@@ -124,7 +60,7 @@ export default function EditorAppBar() {
                 <Button
                     type={ButtonType.PRIMARY}
                     icon={mdiFolder}
-                    onClick={() => openClick$.next()}
+                    onClick={() => EditorModel.openClick$.next()}
                     tooltip={Strings.OPEN}
                 >
                     Open
@@ -172,7 +108,7 @@ export default function EditorAppBar() {
                 <Button
                     type={ButtonType.PRIMARY}
                     icon={mdiContentSave}
-                    onClick={() => saveClick$.next()}
+                    onClick={() => EditorModel.saveClick$.next()}
                     tooltip={Strings.SAVE}
                 >
                     Save

@@ -16,21 +16,26 @@ import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { Effect } from "effect";
 import { toE3ObjectEffect } from "model/E3Request";
+import { EditorModel } from "model/EditorModel";
 import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import SaveAsModal from "./modal/SaveAsModal";
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
+            <Subscribe>
+                <SaveAsModal />
+            </Subscribe>
             <ButtonBar className={"p-2"}>
                 <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>
                     Back to Editor
                 </Button>
-                <Button icon={mdiContentSave} onClick={() => Effect.runPromise(downloadBlccFile)}>
+                <Button icon={mdiContentSave} onClick={() => EditorModel.saveClick$.next()}>
                     Save
                 </Button>
                 <Button icon={mdiFileDownload} onClick={() => Effect.runPromise(downloadPdf)}>
