@@ -1,7 +1,8 @@
-import { mdiClose, mdiFile, mdiPlus } from "@mdi/js";
+import { mdiClose, mdiContentSave, mdiContentSaveCheck, mdiContentSaveEdit, mdiContentSavePlus, mdiFile, mdiPlus } from "@mdi/js";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal } from "antd";
+import Title from "antd/es/typography/Title";
 import { downloadBlccFile } from "blcc-format/DownloadFile";
 import { Button, ButtonType } from "components/input/Button";
 import { TestInput } from "components/input/TestInput";
@@ -17,29 +18,31 @@ export default function saveAsModal() {
 
     return (
         <Modal
-        title={"Delete Existing Project Without Saving?"}
-                    closable={false}
-                    onCancel={() => EditorModel.cancel()}
-                    open={EditorModel.useOpen()}
-                    footer={
-                        <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                            <Button type={ButtonType.ERROR} icon={mdiClose} onClick={EditorModel.cancel}>
-                                Cancel
-                            </Button>
-                            <Button type={ButtonType.PRIMARY} icon={mdiFile} disabled={EditorModel.useDisabled()} onClick={() => Effect.runPromise(downloadBlccFile(saveAsInput))}>
-                                Save
-                            </Button>
-                        </div>
-                    }>
-            <div className={"mt-8 flex flex-row justify-center"}>
-                        <TestInput
-                            getter={EditorModel.useSaveAsInput}
-                            onChange={(event) => {
-                                const change = event.currentTarget.value;
-                                EditorModel.saveAsInput(change);
-                            }}
-                        />
-                    </div>
+        title={"Save File As:"}
+        closable={false}
+        onCancel={() => EditorModel.cancelSave()}
+        open={EditorModel.useOpenSave()}
+        footer={
+            <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
+                <Button type={ButtonType.ERROR} icon={mdiClose} onClick={EditorModel.cancelSave}>
+                    Cancel
+                </Button>
+                <Button type={ButtonType.PRIMARY} icon={mdiContentSave} disabled={EditorModel.useDisabledSaveInput()} onClick={() => Effect.runPromise(downloadBlccFile(saveAsInput))}>
+                    Save
+                </Button>
+            </div>
+        }>
+            <div className={"mt-8 flex flex-row items-end justify-center"}>
+                <TestInput
+                    className="w-80"
+                    addonAfter=".blcc"
+                    getter={EditorModel.useSaveAsInput}
+                    onChange={(event) => {
+                        const change = event.currentTarget.value;
+                        EditorModel.saveAsInput(change);
+                    }}
+                />
+            </div>
         </Modal>
     )
 }
