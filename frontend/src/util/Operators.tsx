@@ -166,6 +166,13 @@ export namespace DexieOps {
     }
 }
 
+export function sampleOne<A>(sampler: Observable<unknown>, input: Observable<A>): Observable<A> {
+    return sampler.pipe(
+        withLatestFrom(input),
+        map(([, a]) => a),
+    );
+}
+
 export function sampleMany<T, Rest extends unknown[]>(
     sampler: Observable<unknown>,
     inputs: [...ObservableInputTuple<Rest>],

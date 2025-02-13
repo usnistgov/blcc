@@ -15,17 +15,20 @@ import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { Effect } from "effect";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { EditorModel } from "model/EditorModel";
 import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { E3ObjectService } from "services/E3ObjectService";
 import { BlccRuntime } from "util/runtime";
-import SaveAsModal from "./modal/SaveAsModal";
-import { EditorModel } from "model/EditorModel";
+import SaveAsModal, { showSaveAsModal } from "./modal/SaveAsModal";
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
+
+    useSubscribe(EditorModel.saveClick$.pipe(showSaveAsModal()));
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
@@ -36,7 +39,7 @@ export default function ResultsAppBar() {
                 <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>
                     Back to Editor
                 </Button>
-                <Button icon={mdiContentSave} onClick={() => EditorModel.saveClick$.next()}>
+                <Button icon={mdiContentSave} onClick={() => EditorModel.saveClick()}>
                     Save
                 </Button>
                 <Button icon={mdiFileDownload} onClick={() => BlccRuntime.runPromise(downloadPdf)}>

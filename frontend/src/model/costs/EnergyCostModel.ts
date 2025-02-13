@@ -126,8 +126,6 @@ export namespace EnergyCostModel {
             map(index(0)),
         );
 
-        zipInfo$.subscribe((x) => console.log("Hello", x));
-
         export namespace Actions {
             export const toggleLocation = Location.toggleLocation;
         }

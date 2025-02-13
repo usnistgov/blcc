@@ -17,7 +17,7 @@ import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
 import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
@@ -88,7 +88,7 @@ export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]
             Effect.gen(function* () {
                 const db = yield* DexieService;
                 return yield* db.hashCurrent;
-            }),
+            }).pipe(Effect.catchTag("UndefinedError", () => Effect.succeed(undefined))),
         ),
     ),
     guard(),
@@ -98,6 +98,7 @@ export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]
 export const isDirty$ = hash$.pipe(
     switchMap((hash) => from(liveQuery(() => db.dirty.get(hash)))),
     map((result) => result === undefined),
+    distinctUntilChanged(),
     shareReplay(1),
 );
 
