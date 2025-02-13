@@ -64,6 +64,9 @@ export default function LifeCycleResourceComparison() {
                 className={"h-fit"}
                 rows={rows}
                 columns={useColumns()}
+                defaultColumnOptions={{
+                    resizable: true
+                }}
                 style={{
                     // @ts-ignore
                     "--rdg-color-scheme": "light",
