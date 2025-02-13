@@ -65,6 +65,9 @@ export default function NpvCostsBySubcategory() {
                 className={"h-fit"}
                 rows={rows}
                 columns={useColumns()}
+                defaultColumnOptions={{
+                    resizable: true
+                }}
                 style={{
                     // @ts-ignore
                     "--rdg-color-scheme": "light",
