@@ -92,6 +92,7 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
         { category: "Contract", subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost")},
         { subcategory: "Implementation", ...getOptionalTag(measures, "Implementation Contract Cost")},
         { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Other", subcategory: "Monetary", ...getOptionalTag(measures, "Other")},
         { category: "Total LCC", ...getOptionalTag(measures, "LCC")}
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
 }
@@ -249,7 +250,7 @@ export function createAlternativeNpvCostTypeTotalRow(measure: Measures): Alterna
         { category: "Contract", subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"]},
         { subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"]},
         { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
-        { category: "Other Monetary Costs", alternative: measure.totalTagFlows["Other"]}
+        { category: "Other", subcategory: "Monetary", alternative: measure.totalTagFlows["Other"]}
     ] as AlternativeNpvCostTypeTotalRow[]; //FIXME this could be typed better
 }
 
