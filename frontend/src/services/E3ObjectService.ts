@@ -195,27 +195,15 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
     return result;
 }
 
-function energyCostToBuilder(
-    project: Project,
-    cost: EnergyCost,
-    emissions: readonly number[] | undefined,
-): BcnBuilder[] {
-    const result = [];
-
-    const builder = new BcnBuilder()
-        .name(cost.name)
-        .addTag("Energy", cost.fuelType, cost.unit, "LCC")
-        .real()
-        .type(BcnType.COST)
-        .subType(BcnSubType.DIRECT)
-        .quantityValue(cost.costPerUnit)
-        .quantity(cost.annualConsumption)
-        .quantityUnit(cost.unit ?? "");
-
+function energyCostRecurrence(project: Project, cost: EnergyCost) {
+    // We are using custom escalation for this cost.
     if (cost.escalation !== undefined) {
         // @ts-ignore
-        builder.recur(new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation));
-    } else if (project.projectEscalationRates !== undefined) {
+        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
+    }
+
+    // We are not using custom escalation but project escalation rates exist.
+    if (project.projectEscalationRates !== undefined) {
         // Get project escalation rates
         const escalation = project.projectEscalationRates
             .filter((rate) => rate.sector === cost.customerSector)
@@ -230,51 +218,63 @@ function energyCostToBuilder(
                     .otherwise(() => 0),
             ) as number[];
 
-        builder.recur(new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation));
-    } else {
-        builder.recur(recurrence(cost));
+        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
     }
+
+    // There are no custom escalation nor project escalation rates.
+    return recurrence(cost);
+}
+
+function energyCostToBuilder(
+    project: Project,
+    cost: EnergyCost,
+    emissions: readonly number[] | undefined,
+): BcnBuilder[] {
+    const result = [];
+
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .addTag("Energy", cost.fuelType, cost.unit, "LCC")
+        .real()
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .recur(energyCostRecurrence(project, cost))
+        .quantityValue(cost.costPerUnit)
+        .quantity(cost.annualConsumption)
+        .quantityUnit(cost.unit ?? "");
 
     result.push(builder);
 
     if (cost.demandCharge !== undefined) {
-        const demandChargeBcn = new BcnBuilder()
-            .name(`${cost.name} Demand Charge`)
-            .addTag("Demand Charge", "LCC")
-            .real()
-            .type(BcnType.COST)
-            .subType(BcnSubType.DIRECT)
-            .recur(recurrence(cost))
-            .quantityValue(cost.demandCharge)
-            .quantity(1);
-
-        if (cost.escalation !== undefined) {
-            // @ts-ignore
-            demandChargeBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
-        }
-
-        result.push(demandChargeBcn);
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} Demand Charge`)
+                .addTag("Demand Charge", "LCC")
+                .real()
+                .type(BcnType.COST)
+                .subType(BcnSubType.DIRECT)
+                .recur(energyCostRecurrence(project, cost))
+                .quantityValue(cost.demandCharge)
+                .quantity(1),
+        );
     }
 
     if (cost.rebate !== undefined) {
-        const rebateBcn = new BcnBuilder()
-            .name(`${cost.name} Rebate`)
-            .addTag("Rebate", "LCC")
-            .real()
-            .type(BcnType.BENEFIT)
-            .subType(BcnSubType.DIRECT)
-            .quantityValue(-cost.rebate)
-            .quantity(1);
-
-        if (cost.escalation !== undefined) {
-            // @ts-ignore
-            rebateBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
-        }
-
-        result.push(rebateBcn);
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} Rebate`)
+                .addTag("Rebate", "LCC")
+                .real()
+                .type(BcnType.BENEFIT)
+                .recur(energyCostRecurrence(project, cost))
+                .subType(BcnSubType.DIRECT)
+                .quantityValue(-cost.rebate)
+                .quantity(1),
+        );
     }
 
     if (cost.useIndex) {
+        // FIXME
         const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
         builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
     }
@@ -287,9 +287,6 @@ function energyCostToBuilder(
 
     // If unit conversion failed or we have no emissions data, return
     if (convertedUnit === undefined || emissions === undefined) return result;
-
-    console.log("Emissions", emissions);
-    console.log("Cost emissions", cost.emissions);
 
     const emissionValues =
         cost.emissions === undefined
