@@ -9,7 +9,7 @@ import { DexieService } from "model/db";
 import type React from "react";
 import {
     createAlternativeNpvCashflowRow,
-    createAlternativeNpvCashflowTotalRow,
+    createAlternativeNpvCostTypeTotalRow,
     createLccBaselineRows,
     createLccComparisonRows,
     createLccResourceRows,
@@ -44,14 +44,14 @@ export function download(blob: Blob, filename: string, mime: string) {
 /**
  * An effect that downloads a file and sets the dirty check hash to be the hash of the current project.
  */
-export const downloadBlccFile = Effect.gen(function* () {
+export const downloadBlccFile = (downloadName?: string) => Effect.gen(function* () {
     const db = yield* DexieService;
     const project = yield* db.getProject();
 
     yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
 
     const blob = yield* db.exportDB;
-    download(blob, `${project.name}.blcc`, "text/json");
+    download(blob, `${downloadName ?? project.name}.blcc`, "text/json");
 });
 
 export const downloadPdf = Effect.gen(function* () {
@@ -88,7 +88,7 @@ export const downloadPdf = Effect.gen(function* () {
     };
 
     const altResults: AltResults = {
-        alternativeNpvCashflowTotal: measures.map((measure) => createAlternativeNpvCashflowTotalRow(measure)),
+        alternativeNpvCashflowTotal: measures.map((measure) => createAlternativeNpvCostTypeTotalRow(measure)),
         resourceUsage: measures.map((measure) => createResourceUsageRow(measure)),
     };
 
@@ -155,7 +155,14 @@ export const downloadCsv = Effect.gen(function* () {
     const summaryResults = [
         "Life Cycle Results Comparison",
         [],
-        ["Alternative", "Base Case", "Initial Cost", "Life Cycle Cost", "Energy", "GHG Emissions (kg CO2e)"],
+        [
+            "Alternative",
+            "Base Case",
+            "Initial Cost",
+            "Life Cycle Cost",
+            "Energy",
+            "GHG Emissions (kg CO2e)"
+        ],
         ...summary.lccComparisonRows.map((row) =>
             [
                 row.name,
@@ -163,7 +170,7 @@ export const downloadCsv = Effect.gen(function* () {
                 dollarFormatter.format(row.initialCost),
                 dollarFormatter.format(row.lifeCycleCost),
                 numberFormatter.format(row.energy),
-                numberFormatter.format(row.ghgEmissions),
+                numberFormatter.format(row.ghgEmissions)
             ].map(wrapCell),
         ),
         [],
@@ -178,7 +185,7 @@ export const downloadCsv = Effect.gen(function* () {
             "SPP",
             "DPP",
             "Change in Energy",
-            "Change in GHG (kg CO2e)",
+            "Change in GHG (kg CO2e)"
         ],
         ...summary.lccBaseline.map((row) =>
             [
@@ -190,7 +197,7 @@ export const downloadCsv = Effect.gen(function* () {
                 numberFormatter.format(row.spp),
                 numberFormatter.format(row.dpp),
                 numberFormatter.format(row.deltaEnergy),
-                numberFormatter.format(row.deltaGhg),
+                numberFormatter.format(row.deltaGhg)
             ].map(wrapCell),
         ),
         [],

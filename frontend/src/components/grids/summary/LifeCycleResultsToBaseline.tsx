@@ -52,6 +52,14 @@ const columns = [
         ...cellClasses,
     },
     {
+        name: "Net Savings",
+        key: "netsavings",
+        renderCell: ({ row }: { row: LccBaselineRow }) => (
+            <p className={"text-right"}>{dollarFormatter.format(row.netSavings ?? 0)}</p>
+        ),
+        ...cellClasses,
+    },
+    {
         name: "SIR",
         key: "sir",
         renderCell: ({ row }: { row: LccBaselineRow }) => (

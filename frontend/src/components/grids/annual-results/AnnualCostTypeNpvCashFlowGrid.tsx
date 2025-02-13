@@ -12,7 +12,7 @@ const cellClasses = {
 };
 
 const columns = [
-    { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-left", cellClass: "text-ink" },
+    { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-center", cellClass: "text-ink" },
     {
         name: "Investment",
         key: "investment",
@@ -23,7 +23,7 @@ const columns = [
     },
     {
         name: "Energy",
-        headerCellClass: "bg-primary text-white text-left",
+        headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
         children: [
             {
@@ -52,10 +52,9 @@ const columns = [
             },
         ],
     },
-
     {
         name: "Water",
-        headerCellClass: "bg-primary text-white text-left",
+        headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
         children: [
             {
@@ -78,7 +77,7 @@ const columns = [
     },
     {
         name: "OMR",
-        headerCellClass: "bg-primary text-white text-left",
+        headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
         children: [
             {
@@ -100,6 +99,30 @@ const columns = [
         ],
     },
     {
+        name: "Contract",
+        headerCellClass: "bg-primary text-white text-center",
+        cellClass: "text-ink",
+        children: [
+            {
+                name: "Implementation",
+                key: "implementationContract",
+                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.implementation ?? 0)}</p>
+                ),
+                ...cellClasses,
+            },
+            {
+                name: "Recurring",
+                key: "recurringContract",
+                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.recurringContract ?? 0)}</p>
+                ),
+                ...cellClasses,
+            }
+        ],
+    },
+
+    {
         name: "Replace",
         key: "replace",
         renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
@@ -116,12 +139,19 @@ const columns = [
         ...cellClasses,
     },
     {
-        name: "Other Costs",
-        key: "otherCosts",
-        renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.otherCosts)}</p>
-        ),
-        ...cellClasses,
+        name: "Other",
+        headerCellClass: "bg-primary text-white text-center",
+        cellClass: "text-ink",
+        children: [
+            {
+                name: "Monetary",
+                key: "otherMonetary",
+                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.otherCosts)}</p>
+                ),
+                ...cellClasses,
+            }
+        ]
     },
     {
         name: "Total",
@@ -142,7 +172,7 @@ const [useRows] = bind(
     [],
 );
 
-export default function AlternativeNpvCashFlowGrid() {
+export default function AnnualCostTypeNpvCashFlowGrid() {
     const rows = useRows();
 
     return (

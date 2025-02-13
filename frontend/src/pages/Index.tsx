@@ -1,11 +1,14 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import "nist-header-footer.sass";
-import { mdiArrowRight } from "@mdi/js";
+import { mdiArrowRight, mdiArrowRightBold, mdiArrowRightBoldBoxOutline, mdiArrowRightBoldOutline, mdiArrowRightThick, mdiChevronDoubleRight } from "@mdi/js";
 import NistHeaderFooter from "components/NistHeaderFooter";
 import { Button } from "components/input/Button";
 import Logo from "images/logo.svg?react";
 import { useNavigate } from "react-router-dom";
+import Title from "antd/es/typography/Title";
+import { Card } from "antd";
+import FeaturesCard from "components/FeaturesCard";
 
 /**
  * Top level index page that shows information about BLCC and a button to open the editor.
@@ -23,16 +26,43 @@ export default function Index() {
                 }
             >
                 <NistHeaderFooter>
-                    <div className={"mt-32 flex flex-col items-center"}>
-                        <Logo className={"h-52 w-full"} />
+                    <div className={"mt-20 flex flex-col items-center"}>
+                        <div className="flex flex-row items-center mb-10">
+                        <Logo className={"h-52 w-full mx-8"} />
                         <Button
                             className={"my-16"}
-                            icon={mdiArrowRight}
+                            icon={mdiArrowRightBold}
                             iconSide={"right"}
                             onClick={() => navigate("editor")}
                         >
                             <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
                         </Button>
+                        </div>
+                        <div className="bg-blue-200 flex-col flex flex-wrap items-center w-full px-16 py-8">
+                            <Title className="flex-grow">Features</Title>
+                            <div className="flex-row flex flex-wrap justify-center w-full">
+
+                                <FeaturesCard 
+                                    image="src/images/analysis.svg" 
+                                    headerText="New Capabilities" 
+                                    line1="Everything BLCC 5.3 can do and more"
+                                    line2="In-tool results analysis"/>
+                                <FeaturesCard 
+                                    image="src/images/click.svg" 
+                                    headerText="Better User Experience" 
+                                    line1="Easier to use interface"
+                                    line2="Better reporting documents"/>
+                                <FeaturesCard 
+                                    image="src/images/lock.svg" 
+                                    headerText="Security" 
+                                    line1="No software installation"
+                                    line2="No data saved or stored in cloud Uses AWS (FedRAMP certified)"/>
+                                <FeaturesCard 
+                                    image="src/images/book.svg" 
+                                    headerText="User Resources" 
+                                    line1="Includes Handbook 135, Annual Supplement to Handbook 135, EERC, BLCC User Guide, BLCC FAQ, Training"/>
+                            </div>
+                        </div>
                         <div className={"flex w-full flex-col items-center bg-primary-light py-8"}>
                             <div className={"flex w-full max-w-4xl flex-col"}>
                                 <span className={"w-[40rem] self-end text-justify"}>

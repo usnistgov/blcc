@@ -439,7 +439,7 @@ function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder
             .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
             .initialOccurrence(cost.initialOccurrence)
             .quantity(1)
-            .quantityValue(cost.initialOccurrence + 1),
+            .quantityValue(cost.initialCost + 1),
     ];
 }
 

@@ -21,17 +21,22 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { E3ObjectService } from "services/E3ObjectService";
 import { BlccRuntime } from "util/runtime";
+import SaveAsModal from "./modal/SaveAsModal";
+import { EditorModel } from "model/EditorModel";
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
+            <Subscribe>
+                <SaveAsModal />
+            </Subscribe>
             <ButtonBar className={"p-2"}>
                 <Button icon={mdiArrowLeft} onClick={() => navigate("/editor")}>
                     Back to Editor
                 </Button>
-                <Button icon={mdiContentSave} onClick={() => BlccRuntime.runPromise(downloadBlccFile)}>
+                <Button icon={mdiContentSave} onClick={() => EditorModel.saveClick$.next()}>
                     Save
                 </Button>
                 <Button icon={mdiFileDownload} onClick={() => BlccRuntime.runPromise(downloadPdf)}>

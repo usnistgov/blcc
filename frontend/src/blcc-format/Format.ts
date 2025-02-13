@@ -81,10 +81,10 @@ export type Alternative = {
 };
 
 export enum CostTypes {
-    CAPITAL = "Capital",
+    CAPITAL = "Capital Investment Cost",
     ENERGY = "Energy",
     WATER = "Water",
-    REPLACEMENT_CAPITAL = "Replacement Capital",
+    REPLACEMENT_CAPITAL = "Capital Replacement Cost",
     OMR = "OMR",
     IMPLEMENTATION_CONTRACT = "Contract Implementation",
     RECURRING_CONTRACT = "Recurring Contract",

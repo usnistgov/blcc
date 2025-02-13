@@ -1,10 +1,10 @@
 import { state, useStateObservable } from "@react-rxjs/core";
 import Title from "antd/es/typography/Title";
-import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import { SubcategoryTable } from "pages/editor/alternative/SubcategoryTable";
 import { type ReactNode, useMemo } from "react";
 import type { Observable, Subject } from "rxjs";
 import Info from "components/Info";
+import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 
 export type Subcategories<T> = {
     [key in keyof T]: Cost[];

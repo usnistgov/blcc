@@ -116,7 +116,7 @@ export default function Alternatives() {
         },
         {
             info: Strings.CAPITAL_COSTS,
-            label: "Capital Costs",
+            label: "Capital Component Costs",
             children: capitalCategories$,
         },
         {
