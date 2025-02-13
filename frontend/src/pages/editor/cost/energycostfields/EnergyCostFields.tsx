@@ -51,6 +51,7 @@ export default function EnergyCostFields() {
                     }
                     controls
                     label={isSavings ? "Annual Consumption Savings" : "Annual Consumption"}
+                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     getter={EnergyCostModel.annualConsumption.use}
                     onChange={EnergyCostModel.Actions.setAnnualConsumption}
                 />
