@@ -102,6 +102,8 @@ export const isDirty$ = hash$.pipe(
     shareReplay(1),
 );
 
+export const [useIsDirty] = bind(isDirty$, false);
+
 export type LocationModel<T> = {
     country: Var<T, Country | undefined>;
     city: Var<T, string | undefined>;

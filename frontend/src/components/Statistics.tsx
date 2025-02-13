@@ -1,11 +1,12 @@
-import { mdiCheck, mdiWindowClose } from "@mdi/js";
+import { mdiCheck, mdiContentSaveAlert, mdiWindowClose } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
+import { Tooltip } from "antd";
 import AppBar from "components/AppBar";
 import { liveQuery } from "dexie";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { useAlternativeIDs, useCostIDs } from "model/Model";
+import { useAlternativeIDs, useCostIDs, useIsDirty } from "model/Model";
 import { db } from "model/db";
 import { useNavigate } from "react-router-dom";
 import { from, map, sample } from "rxjs";
@@ -38,11 +39,12 @@ export default function Statistics() {
     const valid = isValid();
     const error = useError();
     const extraErrorCount = useExtraErrorCount();
+    const isDirty = useIsDirty();
 
     return (
         <AppBar
             type={"footer"}
-            className={"h-fit place-items-center border-t border-base-light bg-base-lightest text-sm"}
+            className={"h-fit place-items-center border-base-light border-t bg-base-lightest text-sm"}
         >
             {/* Some general statistics about the project */}
             <div className={"flex flex-row divide-x divide-base-light"}>
@@ -53,7 +55,8 @@ export default function Statistics() {
             {/*
              * Displays whether the current project can be run by E3 or not.
              */}
-            <div className={"flex cursor-pointer flex-row gap-2"} onClick={errorClick}>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+            <div className={"mx-2 flex cursor-pointer flex-row gap-2"} onClick={errorClick}>
                 {/* The first error in the project */}
                 <p className={"select-none"}>{!valid && `${error?.id}: ${error?.messages[0]}`}</p>
 
@@ -61,11 +64,19 @@ export default function Statistics() {
                 {extraErrorCount > 0 && <p className={"select-none"}>Plus {extraErrorCount} more...</p>}
 
                 {/* An icon denoting whether the project is valid or invalid */}
-                <Icon
-                    className={`mx-2 ${valid ? "text-success" : "text-error"}`}
-                    path={valid ? mdiCheck : mdiWindowClose}
-                    size={0.8}
-                />
+                <Tooltip title={valid ? "Project is valid" : "Project is invalid"} placement={"topRight"}>
+                    <Icon
+                        className={valid ? "text-success" : "text-error"}
+                        path={valid ? mdiCheck : mdiWindowClose}
+                        size={0.8}
+                    />
+                </Tooltip>
+
+                {isDirty && (
+                    <Tooltip title={"There are unsaved changes"} placement={"topRight"}>
+                        <Icon className={"text-base"} path={mdiContentSaveAlert} size={0.8} />
+                    </Tooltip>
+                )}
             </div>
         </AppBar>
     );
