@@ -4,19 +4,20 @@ import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { Model, hash$, isDirty$, sProject$ } from "model/Model";
-import { clearDB, db, getAlternatives, getCosts, getProject, importProject, setHash, setProject } from "model/db";
+import { Model, sProject$ } from "model/Model";
+import { DexieService } from "model/db";
 import { useMatch, useNavigate } from "react-router-dom";
 import "dexie-export-import";
 import { Subscribe } from "@react-rxjs/core";
-import { convert } from "blcc-format/Converter";
-import { resetToDefaultProject } from "blcc-format/effects";
 import { showMessage } from "components/modal/MessageModal";
+import SaveAsModal, { showSaveAsModal } from "components/modal/SaveAsModal";
+import SaveDiscardModal, { showSaveDiscard } from "components/modal/SaveDiscardModal";
 import { Strings } from "constants/Strings";
 import { Effect } from "effect";
-import SaveAsModal from "./modal/SaveAsModal";
+import { resetToDefaultProject } from "effect/DefaultProject";
 import { EditorModel } from "model/EditorModel";
-
+import { ConverterService } from "services/ConverterService";
+import { BlccRuntime } from "util/runtime";
 
 /**
  * The app bar for the editor context.
@@ -26,9 +27,9 @@ export default function EditorAppBar() {
     const isOnEditorPage = useMatch("/editor");
 
     useSubscribe(
-        EditorModel.new$,
+        EditorModel.newClick$.pipe(showSaveDiscard(showSaveAsModal())),
         async () => {
-            await Effect.runPromise(
+            await BlccRuntime.runPromise(
                 Effect.gen(function* () {
                     const project = yield* resetToDefaultProject;
                     sProject$.next(project);
@@ -40,11 +41,14 @@ export default function EditorAppBar() {
         },
         [navigate],
     );
-    useSubscribe(EditorModel.open$, () => document.getElementById("open")?.click());
+    useSubscribe(EditorModel.openClick$.pipe(showSaveDiscard(showSaveAsModal())), () =>
+        document.getElementById("open")?.click(),
+    );
+    useSubscribe(EditorModel.saveClick$.pipe(showSaveAsModal()));
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
-            <EditorModel.SaveDiscardModal />
+            <SaveDiscardModal />
             <Subscribe>
                 <SaveAsModal />
             </Subscribe>
@@ -73,31 +77,35 @@ export default function EditorAppBar() {
                         event.currentTarget.value = "";
                     }}
                     onChange={async (event) => {
-                        await Effect.runPromise(
+                        await BlccRuntime.runPromise(
                             Effect.gen(function* () {
+                                const db = yield* DexieService;
+
                                 if (event.currentTarget.files === null) return;
 
                                 const file = event.currentTarget.files[0];
 
-                                yield* clearDB;
+                                yield* db.clearDB;
 
                                 if (file.type.includes("xml")) {
-                                    const convertedProject = yield* convert(file);
-                                    yield* setProject(convertedProject);
+                                    const converter = yield* ConverterService;
+                                    const [project, alternatives, costs] = yield* converter.convert(file);
 
-                                    const alternatives = yield* getAlternatives;
-                                    const costs = yield* getCosts;
-                                    yield* setHash(convertedProject, alternatives, costs);
+                                    yield* db.setProject(project);
+                                    yield* db.setAlternatives(alternatives);
+                                    yield* db.setCosts(costs);
 
-                                    sProject$.next(convertedProject);
+                                    yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
+
+                                    sProject$.next(project);
                                     showMessage(
                                         "Old Format Conversion",
                                         "Files from the previous version of BLCC must be converted to the new format. Some options are not able to be converted and must be checked manually. Double check converted files for correctness.",
                                     );
                                 } else {
-                                    yield* importProject(file);
-                                    const project = yield* getProject(1);
-                                    if (project !== undefined) sProject$.next(project);
+                                    yield* db.importProject(file);
+                                    const project = yield* db.getProject();
+                                    sProject$.next(project);
                                 }
                             }),
                         );
@@ -108,7 +116,7 @@ export default function EditorAppBar() {
                 <Button
                     type={ButtonType.PRIMARY}
                     icon={mdiContentSave}
-                    onClick={() => EditorModel.saveClick$.next()}
+                    onClick={EditorModel.saveClick}
                     tooltip={Strings.SAVE}
                 >
                     Save

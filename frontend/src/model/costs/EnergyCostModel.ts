@@ -14,7 +14,7 @@ import {
 } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
 import { isEnergyCost, isNonUSLocation, isUSLocation } from "model/Guards";
-import { type LocationModel, Model, Var } from "model/Model";
+import { type LocationModel, Model } from "model/Model";
 import * as O from "optics-ts";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
@@ -24,6 +24,7 @@ import { index, makeApiRequest } from "util/Util";
 import z from "zod";
 import cost = CostModel.cost;
 import type { Collection } from "dexie";
+import { Var } from "util/var";
 
 type ZipInfoResponse = {
     zip: number;
@@ -98,7 +99,13 @@ export namespace EnergyCostModel {
          * True if the location property exists, otherwise false.
          * Indicates we are using a custom location for this cost.
          */
-        export const [isUsingCustomLocation] = bind(location.$.pipe(map((location) => location !== undefined)));
+        export const [isUsingCustomLocation, isUsingCustomLocation$] = bind(
+            location.$.pipe(map((location) => location !== undefined)),
+        );
+
+        export const [isZipValid, isZipValid$] = bind(
+            model.zipcode.$.pipe(map((zip) => zip !== undefined && zip !== "" && zip.length === 5)),
+        );
 
         /**
          * Returns the global zipcode if location is undefined, otherwise returns the overridden zipcode

@@ -1,4 +1,4 @@
-import { type StateObservable, bind } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { Defaults } from "blcc-format/Defaults";
 import {
     AnalysisType,
@@ -8,18 +8,17 @@ import {
     GhgDataSource,
     type Project,
     Purpose,
-    SocialCostOfGhgScenario,
 } from "blcc-format/Format";
-import { fetchEscalationRates, fetchReleaseYears } from "blcc-format/api";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
-import { db, hashCurrent } from "model/db";
+import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
-import { NEVER, type Observable, Subject, combineLatest, distinctUntilChanged, from, map, scan, switchMap } from "rxjs";
+import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, switchMap } from "rxjs";
 import { ajax } from "rxjs/internal/ajax/ajax";
-import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
+import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
 import { guard } from "util/Operators";
 import {
@@ -29,7 +28,9 @@ import {
     findBaselineID,
     getResponse,
 } from "util/Util";
-import z, { type ZodError, type ZodType } from "zod";
+import { BlccRuntime } from "util/runtime";
+import { DexieModel, Var } from "util/var";
+import z from "zod";
 
 type DiscountRateResponse = {
     release_year: number;
@@ -41,31 +42,6 @@ type DiscountRateResponse = {
 };
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
-/*
-const projectCollection$ = currentProject$.pipe(DexieOps.byId(db.projects));
-export const [useProject, dbProject$] = bind(projectCollection$.pipe(DexieOps.first()));
-
-*/
-export class DexieModel<T> {
-    private sModify$: Subject<(t: T) => T> = new Subject<(t: T) => T>();
-    $: Observable<T>;
-
-    constructor(getter$: Observable<T>) {
-        this.$ = getter$.pipe(
-            switchMap((value) =>
-                this.sModify$.pipe(
-                    scan((acc, modifier) => modifier(acc), value),
-                    startWith(value),
-                ),
-            ),
-            shareReplay(1),
-        );
-    }
-
-    modify(modifier: (t: T) => T) {
-        this.sModify$.next(modifier);
-    }
-}
 
 export const sProject$ = new Subject<Project>();
 export const sProjectCollection$ = new Subject<Collection<Project>>();
@@ -83,86 +59,6 @@ DexieModelTest.$.pipe(withLatestFrom(test)).subscribe(([next, collection]) => {
 
 sProjectCollection$.next(db.projects.where("id").equals(1)); // FIXME this is bad
 
-export class ModelType<A> {
-    subject: Subject<A> = new Subject<A>();
-    use: () => A;
-    $: StateObservable<A>;
-
-    constructor() {
-        const [hook, stream$] = bind(this.subject);
-
-        this.use = hook;
-        this.$ = stream$;
-    }
-}
-
-export class Var<A, B> {
-    model: DexieModel<A>;
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    optic: O.Lens<A, any, B> | O.Prism<A, any, B>;
-    use: () => B;
-    $: Observable<B>;
-    schema?: ZodType;
-    useValidation: () => ZodError | undefined;
-    validation$: Observable<ZodError | undefined>;
-
-    constructor(
-        model: DexieModel<A>,
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        optic: O.Lens<A, any, B> | O.Prism<A, any, B>,
-        schema: ZodType | undefined = undefined,
-    ) {
-        const getter = match(optic)
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Lens" }, (optic: O.Lens<A, any, B>) => (a: A) => O.get(optic)(a))
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Prism" }, (optic: O.Prism<A, any, B>) => (a: A) => O.preview(optic)(a))
-            .otherwise(() => {
-                throw new Error("Invalid optic type");
-            });
-
-        const [hook, stream$] = bind(
-            model.$.pipe(
-                map((a) => getter(a)),
-                distinctUntilChanged(),
-            ),
-        );
-
-        this.model = model;
-        this.optic = optic;
-        // @ts-ignore
-        this.use = hook;
-        // @ts-ignore
-        this.$ = stream$;
-        this.schema = schema;
-        const [useValidation, validation$] = bind(
-            stream$.pipe(
-                map((value) => {
-                    try {
-                        schema?.parse(value);
-                        return undefined;
-                    } catch (e) {
-                        return e as ZodError;
-                    }
-                }),
-            ),
-        );
-        this.useValidation = useValidation;
-        this.validation$ = validation$;
-    }
-
-    set(value: B) {
-        this.model.modify((a) => O.set(this.optic)(value)(a));
-    }
-
-    remove() {
-        match(this.optic)
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Prism" }, (optic: O.Prism<A, any, B>) => this.model.modify((a) => O.remove(optic)(a)))
-            .otherwise(() => {});
-    }
-}
-
 export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
@@ -179,19 +75,6 @@ export const [useCostIDs] = bind(costIDs$, []);
 
 export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
 
-const getSccOption = (option: SocialCostOfGhgScenario | undefined): string | undefined => {
-    switch (option) {
-        case SocialCostOfGhgScenario.LOW:
-            return "three_percent_average";
-        case SocialCostOfGhgScenario.MEDIUM:
-            return "five_percent_average";
-        case SocialCostOfGhgScenario.HIGH:
-            return "three_percent_ninety_fifth_percentile";
-        default:
-            return undefined;
-    }
-};
-
 export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(Defaults.PROJECT_ID).first()));
 
 export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray()));
@@ -200,7 +83,14 @@ export const hashCosts$ = from(liveQuery(() => db.costs.toArray()));
 
 // Creates a hash of the current project
 export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]).pipe(
-    switchMap(() => Effect.runPromise(hashCurrent)),
+    switchMap(() =>
+        BlccRuntime.runPromise(
+            Effect.gen(function* () {
+                const db = yield* DexieService;
+                return yield* db.hashCurrent;
+            }).pipe(Effect.catchTag("UndefinedError", () => Effect.succeed(undefined))),
+        ),
+    ),
     guard(),
     distinctUntilChanged(),
 );
@@ -208,8 +98,11 @@ export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]
 export const isDirty$ = hash$.pipe(
     switchMap((hash) => from(liveQuery(() => db.dirty.get(hash)))),
     map((result) => result === undefined),
+    distinctUntilChanged(),
     shareReplay(1),
 );
+
+export const [useIsDirty] = bind(isDirty$, false);
 
 export type LocationModel<T> = {
     country: Var<T, Country | undefined>;
@@ -272,10 +165,11 @@ export namespace Model {
      */
     export const [useReleaseYearList] = bind(
         from(
-            Effect.runPromise(
+            BlccRuntime.runPromise(
                 Effect.gen(function* () {
+                    const api = yield* BlccApiService;
                     // Get release years and default to [2023] if an error occurs.
-                    const releaseYears = yield* fetchReleaseYears.pipe(
+                    const releaseYears = yield* api.fetchReleaseYears.pipe(
                         Effect.map((years) => years.map((release) => release.year)),
                         Effect.catchAll(() => Effect.succeed([Defaults.RELEASE_YEAR])),
                     );
@@ -440,11 +334,6 @@ export namespace Model {
      */
     export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"));
 
-    export const socialCostOfGhgScenario = new Var(
-        DexieModelTest,
-        O.optic<Project>().path("ghg.socialCostOfGhgScenario"),
-    );
-
     /**
      * The data source for the current project.
      */
@@ -490,8 +379,10 @@ export namespace Model {
             // Make sure the zipcode exists and is 5 digits
             filter((values) => values[2] !== undefined && values[2].length === 5),
             switchMap(([releaseYear, studyPeriod, zipcode, eiaCase]) =>
-                Effect.runPromise(
+                BlccRuntime.runPromise(
                     Effect.gen(function* () {
+                        const api = yield* BlccApiService;
+
                         yield* Effect.log(
                             "Fetching project escalation rates",
                             releaseYear,
@@ -500,7 +391,7 @@ export namespace Model {
                             eiaCase,
                         );
                         return yield* Effect.orElse(
-                            fetchEscalationRates(
+                            api.fetchEscalationRates(
                                 releaseYear,
                                 releaseYear,
                                 releaseYear + (studyPeriod ?? 0),

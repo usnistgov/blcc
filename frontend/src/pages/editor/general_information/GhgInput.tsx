@@ -1,5 +1,5 @@
 import { Divider } from "antd";
-import { EmissionsRateType, GhgDataSource, SocialCostOfGhgScenario } from "blcc-format/Format";
+import { EmissionsRateType, GhgDataSource } from "blcc-format/Format";
 import Info from "components/Info";
 import { TestSelect } from "components/input/TestSelect";
 import { Strings } from "constants/Strings";

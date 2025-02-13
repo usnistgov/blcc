@@ -12,7 +12,6 @@ import {
     TimestepValue,
     VarRate,
 } from "@lrd/e3-sdk";
-import { Defaults } from "blcc-format/Defaults";
 import {
     type CapitalCost,
     type Cost,
@@ -33,80 +32,94 @@ import {
     type USLocation,
     type WaterCost,
 } from "blcc-format/Format";
-import { fetchE3Request, fetchEmissions } from "blcc-format/api";
-import { Data, Effect } from "effect";
-import { getAlternatives, getCosts, getProject } from "model/db";
+import { Effect } from "effect";
+import { DexieService } from "model/db";
+import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
 import { getConvertMap } from "util/UnitConversion";
 
-const getEmissions = (project: Project) =>
-    Effect.gen(function* () {
-        const location = project.location as USLocation;
-        if (location.zipcode === undefined || location.zipcode.length < 5) return undefined;
+export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
+    effect: Effect.gen(function* () {
+        const db = yield* DexieService;
+        const api = yield* BlccApiService;
 
-        if (project.studyPeriod === undefined) return undefined;
+        const getEmissions = (project: Project) =>
+            Effect.gen(function* () {
+                const location = project.location as USLocation;
+                if (location.zipcode === undefined || location.zipcode.length < 5) return undefined;
 
-        return yield* fetchEmissions(project.releaseYear, location.zipcode, project.studyPeriod, project.case);
-    });
+                if (project.studyPeriod === undefined) return undefined;
 
-export class E3GenerationError extends Data.TaggedError("E3GenerationError") {}
+                return yield* api.fetchEmissions(
+                    project.releaseYear,
+                    location.zipcode,
+                    project.studyPeriod,
+                    project.case,
+                );
+            });
 
-export const toE3ObjectEffect = Effect.gen(function* () {
-    const project = yield* getProject(Defaults.PROJECT_ID);
+        const createE3Object = Effect.gen(function* () {
+            const project = yield* db.getProject();
 
-    if (project === undefined) return yield* Effect.fail(new E3GenerationError());
+            const emissions = yield* getEmissions(project);
 
-    const emissions = yield* getEmissions(project);
+            const builder = new RequestBuilder();
 
-    const builder = new RequestBuilder();
+            // Setup base E3 options
+            const analysisBuilder = new AnalysisBuilder()
+                .type(AnalysisType.LCCA)
+                .projectType(ProjectType.OTHER)
+                .addOutputType("measure", "optional", "required")
+                .studyPeriod(project.studyPeriod ?? 0)
+                .timestepValue(TimestepValue.YEAR)
+                .timestepComp(
+                    project.discountingMethod === DiscountingMethod.END_OF_YEAR
+                        ? TimestepComp.END_OF_YEAR
+                        : TimestepComp.MID_YEAR,
+                )
+                .real()
+                .discountRateReal(project.realDiscountRate ?? 0)
+                .discountRateNominal(project.nominalDiscountRate ?? 0)
+                .inflationRate(project.inflationRate ?? 0)
+                .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
 
-    // Setup base E3 options
-    const analysisBuilder = new AnalysisBuilder()
-        .type(AnalysisType.LCCA)
-        .projectType(ProjectType.OTHER)
-        .addOutputType("measure", "optional", "required")
-        .studyPeriod(project.studyPeriod ?? 0)
-        .timestepValue(TimestepValue.YEAR)
-        .timestepComp(
-            project.discountingMethod === DiscountingMethod.END_OF_YEAR
-                ? TimestepComp.END_OF_YEAR
-                : TimestepComp.MID_YEAR,
-        )
-        .real()
-        .discountRateReal(project.realDiscountRate ?? 0)
-        .discountRateNominal(project.nominalDiscountRate ?? 0)
-        .inflationRate(project.inflationRate ?? 0)
-        .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
-
-    // Create costs
-    const costs = yield* getCosts;
-    const costMap = new Map(
-        costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions)]),
-    );
-
-    // Define alternatives
-    const alternatives = yield* getAlternatives;
-    const alternativeBuilders = alternatives.map((alternative) => {
-        const builder = new AlternativeBuilder()
-            .name(alternative.name)
-            .addBcn(
-                ...alternative.costs.flatMap((id) => costMap.get(id)).filter((x): x is BcnBuilder => x !== undefined),
+            // Create costs
+            const costs = yield* db.getCosts;
+            const costMap = new Map(
+                costs.map((cost) => [cost.id, costToBuilders(project, cost, project.studyPeriod ?? 0, emissions)]),
             );
 
-        if (alternative.id) builder.id(alternative.id);
-        if (alternative.baseline) return builder.baseline();
+            // Define alternatives
+            const alternatives = yield* db.getAlternatives;
+            const alternativeBuilders = alternatives.map((alternative) => {
+                const builder = new AlternativeBuilder()
+                    .name(alternative.name)
+                    .addBcn(
+                        ...alternative.costs
+                            .flatMap((id) => costMap.get(id))
+                            .filter((x): x is BcnBuilder => x !== undefined),
+                    );
 
-        return builder;
-    });
+                if (alternative.id) builder.id(alternative.id);
+                if (alternative.baseline) return builder.baseline();
 
-    const hasBaseline = !!alternatives.find((alt) => alt.baseline);
-    if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
+                return builder;
+            });
 
-    // Create complete Request Builder and return
-    return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
-});
+            const hasBaseline = !!alternatives.find((alt) => alt.baseline);
+            if (!hasBaseline && alternativeBuilders[0]) alternativeBuilders[0].baseline();
 
-export const e3Request = toE3ObjectEffect.pipe(Effect.andThen(fetchE3Request));
+            // Create complete Request Builder and return
+            return builder.analysis(analysisBuilder).addAlternative(...alternativeBuilders);
+        });
+
+        return {
+            request: createE3Object.pipe(Effect.andThen(api.fetchE3Request)),
+            createE3Object,
+        };
+    }),
+    dependencies: [DexieService.Default, BlccApiService.Default],
+}) {}
 
 function costToBuilders(
     project: Project,
@@ -182,27 +195,15 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
     return result;
 }
 
-function energyCostToBuilder(
-    project: Project,
-    cost: EnergyCost,
-    emissions: readonly number[] | undefined,
-): BcnBuilder[] {
-    const result = [];
-
-    const builder = new BcnBuilder()
-        .name(cost.name)
-        .addTag("Energy", cost.fuelType, cost.unit, "LCC")
-        .real()
-        .type(BcnType.COST)
-        .subType(BcnSubType.DIRECT)
-        .quantityValue(cost.costPerUnit)
-        .quantity(cost.annualConsumption)
-        .quantityUnit(cost.unit ?? "");
-
+function energyCostRecurrence(project: Project, cost: EnergyCost) {
+    // We are using custom escalation for this cost.
     if (cost.escalation !== undefined) {
         // @ts-ignore
-        builder.recur(new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation));
-    } else if (project.projectEscalationRates !== undefined) {
+        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
+    }
+
+    // We are not using custom escalation but project escalation rates exist.
+    if (project.projectEscalationRates !== undefined) {
         // Get project escalation rates
         const escalation = project.projectEscalationRates
             .filter((rate) => rate.sector === cost.customerSector)
@@ -217,51 +218,63 @@ function energyCostToBuilder(
                     .otherwise(() => 0),
             ) as number[];
 
-        builder.recur(new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation));
-    } else {
-        builder.recur(recurrence(cost));
+        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
     }
+
+    // There are no custom escalation nor project escalation rates.
+    return recurrence(cost);
+}
+
+function energyCostToBuilder(
+    project: Project,
+    cost: EnergyCost,
+    emissions: readonly number[] | undefined,
+): BcnBuilder[] {
+    const result = [];
+
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .addTag("Energy", cost.fuelType, cost.unit, "LCC")
+        .real()
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .recur(energyCostRecurrence(project, cost))
+        .quantityValue(cost.costPerUnit)
+        .quantity(cost.annualConsumption)
+        .quantityUnit(cost.unit ?? "");
 
     result.push(builder);
 
     if (cost.demandCharge !== undefined) {
-        const demandChargeBcn = new BcnBuilder()
-            .name(`${cost.name} Demand Charge`)
-            .addTag("Demand Charge", "LCC")
-            .real()
-            .type(BcnType.COST)
-            .subType(BcnSubType.DIRECT)
-            .recur(recurrence(cost))
-            .quantityValue(cost.demandCharge)
-            .quantity(1);
-
-        if (cost.escalation !== undefined) {
-            // @ts-ignore
-            demandChargeBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
-        }
-
-        result.push(demandChargeBcn);
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} Demand Charge`)
+                .addTag("Demand Charge", "LCC")
+                .real()
+                .type(BcnType.COST)
+                .subType(BcnSubType.DIRECT)
+                .recur(energyCostRecurrence(project, cost))
+                .quantityValue(cost.demandCharge)
+                .quantity(1),
+        );
     }
 
     if (cost.rebate !== undefined) {
-        const rebateBcn = new BcnBuilder()
-            .name(`${cost.name} Rebate`)
-            .addTag("Rebate", "LCC")
-            .real()
-            .type(BcnType.BENEFIT)
-            .subType(BcnSubType.DIRECT)
-            .quantityValue(-cost.rebate)
-            .quantity(1);
-
-        if (cost.escalation !== undefined) {
-            // @ts-ignore
-            rebateBcn.quantityVarRate(VarRate.YEAR_BY_YEAR).quantityVarValue(cost.escalation);
-        }
-
-        result.push(rebateBcn);
+        result.push(
+            new BcnBuilder()
+                .name(`${cost.name} Rebate`)
+                .addTag("Rebate", "LCC")
+                .real()
+                .type(BcnType.BENEFIT)
+                .recur(energyCostRecurrence(project, cost))
+                .subType(BcnSubType.DIRECT)
+                .quantityValue(-cost.rebate)
+                .quantity(1),
+        );
     }
 
     if (cost.useIndex) {
+        // FIXME
         const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
         builder.quantityVarValue(varValue).quantityVarRate(VarRate.YEAR_BY_YEAR);
     }
@@ -274,9 +287,6 @@ function energyCostToBuilder(
 
     // If unit conversion failed or we have no emissions data, return
     if (convertedUnit === undefined || emissions === undefined) return result;
-
-    console.log("Emissions", emissions);
-    console.log("Cost emissions", cost.emissions);
 
     const emissionValues =
         cost.emissions === undefined

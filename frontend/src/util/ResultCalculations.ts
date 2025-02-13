@@ -1,8 +1,8 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
-import { EnergyUnit, FuelType, Unit, type ID } from "blcc-format/Format";
+import { EnergyUnit, FuelType, type ID, Unit } from "blcc-format/Format";
+import { parseUnit } from "services/ConverterService";
 import { getOptionalTag } from "util/Util";
 import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
-import { parseUnit } from "blcc-format/Converter";
 
 /*
  * Lifecycle Comparison
@@ -63,8 +63,8 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
         initialCost: measure.totalTagFlows["Initial Investment"],
         netSavings: measure.netSavings,
         lcc: measure.totalTagFlows.LCC,
-        deltaEnergy: (baseline == null ? 0 : getTotalEnergy(measure) - getTotalEnergy(baseline)),
-        deltaGhg: measure.totalTagFlows.Emissions - (baseline?.totalTagFlows.Emissions ?? 0)
+        deltaEnergy: baseline == null ? 0 : getTotalEnergy(measure) - getTotalEnergy(baseline),
+        deltaGhg: measure.totalTagFlows.Emissions - (baseline?.totalTagFlows.Emissions ?? 0),
     }));
 }
 
@@ -304,7 +304,7 @@ function getTotalEnergy(measure: Measures): number {
         const amount: number = measure.quantitySum[energyUnit] ?? 0;
         if (amount > 0) {
             totalEnergy += getConvertMapGJ(FuelType.ELECTRICITY)[energyUnit]?.(amount) ?? 0;
-        } 
+        }
     }
     return totalEnergy;
 }
@@ -316,7 +316,7 @@ function getGJByFuelType(measure: Measures, fuelType: string): number {
 }
 
 function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: number } {
-    const MWhByFuelType: { [key: string]: number} = {};
+    const MWhByFuelType: { [key: string]: number } = {};
     for (let i = 0; i < measures.length; i++) {
         MWhByFuelType[i.toString()] = getTotalEnergy(measures[i]);
     }
@@ -324,10 +324,9 @@ function getTotalEnergyForMeasures(measures: Measures[]): { [key: string]: numbe
 }
 
 function getGJByFuelTypeForMeasures(measures: Measures[], fuelType: string): { [key: string]: number } {
-    const MWhByFuelType: { [key: string]: number} = {};
+    const MWhByFuelType: { [key: string]: number } = {};
     for (let i = 0; i < measures.length; i++) {
         MWhByFuelType[i.toString()] = getGJByFuelType(measures[i], fuelType);
     }
     return MWhByFuelType;
 }
-

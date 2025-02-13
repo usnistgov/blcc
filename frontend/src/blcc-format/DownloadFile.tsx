@@ -1,11 +1,11 @@
-import type { AnalysisBuilder, Output, RequestBuilder } from "@lrd/e3-sdk";
-import { pdf } from "@react-pdf/renderer";
+import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { DocumentProps } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
 import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
 import Pdf from "components/Pdf";
-import { Console, Effect } from "effect";
-import { exportDB, getAlternatives, getCosts, getProject, getResults, hashCurrentAndSet } from "model/db";
+import { Effect } from "effect";
+import { DexieService } from "model/db";
 import type React from "react";
 import {
     createAlternativeNpvCashflowRow,
@@ -45,29 +45,27 @@ export function download(blob: Blob, filename: string, mime: string) {
  * An effect that downloads a file and sets the dirty check hash to be the hash of the current project.
  */
 export const downloadBlccFile = (downloadName?: string) => Effect.gen(function* () {
-    const project = yield* getProject(1);
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
-    if (project === undefined) return;
-    
+    yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
 
-    yield* hashCurrentAndSet;
-    const blob = yield* exportDB;
+    const blob = yield* db.exportDB;
     download(blob, `${downloadName ?? project.name}.blcc`, "text/json");
 });
 
 export const downloadPdf = Effect.gen(function* () {
-    const project = yield* getProject(Defaults.PROJECT_ID);
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
-    if (project === undefined) return;
-
-    const alternatives = yield* getAlternatives;
-    const costs = yield* getCosts;
+    const alternatives = yield* db.getAlternatives;
+    const costs = yield* db.getCosts;
 
     // If no baseline ID is found, return -1 since that will just mean no baseline matches it.
     const baselineID = findBaselineID(alternatives) ?? Defaults.INVALID_ID;
     const nameMap = createAlternativeNameMap(alternatives);
 
-    const results: Output[] = yield* getResults;
+    const results: Output[] = yield* db.getResults;
     const firstResult = results[0]; //FIXME Make the results getting more intelligent
 
     const required = firstResult.required ?? [];
@@ -127,18 +125,17 @@ function wrapCell(value: number | string | boolean): string {
 }
 
 export const downloadCsv = Effect.gen(function* () {
-    const project = yield* getProject(Defaults.PROJECT_ID);
+    const db = yield* DexieService;
+    const project = yield* db.getProject();
 
-    if (project === undefined) return;
-
-    const alternatives = yield* getAlternatives;
-    const costs = yield* getCosts;
+    const alternatives = yield* db.getAlternatives;
+    const costs = yield* db.getCosts;
 
     // If no baseline ID is found, return -1 since that will just mean no baseline matches it.
     const baselineID = findBaselineID(alternatives) ?? Defaults.INVALID_ID;
     const nameMap = createAlternativeNameMap(alternatives);
 
-    const results: Output[] = yield* getResults;
+    const results: Output[] = yield* db.getResults;
     const firstResult = results[0]; //FIXME Make the results getting more intelligent
 
     const required = firstResult.required ?? [];
@@ -316,7 +313,8 @@ const createCsvBlob = (csv: string) => Effect.sync(() => new Blob([csv], { type:
 
 export const downloadE3Request = (builder: RequestBuilder) =>
     Effect.gen(function* () {
-        const project = yield* getProject(Defaults.PROJECT_ID);
+        const db = yield* DexieService;
+        const project = yield* db.getProject();
 
         if (project === undefined) return;
 

@@ -4,8 +4,8 @@ import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { isRecurringContractCost } from "model/Guards";
-import { Var } from "model/Model";
 import * as O from "optics-ts";
+import { Var } from "util/var";
 
 namespace Model {
     const costOptic = O.optic<Cost>().guard(isRecurringContractCost);

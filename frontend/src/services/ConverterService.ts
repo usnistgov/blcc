@@ -1,9 +1,12 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 
+import { Defaults } from "blcc-format/Defaults";
 import {
+    type Alternative,
     AnalysisType,
     type CapitalCost,
     Case,
+    type Cost,
     CostTypes,
     CubicUnit,
     type CustomerSector,
@@ -26,30 +29,32 @@ import {
     type ResidualValue,
     Season,
     type SeasonUsage,
-    SocialCostOfGhgScenario,
     type USLocation,
     type Unit,
     type WaterCost,
     WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
-import { getDefaultReleaseYear } from "blcc-format/effects";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
 import { Effect } from "effect";
-import { XMLParser } from "fast-xml-parser";
-import { db } from "model/db";
+import { getDefaultReleaseYear } from "effect/DefaultProject";
 import objectHash from "object-hash";
+import { XmlParserService } from "services/XmlParserService";
 import { calculateNominalDiscountRate } from "util/Util";
 
-const yearRegex = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
-const parser = new XMLParser();
+/**
+ * Regex for parsing the years, months, days from XML format.
+ */
+const YEAR_REGEX = /(?<years>\d+) years* (?<months>\d+) months*( (?<days>\d+) days*)*/;
 
-const DEFAULT_REAL_DISCOUNT_RATE = 0.03;
-const DEFAULT_INFLATION_RATE = 0.012;
+type ConverterResult = [Project, Alternative[], Cost[]];
 
+/**
+ * Reads in the contents of the given file as a string.
+ * @param file The file to read the contents from.
+ */
 const readFile = (file: File) =>
     Effect.async<string>((resume) => {
-        // Read file
         const reader = new FileReader();
         reader.onload = function () {
             resume(Effect.succeed(this.result as string));
@@ -57,22 +62,35 @@ const readFile = (file: File) =>
         reader.readAsText(file);
     });
 
-const parseXml = (xml: string) => Effect.try(() => parser.parse(xml));
+export class ConverterService extends Effect.Service<ConverterService>()("ConverterService", {
+    effect: Effect.gen(function* () {
+        const xmlParser = yield* XmlParserService;
+
+        return {
+            /**
+             * Converts an old BLCC file into the new project format.
+             */
+            convert: (file: File) =>
+                Effect.gen(function* () {
+                    yield* Effect.log("Converting file", file.name);
+
+                    // Read file and parse XML string
+                    const xml = yield* readFile(file).pipe(Effect.andThen(xmlParser.parse));
+                    const defaultReleaseYear = yield* getDefaultReleaseYear;
+
+                    return parse(xml, defaultReleaseYear);
+                }),
+        };
+    }),
+    dependencies: [XmlParserService.Default],
+}) {}
+
+function getID(input: Cost | Alternative): ID {
+    return input.id ?? Defaults.INVALID_ID;
+}
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const parseProject = (obj: any, releaseYear: number) => Effect.promise(() => parse(obj, releaseYear));
-
-export const convert = (file: File) =>
-    Effect.gen(function* () {
-        yield* Effect.log("Converting file", file.name);
-        const contents = yield* readFile(file);
-        const xml = yield* parseXml(contents);
-        const defaultReleaseYear = yield* getDefaultReleaseYear;
-        return yield* parseProject(xml, defaultReleaseYear);
-    });
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-async function parse(obj: any, releaseYear: number): Promise<Project> {
+function parse(obj: any, releaseYear: number): ConverterResult {
     const project = obj.Project;
 
     const alternativeObjectOrArray = project.Alternatives.Alternative;
@@ -84,37 +102,46 @@ async function parse(obj: any, releaseYear: number): Promise<Project> {
     const studyLocation = parseLocation(project.Location);
     const dollarMethod = convertDollarMethod(project.DollarMethod);
 
-    const [newAlternatives, newCosts] = await parseAlternativesAndHashCosts(alternatives, studyPeriod, studyLocation, dollarMethod);
-    
-    var calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : DEFAULT_REAL_DISCOUNT_RATE;
-    var calculatedInflationRate: number = project.InflationRate ? project.InflationRate : DEFAULT_INFLATION_RATE;
-    var calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
-
-    return {
-        version: Version.V1,
-        name: project.Name,
-        description: project.Comment,
-        analyst: project.Analyst,
-        analysisType: convertAnalysisType(project.AnalysisType),
-        purpose: convertAnalysisPurpose(project.AnalysisPurpose),
-        dollarMethod: dollarMethod,
+    const [parsedAlternatives, parsedCosts] = parseAlternativesAndHashCosts(
+        alternatives,
         studyPeriod,
-        case: Case.REF,
-        constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
-        discountingMethod: convertDiscountMethod(project.DiscountingMethod),
-        realDiscountRate: calculatedRealDR,
-        nominalDiscountRate: calculatedNominalDR,
-        inflationRate: calculatedInflationRate,
-        location: studyLocation,
-        alternatives: newAlternatives,
-        costs: newCosts,
-        ghg: {
-            socialCostOfGhgScenario: SocialCostOfGhgScenario.NONE,
-            dataSource: GhgDataSource.NIST_NETL,
-            emissionsRateType: EmissionsRateType.AVERAGE,
-        },
-        releaseYear,
-    } as Project;
+        studyLocation,
+        dollarMethod,
+    );
+
+    const calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : Defaults.REAL_DISCOUNT_RATE;
+    const calculatedInflationRate: number = project.InflationRate ? project.InflationRate : Defaults.INFLATION_RATE;
+    const calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
+
+    return [
+        {
+            id: Defaults.PROJECT_ID,
+            version: Version.V1,
+            name: project.Name,
+            description: project.Comment,
+            analyst: project.Analyst,
+            analysisType: convertAnalysisType(project.AnalysisType),
+            purpose: convertAnalysisPurpose(project.AnalysisPurpose),
+            dollarMethod: dollarMethod,
+            studyPeriod,
+            case: Case.REF,
+            constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
+            discountingMethod: convertDiscountMethod(project.DiscountingMethod),
+            realDiscountRate: calculatedRealDR,
+            nominalDiscountRate: calculatedNominalDR,
+            inflationRate: calculatedInflationRate,
+            location: studyLocation,
+            alternatives: parsedAlternatives.map(getID),
+            costs: parsedCosts.map(getID),
+            ghg: {
+                dataSource: GhgDataSource.NIST_NETL,
+                emissionsRateType: EmissionsRateType.AVERAGE,
+            },
+            releaseYear,
+        } as Project,
+        parsedAlternatives,
+        parsedCosts,
+    ];
 }
 
 function parseStudyPeriod(studyPeriod: DateDiff) {
@@ -131,7 +158,7 @@ type DateDiff = { type: "Remaining" } | { type: "Year"; value: number };
 function parseYears(value: string): DateDiff {
     if (value === "Remaining") return { type: "Remaining" };
 
-    const exec = yearRegex.exec(value);
+    const exec = YEAR_REGEX.exec(value);
     if (exec !== null) return { type: "Year", value: Number.parseInt(exec.groups?.years ?? "0") };
 
     return { type: "Year", value: 1 };
@@ -219,50 +246,63 @@ type CostComponent =
     | "RecurringCost"
     | "NonRecurringCost";
 
-// biome-ignore lint: No need to type XML format
-async function parseAlternativesAndHashCosts(alternatives: any[], studyPeriod: number, studyLocation: USLocation, dollarMethod: DollarMethod): Promise<[ID[], ID[]]> {
-    const costCache = new Map<string, ID>();
+function parseAlternativesAndHashCosts(
+    // biome-ignore lint: No need to type XML format
+    alternatives: any[],
+    studyPeriod: number,
+    studyLocation: USLocation,
+    dollarMethod: DollarMethod,
+): [Alternative[], Cost[]] {
+    const costCache = new Map<string, Cost>();
+    let costID: ID = 0;
 
-    const newAlternatives = await Promise.all(
-        alternatives.map(async (alternative) => {
-            const capitalComponents = extractCosts(alternative, "CapitalComponent");
+    const newAlternatives = alternatives.map((alternative, altID) => {
+        const capitalComponents = extractCosts(alternative, "CapitalComponent");
 
-            const costs = [
-                ...capitalComponents,
-                ...capitalComponents.flatMap((capitalComponent) => {
-                    if ((capitalComponent as any).Name == null) {
-                        (capitalComponent as any).Name = "Unnamed Cost";
-                    }
+        const costs = [
+            ...capitalComponents,
+            ...capitalComponents.flatMap((capitalComponent) => {
+                // biome-ignore lint: No need to type XML format
+                if ((capitalComponent as any).Name == null) {
+                    // biome-ignore lint: No need to type XML format
+                    (capitalComponent as any).Name = "Unnamed Cost";
+                }
 
-                    //biome-ignore lint: No need to type the XML format
-                    const rename = renameSubComponent((capitalComponent as any).Name);
+                //biome-ignore lint: No need to type the XML format
+                const rename = renameSubComponent((capitalComponent as any).Name);
 
-                    return [
-                        ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
-                        ...extractCosts(capitalComponent, "RecurringCost").map(rename),
-                        ...extractCosts(capitalComponent, "NonRecurringCost").map(rename),
-                    ];
-                }),
-                ...extractCosts(alternative, "EnergyUsage"),
-                ...extractCosts(alternative, "WaterUsage"),
-                ...extractCosts(alternative, "RecurringContractCost"),
-                ...extractCosts(alternative, "NonRecurringContractCost"),
-            ];
+                return [
+                    ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
+                    ...extractCosts(capitalComponent, "RecurringCost").map(rename),
+                    ...extractCosts(capitalComponent, "NonRecurringCost").map(rename),
+                ];
+            }),
+            ...extractCosts(alternative, "EnergyUsage"),
+            ...extractCosts(alternative, "WaterUsage"),
+            ...extractCosts(alternative, "RecurringContractCost"),
+            ...extractCosts(alternative, "NonRecurringContractCost"),
+        ];
 
-            for (const cost of costs) {
-                const hash = objectHash(cost);
-                const costID = await convertCost(cost, studyPeriod, studyLocation, dollarMethod);
+        for (const cost of costs) {
+            const hash = objectHash(cost);
+            const parsedCost = convertCost(cost, studyPeriod, studyLocation, dollarMethod, costID);
 
-                if (!costCache.has(hash)) costCache.set(hash, costID);
+            if (!costCache.has(hash)) {
+                costCache.set(hash, parsedCost);
+                costID++;
             }
+        }
 
-            return db.alternatives.add({
-                name: alternative.Name,
-                description: alternative.Comment,
-                costs: costs.map((cost) => costCache.get(objectHash(cost)) ?? -1),
-            });
-        }),
-    );
+        return {
+            id: altID,
+            name: alternative.Name,
+            description: alternative.Comment,
+            costs: costs
+                .map((cost) => costCache.get(objectHash(cost)))
+                .filter((cost) => cost !== undefined)
+                .map(getID),
+        } as Alternative;
+    });
 
     return [newAlternatives, [...costCache.values()]];
 }
@@ -275,12 +315,19 @@ function renameSubComponent(name: string) {
     };
 }
 
-// biome-ignore lint: No need to type XML format
-async function convertCost(cost: any, studyPeriod: number, studyLocation: USLocation, dollarMethod: DollarMethod) {
+function convertCost(
+    // biome-ignore lint: No need to type XML format
+    cost: any,
+    studyPeriod: number,
+    studyLocation: USLocation,
+    dollarMethod: DollarMethod,
+    id: ID,
+): Cost {
     const type: CostComponent = cost.type;
     switch (type) {
         case "CapitalReplacement":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.REPLACEMENT_CAPITAL,
@@ -292,20 +339,24 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                     approach: DollarOrPercent.PERCENT,
                     value: cost.ResaleValueFactor,
                 },
-            } as ReplacementCapitalCost);
-        case "NonRecurringCost":
+            } as ReplacementCapitalCost;
+        case "NonRecurringCost": {
             const escalation = parseEscalation(cost.Escalation, studyPeriod);
-            const recurring = escalation === undefined ? undefined : { rateOfChangeValue : escalation };
-            return db.costs.add({
+            const recurring = escalation === undefined ? undefined : { rateOfChangeValue: escalation };
+
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
-                initialOccurrence: (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
-                recurring
-            } as OMRCost);
+                initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
+                recurring,
+            } as OMRCost;
+        }
         case "RecurringCost":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.OMR,
@@ -313,11 +364,12 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 recurring: {
                     rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
-                    rateOfRecurrence: 1
-                }
-            } as OMRCost);
+                    rateOfRecurrence: 1,
+                },
+            } as OMRCost;
         case "CapitalComponent":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.CAPITAL,
@@ -325,7 +377,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 amountFinanced: cost.AmountFinanced,
                 annualRateOfChange: undefined,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
-                costAdjustment: parseEscalation(cost.Escalation, studyPeriod) ?? dollarMethod == DollarMethod.CONSTANT ? 0 : DEFAULT_INFLATION_RATE,
+                costAdjustment:
+                    (parseEscalation(cost.Escalation, studyPeriod) ?? dollarMethod === DollarMethod.CONSTANT)
+                        ? 0
+                        : Defaults.INFLATION_RATE,
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost.ResaleValueFactor
                     ? ({
@@ -333,15 +388,17 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                           value: cost.ResaleValueFactor as number,
                       } as ResidualValue)
                     : undefined,
-            } as CapitalCost);
+            } as CapitalCost;
         case "EnergyUsage":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.ENERGY,
                 fuelType: parseFuelType(cost.FuelType),
                 customerSector: cost.RateSchedule as CustomerSector,
-                location: (studyLocation.state === parseLocation(cost.State).state) ? undefined : parseLocation(cost.State),
+                location:
+                    studyLocation.state === parseLocation(cost.State).state ? undefined : parseLocation(cost.State),
                 costPerUnit: cost.UnitCost as number,
                 annualConsumption: cost.YearlyUsage as number,
                 unit: parseUnit(cost.Units),
@@ -349,9 +406,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 rebate: cost.UtilityRebate as number,
                 escalation: parseEscalation(cost, studyPeriod),
                 useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
-            } as EnergyCost);
+            } as EnergyCost;
         case "WaterUsage":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.WATER,
@@ -361,9 +419,10 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 escalation: parseEscalation(cost.UsageEscalation, studyPeriod),
                 useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
                 disposalIndex: parseUseIndex(cost.DisposalIndex, studyPeriod),
-            } as WaterCost);
+            } as WaterCost;
         case "RecurringContractCost":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.RECURRING_CONTRACT,
@@ -371,17 +430,18 @@ async function convertCost(cost: any, studyPeriod: number, studyLocation: USLoca
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 recurring: {
                     rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
-                    rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value
-                }
-            } as RecurringContractCost);
+                    rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
+                },
+            } as RecurringContractCost;
         case "NonRecurringContractCost":
-            return db.costs.add({
+            return {
+                id,
                 name: cost.Name,
                 description: cost.Comment ?? undefined,
                 type: CostTypes.IMPLEMENTATION_CONTRACT,
                 cost: cost.Amount,
                 occurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
-            } as ImplementationContractCost);
+            } as ImplementationContractCost;
     }
 }
 

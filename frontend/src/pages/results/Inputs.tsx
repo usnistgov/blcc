@@ -3,20 +3,23 @@ import { Defaults } from "blcc-format/Defaults";
 import type { Project, USLocation } from "blcc-format/Format";
 import ResultsInput from "components/ResultsInput";
 import { Effect } from "effect";
-import { useProject } from "model/Model";
-import { getProject } from "model/db";
+import { DexieService } from "model/db";
 import { useLayoutEffect, useState } from "react";
 import { percentFormatter } from "util/Util";
+import { BlccRuntime } from "util/runtime";
 
 export default function Inputs() {
     const [project, setProject] = useState<Project>();
     useLayoutEffect(() => {
-        Effect.runPromise(
-            getProject(Defaults.PROJECT_ID).pipe(
-                Effect.tap((project) => {
-                    if (project !== undefined) setProject(project);
-                }),
-            ),
+        BlccRuntime.runPromise(
+            Effect.gen(function* () {
+                const db = yield* DexieService;
+                return yield* db.getProject(Defaults.PROJECT_ID).pipe(
+                    Effect.tap((project) => {
+                        if (project !== undefined) setProject(project);
+                    }),
+                );
+            }),
         );
     }, []);
 
