@@ -22,6 +22,7 @@ export type ButtonProps = {
     iconSide?: "left" | "right";
     wire?: Subject<void>;
     tooltip?: ReactNode;
+    iconSize?: number;
 } & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, "type">;
 
 export function Button({
@@ -33,6 +34,7 @@ export function Button({
     iconSide = "left",
     wire,
     tooltip,
+    iconSize = 0.8,
     ...buttonProps
 }: PropsWithChildren<ButtonProps>) {
     return (
@@ -52,9 +54,9 @@ export function Button({
                 {...buttonProps}
             >
                 <span className={"flex flex-row place-items-center gap-x-1"}>
-                    {icon && iconSide === "left" && <Icon className={"min-w-[24px]"} path={icon} size={0.8} />}
+                    {icon && iconSide === "left" && <Icon className={"min-w-[24px]"} path={icon} size={iconSize} />}
                     {children}
-                    {icon && iconSide === "right" && <Icon path={icon} size={0.8} />}
+                    {icon && iconSide === "right" && <Icon path={icon} size={iconSize} />}
                 </span>
             </button>
         </Tooltip>

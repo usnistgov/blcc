@@ -1,7 +1,7 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import "nist-header-footer.sass";
-import { mdiArrowRight, mdiArrowRightBold, mdiArrowRightBoldBoxOutline, mdiArrowRightBoldOutline, mdiArrowRightThick, mdiChevronDoubleRight } from "@mdi/js";
+import { mdiArrowRight, mdiArrowRightBold, mdiArrowRightBoldBoxOutline, mdiArrowRightBoldOutline, mdiArrowRightThick, mdiChevronDoubleRight, mdiChevronTripleRight, mdiMenuRight, mdiMenuRightOutline } from "@mdi/js";
 import NistHeaderFooter from "components/NistHeaderFooter";
 import { Button } from "components/input/Button";
 import Logo from "images/logo.svg?react";
@@ -34,9 +34,10 @@ export default function Index() {
                             <Logo className={"h-52 w-full mx-8"} />
                             <Button
                                 className={"my-16"}
-                                icon={mdiArrowRightBold}
+                                icon={mdiChevronDoubleRight}
                                 iconSide={"right"}
                                 onClick={() => navigate("editor")}
+                                iconSize={1.5}
                             >
                                 <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
                             </Button>
