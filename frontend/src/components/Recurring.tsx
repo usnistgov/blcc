@@ -157,8 +157,8 @@ function ValueRateOfChangeInput() {
             <TestNumberInput
                 id={"value-rate-of-change"}
                 className={"w-full"}
-                getter={() => +(toPercentage((RecurringModel.Value.rate.use() as number) ?? 0).toFixed(2))}
-                onChange={RecurringModel.Value.Actions.setConstant}
+                getter={() => +toPercentage((RecurringModel.Value.rate.use() as number) ?? 0).toFixed(2)}
+                onChange={RecurringModel.Value.Actions.setConstant} // Input is in percentage
                 addonAfter={"%"}
             />
         </div>
