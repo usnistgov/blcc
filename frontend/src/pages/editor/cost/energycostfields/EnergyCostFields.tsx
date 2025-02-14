@@ -1,4 +1,3 @@
-import { useStateObservable } from "@react-rxjs/core";
 import { Divider, Switch } from "antd";
 import { EnergyUnit, FuelType, type Unit } from "blcc-format/Format";
 import Info from "components/Info";
@@ -51,7 +50,7 @@ export default function EnergyCostFields() {
                     }
                     controls
                     label={isSavings ? "Annual Consumption Savings" : "Annual Consumption"}
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     getter={EnergyCostModel.annualConsumption.use}
                     onChange={EnergyCostModel.Actions.setAnnualConsumption}
                 />
