@@ -20,6 +20,7 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
+                        minWidth: 75,
                         renderCell: ({ row }: { row: CategorySubcategoryRow }) => (
                             <p className={"text-right"}>{dollarFormatter.format(row[i.toString()] ?? 0)}</p>
                         ),
@@ -30,6 +31,7 @@ const [useColumns] = bind(
             cols.unshift(
                 {
                     name: "Cost Type",
+                    width: 110,
                     key: "category",
                     colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
                     headerCellClass: "bg-primary text-white text-left",
@@ -38,6 +40,7 @@ const [useColumns] = bind(
                 {
                     name: "subcategory",
                     key: "subcategory",
+                    width: 115,
                     headerCellClass: "bg-primary text-white text-left",
                     cellClass: "text-ink",
                 },
@@ -65,6 +68,9 @@ export default function NpvCostsBySubcategory() {
                 className={"h-fit"}
                 rows={rows}
                 columns={useColumns()}
+                defaultColumnOptions={{
+                    resizable: true
+                }}
                 style={{
                     // @ts-ignore
                     "--rdg-color-scheme": "light",
