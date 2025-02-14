@@ -2,6 +2,7 @@ variables:
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
   POSTGRES_DB: BLCC
+  CARGO_HOME: ${CI_PROJECT_DIR}/.cargo
 
 stages:
   - build
@@ -21,6 +22,9 @@ backend-build:
         files:
           - backend/Cargo.lock
       paths:
+        - .cargo/bin
+        - .cargo/registry/index
+        - .cargo/registry/cache
         - backend/target
   artifacts:
     paths:
