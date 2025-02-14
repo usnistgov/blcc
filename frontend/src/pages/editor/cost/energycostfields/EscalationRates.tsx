@@ -117,7 +117,7 @@ function EscalationRateGrid() {
 function Message() {
     const isUsingCustomLocation = EnergyCostModel.Location.isUsingCustomLocation();
     const isCustomZipValid = EnergyCostModel.Location.isZipValid();
-    const isSectorValid = EnergyCostModel;
+    const isSectorValid = EscalationRateModel.isSectorValid();
 
     if (!isSectorValid) {
         return (
