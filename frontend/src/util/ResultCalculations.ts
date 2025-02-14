@@ -234,18 +234,17 @@ export type AlternativeNpvCostTypeTotalRow = {
 
 export function createAlternativeNpvCostTypeTotalRow(measure: Measures): AlternativeNpvCostTypeTotalRow[] {
     return [
-        { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
         { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
         { subcategory: "Demand" },
         { subcategory: "Rebates" },
         { category: "Water", subcategory: "Usage" },
         { subcategory: "Disposal " },
-        { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
-        { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
-        { category: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
-        { category: "Contract", subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"]},
-        { subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"]},
-        { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
+        { category: "Capital Components", subcategory: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
+        { subcategory: "OMR", alternative: measure.totalTagFlows["OMR"] },
+        { subcategory: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
+        { subcategory: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
+        { category: "Contract", subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"] },
+        { subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"] },
         { category: "Other", subcategory: "Monetary", alternative: measure.totalTagFlows["Other"]}
     ] as AlternativeNpvCostTypeTotalRow[]; //FIXME this could be typed better
 }
