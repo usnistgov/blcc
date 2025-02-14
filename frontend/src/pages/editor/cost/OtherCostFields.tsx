@@ -13,7 +13,7 @@ export default function OtherCostFields() {
     const tags = useStateObservable(OtherCostModel.tags$);
     const allTags = useStateObservable(OtherCostModel.allTags$);
     const unit = useStateObservable(OtherCostModel.unit$);
-    const isSavings = CostModel.costOrSavings;
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
