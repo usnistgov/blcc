@@ -98,6 +98,20 @@ export class Var<A, B> {
         this.model.modify((a) => O.set(this.optic)(value)(a));
     }
 
+    modify(mapper: (b: B) => B) {
+        const optic = this.optic;
+        const getter = match(optic)
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            .with({ _tag: "Lens" }, (optic: O.Lens<A, any, B>) => (a: A) => O.get(optic)(a))
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            .with({ _tag: "Prism" }, (optic: O.Prism<A, any, B>) => (a: A) => O.preview(optic)(a))
+            .otherwise(() => {
+                throw new Error("Invalid optic type");
+            });
+        // @ts-ignore
+        this.model.modify((a) => O.set(optic)(mapper(getter(a)))(a));
+    }
+
     remove() {
         match(this.optic)
             // biome-ignore lint/suspicious/noExplicitAny: <explanation>
