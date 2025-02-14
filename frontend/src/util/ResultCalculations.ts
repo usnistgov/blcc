@@ -5,7 +5,7 @@ import { getOptionalTag } from "util/Util";
 import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 
 /*
- * Lifecycle Comparison
+ * Summary - Lifecycle Comparison
  */
 export type LccComparisonRow = {
     name: string;
@@ -34,7 +34,7 @@ export function createLccComparisonRows(
 }
 
 /*
- * Lifecycle Results to Baseline
+ * Summary - Lifecycle Results to Baseline
  */
 export type LccBaselineRow = {
     name: string;
@@ -69,7 +69,7 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
 }
 
 /*
- * NPV Category/Sub-category
+ * Summary - NPV Category/Sub-category
  */
 export type CategorySubcategoryRow = {
     category: string;
@@ -98,7 +98,7 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
 }
 
 /*
- * Lifecycle Resource
+ * Summary - Lifecycle Resource
  */
 export function createLccResourceRows(measures: Measures[]): CategorySubcategoryRow[] {
     const energy = [
@@ -136,7 +136,7 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
 }
 
 /*
- * Alternative NPV Cashflow
+ * Annual - Cost Type NPV Cashflow
  */
 export type AnnualCostTypeNpvCashflowRow = {
     year: number;
@@ -201,7 +201,7 @@ export function createAnnualCostTypeNpvCashflowRow(
 }
 
 /*
- * NPV Cashflow Comparison
+ * Annual - NPV Cashflow Comparison
  */
 export type NpvCashflowComparisonRow = {
     key: number;
@@ -228,7 +228,7 @@ export function createNpvCashflowComparisonRow(allRequired: Required[]): NpvCash
 }
 
 /*
- * Alternative NPV Cashflow
+ * Alternative - Alternative NPV Cashflow
  */
 export type AlternativeNpvCostTypeTotalRow = {
     category: string;
@@ -255,7 +255,7 @@ export function createAlternativeNpvCostTypeTotalRow(measure: Measures): Alterna
 }
 
 /*
- * Resource Usage
+ * Alternative - Resource Usage
  */
 export type ResourceUsageRow = {
     category: string;
