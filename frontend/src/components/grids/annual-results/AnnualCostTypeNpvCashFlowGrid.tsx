@@ -14,14 +14,6 @@ const cellClasses = {
 const columns = [
     { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-center", cellClass: "text-ink" },
     {
-        name: "Investment",
-        key: "investment",
-        renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.investment)}</p>
-        ),
-        ...cellClasses,
-    },
-    {
         name: "Energy",
         headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
@@ -76,27 +68,41 @@ const columns = [
         ],
     },
     {
-        name: "OMR",
+        name: "Capital Components",
         headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
         children: [
             {
-                name: "Recurring",
-                key: "recurring",
+                name: "Investment",
+                key: "investment",
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row.recurring ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.investment ?? 0)}</p>
+                ),
+            },
+            {
+                name: "OMR",
+                key: "omr",
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.omr ?? 0)}</p>
+                ),
+            },
+            {
+                name: "Replacement",
+                key: "replace",
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.replace ?? 0)}</p>
                 ),
                 ...cellClasses,
             },
             {
-                name: "Non-Recurring",
-                key: "nonRecurring",
+                name: "Residual Value",
+                key: "residualValue",
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row.nonRecurring ?? 0)}</p>
+                    <p className={"text-right"}>{dollarFormatter.format(row.residualValue ?? 0)}</p>
                 ),
                 ...cellClasses,
             },
-        ],
+        ]
     },
     {
         name: "Contract",
@@ -120,23 +126,6 @@ const columns = [
                 ...cellClasses,
             }
         ],
-    },
-
-    {
-        name: "Replace",
-        key: "replace",
-        renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.replace ?? 0)}</p>
-        ),
-        ...cellClasses,
-    },
-    {
-        name: "Residual Value",
-        key: "residualValue",
-        renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.residualValue ?? 0)}</p>
-        ),
-        ...cellClasses,
     },
     {
         name: "Other",

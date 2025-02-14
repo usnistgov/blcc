@@ -145,8 +145,7 @@ export type AnnualCostTypeNpvCashflowRow = {
     rebates: number;
     waterUse: number;
     waterDisposal: number;
-    recurring: number;
-    nonRecurring: number;
+    omr: number;
     recurringContract: number;
     implementation: number;
     replace: number;
@@ -172,8 +171,7 @@ export function createAnnualCostTypeNpvCashflowRow(
     const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
     const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
     const demand = optionals.get(`${id} Demand Charge`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const recurring = optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const nonRecurring = optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const omr = optionals.get(`${id} OMR`)?.totalTagCashflowDiscounted ?? defaultArray;
     const recurringContract = optionals.get(`${id} Recurring Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
     const implementation = optionals.get(`${id} Implementation Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
     const replace = optionals.get(`${id} Replacement Capital`)?.totalTagCashflowDiscounted ?? defaultArray;
@@ -187,8 +185,7 @@ export function createAnnualCostTypeNpvCashflowRow(
                 investment: investment[i],
                 consumption: consumption[i],
                 demand: demand[i],
-                recurring: recurring[i],
-                nonRecurring: nonRecurring[i],
+                omr: omr[i],
                 recurringContract: recurringContract[i],
                 implementation: implementation[i],
                 replace: replace[i],
