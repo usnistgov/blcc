@@ -8,7 +8,7 @@ import { Effect } from "effect";
 import { DexieService } from "model/db";
 import type React from "react";
 import {
-    createAlternativeNpvCashflowRow,
+    createAnnualCostTypeNpvCashflowRow,
     createAlternativeNpvCostTypeTotalRow,
     createLccBaselineRows,
     createLccComparisonRows,
@@ -82,7 +82,7 @@ export const downloadPdf = Effect.gen(function* () {
 
     const annual: Annual = {
         alternativeNpvCashflows: project.alternatives.map((id) =>
-            createAlternativeNpvCashflowRow(required, optionalsByTag, id),
+            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id),
         ),
         npvCashflowComparison: createNpvCashflowComparisonRow(required),
     };
@@ -230,7 +230,7 @@ export const downloadCsv = Effect.gen(function* () {
 
     const annual: Annual = {
         alternativeNpvCashflows: project.alternatives.map((id) =>
-            createAlternativeNpvCashflowRow(required, optionalsByTag, id),
+            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id),
         ),
         npvCashflowComparison: createNpvCashflowComparisonRow(required),
     };

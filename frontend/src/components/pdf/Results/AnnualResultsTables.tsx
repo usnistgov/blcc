@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { AlternativeNpvCashflowRow, NpvCashflowComparisonRow } from "util/ResultCalculations";
+import type { AnnualCostTypeNpvCashflowRow, NpvCashflowComparisonRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
 const border = "1px solid #000";
 const fontSize = 10;
@@ -83,7 +83,7 @@ export function NPVComparisonTable({ headers, rows }: NpvComparisonTableProps) {
 }
 
 type NpvAltTableProps = {
-    rows: AlternativeNpvCashflowRow[];
+    rows: AnnualCostTypeNpvCashflowRow[];
 };
 
 export function NPVAltTable({ rows }: NpvAltTableProps) {
