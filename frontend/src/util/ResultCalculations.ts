@@ -80,18 +80,17 @@ export type CategorySubcategoryRow = {
 
 export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryRow[] {
     return [
-        { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
         { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
         { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
         { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
         { category: "Water", subcategory: "Usage" },
         { subcategory: "Disposal " },
-        { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
-        { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
-        { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
-        { category: "Contract", subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost")},
-        { subcategory: "Implementation", ...getOptionalTag(measures, "Implementation Contract Cost")},
-        { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Capital Components", subcategory: "Investment", ...getOptionalTag(measures, "Initial Investment") },
+        { subcategory: "OMR", ...getOptionalTag(measures, "OMR") },
+        { subcategory: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
+        { subcategory: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Contract", subcategory: "Implementation", ...getOptionalTag(measures, "Implementation Contract Cost") },
+        { subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost") },
         { category: "Other", subcategory: "Monetary", ...getOptionalTag(measures, "Other")},
         { category: "Total LCC", ...getOptionalTag(measures, "LCC")}
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
