@@ -20,7 +20,7 @@ import { type Observable, Subject, combineLatest, distinctUntilChanged, map, mer
 import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { COAL_KG_CO2E_PER_MEGAJOULE } from "util/UnitConversion";
-import { index, makeApiRequest } from "util/Util";
+import { fuelTypeToRate, index, makeApiRequest } from "util/Util";
 import z from "zod";
 import cost = CostModel.cost;
 import type { Collection } from "dexie";
@@ -162,12 +162,25 @@ export namespace EnergyCostModel {
     export const fuelType = new Var(CostModel.cost, energyCostOptic.prop("fuelType"));
 
     export const [sectorOptions] = bind(
-        fuelType.$.pipe(
-            map((fuelType) => {
-                if (fuelType === FuelType.COAL) return [CustomerSector.INDUSTRIAL];
+        combineLatest([fuelType.$, Model.projectEscalationRates.$]).pipe(
+            map(([fuelType, projectEscalationRates]) => {
+                if (projectEscalationRates === undefined) {
+                    if (fuelType === FuelType.COAL) return [CustomerSector.INDUSTRIAL];
 
-                return Object.values(CustomerSector);
+                    return Object.values(CustomerSector);
+                }
+
+                // Only return the sectors that have non-null escalation rates
+                return Object.values(CustomerSector).filter((sector) => {
+                    const first = projectEscalationRates.find((rates) => rates.sector === sector);
+                    return first !== undefined && fuelTypeToRate(first, fuelType) !== null;
+                });
             }),
+            withLatestFrom(customerSector.$),
+            tap(([options, currentSector]) => {
+                if (currentSector !== undefined && !options.includes(currentSector)) customerSector.set(undefined);
+            }),
+            map(([options]) => options),
             startWith(Object.values(CustomerSector)),
         ),
     );

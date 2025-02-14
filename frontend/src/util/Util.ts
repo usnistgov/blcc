@@ -1,12 +1,14 @@
 import type { Measures, Optional } from "@lrd/e3-sdk";
 import { type DefaultedStateObservable, state } from "@react-rxjs/core";
-import { type Alternative, type Cost, CostTypes, type ID } from "blcc-format/Format";
+import { type Alternative, type Cost, CostTypes, FuelType, type ID } from "blcc-format/Format";
+import type { EscalationRateResponse } from "blcc-format/schema";
 import Decimal from "decimal.js";
 import { identity } from "effect";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { map } from "rxjs/operators";
+import { match } from "ts-pattern";
 
 // Returns true if the given cost is an energy cost.
 export function isEnergyCost(cost: Cost) {
@@ -205,4 +207,15 @@ export function createAlternativeNameMap(alternatives: Alternative[]): Map<ID, s
  */
 export function groupOptionalByTag(optionals: Optional[]): Map<string, Optional> {
     return new Map<string, Optional>(optionals.map((optional) => [`${optional.altId} ${optional.tag}`, optional]));
+}
+
+export function fuelTypeToRate(rate: EscalationRateResponse, fuelType: FuelType) {
+    return match(fuelType)
+        .with(FuelType.ELECTRICITY, () => rate.electricity)
+        .with(FuelType.PROPANE, () => rate.propane)
+        .with(FuelType.NATURAL_GAS, () => rate.naturalGas)
+        .with(FuelType.COAL, () => rate.coal)
+        .with(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil)
+        .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
+        .otherwise(() => null);
 }

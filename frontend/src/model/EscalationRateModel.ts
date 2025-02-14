@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { type Cost, FuelType } from "blcc-format/Format";
+import type { Cost } from "blcc-format/Format";
 import { Effect } from "effect";
 import { CostModel } from "model/CostModel";
 import { isEscalationCost } from "model/Guards";
@@ -9,8 +9,8 @@ import * as O from "optics-ts";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { combineLatestWith, filter, switchMap } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
-import { match } from "ts-pattern";
 import { gate, guard } from "util/Operators";
+import { fuelTypeToRate } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { Var } from "util/var";
 
@@ -121,16 +121,7 @@ export namespace EscalationRateModel {
         map(([rates, sector, fuelType]) => {
             const escalation = rates
                 .filter((rate) => rate.sector === sector)
-                .map((rate) =>
-                    match(fuelType)
-                        .with(FuelType.ELECTRICITY, () => rate.electricity)
-                        .with(FuelType.PROPANE, () => rate.propane)
-                        .with(FuelType.NATURAL_GAS, () => rate.naturalGas)
-                        .with(FuelType.COAL, () => rate.coal)
-                        .with(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil)
-                        .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
-                        .otherwise(() => 0),
-                );
+                .map((rate) => fuelTypeToRate(rate, fuelType) ?? 0);
 
             if (escalation === null) return [] as number[];
 
@@ -157,16 +148,7 @@ export namespace EscalationRateModel {
                 map(([rates, sector, fuelType]) => {
                     const escalation = rates
                         .filter((rate) => rate.sector === sector)
-                        .map((rate) =>
-                            match(fuelType)
-                                .with(FuelType.ELECTRICITY, () => rate.electricity)
-                                .with(FuelType.PROPANE, () => rate.propane)
-                                .with(FuelType.NATURAL_GAS, () => rate.naturalGas)
-                                .with(FuelType.COAL, () => rate.coal)
-                                .with(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil)
-                                .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
-                                .otherwise(() => 0),
-                        );
+                        .map((rate) => fuelTypeToRate(rate, fuelType) ?? 0);
 
                     if (escalation === null) return [] as number[];
 
