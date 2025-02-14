@@ -9,7 +9,7 @@ export default function GhgInput() {
     return (
         <div className={"grid grid-cols-3 gap-x-16 gap-y-4"}>
             <Divider className={"col-span-3"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
-                <Info text={Strings.EMISSIONS_RATE_SCENARIO}>Greenhouse Gas (GHG) Emissions and Cost Assumptions</Info>
+                <Info text={Strings.EMISSIONS_RATE_SCENARIO}>Greenhouse Gas (GHG) Emissions Assumptions</Info>
             </Divider>
             <TestSelect
                 label={"Data Source"}

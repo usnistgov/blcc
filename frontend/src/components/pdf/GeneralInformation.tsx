@@ -124,7 +124,7 @@ export default function GeneralInformation({ project }: GeneralInformationProps)
             <br />
 
             <View>
-                <Text style={styles.heading}>Greenhouse Gas (GHG) Emissions and Cost Assumptions:</Text>
+                <Text style={styles.heading}>Greenhouse Gas (GHG) Emissions Assumptions:</Text>
                 {/* <hr style={{ ...styles.divider, maxWidth: 380 }} /> */}
                 <View style={styles.container}>
                     <View style={styles.key}>

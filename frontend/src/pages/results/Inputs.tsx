@@ -85,7 +85,7 @@ export default function Inputs() {
                             orientation="left"
                             orientationMargin="0"
                         >
-                            Greenhouse Gas (GHG) Emissions and Cost Assumptions
+                            Greenhouse Gas (GHG) Emissions Assumptions
                         </Divider>
                         <ResultsInput label="Data Source" dataVal={project.ghg.dataSource} />
                         <ResultsInput label={"Emissions Rate Type"} dataVal={project.ghg.emissionsRateType} />
