@@ -3,10 +3,8 @@ import { Select } from "antd";
 import Title from "antd/es/typography/Title";
 import Recurring from "components/Recurring";
 import { NumberInput } from "components/input/InputNumber";
-import TextInput, { TextInputType } from "components/input/TextInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
 import { OtherNonMonetaryCostModel } from "model/costs/OtherNonMonetaryCostModel";
-import { EMPTY, Subject } from "rxjs";
 import SelectOrCreate from "../../../components/SelectOrCreate";
 
 export default function OtherNonMonetaryCostFields() {
