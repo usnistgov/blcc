@@ -31,7 +31,7 @@ const [useColumns] = bind(
             cols.unshift(
                 {
                     name: "Cost Type",
-                    maxWidth: 110,
+                    width: 110,
                     key: "category",
                     colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
                     headerCellClass: "bg-primary text-white text-left",
@@ -40,7 +40,7 @@ const [useColumns] = bind(
                 {
                     name: "subcategory",
                     key: "subcategory",
-                    maxWidth: 115,
+                    width: 115,
                     headerCellClass: "bg-primary text-white text-left",
                     cellClass: "text-ink",
                 },

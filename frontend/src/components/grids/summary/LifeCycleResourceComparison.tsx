@@ -19,6 +19,7 @@ const [useColumns] = bind(
                     ({
                         name: alternative.name,
                         key: i.toString(),
+                        minWidth: 75,
                         renderCell: ({ row, rowIdx }: { row: CategorySubcategoryRow; rowIdx: number }) => {
                             return (
                                 <p className={"text-right"}>
@@ -34,6 +35,7 @@ const [useColumns] = bind(
                 {
                     name: "Resource Type",
                     key: "category",
+                    width: 75,
                     // @ts-ignore
                     colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
                     headerCellClass: "bg-primary text-white text-left",
@@ -42,6 +44,7 @@ const [useColumns] = bind(
                 {
                     name: "Subcategory",
                     key: "subcategory",
+                    width: 240,
                     headerCellClass: "bg-primary text-white text-left",
                     cellClass: "text-ink",
                 },
