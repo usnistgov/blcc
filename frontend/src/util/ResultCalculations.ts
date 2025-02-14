@@ -138,7 +138,7 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
 /*
  * Alternative NPV Cashflow
  */
-export type AlternativeNpvCashflowRow = {
+export type AnnualCostTypeNpvCashflowRow = {
     year: number;
     investment: number;
     consumption: number;
@@ -156,11 +156,11 @@ export type AlternativeNpvCashflowRow = {
     total: number;
 };
 
-export function createAlternativeNpvCashflowRow(
+export function createAnnualCostTypeNpvCashflowRow(
     allRequired: Required[],
     optionals: Map<string, Optional>,
     altID: ID,
-): AlternativeNpvCashflowRow[] {
+): AnnualCostTypeNpvCashflowRow[] {
     const required = allRequired.find((req) => req.altId === altID);
 
     if (required === undefined) return [];
@@ -196,7 +196,7 @@ export function createAlternativeNpvCashflowRow(
                 residualValue: residualValue[i],
                 otherCosts: otherCosts[i],
                 total,
-            }) as AlternativeNpvCashflowRow,
+            }) as AnnualCostTypeNpvCashflowRow,
     );
 }
 
