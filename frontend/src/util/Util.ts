@@ -232,19 +232,3 @@ export function fuelTypeToRate(rate: EscalationRateResponse, fuelType: FuelType)
         .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
         .otherwise(() => null);
 }
-
-export function convertToLiters(amount: number, unit: WaterUnit): number {
-    switch (unit) {
-        case LiquidUnit.GALLON:
-            return amount * 3.785;
-        case LiquidUnit.K_GALLON:
-            return amount * 3785;
-        case LiquidUnit.K_LITER:
-        case CubicUnit.CUBIC_METERS:
-            return amount * 1000;
-        case LiquidUnit.LITER:
-            return amount;
-        case CubicUnit.CUBIC_FEET:
-            return amount * 28.317
-    }
-}

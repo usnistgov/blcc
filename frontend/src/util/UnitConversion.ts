@@ -1,5 +1,6 @@
-import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, type Unit } from "blcc-format/Format";
+import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, type WaterUnit, type Unit } from "blcc-format/Format";
 import convert from "convert";
+import Decimal from "decimal.js";
 
 type ConvertFunction = (value: number) => number;
 type ConvertMap = { [key in Unit]?: ConvertFunction };
@@ -65,6 +66,12 @@ const NATURAL_GAS = 1.09e6; // J/ft^3
 const OIL = 41.868; // GJ/m ton
 const COAL = 18.2; // GJ/m ton
 
+const GALLON = 3.785;
+const K_GALLON = 3785;
+const K_LITER = 1000;
+const CUBIC_METERS = 1000;
+const CUBIC_FEET = 28.317;
+
 export const COAL_KG_CO2E_PER_MEGAJOULE = 0.09042;
 
 function thermToMWh(therm: number) {
@@ -113,4 +120,38 @@ function thermToGJ(therm: number) {
 
 function mbtuToGJ(mbtu: number) {
     return mbtu * 1.06;
+}
+
+export function convertToLiters(amount: number, unit: WaterUnit): number {
+    switch (unit) {
+        case LiquidUnit.GALLON:
+            return Decimal.mul(amount, GALLON).toNumber();
+        case LiquidUnit.K_GALLON:
+            return Decimal.mul(amount, K_GALLON).toNumber();
+        case LiquidUnit.K_LITER:
+            return Decimal.mul(amount, K_LITER).toNumber();
+        case CubicUnit.CUBIC_METERS:
+            return Decimal.mul(amount, CUBIC_METERS).toNumber();
+        case LiquidUnit.LITER:
+            return amount;
+        case CubicUnit.CUBIC_FEET:
+            return Decimal.mul(amount, CUBIC_FEET).toNumber();
+    }
+}
+
+export function convertCostPerUnitToLiters(amount: number, unit: WaterUnit): number {
+    switch (unit) {
+        case LiquidUnit.GALLON:
+            return Decimal.div(amount, GALLON).toNumber();
+        case LiquidUnit.K_GALLON:
+            return Decimal.div(amount, K_GALLON).toNumber();
+        case LiquidUnit.K_LITER:
+            return Decimal.div(amount, K_LITER).toNumber();
+        case CubicUnit.CUBIC_METERS:
+            return Decimal.div(amount, CUBIC_METERS).toNumber();
+        case LiquidUnit.LITER:
+            return amount;
+        case CubicUnit.CUBIC_FEET:
+            return Decimal.div(amount, CUBIC_FEET).toNumber();
+    }
 }

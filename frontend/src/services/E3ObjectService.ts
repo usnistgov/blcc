@@ -37,8 +37,7 @@ import { Effect } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
-import { getConvertMap } from "util/UnitConversion";
-import { convertToLiters } from "util/Util";
+import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
     effect: Effect.gen(function* () {
@@ -338,7 +337,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .invest()
                 .recur(recurBuilder)
                 .quantity(convertToLiters(usage.amount, cost.unit))
-                .quantityValue(usage.costPerUnit)
+                .quantityValue(convertCostPerUnitToLiters(usage.costPerUnit, cost.unit))
                 .quantityUnit(LiquidUnit.LITER);
 
             if (cost.useIndex) {
@@ -357,7 +356,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .invest()
                 .recur(recurBuilder)
                 .quantity(convertToLiters(disposal.amount, cost.unit))
-                .quantityValue(disposal.costPerUnit)
+                .quantityValue(convertCostPerUnitToLiters(disposal.costPerUnit, cost.unit))
                 .quantityUnit(LiquidUnit.LITER);
 
             if (cost.useIndex) {
