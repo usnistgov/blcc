@@ -139,12 +139,16 @@ export function ValueRateOfChange() {
 function ValueRateOfChangeGrid() {
     const columns = useMemo(() => createDataGridColumns("Value Rate of Change"), []);
 
+    function formatRateOfChange(value: RateChangeInfo, index: number, array: RateChangeInfo[]): RateChangeInfo {
+        return { year: value.year, rate: +toPercentage(value.rate) }
+    }
+
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid
                 className={"rdg-light"}
                 columns={columns}
-                rows={RecurringModel.Value.gridValues()}
+                rows={RecurringModel.Value.gridValues().map(formatRateOfChange)}
                 onRowsChange={RecurringModel.Value.Actions.setArray}
             />
         </div>
