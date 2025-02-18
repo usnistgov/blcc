@@ -1,6 +1,6 @@
 import type { Measures, Optional } from "@lrd/e3-sdk";
 import { type DefaultedStateObservable, state } from "@react-rxjs/core";
-import { type Alternative, type Cost, CostTypes, FuelType, type ID } from "blcc-format/Format";
+import { type Alternative, type Cost, CostTypes, CubicUnit, FuelType, type ID, LiquidUnit, WaterUnit } from "blcc-format/Format";
 import type { EscalationRateResponse } from "blcc-format/schema";
 import Decimal from "decimal.js";
 import { identity } from "effect";
@@ -68,6 +68,19 @@ export function getOptionalTag<T = number>(
         const value = next.totalTagFlows[tag];
         // @ts-ignore
         acc[i.toString()] = map === undefined ? value : map(next.totalTagFlows[tag]);
+        return acc;
+    }, {});
+}
+
+export function getQuantitySumTag<T = number>(
+    measures: Measures[],
+    tag: string,
+    map: ((value: number) => T) | undefined = undefined,
+): { [key: string]: T } {
+    return measures.reduce((acc, next, i) => {
+        const value = next.quantitySum[tag];
+        // @ts-ignore
+        acc[i.toString()] = map === undefined ? value : map(next.quantitySum[tag]);
         return acc;
     }, {});
 }

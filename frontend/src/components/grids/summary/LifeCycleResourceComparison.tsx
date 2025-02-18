@@ -23,7 +23,7 @@ const [useColumns] = bind(
                         renderCell: ({ row, rowIdx }: { row: CategorySubcategoryRow; rowIdx: number }) => {
                             return (
                                 <p className={"text-right"}>
-                                    {numberFormatter.format(row[i.toString()] ?? 0)} {rowIdx <= 5 && "gJ"} {rowIdx > 5 && rowIdx !== 12 && "kg CO2e"} {rowIdx === 12 && "Liter(s)"}
+                                    {numberFormatter.format(row[i.toString()] ?? 0)} {rowIdx <= 5 && "gJ"} {rowIdx > 5 && rowIdx < 12 && "kg CO2e"} {rowIdx >= 12 && "Liter(s)"}
                                 </p>
                             );
                         },

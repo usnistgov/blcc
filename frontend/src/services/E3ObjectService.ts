@@ -22,6 +22,7 @@ import {
     type EnergyCost,
     FuelType,
     type ImplementationContractCost,
+    LiquidUnit,
     type OMRCost,
     type OtherCost,
     type OtherNonMonetary,
@@ -36,7 +37,7 @@ import { Effect } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
 import { match } from "ts-pattern";
-import { getConvertMap } from "util/UnitConversion";
+import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
     effect: Effect.gen(function* () {
@@ -335,9 +336,9 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .real()
                 .invest()
                 .recur(recurBuilder)
-                .quantity(usage.amount)
-                .quantityValue(usage.costPerUnit)
-                .quantityUnit(cost.unit ?? "");
+                .quantity(convertToLiters(usage.amount, cost.unit))
+                .quantityValue(convertCostPerUnitToLiters(usage.costPerUnit, cost.unit))
+                .quantityUnit(LiquidUnit.LITER);
 
             if (cost.useIndex) {
                 const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];
@@ -354,8 +355,9 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .real()
                 .invest()
                 .recur(recurBuilder)
-                .quantity(disposal.amount)
-                .quantityValue(disposal.costPerUnit);
+                .quantity(convertToLiters(disposal.amount, cost.unit))
+                .quantityValue(convertCostPerUnitToLiters(disposal.costPerUnit, cost.unit))
+                .quantityUnit(LiquidUnit.LITER);
 
             if (cost.useIndex) {
                 const varValue = Array.isArray(cost.useIndex) ? cost.useIndex : [cost.useIndex];

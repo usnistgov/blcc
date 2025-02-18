@@ -1,8 +1,8 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
-import { EnergyUnit, FuelType, type ID, Unit } from "blcc-format/Format";
+import { EnergyUnit, FuelType, type ID } from "blcc-format/Format";
+import { getOptionalTag, getQuantitySumTag } from "util/Util";
+import { getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 import { parseUnit } from "services/ConverterService";
-import { getOptionalTag } from "util/Util";
-import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 
 /*
  * Summary - Lifecycle Comparison
@@ -83,8 +83,8 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
         { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
         { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
         { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
-        { category: "Water", subcategory: "Usage" },
-        { subcategory: "Disposal " },
+        { category: "Water", subcategory: "Usage", ...getOptionalTag(measures, "Usage") },
+        { subcategory: "Disposal", ...getOptionalTag(measures, "Disposal") },
         { category: "Capital Components", subcategory: "Investment", ...getOptionalTag(measures, "Initial Investment") },
         { subcategory: "OMR", ...getOptionalTag(measures, "OMR") },
         { subcategory: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
@@ -114,8 +114,8 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
-        "Emissions",
-    ].map((fuelType) => getOptionalTag(measures, `${fuelType} Emissions`));
+        "Total",
+    ].map((fuelType) => getQuantitySumTag(measures, fuelType === "Total" ? "Emissions" : `${fuelType} Emissions`));
 
     return [
         { category: "Energy", subcategory: FuelType.ELECTRICITY, ...energy[0] },
@@ -130,7 +130,8 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
         { subcategory: FuelType.RESIDUAL_OIL, ...emissions[3] },
         { subcategory: FuelType.PROPANE, ...emissions[4] },
         { subcategory: "Total", ...emissions[5] },
-        { category: "Water", subcategory: "Use" }, //TODO: Add in water usage category
+        { category: "Water", subcategory: "Use", ...getQuantitySumTag(measures, "Usage") },
+        { subcategory: "Disposal", ...getQuantitySumTag(measures, "Disposal") } //TODO: Add in water usage category
     ] as CategorySubcategoryRow[]; // FIXME there is probably a better way to type this
 }
 
@@ -166,11 +167,12 @@ export function createAnnualCostTypeNpvCashflowRow(
     const id = required.altId;
     const defaultArray = Array.apply(null, Array(required.totalCostsDiscounted.length)).map(() => 0);
 
-    console.log(optionals);
-
     const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
     const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
     const demand = optionals.get(`${id} Demand Charge`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const rebates = optionals.get(`${id} Rebate`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const waterUse = optionals.get(`${id} Usage`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const waterDisposal = optionals.get(`${id} Disposal`)?.totalTagCashflowDiscounted ?? defaultArray;
     const omr = optionals.get(`${id} OMR`)?.totalTagCashflowDiscounted ?? defaultArray;
     const recurringContract = optionals.get(`${id} Recurring Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
     const implementation = optionals.get(`${id} Implementation Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
@@ -185,6 +187,9 @@ export function createAnnualCostTypeNpvCashflowRow(
                 investment: investment[i],
                 consumption: consumption[i],
                 demand: demand[i],
+                rebates: rebates[i],
+                waterUse: waterUse[i],
+                waterDisposal: waterDisposal[i],
                 omr: omr[i],
                 recurringContract: recurringContract[i],
                 implementation: implementation[i],
@@ -235,10 +240,10 @@ export type AlternativeNpvCostTypeTotalRow = {
 export function createAlternativeNpvCostTypeTotalRow(measure: Measures): AlternativeNpvCostTypeTotalRow[] {
     return [
         { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
-        { subcategory: "Demand" },
-        { subcategory: "Rebates" },
-        { category: "Water", subcategory: "Usage" },
-        { subcategory: "Disposal " },
+        { subcategory: "Demand", alternative: measure.totalTagFlows["Demand Charge"] },
+        { subcategory: "Rebates", alternative: measure.totalTagFlows["Rebate"] },
+        { category: "Water", subcategory: "Usage", alternative: measure.totalTagFlows["Usage"] },
+        { subcategory: "Disposal ", alternative: measure.totalTagFlows["Disposal"] },
         { category: "Capital Components", subcategory: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
         { subcategory: "OMR", alternative: measure.totalTagFlows["OMR"] },
         { subcategory: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
@@ -275,7 +280,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
         "Energy",
-    ].map((fuelType) => measure.totalTagFlows[fuelType]);
+    ].map((fuelType) => measure.quantitySum[fuelType]);
 
     return [
         {
@@ -289,7 +294,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
         { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
         { subcategory: "Total", consumption: getTotalEnergy(measure), emissions: emissions[5] },
-        { category: "Water", subcategory: "Use" },
+        { category: "Water", subcategory: "Use", consumption: measure.quantitySum["Usage"] },
     ] as ResourceUsageRow[]; //FIXME this could be typed better
 }
 
