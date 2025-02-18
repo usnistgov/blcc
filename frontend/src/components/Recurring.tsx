@@ -14,7 +14,7 @@ import { percentFormatter, toPercentage } from "util/Util";
  * @param info
  */
 function renderCell(info: RenderCellProps<RateChangeInfo>) {
-    return percentFormatter.format(info.row.rate / 100);
+    return percentFormatter.format(info.row.rate);
 }
 
 /**
@@ -138,7 +138,7 @@ export function ValueRateOfChange() {
 
 function ValueRateOfChangeGrid() {
     const columns = useMemo(() => createDataGridColumns("Value Rate of Change"), []);
-
+    
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid

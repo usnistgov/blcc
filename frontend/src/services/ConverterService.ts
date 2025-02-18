@@ -101,17 +101,18 @@ function parse(obj: any, releaseYear: number): ConverterResult {
     const studyPeriod = parseStudyPeriod(parseYears(project.Duration));
     const studyLocation = parseLocation(project.Location);
     const dollarMethod = convertDollarMethod(project.DollarMethod);
-
+    
+    const calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : Defaults.REAL_DISCOUNT_RATE;
+    const calculatedInflationRate: number = project.InflationRate ? project.InflationRate : Defaults.INFLATION_RATE;
+    const calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
+    
     const [parsedAlternatives, parsedCosts] = parseAlternativesAndHashCosts(
         alternatives,
         studyPeriod,
         studyLocation,
         dollarMethod,
+        calculatedInflationRate
     );
-
-    const calculatedRealDR: number = project.DiscountRate ? project.DiscountRate : Defaults.REAL_DISCOUNT_RATE;
-    const calculatedInflationRate: number = project.InflationRate ? project.InflationRate : Defaults.INFLATION_RATE;
-    const calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
 
     return [
         {
@@ -252,6 +253,7 @@ function parseAlternativesAndHashCosts(
     studyPeriod: number,
     studyLocation: USLocation,
     dollarMethod: DollarMethod,
+    inflation: number
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
     let costID: ID = 0;
@@ -285,7 +287,7 @@ function parseAlternativesAndHashCosts(
 
         for (const cost of costs) {
             const hash = objectHash(cost);
-            const parsedCost = convertCost(cost, studyPeriod, studyLocation, dollarMethod, costID);
+            const parsedCost = convertCost(cost, studyPeriod, studyLocation, dollarMethod, costID, inflation);
 
             if (!costCache.has(hash)) {
                 costCache.set(hash, parsedCost);
@@ -322,6 +324,7 @@ function convertCost(
     studyLocation: USLocation,
     dollarMethod: DollarMethod,
     id: ID,
+    inflation: number
 ): Cost {
     const type: CostComponent = cost.type;
     switch (type) {
@@ -429,7 +432,7 @@ function convertCost(
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 recurring: {
-                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
+                    rateOfChangeValue: parseRateOfChange(parseEscalation(cost.Escalation, studyPeriod), dollarMethod, inflation),
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
                 },
             } as RecurringContractCost;
@@ -633,3 +636,19 @@ function parseEscalation(escalation: any, studyPeriod: number): number | number[
         }
     }
 }
+function parseRateOfChange(rateOfChange: number | number[] | undefined, dollarMethod: DollarMethod, inflation: number): number | number[] | undefined {
+    if (rateOfChange === undefined) {
+        return undefined;
+    }
+
+    if (dollarMethod === DollarMethod.CONSTANT) {
+        return rateOfChange;
+    }
+
+    if (typeof rateOfChange === "number") {
+        return calculateNominalDiscountRate(rateOfChange, inflation);
+    }
+    
+    return rateOfChange.map((v) => calculateNominalDiscountRate(v, inflation));
+}
+
