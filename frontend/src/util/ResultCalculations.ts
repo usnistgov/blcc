@@ -1,7 +1,7 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
-import { EnergyUnit, FuelType, type ID, LiquidUnit, Unit } from "blcc-format/Format";
-import { convertToLiters, getOptionalTag, getQuantitySumTag } from "util/Util";
-import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
+import { EnergyUnit, FuelType, type ID } from "blcc-format/Format";
+import { getOptionalTag, getQuantitySumTag } from "util/Util";
+import { getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 import { parseUnit } from "services/ConverterService";
 
 /*
