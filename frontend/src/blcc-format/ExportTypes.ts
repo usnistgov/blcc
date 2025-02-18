@@ -1,5 +1,5 @@
 import type {
-    AlternativeNpvCashflowRow,
+    AnnualCostTypeNpvCashflowRow,
     AlternativeNpvCostTypeTotalRow,
     CategorySubcategoryRow,
     LccBaselineRow,
@@ -16,7 +16,7 @@ export type Summary = {
 };
 
 export type Annual = {
-    alternativeNpvCashflows: AlternativeNpvCashflowRow[][];
+    alternativeNpvCashflows: AnnualCostTypeNpvCashflowRow[][];
     npvCashflowComparison: NpvCashflowComparisonRow[];
 };
 

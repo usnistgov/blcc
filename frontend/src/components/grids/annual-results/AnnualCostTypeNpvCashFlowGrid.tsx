@@ -3,7 +3,7 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
-import { type AlternativeNpvCashflowRow, createAlternativeNpvCashflowRow } from "util/ResultCalculations";
+import { type AnnualCostTypeNpvCashflowRow, createAnnualCostTypeNpvCashflowRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
 
 const cellClasses = {
@@ -14,14 +14,6 @@ const cellClasses = {
 const columns = [
     { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-center", cellClass: "text-ink" },
     {
-        name: "Investment",
-        key: "investment",
-        renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.investment)}</p>
-        ),
-        ...cellClasses,
-    },
-    {
         name: "Energy",
         headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
@@ -29,7 +21,7 @@ const columns = [
             {
                 name: "Consumption",
                 key: "consumption",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.consumption ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -37,7 +29,7 @@ const columns = [
             {
                 name: "Demand",
                 key: "demand",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.demand ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -45,7 +37,7 @@ const columns = [
             {
                 name: "Rebates",
                 key: "rebates",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.rebates ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -60,7 +52,7 @@ const columns = [
             {
                 name: "Use",
                 key: "waterUse",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.waterUse ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -68,7 +60,7 @@ const columns = [
             {
                 name: "Disposal",
                 key: "waterDisposal",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.waterDisposal ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -76,27 +68,41 @@ const columns = [
         ],
     },
     {
-        name: "OMR",
+        name: "Capital Components",
         headerCellClass: "bg-primary text-white text-center",
         cellClass: "text-ink",
         children: [
             {
-                name: "Recurring",
-                key: "recurring",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row.recurring ?? 0)}</p>
+                name: "Investment",
+                key: "investment",
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.investment ?? 0)}</p>
+                ),
+            },
+            {
+                name: "OMR",
+                key: "omr",
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.omr ?? 0)}</p>
+                ),
+            },
+            {
+                name: "Replacement",
+                key: "replace",
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.replace ?? 0)}</p>
                 ),
                 ...cellClasses,
             },
             {
-                name: "Non-Recurring",
-                key: "nonRecurring",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-                    <p className={"text-right"}>{dollarFormatter.format(row.nonRecurring ?? 0)}</p>
+                name: "Residual Value",
+                key: "residualValue",
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
+                    <p className={"text-right"}>{dollarFormatter.format(row.residualValue ?? 0)}</p>
                 ),
                 ...cellClasses,
             },
-        ],
+        ]
     },
     {
         name: "Contract",
@@ -106,7 +112,7 @@ const columns = [
             {
                 name: "Implementation",
                 key: "implementationContract",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.implementation ?? 0)}</p>
                 ),
                 ...cellClasses,
@@ -114,29 +120,12 @@ const columns = [
             {
                 name: "Recurring",
                 key: "recurringContract",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.recurringContract ?? 0)}</p>
                 ),
                 ...cellClasses,
             }
         ],
-    },
-
-    {
-        name: "Replace",
-        key: "replace",
-        renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.replace ?? 0)}</p>
-        ),
-        ...cellClasses,
-    },
-    {
-        name: "Residual Value",
-        key: "residualValue",
-        renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.residualValue ?? 0)}</p>
-        ),
-        ...cellClasses,
     },
     {
         name: "Other",
@@ -146,7 +135,7 @@ const columns = [
             {
                 name: "Monetary",
                 key: "otherMonetary",
-                renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+                renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.otherCosts)}</p>
                 ),
                 ...cellClasses,
@@ -156,17 +145,17 @@ const columns = [
     {
         name: "Total",
         key: "total",
-        renderCell: ({ row }: { row: AlternativeNpvCashflowRow }) => (
+        renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
             <p className={"text-right"}>{dollarFormatter.format(row.total)}</p>
         ),
         ...cellClasses,
     },
-] as Column<AlternativeNpvCashflowRow>[];
+] as Column<AnnualCostTypeNpvCashflowRow>[];
 
 const [useRows] = bind(
     combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
         map(([allRequired, optionals, selectedID]) =>
-            createAlternativeNpvCashflowRow(allRequired, optionals, selectedID),
+            createAnnualCostTypeNpvCashflowRow(allRequired, optionals, selectedID),
         ),
     ),
     [],
@@ -186,7 +175,7 @@ export default function AnnualCostTypeNpvCashFlowGrid() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: AlternativeNpvCashflowRow, index: number) =>
+                rowClass={(_row: AnnualCostTypeNpvCashflowRow, index: number) =>
                     index % 2 === 0 ? "bg-white" : "bg-base-lightest"
                 }
                 rowGetter={rows}

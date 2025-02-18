@@ -5,7 +5,7 @@ import { getOptionalTag } from "util/Util";
 import { getConvertMap, getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 
 /*
- * Lifecycle Comparison
+ * Summary - Lifecycle Comparison
  */
 export type LccComparisonRow = {
     name: string;
@@ -34,7 +34,7 @@ export function createLccComparisonRows(
 }
 
 /*
- * Lifecycle Results to Baseline
+ * Summary - Lifecycle Results to Baseline
  */
 export type LccBaselineRow = {
     name: string;
@@ -69,7 +69,7 @@ export function createLccBaselineRows(measures: Measures[], names: Map<ID, strin
 }
 
 /*
- * NPV Category/Sub-category
+ * Summary - NPV Category/Sub-category
  */
 export type CategorySubcategoryRow = {
     category: string;
@@ -80,25 +80,24 @@ export type CategorySubcategoryRow = {
 
 export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryRow[] {
     return [
-        { category: "Investment", ...getOptionalTag(measures, "Initial Investment") },
         { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
         { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
         { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
         { category: "Water", subcategory: "Usage" },
         { subcategory: "Disposal " },
-        { category: "OMR", subcategory: "Recurring", ...getOptionalTag(measures, "OMR Recurring") },
-        { subcategory: "Non-Recurring", ...getOptionalTag(measures, "OMR Non-Recurring") },
-        { category: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
-        { category: "Contract", subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost")},
-        { subcategory: "Implementation", ...getOptionalTag(measures, "Implementation Contract Cost")},
-        { category: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Capital Components", subcategory: "Investment", ...getOptionalTag(measures, "Initial Investment") },
+        { subcategory: "OMR", ...getOptionalTag(measures, "OMR") },
+        { subcategory: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
+        { subcategory: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { category: "Contract", subcategory: "Implementation", ...getOptionalTag(measures, "Implementation Contract Cost") },
+        { subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost") },
         { category: "Other", subcategory: "Monetary", ...getOptionalTag(measures, "Other")},
         { category: "Total LCC", ...getOptionalTag(measures, "LCC")}
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
 }
 
 /*
- * Lifecycle Resource
+ * Summary - Lifecycle Resource
  */
 export function createLccResourceRows(measures: Measures[]): CategorySubcategoryRow[] {
     const energy = [
@@ -136,9 +135,9 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
 }
 
 /*
- * Alternative NPV Cashflow
+ * Annual - Cost Type NPV Cashflow
  */
-export type AlternativeNpvCashflowRow = {
+export type AnnualCostTypeNpvCashflowRow = {
     year: number;
     investment: number;
     consumption: number;
@@ -146,8 +145,7 @@ export type AlternativeNpvCashflowRow = {
     rebates: number;
     waterUse: number;
     waterDisposal: number;
-    recurring: number;
-    nonRecurring: number;
+    omr: number;
     recurringContract: number;
     implementation: number;
     replace: number;
@@ -156,11 +154,11 @@ export type AlternativeNpvCashflowRow = {
     total: number;
 };
 
-export function createAlternativeNpvCashflowRow(
+export function createAnnualCostTypeNpvCashflowRow(
     allRequired: Required[],
     optionals: Map<string, Optional>,
     altID: ID,
-): AlternativeNpvCashflowRow[] {
+): AnnualCostTypeNpvCashflowRow[] {
     const required = allRequired.find((req) => req.altId === altID);
 
     if (required === undefined) return [];
@@ -173,8 +171,7 @@ export function createAlternativeNpvCashflowRow(
     const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
     const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
     const demand = optionals.get(`${id} Demand Charge`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const recurring = optionals.get(`${id} OMR Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const nonRecurring = optionals.get(`${id} OMR Non-Recurring`)?.totalTagCashflowDiscounted ?? defaultArray;
+    const omr = optionals.get(`${id} OMR`)?.totalTagCashflowDiscounted ?? defaultArray;
     const recurringContract = optionals.get(`${id} Recurring Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
     const implementation = optionals.get(`${id} Implementation Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
     const replace = optionals.get(`${id} Replacement Capital`)?.totalTagCashflowDiscounted ?? defaultArray;
@@ -188,20 +185,19 @@ export function createAlternativeNpvCashflowRow(
                 investment: investment[i],
                 consumption: consumption[i],
                 demand: demand[i],
-                recurring: recurring[i],
-                nonRecurring: nonRecurring[i],
+                omr: omr[i],
                 recurringContract: recurringContract[i],
                 implementation: implementation[i],
                 replace: replace[i],
                 residualValue: residualValue[i],
                 otherCosts: otherCosts[i],
                 total,
-            }) as AlternativeNpvCashflowRow,
+            }) as AnnualCostTypeNpvCashflowRow,
     );
 }
 
 /*
- * NPV Cashflow Comparison
+ * Annual - NPV Cashflow Comparison
  */
 export type NpvCashflowComparisonRow = {
     key: number;
@@ -228,7 +224,7 @@ export function createNpvCashflowComparisonRow(allRequired: Required[]): NpvCash
 }
 
 /*
- * Alternative NPV Cashflow
+ * Alternative - Alternative NPV Cashflow
  */
 export type AlternativeNpvCostTypeTotalRow = {
     category: string;
@@ -238,24 +234,23 @@ export type AlternativeNpvCostTypeTotalRow = {
 
 export function createAlternativeNpvCostTypeTotalRow(measure: Measures): AlternativeNpvCostTypeTotalRow[] {
     return [
-        { category: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
         { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
         { subcategory: "Demand" },
         { subcategory: "Rebates" },
         { category: "Water", subcategory: "Usage" },
         { subcategory: "Disposal " },
-        { category: "OMR", subcategory: "Recurring", alternative: measure.totalTagFlows["OMR Recurring"] },
-        { subcategory: "Non-Recurring", alternative: measure.totalTagFlows["OMR Non-Recurring"] },
-        { category: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
-        { category: "Contract", subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"]},
-        { subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"]},
-        { category: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
+        { category: "Capital Components", subcategory: "Investment", alternative: measure.totalTagFlows["Initial Investment"] },
+        { subcategory: "OMR", alternative: measure.totalTagFlows["OMR"] },
+        { subcategory: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
+        { subcategory: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
+        { category: "Contract", subcategory: "Implementation", alternative: measure.totalTagFlows["Implementation Contract Cost"] },
+        { subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"] },
         { category: "Other", subcategory: "Monetary", alternative: measure.totalTagFlows["Other"]}
     ] as AlternativeNpvCostTypeTotalRow[]; //FIXME this could be typed better
 }
 
 /*
- * Resource Usage
+ * Alternative - Resource Usage
  */
 export type ResourceUsageRow = {
     category: string;

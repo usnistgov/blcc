@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { AlternativeNpvCashflowRow, NpvCashflowComparisonRow } from "util/ResultCalculations";
+import type { AnnualCostTypeNpvCashflowRow, NpvCashflowComparisonRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
 const border = "1px solid #000";
 const fontSize = 10;
@@ -34,19 +34,21 @@ const styles = StyleSheet.create({
 });
 
 const npvAltTableHeaders = [
-    ["", "", "Energy", "", "", "Water", "", "OMR", "", "", "", ""],
+    ["", "Energy", "", "", "Water", "", "Capital", "", "", "", "Contract", "", "Other", ""],
     [
         "Year",
-        "Investment",
         "Consumption",
         "Demand",
         "Rebates",
         "Use",
         "Disposal",
-        "Recurring",
-        "Non-Recurring",
+        "Investment",
+        "OMR",
         "Replace",
         "Residual Value",
+        "Implementation",
+        "Recurring",
+        "Monetary",
         "Total",
     ],
 ];
@@ -83,7 +85,7 @@ export function NPVComparisonTable({ headers, rows }: NpvComparisonTableProps) {
 }
 
 type NpvAltTableProps = {
-    rows: AlternativeNpvCashflowRow[];
+    rows: AnnualCostTypeNpvCashflowRow[];
 };
 
 export function NPVAltTable({ rows }: NpvAltTableProps) {
@@ -104,15 +106,17 @@ export function NPVAltTable({ rows }: NpvAltTableProps) {
                 <View style={styles.row} key={`${alt.year}_row_${index}`}>
                     <Text style={styles.alt}>{alt.year}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.consumption)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.recurring)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.nonRecurring)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.consumption)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.recurring)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.nonRecurring)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.total)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.consumption)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.recurring)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.nonRecurring)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.demand)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.rebates)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.waterUse)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.waterDisposal)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.investment)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.omr)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.replace)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.residualValue)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.implementation)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.recurringContract)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.otherCosts)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.total)}</Text>
                 </View>
             ))}
