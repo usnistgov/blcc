@@ -646,9 +646,7 @@ function parseRateOfChange(rateOfChange: number | number[] | undefined, dollarMe
     }
 
     if (typeof rateOfChange === "number") {
-        const val = calculateNominalDiscountRate(rateOfChange, inflation);
-        console.log(val);
-        return val;
+        return calculateNominalDiscountRate(rateOfChange, inflation);
     }
     
     return rateOfChange.map((v) => calculateNominalDiscountRate(v, inflation));
