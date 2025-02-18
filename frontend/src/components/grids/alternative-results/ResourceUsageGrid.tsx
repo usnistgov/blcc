@@ -27,16 +27,16 @@ const columns = [
     {
         name: "Consumption",
         key: "consumption",
-        renderCell: ({ row }: { row: ResourceUsageRow }) => (
-            <p className={"text-right"}>{numberFormatter.format(row.consumption ?? 0)} gJ</p>
+        renderCell: ({ row, rowIdx }: { row: ResourceUsageRow, rowIdx: number }) => (
+            <p className={"text-right"}>{numberFormatter.format(row.consumption ?? 0)} {rowIdx < 6 && "gJ"} {rowIdx === 6 && "Liter(s)"}</p>
         ),
         ...cellClasses,
     },
     {
         name: "Emissions",
         key: "emissions",
-        renderCell: ({ row }: { row: ResourceUsageRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.emissions ?? 0)}</p>
+        renderCell: ({ row, rowIdx }: { row: ResourceUsageRow, rowIdx: number }) => (
+            <p className={"text-right"}>{rowIdx < 6 && numberFormatter.format(row.emissions ?? 0) && "kg CO2e"}</p>
         ),
         ...cellClasses,
     },
