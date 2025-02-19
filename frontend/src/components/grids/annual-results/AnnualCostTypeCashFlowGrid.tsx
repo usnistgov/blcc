@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, startWith } from "rxjs/operators";
 import { type AnnualCostTypeNpvCashflowRow, createAnnualCostTypeNpvCashflowRow } from "util/ResultCalculations";
 import { dollarFormatter } from "util/Util";
 
@@ -12,7 +12,7 @@ const cellClasses = {
 };
 
 const columns = [
-    { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-center", cellClass: "text-ink" },
+    { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-center", cellClass: "text-ink", width: 10 },
     {
         name: "Energy",
         headerCellClass: "bg-primary text-white text-center",
@@ -78,6 +78,7 @@ const columns = [
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.investment ?? 0)}</p>
                 ),
+                ...cellClasses
             },
             {
                 name: "OMR",
@@ -85,6 +86,7 @@ const columns = [
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.omr ?? 0)}</p>
                 ),
+                ...cellClasses
             },
             {
                 name: "Replacement",
@@ -153,15 +155,15 @@ const columns = [
 ] as Column<AnnualCostTypeNpvCashflowRow>[];
 
 const [useRows] = bind(
-    combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$]).pipe(
-        map(([allRequired, optionals, selectedID]) =>
-            createAnnualCostTypeNpvCashflowRow(allRequired, optionals, selectedID),
+    combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$, ResultModel.discountedCashFlow$.pipe(startWith(true))]).pipe(
+        map(([allRequired, optionals, selectedID, discountedCashFlow]) =>
+            createAnnualCostTypeNpvCashflowRow(allRequired, optionals, selectedID, discountedCashFlow),
         ),
     ),
     [],
 );
 
-export default function AnnualCostTypeNpvCashFlowGrid() {
+export default function AnnualCostTypeCashFlowGrid() {
     const rows = useRows();
 
     return (

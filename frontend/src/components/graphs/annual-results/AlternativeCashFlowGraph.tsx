@@ -6,7 +6,7 @@ import { alternatives$ } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import { useEffect } from "react";
 import { combineLatest } from "rxjs";
-import { debounceTime } from "rxjs/operators";
+import { debounceTime, startWith } from "rxjs/operators";
 import { dollarFormatter } from "util/Util";
 
 /* Tags to grab from optional */
@@ -47,34 +47,39 @@ type AlternativeNpvCashFlowGraphColumns = ([(string | number)[], (string | numbe
 const GRAPH_ID = "alternative-npv-cash-flow-chart";
 
 const [chart$, setChart] = createSignal<Chart>();
-const loadData$ = combineLatest([ResultModel.selection$, chart$, ResultModel.required$, ResultModel.optionalsByTag$]).pipe(
+const loadData$ = combineLatest([
+    ResultModel.selection$, 
+    chart$, 
+    ResultModel.required$, 
+    ResultModel.optionalsByTag$, 
+    ResultModel.discountedCashFlow$.pipe(startWith(true))
+]).pipe(
     debounceTime(1),
 );
 
-
-function getColumn(altId: number, optionals: Map<string, Optional>, category: string) {
+function getColumn(altId: number, optionals: Map<string, Optional>, category: string, discountedCashFlow: boolean) {
     const key = `${altId} ${category}`;
     const tag = categoryToDisplayName.get(category) ?? "";
-
-    return [tag, ...(optionals.get(key)?.totalTagCashflowDiscounted ?? [])]
+    const results = discountedCashFlow ? optionals.get(key)?.totalTagCashflowDiscounted : optionals.get(key)?.totalTagCashflowNonDiscounted;
+    return [tag, ...(results ?? [])]
 }
 
-function getColumns(altId: number, optionals: Map<string, Optional>): AlternativeNpvCashFlowGraphColumns {
+function getColumns(altId: number, optionals: Map<string, Optional>, discountedCashFlow: boolean): AlternativeNpvCashFlowGraphColumns {
     let columns: AlternativeNpvCashFlowGraphColumns = [];
     for (const category of categories) {
-        columns = [getColumn(altId, optionals, category), ...columns];
+        columns = [getColumn(altId, optionals, category, discountedCashFlow), ...columns];
     }
     return columns;
 }
 
-export default function AlternativeNpvCashFlowGraph() {
-    useSubscribe(loadData$, ([selection, chart, allRequired, optionals]) => {
+export default function AlternativeCashFlowGraph() {
+    useSubscribe(loadData$, ([selection, chart, allRequired, optionals, discountedCashFlow]) => {
         const required = allRequired.find((req) => req.altId === selection);
 
         if (required === undefined) return [];
     
         // Grab data columns
-        const columns = getColumns(required.altId, optionals);
+        const columns = getColumns(required.altId, optionals, discountedCashFlow);
 
         // This line groups together all categories so they are stacked
         chart.groups([Array.from(categoryToDisplayName.values())]);

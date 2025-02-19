@@ -100,4 +100,7 @@ export namespace ResultModel {
 
     export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));
     export const optionalsByTag$ = optionals$.pipe(map((optionals) => groupOptionalByTag(optionals)));
+
+    export const [discountedCashFlow$, setDiscountedCashFlow] = createSignal<boolean>();
+    export const [useDiscountedCashFlow] = bind(discountedCashFlow$, true);
 }

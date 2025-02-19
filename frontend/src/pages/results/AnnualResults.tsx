@@ -1,9 +1,10 @@
 import Header from "components/Header";
 import ResultAlternativeSelect from "components/ResultAlternativeSelect";
-import AlternativeNpvCashFlowGraph from "components/graphs/annual-results/AlternativeNpvCashFlowGraph";
+import { ResultsSwitch } from "components/ResultsSwitch";
+import AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
 import NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
 import TagObjectByYearGraph from "components/graphs/annual-results/TagObjectByYearGraph";
-import AnnualCostTypeNpvCashFlowGrid from "components/grids/annual-results/AnnualCostTypeNpvCashFlowGrid";
+import AnnualCostTypeCashFlowGrid from "components/grids/annual-results/AnnualCostTypeCashFlowGrid";
 import NpvCashFlowComparison from "components/grids/annual-results/NpvCashFlowComparison";
 
 export default function AnnualResults() {
@@ -19,17 +20,18 @@ export default function AnnualResults() {
                     <NpvCashFlowGraph />
                 </div>
             </div>
-            <div>
+            <div className="flex flex-row gap-4">
                 <ResultAlternativeSelect />
+                <ResultsSwitch/>
             </div>
             <div>
-                <Header>NPV Cash Flow by Cost Type</Header>
-                <AnnualCostTypeNpvCashFlowGrid />
+                <Header>Cash Flow by Cost Type</Header>
+                <AnnualCostTypeCashFlowGrid />
             </div>
             <div className="grid grid-cols-2 gap-8">
                 <div>
-                    <Header>NPV Cash Flows</Header>
-                    <AlternativeNpvCashFlowGraph />
+                    <Header>Cash Flows</Header>
+                    <AlternativeCashFlowGraph />
                 </div>
                 <div>
                     <Header>Tag/Object by Year</Header>
