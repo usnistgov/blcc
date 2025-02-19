@@ -159,26 +159,27 @@ export function createAnnualCostTypeNpvCashflowRow(
     allRequired: Required[],
     optionals: Map<string, Optional>,
     altID: ID,
+    discountedCashFlow: boolean
 ): AnnualCostTypeNpvCashflowRow[] {
     const required = allRequired.find((req) => req.altId === altID);
-
+    
     if (required === undefined) return [];
-
+    
     const id = required.altId;
     const defaultArray = Array.apply(null, Array(required.totalCostsDiscounted.length)).map(() => 0);
-
-    const investment = optionals.get(`${id} Initial Investment`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const consumption = optionals.get(`${id} Energy`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const demand = optionals.get(`${id} Demand Charge`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const rebates = optionals.get(`${id} Rebate`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const waterUse = optionals.get(`${id} Usage`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const waterDisposal = optionals.get(`${id} Disposal`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const omr = optionals.get(`${id} OMR`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const recurringContract = optionals.get(`${id} Recurring Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const implementation = optionals.get(`${id} Implementation Contract Cost`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const replace = optionals.get(`${id} Replacement Capital`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const residualValue = optionals.get(`${id} Residual Value`)?.totalTagCashflowDiscounted ?? defaultArray;
-    const otherCosts = optionals.get(`${id} Other`)?.totalTagCashflowDiscounted ?? defaultArray;
+    
+    const investment = getOptionals(`${id} Initial Investment`, optionals, discountedCashFlow, defaultArray);
+    const consumption = getOptionals(`${id} Energy`, optionals, discountedCashFlow, defaultArray);
+    const demand = getOptionals(`${id} Demand Charge`, optionals, discountedCashFlow, defaultArray);
+    const rebates = getOptionals(`${id} Rebate`, optionals, discountedCashFlow, defaultArray);
+    const waterUse = getOptionals(`${id} Usage`, optionals, discountedCashFlow, defaultArray);
+    const waterDisposal = getOptionals(`${id} Disposal`, optionals, discountedCashFlow, defaultArray);
+    const omr = getOptionals(`${id} OMR`, optionals, discountedCashFlow, defaultArray); 
+    const recurringContract = getOptionals(`${id} Recurring Contract Cost`, optionals, discountedCashFlow, defaultArray); 
+    const implementation = getOptionals(`${id} Implementation Contract Cost`, optionals, discountedCashFlow, defaultArray);
+    const replace = getOptionals(`${id} Replacement Capital`, optionals, discountedCashFlow, defaultArray);
+    const residualValue = getOptionals(`${id} Residual Value`, optionals, discountedCashFlow, defaultArray);
+    const otherCosts = getOptionals(`${id} Other`, optionals, discountedCashFlow, defaultArray);
 
     return required.totalCostsDiscounted.map(
         (total, i) =>
@@ -199,6 +200,10 @@ export function createAnnualCostTypeNpvCashflowRow(
                 total,
             }) as AnnualCostTypeNpvCashflowRow,
     );
+}
+
+function getOptionals(tag: string, optionals: Map<string, Optional>, discounted: boolean, defaultArray: number[]): number[] {
+    return (discounted ? optionals.get(tag)?.totalTagCashflowDiscounted : optionals.get(tag)?.totalTagCashflowNonDiscounted) ?? defaultArray;
 }
 
 /*

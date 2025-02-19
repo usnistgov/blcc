@@ -4,14 +4,14 @@ import { ResultModel } from "model/ResultModel";
 
 export default function ResultAlternativeSelect() {
     return (
-        <>
+        <div className="w-1/5">
             <Title level={5}>Annual Results for Alternative</Title>
             <Select
-                className={"w-1/4"}
+                className={"w-4/5"}
                 onChange={ResultModel.selectAlternative}
                 options={ResultModel.useOptions()}
                 value={ResultModel.useSelection()}
             />
-        </>
+        </div>
     );
 }

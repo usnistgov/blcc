@@ -82,7 +82,7 @@ export const downloadPdf = Effect.gen(function* () {
 
     const annual: Annual = {
         alternativeNpvCashflows: project.alternatives.map((id) =>
-            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id),
+            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true),
         ),
         npvCashflowComparison: createNpvCashflowComparisonRow(required),
     };
@@ -230,7 +230,7 @@ export const downloadCsv = Effect.gen(function* () {
 
     const annual: Annual = {
         alternativeNpvCashflows: project.alternatives.map((id) =>
-            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id),
+            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true),
         ),
         npvCashflowComparison: createNpvCashflowComparisonRow(required),
     };

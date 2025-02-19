@@ -16,7 +16,7 @@
     "dependencies": {
         "@effect/opentelemetry": "^0.43.0",
         "@effect/platform-browser": "^0.51.2",
-        "@lrd/e3-sdk": "^1.0.13",
+        "@lrd/e3-sdk": "^1.0.14",
         "@mdi/js": "^7.4.47",
         "@mdi/react": "^1.6.1",
         "@opentelemetry/exporter-trace-otlp-http": "^0.57.1",
