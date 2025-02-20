@@ -1,14 +1,14 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import "nist-header-footer.sass";
-import { mdiArrowRight, mdiArrowRightBold, mdiArrowRightBoldBoxOutline, mdiArrowRightBoldOutline, mdiArrowRightThick, mdiChevronDoubleRight, mdiChevronTripleRight, mdiMenuRight, mdiMenuRightOutline } from "@mdi/js";
+import { mdiChevronDoubleRight, mdiGithub, mdiOpenInNew } from "@mdi/js";
 import NistHeaderFooter from "components/NistHeaderFooter";
-import { Button } from "components/input/Button";
+import { Button, ButtonType } from "components/input/Button";
 import Logo from "images/logo.svg?react";
 import { useNavigate } from "react-router-dom";
 import Title from "antd/es/typography/Title";
 import FeaturesCard from "components/FeaturesCard";
-import analysisUrl from 'images/analysis.svg';
+import analysisUrl from "images/analysis.svg";
 import clickUrl from "images/click.svg";
 import lockUrl from "images/lock.svg";
 import bookUrl from "images/book.svg";
@@ -19,9 +19,8 @@ import bookUrl from "images/book.svg";
  */
 export default function Index() {
     const navigate = useNavigate();
-
     return (
-        <div className={"flex w-full justify-center overflow-y-auto bg-base-darker xl:py-10"}>
+        <div className={"flex w-full justify-center bg-base-darker xl:py-10"}>
             <div
                 className={
                     "flex h-fit min-h-full flex-grow flex-col bg-white " +
@@ -29,46 +28,71 @@ export default function Index() {
                 }
             >
                 <NistHeaderFooter>
-                    <div className={"mt-20 flex flex-col items-center"}>
-                        <div className="flex flex-row items-center mb-10">
+                    <div className="sticky top-0 py-4 px-10 bg-white text-black z-50 shadow-md">
+                        <Button
+                            type={ButtonType.LINK}
+                            icon={mdiOpenInNew}
+                            className="py-2"
+                            onClick={() => {
+                                window.location.href = "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5185-3.pdf";
+                            }}
+                        >
+                            Technical Manual
+                        </Button>
+                        <Button
+                            type={ButtonType.LINK}
+                            icon={mdiGithub}
+                            className="py-2"
+                            onClick={() => {
+                                window.location.href = "https://github.com/usnistgov/blcc";
+                            }}
+                        >
+                            Github
+                        </Button>
+                        <Button
+                            icon={mdiChevronDoubleRight}
+                            iconSide={"right"}
+                            onClick={() => navigate("editor")}
+                            iconSize={1.25}
+                            className="float-right"
+                        >
+                            <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
+                        </Button>
+                    </div>
+                    <div className={"mt-16 flex flex-col items-center"}>
+                        <div className="mb-16">
                             <Logo className={"h-52 w-full mx-8"} />
-                            <Button
-                                className={"my-16"}
-                                icon={mdiChevronDoubleRight}
-                                iconSide={"right"}
-                                onClick={() => navigate("editor")}
-                                iconSize={1.5}
-                            >
-                                <div className={"px-2 py-1 text-xl"}>Open BLCC</div>
-                            </Button>
                         </div>
                         <div className="bg-blue-200 flex-col flex flex-wrap items-center w-full px-16 py-8">
                             <Title className="flex-grow">Features</Title>
                             <div className="flex-row flex flex-wrap justify-center w-full">
-
-                                <FeaturesCard 
-                                    image={analysisUrl} 
-                                    headerText="New Capabilities" 
+                                <FeaturesCard
+                                    image={analysisUrl}
+                                    headerText="New Capabilities"
                                     line1="Everything BLCC 5.3 can do and more"
                                     line2="In-tool results analysis"
-                                    alt="Microscope"/>
-                                <FeaturesCard 
+                                    alt="Microscope"
+                                />
+                                <FeaturesCard
                                     image={clickUrl}
-                                    headerText="Better User Experience" 
+                                    headerText="Better User Experience"
                                     line1="Easier to use interface"
                                     line2="Better reporting documents"
-                                    alt="mouse button clicking"/>
-                                <FeaturesCard 
+                                    alt="Mouse button clicking"
+                                />
+                                <FeaturesCard
                                     image={lockUrl}
-                                    headerText="Security" 
+                                    headerText="Security"
                                     line1="No software installation"
-                                    line2="No data saved or stored in cloud Uses AWS (FedRAMP certified)"
-                                    alt="a lock"/>
-                                <FeaturesCard 
+                                    line2="No data saved or stored in cloud, uses AWS (FedRAMP certified)"
+                                    alt="A lock"
+                                />
+                                <FeaturesCard
                                     image={bookUrl}
-                                    headerText="User Resources" 
+                                    headerText="User Resources"
                                     line1="Includes Handbook 135, Annual Supplement to Handbook 135, EERC, BLCC User Guide, BLCC FAQ, Training"
-                                    alt="a book"/>
+                                    alt="A book"
+                                />
                             </div>
                         </div>
                         <div className={"flex w-full flex-col items-center bg-primary-light py-8"}>
