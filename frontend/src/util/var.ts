@@ -45,6 +45,7 @@ export class Var<A, B> {
     optic: O.Lens<A, any, B> | O.Prism<A, any, B>;
     use: () => B;
     $: Observable<B>;
+    change$: Subject<B>;
     schema?: ZodType;
     useValidation: () => ZodError | undefined;
     validation$: Observable<ZodError | undefined>;
@@ -71,6 +72,7 @@ export class Var<A, B> {
             ),
         );
 
+        this.change$ = new Subject();
         this.model = model;
         this.optic = optic;
         // @ts-ignore
@@ -96,6 +98,7 @@ export class Var<A, B> {
 
     set(value: B) {
         this.model.modify((a) => O.set(this.optic)(value)(a));
+        this.change$.next(value);
     }
 
     modify(mapper: (b: B) => B) {

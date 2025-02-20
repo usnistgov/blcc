@@ -1,51 +1,26 @@
 import { bind } from "@react-rxjs/core";
 import { Defaults } from "blcc-format/Defaults";
-import {
-    AnalysisType,
-    DiscountingMethod,
-    DollarMethod,
-    EmissionsRateType,
-    GhgDataSource,
-    type Project,
-    Purpose,
-} from "blcc-format/Format";
+import { DollarMethod, EmissionsRateType, GhgDataSource, type Project } from "blcc-format/Format";
+import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
 import type { Country, State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
-import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, switchMap } from "rxjs";
-import { ajax } from "rxjs/internal/ajax/ajax";
-import { filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
+import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, sample, switchMap } from "rxjs";
+import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
-import { match } from "ts-pattern";
 import { guard } from "util/Operators";
-import {
-    calculateNominalDiscountRate,
-    calculateRealDiscountRate,
-    closest,
-    findBaselineID,
-    getResponse,
-} from "util/Util";
+import { calculateNominalDiscountRate, calculateRealDiscountRate, findBaselineID } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { DexieModel, Var } from "util/var";
 import z from "zod";
-
-type DiscountRateResponse = {
-    release_year: number;
-    rate: string;
-    year: number;
-    real: number;
-    nominal: number;
-    inflation: number;
-};
 
 export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
 
 export const sProject$ = new Subject<Project>();
 export const sProjectCollection$ = new Subject<Collection<Project>>();
-export const [useProject] = bind(sProject$);
 
 const test = sProjectCollection$.pipe(shareReplay(1));
 test.subscribe((x) => console.log("collection", x));
@@ -63,7 +38,7 @@ export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
 export const alternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(distinctUntilChanged());
-export const [useAlternatives, alt$] = bind(alternatives$, []);
+export const [useAlternatives] = bind(alternatives$, []);
 
 export const baselineID$ = alternatives$.pipe(
     map((alternatives) => findBaselineID(alternatives)),
@@ -72,8 +47,6 @@ export const baselineID$ = alternatives$.pipe(
 
 export const costIDs$ = sProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
-
-export const costs$ = costIDs$.pipe(switchMap((ids) => liveQuery(() => db.costs.where("id").anyOf(ids).toArray())));
 
 export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(Defaults.PROJECT_ID).first()));
 
@@ -188,47 +161,6 @@ export namespace Model {
      */
     export const releaseYear = new Var(DexieModelTest, O.optic<Project>().prop("releaseYear"));
 
-    type DiscountRateResponse = {
-        release_year: number;
-        rate: string;
-        year: number;
-        real: number;
-        nominal: number;
-        inflation: number;
-    };
-    export const ombDiscountRates$ = releaseYear.$.pipe(
-        switchMap((releaseYear) =>
-            ajax<DiscountRateResponse[]>({
-                url: "/api/discount_rates",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    release_year: releaseYear,
-                    rate: "OMB",
-                },
-            }),
-        ),
-        map(getResponse),
-    );
-    export const doeDiscountRates$ = releaseYear.$.pipe(
-        switchMap((releaseYear) =>
-            ajax<DiscountRateResponse[]>({
-                url: "/api/discount_rates",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: {
-                    release_year: releaseYear,
-                    rate: "DOE",
-                },
-            }),
-        ),
-        map(getResponse),
-    );
-
     /**
      * The study period of the current project.
      */
@@ -249,28 +181,6 @@ export namespace Model {
      */
     export const analysisType = new Var(DexieModelTest, O.optic<Project>().prop("analysisType"));
 
-    /*
-    export const sAnalysisType$ = new Subject<AnalysisType | undefined>();
-    export const [useAnalysisType, analysisType$] = bind(sAnalysisType$);
-
-    initializers.push((project: Project) => sAnalysisType$.next(project.analysisType));
-    subscriptions.push(() =>
-        combineLatest([analysisType$.pipe(guard()), ombDiscountRates$, doeDiscountRates$, purpose$.pipe(guard())])
-            .pipe(
-                sample(merge(sAnalysisType$, sPurpose$)),
-                withLatestFrom(projectCollection$, studyPeriod$.pipe(guard())),
-            )
-            .subscribe((params) => setAnalysisType(params)),
-    );*/
-
-    /*export const analysisType$ = state(
-        merge(sAnalysisType$, dbProject$.pipe(map((p) => p.analysisType))).pipe(distinctUntilChanged(), guard()),
-        undefined,
-    );
-    combineLatest([analysisType$.pipe(guard()), ombDiscountRates$, doeDiscountRates$, purpose$.pipe(guard())])
-        .pipe(sample(merge(sAnalysisType$, sPurpose$)), withLatestFrom(projectCollection$, studyPeriod$.pipe(guard())))
-        .subscribe((params) => setAnalysisType(params));
-*/
     /**
      * The case of the project. Usually Reference or LowZTC
      */
@@ -410,99 +320,8 @@ export namespace Model {
         )
         .subscribe((rates) => projectEscalationRates.set(rates));
 
-    /**
-     * Sets variables associated with changing the analysis type.
-     */
-    function setAnalysisType([[analysisType, ombDiscountRates, doeDiscountRates, purpose], collection, studyPeriod]: [
-        [AnalysisType, DiscountRateResponse[], DiscountRateResponse[], Purpose],
-        Collection<Project>,
-        number | undefined,
-    ]) {
-        console.log(doeDiscountRates);
-
-        match(analysisType)
-            .with(AnalysisType.FEDERAL_FINANCED, (analysisType) => {
-                collection.modify({
-                    analysisType,
-                    purpose: undefined,
-                    dollarMethod: DollarMethod.CURRENT,
-                    discountingMethod: DiscountingMethod.END_OF_YEAR,
-                    // real discount rate will automatically be set
-                    nominalDiscountRate: 0.032, // 3.2%
-                    inflationRate: doeDiscountRates[0].inflation,
-                } as Project);
-            })
-            .with(AnalysisType.FEMP_ENERGY, (analysisType) => {
-                collection.modify({
-                    analysisType,
-                    purpose: undefined,
-                    dollarMethod: DollarMethod.CONSTANT,
-                    discountingMethod: DiscountingMethod.END_OF_YEAR,
-                    realDiscountRate: 0.03, // 3%
-                    // nominal discount rate will automatically be set
-                    inflationRate: doeDiscountRates[0].inflation,
-                } as Project);
-            })
-            .with(AnalysisType.OMB_NON_ENERGY, (analysisType) => {
-                const rate = closest(ombDiscountRates, (rate) => rate.year, studyPeriod ?? 3);
-                const realDiscountRate = purpose === Purpose.INVEST_REGULATION ? 0.07 : rate.real;
-
-                if (purpose === Purpose.INVEST_REGULATION)
-                    collection.modify({
-                        analysisType,
-                        purpose,
-                        dollarMethod: DollarMethod.CONSTANT,
-                        discountingMethod: DiscountingMethod.END_OF_YEAR,
-                        realDiscountRate,
-                        //nominal discount rate will automatically be set
-                        inflationRate: rate.inflation,
-                    } as Project);
-                else
-                    collection.modify({
-                        analysisType,
-                        purpose: Purpose.COST_LEASE,
-                        dollarMethod: DollarMethod.CONSTANT,
-                        discountingMethod: DiscountingMethod.END_OF_YEAR,
-                        realDiscountRate: rate.real,
-                        // nominal discount rate will automatically be set
-                        inflationRate: rate.inflation,
-                    } as Project);
-            })
-            .with(AnalysisType.MILCON_ENERGY, (analysisType) => {
-                collection.modify({
-                    analysisType,
-                    purpose: undefined,
-                    dollarMethod: DollarMethod.CONSTANT,
-                    discountingMethod: DiscountingMethod.MID_YEAR,
-                    realDiscountRate: 0.03, // 3%
-                    // nominal discount rate will be automatically set
-                    inflationRate: doeDiscountRates[0].inflation,
-                } as Project);
-            })
-            .with(AnalysisType.MILCON_NON_ENERGY, (analysisType) => {
-                const rate = closest(ombDiscountRates, (rate) => rate.year, studyPeriod ?? 3);
-
-                collection.modify({
-                    analysisType,
-                    purpose: undefined,
-                    dollarMethod: DollarMethod.CONSTANT,
-                    discountingMethod: DiscountingMethod.MID_YEAR,
-                    realDiscountRate: rate.real,
-                    //nominal discount rate will automatically be set
-                    inflationRate: rate.inflation,
-                } as Project);
-            })
-            .with(AnalysisType.MILCON_ECIP, (analysisType) => {
-                collection.modify({
-                    analysisType,
-                    purpose: undefined,
-                    dollarMethod: DollarMethod.CONSTANT,
-                    discountingMethod: DiscountingMethod.MID_YEAR,
-                    realDiscountRate: 0.03, // 3%
-                    //nominal discount rate will automatically be set
-                    inflationRate: doeDiscountRates[0].inflation,
-                } as Project);
-            })
-            .exhaustive();
-    }
+    export const updateAnalysisType$ = combineLatest([analysisType.$.pipe(guard()), releaseYear.$, purpose.$]).pipe(
+        sample(merge(analysisType.change$, releaseYear.change$, purpose.change$)),
+        showUpdateGeneralOptionsModal(),
+    );
 }
