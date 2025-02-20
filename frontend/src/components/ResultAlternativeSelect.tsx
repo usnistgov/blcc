@@ -9,7 +9,7 @@ export default function ResultAlternativeSelect() {
             <Select
                 className={"w-4/5"}
                 onChange={ResultModel.selectAlternative}
-                options={ResultModel.useOptions()}
+                options={ResultModel.useAlternativeOptions()}
                 value={ResultModel.useSelection()}
             />
         </div>

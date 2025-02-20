@@ -1,4 +1,5 @@
 import Header from "components/Header";
+import HeaderWithSelect from "components/HeaderWithSelect";
 import ResultAlternativeSelect from "components/ResultAlternativeSelect";
 import { ResultsSwitch } from "components/ResultsSwitch";
 import AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
@@ -6,6 +7,7 @@ import NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph"
 import TagObjectByYearGraph from "components/graphs/annual-results/TagObjectByYearGraph";
 import AnnualCostTypeCashFlowGrid from "components/grids/annual-results/AnnualCostTypeCashFlowGrid";
 import NpvCashFlowComparison from "components/grids/annual-results/NpvCashFlowComparison";
+import { ResultModel } from "model/ResultModel";
 
 export default function AnnualResults() {
     return (
@@ -22,7 +24,7 @@ export default function AnnualResults() {
             </div>
             <div className="flex flex-row gap-4">
                 <ResultAlternativeSelect />
-                <ResultsSwitch/>
+                <ResultsSwitch />
             </div>
             <div>
                 <Header>Cash Flow by Cost Type</Header>
@@ -34,7 +36,13 @@ export default function AnnualResults() {
                     <AlternativeCashFlowGraph />
                 </div>
                 <div>
-                    <Header>Tag/Object by Year</Header>
+                    <HeaderWithSelect
+                        onChange={ResultModel.setCategorySelection}
+                        options={ResultModel.useCategoryOptions}
+                        value={ResultModel.useCategorySelection}
+                    >
+                        Tag/Object by Year
+                    </HeaderWithSelect>
                     <TagObjectByYearGraph />
                 </div>
             </div>
