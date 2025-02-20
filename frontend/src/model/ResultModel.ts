@@ -116,8 +116,8 @@ export namespace ResultModel {
         "Implementation Contract Cost",
         "Replacement Capital",
         "Residual Value",
-        "Other"
-    ]
+        "Other",
+    ];
 
     /* Map optional tags to display friendly names */
     export const categoryToDisplayName = new Map<string, string>([
@@ -132,7 +132,7 @@ export namespace ResultModel {
         ["Implementation Contract Cost", "Implementation Contract"],
         ["Replacement Capital", "Replacement Capital"],
         ["Residual Value", "Residual Value"],
-        ["Other", "Other"]
+        ["Other", "Other"],
     ]);
 
     function arrayIsZero(arr: number[]) {
@@ -140,18 +140,23 @@ export namespace ResultModel {
     }
 
     export const categoryOptions$ = optionals$.pipe(
-        withLatestFrom(selection$),     // need to know which alternative is selected
-        map(([optionals, selection]) => 
-            optionals.filter((optional) => optional.altId === selection && !arrayIsZero(optional.totalTagCashflowDiscounted))   // filter to use data for current alternative and exclude data of only zeroes
-            .map(optional => optional.tag)),                                                                                    // only need tag name
-        map((tags) => categories.filter((category) => tags.includes(category))),                                                // only use category for current alternative and populated optionals
-        map((categories) => categories.map((category) => ({ value: category, label: (categoryToDisplayName.get(category) ?? "")}))) // format for consumption by dropdown
+        withLatestFrom(selection$), // need to know which alternative is selected
+        map(([optionals, selection]) =>
+            optionals
+                .filter((optional) => optional.altId === selection && !arrayIsZero(optional.totalTagCashflowDiscounted)) // filter to use data for current alternative and exclude data of only zeroes
+                .map((optional) => optional.tag),
+        ), // only need tag name
+        map((tags) => categories.filter((category) => tags.includes(category))), // only use category for current alternative and populated optionals
+        map((categories) =>
+            categories.map((category) => ({ value: category, label: categoryToDisplayName.get(category) ?? "" })),
+        ), // format for consumption by dropdown
     );
     export const [useCategoryOptions] = bind(categoryOptions$, []);
 
     // Currently selected cost type by Tag/Object by Year
     export const [categorySelectionSignal, setCategorySelection] = createSignal<string>();
     // Should start by default selection of the first cost type for the alternative and populated cost types
-    export const [useCategorySelection, categorySelection$] = bind(merge(categorySelectionSignal, categoryOptions$.pipe(map((categories) => categories[0].value))));
-
+    export const [useCategorySelection, categorySelection$] = bind(
+        merge(categorySelectionSignal, categoryOptions$.pipe(map((categories) => categories[0].value))),
+    );
 }

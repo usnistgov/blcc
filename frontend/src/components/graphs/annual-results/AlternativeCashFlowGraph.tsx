@@ -10,29 +10,33 @@ import { debounceTime, startWith } from "rxjs/operators";
 import { dollarFormatter } from "util/Util";
 
 /*  Type representing format of data columns: an array of arrays with a string identifier as the first item followed by numbers */
-type AlternativeNpvCashFlowGraphColumns = ([(string | number)[], (string | number)[]] | [(string | number)[]] | []);
+type AlternativeNpvCashFlowGraphColumns = [(string | number)[], (string | number)[]] | [(string | number)[]] | [];
 
 const GRAPH_ID = "alternative-npv-cash-flow-chart";
 
 const [chart$, setChart] = createSignal<Chart>();
 const loadData$ = combineLatest([
-    ResultModel.selection$, 
-    chart$, 
-    ResultModel.required$, 
-    ResultModel.optionalsByTag$, 
-    ResultModel.discountedCashFlow$.pipe(startWith(true))
-]).pipe(
-    debounceTime(1),
-);
+    ResultModel.selection$,
+    chart$,
+    ResultModel.required$,
+    ResultModel.optionalsByTag$,
+    ResultModel.discountedCashFlow$.pipe(startWith(true)),
+]).pipe(debounceTime(1));
 
 function getColumn(altId: number, optionals: Map<string, Optional>, category: string, discountedCashFlow: boolean) {
     const key = `${altId} ${category}`;
     const tag = ResultModel.categoryToDisplayName.get(category) ?? "";
-    const results = discountedCashFlow ? optionals.get(key)?.totalTagCashflowDiscounted : optionals.get(key)?.totalTagCashflowNonDiscounted;
-    return [tag, ...(results ?? [])]
+    const results = discountedCashFlow
+        ? optionals.get(key)?.totalTagCashflowDiscounted
+        : optionals.get(key)?.totalTagCashflowNonDiscounted;
+    return [tag, ...(results ?? [])];
 }
 
-function getColumns(altId: number, optionals: Map<string, Optional>, discountedCashFlow: boolean): AlternativeNpvCashFlowGraphColumns {
+function getColumns(
+    altId: number,
+    optionals: Map<string, Optional>,
+    discountedCashFlow: boolean,
+): AlternativeNpvCashFlowGraphColumns {
     let columns: AlternativeNpvCashFlowGraphColumns = [];
     for (const category of ResultModel.categories) {
         columns = [getColumn(altId, optionals, category, discountedCashFlow), ...columns];
@@ -45,7 +49,7 @@ export default function AlternativeCashFlowGraph() {
         const required = allRequired.find((req) => req.altId === selection);
 
         if (required === undefined) return [];
-    
+
         // Grab data columns
         const columns = getColumns(required.altId, optionals, discountedCashFlow);
 

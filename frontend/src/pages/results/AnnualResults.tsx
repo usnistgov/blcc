@@ -24,7 +24,7 @@ export default function AnnualResults() {
             </div>
             <div className="flex flex-row gap-4">
                 <ResultAlternativeSelect />
-                <ResultsSwitch/>
+                <ResultsSwitch />
             </div>
             <div>
                 <Header>Cash Flow by Cost Type</Header>
@@ -39,7 +39,8 @@ export default function AnnualResults() {
                     <HeaderWithSelect
                         onChange={ResultModel.setCategorySelection}
                         options={ResultModel.useCategoryOptions}
-                        value={ResultModel.useCategorySelection}>
+                        value={ResultModel.useCategorySelection}
+                    >
                         Tag/Object by Year
                     </HeaderWithSelect>
                     <TagObjectByYearGraph />
