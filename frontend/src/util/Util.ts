@@ -1,9 +1,8 @@
 import type { Measures, Optional } from "@lrd/e3-sdk";
 import { type DefaultedStateObservable, state } from "@react-rxjs/core";
-import { type Alternative, type Cost, CostTypes, CubicUnit, FuelType, type ID, LiquidUnit, WaterUnit } from "blcc-format/Format";
+import { type Alternative, type Cost, CostTypes, FuelType, type ID } from "blcc-format/Format";
 import type { EscalationRateResponse } from "blcc-format/schema";
 import Decimal from "decimal.js";
-import { identity } from "effect";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
 import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
 import { ajax } from "rxjs/internal/ajax/ajax";
@@ -135,7 +134,7 @@ export function calculateRealDiscountRate(nominal: number, inflation: number): n
     return (1 + nominal) / (1 + inflation) - 1;
 }
 
-export function closest<T>(array: T[], extractor: (t: T) => number, value: number): T {
+export function closest<T>(array: readonly T[], extractor: (t: T) => number, value: number): T {
     return array.reduce((current, next) => {
         const nextValue = extractor(next);
         const currentValue = extractor(current);

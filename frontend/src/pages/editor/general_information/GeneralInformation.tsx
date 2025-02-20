@@ -1,4 +1,4 @@
-import { Switch as AntSwitch, Divider } from "antd";
+import { Divider, Radio } from "antd";
 import Title from "antd/es/typography/Title";
 import { AnalysisType, DiscountingMethod, DollarMethod, Purpose } from "blcc-format/Format";
 import Info from "components/Info";
@@ -7,8 +7,10 @@ import { TestInput } from "components/input/TestInput";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { TestSelect } from "components/input/TestSelect";
 import { TestTextArea } from "components/input/TestTextArea";
+import UpdateGeneralOptionsModal from "components/modal/UpdateGeneralOptionsModal";
 import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
+import { useSubscribe } from "hooks/UseSubscribe";
 import { Model } from "model/Model";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
 import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
@@ -38,6 +40,8 @@ function AnalysisPurpose() {
 }
 
 export default function GeneralInformation() {
+    useSubscribe(Model.updateAnalysisType$);
+
     return (
         <motion.div
             className={"h-full w-full overflow-y-auto"}
@@ -46,6 +50,8 @@ export default function GeneralInformation() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.08 }}
         >
+            <UpdateGeneralOptionsModal />
+
             <div className={"mb-16 max-w-screen-lg p-6"}>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                     {/* Project Name */}
@@ -161,16 +167,14 @@ export default function GeneralInformation() {
                                     Dollar Analysis
                                 </Info>
                             </Title>
-                            <AntSwitch
-                                className={"bg-primary hover:bg-primary"}
-                                checked={Model.dollarMethod.use() === DollarMethod.CONSTANT}
-                                checkedChildren={"Constant"}
-                                unCheckedChildren={"Current"}
-                                defaultChecked
-                                onChange={(checked) =>
-                                    Model.dollarMethod.set(checked ? DollarMethod.CONSTANT : DollarMethod.CURRENT)
-                                }
-                            />
+                            <Radio.Group
+                                onChange={(e) => Model.dollarMethod.set(e.target.value)}
+                                value={Model.dollarMethod.use()}
+                                buttonStyle="solid"
+                            >
+                                <Radio.Button value={DollarMethod.CONSTANT}>{DollarMethod.CONSTANT}</Radio.Button>
+                                <Radio.Button value={DollarMethod.CURRENT}>{DollarMethod.CURRENT}</Radio.Button>
+                            </Radio.Group>
                         </div>
                         <TestSelect
                             label={"Discounting Convention"}
