@@ -10,7 +10,6 @@ import {
     type RecurringContractCost,
     type ReplacementCapitalCost,
     type USLocation,
-    type WaterCost,
 } from "blcc-format/Format";
 import { Country } from "constants/LOCATION";
 
@@ -91,16 +90,25 @@ export function isReplacementCapitalCost(cost: Cost): cost is ReplacementCapital
     return cost.type === CostTypes.REPLACEMENT_CAPITAL;
 }
 
-export type EscalationCost = EnergyCost | WaterCost;
+// Returns true if the given cost is a water cost.
+export function isWaterCost(cost: Cost) {
+    return cost !== undefined && cost.type === CostTypes.WATER;
+}
 
-/**
- * Checks if the given cost is an escalation cost.
- *
- * The given cost is considered an escalation cost if its type is either `ENERGY` or `WATER`.
- *
- * @param cost - The cost to check.
- * @returns True if the cost is an escalation cost, false otherwise.
- */
-export function isEscalationCost(cost: Cost): cost is EscalationCost {
-    return cost.type === CostTypes.ENERGY || cost.type === CostTypes.WATER;
+// Returns true if the given cost is a capital cost or one of its subcategories.
+export function isCapitalCost(cost: Cost) {
+    const type = cost.type;
+    return type === CostTypes.CAPITAL || type === CostTypes.REPLACEMENT_CAPITAL || type === CostTypes.OMR;
+}
+
+// Returns true if the given cost is a contract cost or one of its subcategories.
+export function isContractCost(cost: Cost) {
+    const type = cost.type;
+    return type === CostTypes.IMPLEMENTATION_CONTRACT || type === CostTypes.RECURRING_CONTRACT;
+}
+
+// Returns true if the given cost is an 'other' cost or one of its subcategories.
+export function isOtherCost(cost: Cost) {
+    const type = cost.type;
+    return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }

@@ -103,6 +103,7 @@ namespace DefaultCosts {
     export const WATER: Props<WaterCost> = {
         type: CostTypes.WATER,
         unit: LiquidUnit.GALLON,
+        escalation: 0,
         usage: [
             {
                 season: Season.SUMMER,

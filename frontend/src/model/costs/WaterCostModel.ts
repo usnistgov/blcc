@@ -1,9 +1,10 @@
 import { bind } from "@react-rxjs/core";
 import { type Cost, Season, type SeasonUsage, type WaterUnit } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
+import { isWaterCost } from "model/Guards";
 import * as O from "optics-ts";
-import { map } from "rxjs/operators";
-import { isWaterCost } from "util/Util";
+import { map, tap } from "rxjs/operators";
+import { guard } from "util/Operators";
 import { Var } from "util/var";
 
 export namespace WaterCostModel {
@@ -22,13 +23,19 @@ export namespace WaterCostModel {
     export const usage = new Var(CostModel.cost, waterCostOptic.prop("usage"));
 
     export const [useUsageSeasonNum] = bind(
-        usage.$.pipe(map((usage) => (usage.length === 2 ? SeasonOption.DUAL : SeasonOption.QUAD))),
+        usage.$.pipe(
+            guard(),
+            map((usage) => (usage.length === 2 ? SeasonOption.DUAL : SeasonOption.QUAD)),
+        ),
     );
 
     export const disposal = new Var(CostModel.cost, waterCostOptic.prop("disposal"));
 
     export const [useDisposalSeasonNum] = bind(
-        disposal.$.pipe(map((disposal) => (disposal.length === 2 ? SeasonOption.DUAL : SeasonOption.QUAD))),
+        disposal.$.pipe(
+            guard(),
+            map((disposal) => (disposal.length === 2 ? SeasonOption.DUAL : SeasonOption.QUAD)),
+        ),
     );
 
     function newSeasons(seasons?: SeasonUsage[]): SeasonUsage[] {

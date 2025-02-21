@@ -12,6 +12,7 @@ import { liveQuery } from "dexie";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
 import { alternatives$ } from "model/Model";
 import { db } from "model/db";
 import { Fragment, useMemo } from "react";
@@ -19,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 import { confirm, countProperty } from "util/Operators";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
 
 const { Title } = Typography;
 
