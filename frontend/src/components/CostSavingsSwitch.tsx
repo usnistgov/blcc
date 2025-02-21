@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import { Switch } from "antd";
+import { Radio } from "antd";
 import Title from "antd/es/typography/Title";
 import { CostTypes } from "blcc-format/Format";
 import Info from "components/Info";
@@ -23,12 +23,15 @@ export function CostSavingsSwitch() {
             <Title level={5}>
                 <Info text={Strings.COST_OR_SAVINGS}>Cost or {savingsOrBenefits}</Info>
             </Title>
-            <Switch
-                checked={CostModel.costOrSavings.use()}
-                checkedChildren={savingsOrBenefits}
-                unCheckedChildren={"Cost"}
-                onChange={(toggle) => CostModel.costOrSavings.set(toggle)}
-            />
+
+            <Radio.Group
+                onChange={(e) => CostModel.costOrSavings.set(e.target.value)}
+                value={CostModel.costOrSavings.use() ?? false}
+                buttonStyle="solid"
+            >
+                <Radio.Button value={false}>Cost</Radio.Button>
+                <Radio.Button value={true}>Savings</Radio.Button>
+            </Radio.Group>
         </span>
     );
 }
