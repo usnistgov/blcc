@@ -2,7 +2,7 @@ import { mdiArrowLeft, mdiChevronRight, mdiContentCopy, mdiMinus, mdiPlus } from
 import Icon from "@mdi/react";
 import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
-import { CostTypes, type EnergyCost, type Cost as FormatCost, type ID } from "blcc-format/Format";
+import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
 import { CostSavingsSwitch } from "components/CostSavingsSwitch";
 import Info from "components/Info";
@@ -13,11 +13,14 @@ import { TestTextArea } from "components/input/TestTextArea";
 import { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
 import { Strings } from "constants/Strings";
+import { Match } from "effect";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
+import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import { CostModel } from "model/CostModel";
 import { alternatives$, currentProject$ } from "model/Model";
+import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import { db } from "model/db";
 import ImplementationContractCostFields from "pages/editor/cost/ImplementationContractCostFields";
 import InvestmentCapitalCostFields from "pages/editor/cost/InvestmentCapitalCostFields";
@@ -31,12 +34,9 @@ import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostField
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
-import { match } from "ts-pattern";
 import { cloneName } from "util/Util";
 import sToggleAlt$ = CostModel.sToggleAlt$;
 import cost = CostModel.cost;
-import useParamSync from "hooks/useParamSync";
-import { EnergyCostModel } from "model/costs/EnergyCostModel";
 
 const { Title } = Typography;
 
@@ -214,17 +214,18 @@ export default function Cost() {
                     </div>
                 </div>
                 <div className={"mb-32 border-base-lighter border-t"}>
-                    {match(costType)
-                        .with(CostTypes.ENERGY, () => <EnergyCostFields />)
-                        .with(CostTypes.WATER, () => <WaterCostFields />)
-                        .with(CostTypes.CAPITAL, () => <InvestmentCapitalCostFields />)
-                        .with(CostTypes.REPLACEMENT_CAPITAL, () => <ReplacementCapitalCostFields />)
-                        .with(CostTypes.OMR, () => <OMRCostFields />)
-                        .with(CostTypes.IMPLEMENTATION_CONTRACT, () => <ImplementationContractCostFields />)
-                        .with(CostTypes.RECURRING_CONTRACT, () => <RecurringContractCostFields />)
-                        .with(CostTypes.OTHER, () => <OtherCostFields />)
-                        .with(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />)
-                        .exhaustive()}
+                    {Match.value(costType).pipe(
+                        Match.when(CostTypes.ENERGY, () => <EnergyCostFields />),
+                        Match.when(CostTypes.WATER, () => <WaterCostFields />),
+                        Match.when(CostTypes.CAPITAL, () => <InvestmentCapitalCostFields />),
+                        Match.when(CostTypes.REPLACEMENT_CAPITAL, () => <ReplacementCapitalCostFields />),
+                        Match.when(CostTypes.OMR, () => <OMRCostFields />),
+                        Match.when(CostTypes.IMPLEMENTATION_CONTRACT, () => <ImplementationContractCostFields />),
+                        Match.when(CostTypes.RECURRING_CONTRACT, () => <RecurringContractCostFields />),
+                        Match.when(CostTypes.OTHER, () => <OtherCostFields />),
+                        Match.when(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />),
+                        Match.exhaustive,
+                    )}
                 </div>
             </div>
         </motion.div>

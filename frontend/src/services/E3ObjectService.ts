@@ -33,10 +33,9 @@ import {
     type USLocation,
     type WaterCost,
 } from "blcc-format/Format";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
-import { match } from "ts-pattern";
 import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
@@ -128,17 +127,20 @@ function costToBuilders(
     studyPeriod: number,
     emissions: readonly number[] | undefined,
 ): BcnBuilder[] {
-    return match(cost)
-        .with({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod))
-        .with({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions))
-        .with({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost))
-        .with({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) => replacementCapitalCostToBuilder(cost, studyPeriod))
-        .with({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(cost))
-        .with({ type: CostTypes.IMPLEMENTATION_CONTRACT }, (cost) => implementationContractCostToBuilder(cost))
-        .with({ type: CostTypes.RECURRING_CONTRACT }, (cost) => recurringContractCostToBuilder(cost))
-        .with({ type: CostTypes.OTHER }, (cost) => otherCostToBuilder(cost))
-        .with({ type: CostTypes.OTHER_NON_MONETARY }, (cost) => otherNonMonetaryCostToBuilder(cost))
-        .exhaustive();
+    return Match.type<Cost>().pipe(
+        Match.when({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod)),
+        Match.when({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions)),
+        Match.when({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost)),
+        Match.when({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) =>
+            replacementCapitalCostToBuilder(cost, studyPeriod),
+        ),
+        Match.when({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(cost)),
+        Match.when({ type: CostTypes.IMPLEMENTATION_CONTRACT }, (cost) => implementationContractCostToBuilder(cost)),
+        Match.when({ type: CostTypes.RECURRING_CONTRACT }, (cost) => recurringContractCostToBuilder(cost)),
+        Match.when({ type: CostTypes.OTHER }, (cost) => otherCostToBuilder(cost)),
+        Match.when({ type: CostTypes.OTHER_NON_MONETARY }, (cost) => otherNonMonetaryCostToBuilder(cost)),
+        Match.exhaustive,
+    )(cost);
 }
 
 function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilder[] {
@@ -209,14 +211,15 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
         const escalation = project.projectEscalationRates
             .filter((rate) => rate.sector === cost.customerSector)
             .map((rate) =>
-                match(cost.fuelType)
-                    .with(FuelType.ELECTRICITY, () => rate.electricity)
-                    .with(FuelType.PROPANE, () => rate.propane)
-                    .with(FuelType.NATURAL_GAS, () => rate.naturalGas)
-                    .with(FuelType.COAL, () => rate.coal)
-                    .with(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil)
-                    .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
-                    .otherwise(() => 0),
+                Match.value(cost.fuelType).pipe(
+                    Match.when(FuelType.ELECTRICITY, () => rate.electricity),
+                    Match.when(FuelType.PROPANE, () => rate.propane),
+                    Match.when(FuelType.NATURAL_GAS, () => rate.naturalGas),
+                    Match.when(FuelType.COAL, () => rate.coal),
+                    Match.when(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil),
+                    Match.when(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil),
+                    Match.orElse(() => 0),
+                ),
             ) as number[];
 
         return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
