@@ -9,51 +9,65 @@ import AnnualResults from "pages/results/AnnualResults";
 import Inputs from "pages/results/Inputs";
 import Summary from "pages/results/Summary";
 import { Outlet, Route, Routes } from "react-router-dom";
+import { Alert } from "antd";
 
 /**
  * Top level page that displays the E3 results of the project.
  */
 export default function Results() {
+    const noResult = ResultModel.noResult();
+    const hasError = ResultModel.hasError();
+
     return (
         <>
             <ResultsAppBar />
 
             <div className={"flex h-full overflow-hidden"}>
                 <ResultNavigation />
-
-                {(ResultModel.noResult() && (
-                    // If there are no results, display a message telling the user to run the project.
-                    <div className={"flex w-full flex-col items-center gap-4 p-8 text-center text-base-dark"}>
-                        <p className={"text-2xl"}>No Results to Display</p>
-                        <div className={"flex flex-row"}>
-                            <Button
-                                type={ButtonType.PRIMARY_INVERTED}
-                                icon={mdiPlay}
-                                iconSide={"right"}
-                                onClick={() => ResultModel.Actions.run()}
-                            >
-                                Run
-                            </Button>
-                            <p className={"ml-2 text-lg"}>the project to obtain results.</p>
-                        </div>
+                {(hasError && (
+                    <div className="flex flex-col items-center w-full p-6">
+                        <Alert
+                            message="Error: E3 could not evaluate your request."
+                            description="Please check your inputs in the editor and try again."
+                            type="error"
+                            closable
+                            className="w-1/3"
+                        />
                     </div>
-                )) || (
-                    // If we do have results, display the corresponding route page.
-                    <Routes>
-                        <Route
-                            element={
-                                <Subscribe>
-                                    <Outlet />
-                                </Subscribe>
-                            }
-                        >
-                            <Route index element={<Summary />} />
-                            <Route path={"alternative"} element={<AlternativeResults />} />
-                            <Route path={"annual"} element={<AnnualResults />} />
-                            <Route path={"inputs"} element={<Inputs />} />
-                        </Route>
-                    </Routes>
-                )}
+                )) ||
+                    (noResult && (
+                        // If there are no results, display a message telling the user to run the project.
+                        <div className={"flex w-full flex-col items-center gap-4 p-8 text-center text-base-dark"}>
+                            <p className={"text-2xl"}>No Results to Display</p>
+                            <div className={"flex flex-row"}>
+                                <Button
+                                    type={ButtonType.PRIMARY_INVERTED}
+                                    icon={mdiPlay}
+                                    iconSide={"right"}
+                                    onClick={() => ResultModel.Actions.run()}
+                                >
+                                    Run
+                                </Button>
+                                <p className={"ml-2 text-lg"}>the project to obtain results.</p>
+                            </div>
+                        </div>
+                    )) || (
+                        // If we do have results, display the corresponding route page.
+                        <Routes>
+                            <Route
+                                element={
+                                    <Subscribe>
+                                        <Outlet />
+                                    </Subscribe>
+                                }
+                            >
+                                <Route index element={<Summary />} />
+                                <Route path={"alternative"} element={<AlternativeResults />} />
+                                <Route path={"annual"} element={<AnnualResults />} />
+                                <Route path={"inputs"} element={<Inputs />} />
+                            </Route>
+                        </Routes>
+                    )}
             </div>
         </>
     );

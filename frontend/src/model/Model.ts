@@ -70,6 +70,11 @@ export const baselineID$ = alternatives$.pipe(
     guard(),
 );
 
+export const hasBaseline$ = alternatives$.pipe(
+    map((alternatives$) => findBaselineID(alternatives$) === undefined)
+);
+export const [useHasBaseline] = bind(hasBaseline$, false);
+
 export const costIDs$ = sProject$.pipe(map((p) => p.costs));
 export const [useCostIDs] = bind(costIDs$, []);
 
