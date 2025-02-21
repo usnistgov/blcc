@@ -4,50 +4,19 @@ import Title from "antd/es/typography/Title";
 import { Button, ButtonType } from "components/input/Button";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { type EscalationRateInfo, EscalationRateModel } from "model/EscalationRateModel";
+import { EscalationRateModel } from "model/EscalationRateModel";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import type { ReactNode } from "react";
-import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
+import DataGrid from "react-data-grid";
 import { Link } from "react-router-dom";
 import { type Observable, combineLatest } from "rxjs";
-import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type EscalationRatesProps = {
     title: ReactNode;
     defaultRates$?: Observable<number[]>;
 };
 
-const COLUMNS = [
-    {
-        name: "Year",
-        key: "year",
-    },
-    {
-        name: "Escalation Rate (%)",
-        key: "rate",
-        renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo>) => {
-            return (
-                <input
-                    className={"w-full pl-4"}
-                    type={"number"}
-                    defaultValue={toPercentage(row.rate)}
-                    onChange={(event) =>
-                        onRowChange({
-                            ...row,
-                            [column.key]: toDecimal(event.currentTarget.value),
-                        })
-                    }
-                />
-            );
-        },
-        editable: true,
-        renderCell: (info: RenderCellProps<EscalationRateInfo>) => {
-            return percentFormatter.format(info.row.rate);
-        },
-    },
-];
-
-export default function EscalationRates({ title }: EscalationRatesProps) {
+export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
     const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
 
@@ -107,7 +76,7 @@ function EscalationRateGrid() {
             <DataGrid
                 className={"rdg-light h-full"}
                 rows={EscalationRateModel.gridValues()}
-                columns={COLUMNS}
+                columns={EscalationRateModel.COLUMNS}
                 onRowsChange={EscalationRateModel.Actions.setRates}
             />
         </div>

@@ -1,14 +1,14 @@
 import { bind, state } from "@react-rxjs/core";
 import type { Alternative, ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
 import { alternatives$, currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { BehaviorSubject, type Observable, Subject, distinctUntilChanged, iif, merge, of, switchMap } from "rxjs";
-import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
+import { map, shareReplay, withLatestFrom } from "rxjs/operators";
 import { P, match } from "ts-pattern";
 import { arrayFilter, confirm, defaultValue, guard } from "util/Operators";
-import { cloneName, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
-import { DexieModel } from "util/var";
+import { cloneName } from "util/Util";
 
 export namespace AlternativeModel {
     /**

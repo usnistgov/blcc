@@ -8,7 +8,7 @@ import { TestSelect } from "components/input/TestSelect";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
-import EscalationRates from "pages/editor/cost/energycostfields/EscalationRates";
+import EnergyEscalationRates from "pages/editor/cost/energycostfields/EnergyEscalationRates";
 import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 
 export default function EnergyCostFields() {
@@ -84,7 +84,7 @@ export default function EnergyCostFields() {
 
                 <EnergyCostLocation />
 
-                <EscalationRates title={<Info text={Strings.ESCALATION_RATES}>Escalation Rates</Info>} />
+                <EnergyEscalationRates title={<Info text={Strings.ESCALATION_RATES}>Escalation Rates</Info>} />
                 <UsageIndex title={"Usage Index"} />
             </div>
         </div>
