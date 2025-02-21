@@ -1,35 +1,32 @@
-import { state } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import type { SelectProps } from "antd";
 import {
+    type Cost,
     CostTypes,
     CubicUnit,
     EnergyUnit,
     LiquidUnit,
     type OtherCost,
     type OtherNonMonetary,
-    type Unit,
     WeightUnit,
 } from "blcc-format/Format";
 import type { OptionType } from "components/SelectOrCreate";
-import { type Collection, liveQuery } from "dexie";
+import { liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
+import { isOtherMonetary } from "model/Guards";
 import { db } from "model/db";
-import { type Observable, Subject, distinctUntilChanged, from, merge } from "rxjs";
-import { filter, map, withLatestFrom } from "rxjs/operators";
-import cost = CostModel.cost;
+import * as O from "optics-ts";
+import { type Observable, from } from "rxjs";
+import { map } from "rxjs/operators";
+import { Var } from "util/var";
 
 export namespace OtherCostModel {
-    /**
-     * The cost stream narrowed to an OtherCost
-     */
-    export const cost$ = cost.$.pipe(filter((cost): cost is OtherCost => cost.type === CostTypes.OTHER));
-
-    const collection$ = CostModel.collection$ as Observable<Collection<OtherCost>>;
+    const otherCostOptic = O.optic<Cost>().guard(isOtherMonetary);
 
     /**
      * Gets a list of all the tags for all Other and Other Non-monetary costs.
      */
-    export const allTags$ = state(
+    export const [useAllTags] = bind(
         from(
             liveQuery(() =>
                 // Get all Other and Other Non-monetary costs from the DB
@@ -52,21 +49,12 @@ export namespace OtherCostModel {
     /**
      * The tags for the current other cost
      */
-    export const sTags$ = new Subject<string[]>();
-    export const tags$ = state(merge(sTags$, cost$.pipe(map((cost) => cost.tags))).pipe(distinctUntilChanged()), []);
-    sTags$.pipe(withLatestFrom(collection$)).subscribe(([tags, collection]) => collection.modify({ tags }));
+    export const tags = new Var(CostModel.cost, otherCostOptic.prop("tags"));
 
     /**
      * The initial occurrence for the current other cost
      */
-    export const sInitialOccurrence$ = new Subject<number>();
-    export const initialOccurrence$ = state(
-        merge(sInitialOccurrence$, cost$.pipe(map((cost) => cost.initialOccurrence))).pipe(distinctUntilChanged()),
-        0,
-    );
-    sInitialOccurrence$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([initialOccurrence, collection]) => collection.modify({ initialOccurrence }));
+    export const initialOccurrence = new Var(CostModel.cost, otherCostOptic.prop("initialOccurrence"));
 
     const defaultUnits = [
         ...Object.values(EnergyUnit),
@@ -94,34 +82,29 @@ export namespace OtherCostModel {
     /**
      * The unit of the current cost
      */
-    export const sUnit$ = new Subject<string | Unit>();
-    export const unit$ = state(
-        merge(sUnit$, cost$.pipe(map((cost) => cost.unit))).pipe(distinctUntilChanged()),
-        undefined,
-    );
-    sUnit$.pipe(withLatestFrom(collection$)).subscribe(([unit, collection]) => collection.modify({ unit }));
+    export const unit = new Var(CostModel.cost, otherCostOptic.prop("unit"));
 
     /**
      *  The number of units in the current other cost
      */
-    export const sNumberOfUnits$ = new Subject<number>();
-    export const numberOfUnits$ = state(
-        merge(sNumberOfUnits$, cost$.pipe(map((cost) => cost.numberOfUnits))).pipe(distinctUntilChanged()),
-        0,
-    );
-    sNumberOfUnits$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([numberOfUnits, collection]) => collection.modify({ numberOfUnits }));
+    export const numberOfUnits = new Var(CostModel.cost, otherCostOptic.prop("numberOfUnits"));
 
     /**
      * The value of each unit
      */
-    export const sValuePerUnit$ = new Subject<number>();
-    export const valuePerUnit$ = state(
-        merge(sValuePerUnit$, cost$.pipe(map((cost) => cost.valuePerUnit))).pipe(distinctUntilChanged()),
-        0,
-    );
-    sValuePerUnit$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([valuePerUnit, collection]) => collection.modify({ valuePerUnit }));
+    export const valuePerUnit = new Var(CostModel.cost, otherCostOptic.prop("valuePerUnit"));
+
+    export namespace Actions {
+        export function setInitialOccurrence(value: number | null) {
+            if (value !== null) initialOccurrence.set(value);
+        }
+
+        export function setNumberOfUnits(value: number | null) {
+            if (value !== null) numberOfUnits.set(value);
+        }
+
+        export function setValuePerUnit(value: number | null) {
+            if (value !== null) valuePerUnit.set(value);
+        }
+    }
 }

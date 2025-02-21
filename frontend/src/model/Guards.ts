@@ -112,3 +112,11 @@ export function isOtherCost(cost: Cost) {
     const type = cost.type;
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
+
+export function isOtherMonetary(cost: Cost) {
+    return cost.type === CostTypes.OTHER;
+}
+
+export function isOtherNonMonetary(cost: Cost) {
+    return cost.type === CostTypes.OTHER_NON_MONETARY;
+}

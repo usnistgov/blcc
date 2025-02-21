@@ -8,7 +8,18 @@ import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
-import { NEVER, Subject, combineLatest, distinctUntilChanged, from, map, merge, sample, switchMap } from "rxjs";
+import {
+    BehaviorSubject,
+    NEVER,
+    Subject,
+    combineLatest,
+    distinctUntilChanged,
+    from,
+    map,
+    merge,
+    sample,
+    switchMap,
+} from "rxjs";
 import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { guard } from "util/Operators";
@@ -17,22 +28,19 @@ import { BlccRuntime } from "util/runtime";
 import { DexieModel, Var } from "util/var";
 import z from "zod";
 
-export const currentProject$ = NEVER.pipe(startWith(1), shareReplay(1));
+export const currentProject$ = NEVER.pipe(startWith(Defaults.PROJECT_ID), shareReplay(1));
 
 export const sProject$ = new Subject<Project>();
-export const sProjectCollection$ = new Subject<Collection<Project>>();
-
-const test = sProjectCollection$.pipe(shareReplay(1));
-test.subscribe((x) => console.log("collection", x));
+export const sProjectCollection$ = new BehaviorSubject<Collection<Project>>(
+    db.projects.where("id").equals(Defaults.PROJECT_ID),
+);
 
 const DexieModelTest = new DexieModel(sProject$);
 // Write changes back to database
-DexieModelTest.$.pipe(withLatestFrom(test)).subscribe(([next, collection]) => {
+DexieModelTest.$.pipe(withLatestFrom(sProjectCollection$)).subscribe(([next, collection]) => {
     console.log("modifying", next);
     collection.modify(next);
 });
-
-sProjectCollection$.next(db.projects.where("id").equals(1)); // FIXME this is bad
 
 export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
