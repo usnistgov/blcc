@@ -5,13 +5,13 @@ import Info from "components/Info";
 import { NumberInput } from "components/input/InputNumber";
 import Switch from "components/input/Switch";
 import { Strings } from "constants/Strings";
+import { Match } from "effect";
 import { Model } from "model/Model";
 import { UsageIndexModel } from "model/UsageIndexModel";
 import { useEffect, useMemo } from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { type Observable, Subject, combineLatest, map, merge } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
-import { P, match } from "ts-pattern";
 import { isFalse, isTrue } from "util/Operators";
 import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
@@ -68,14 +68,15 @@ export default function UsageIndex({ title }: UsageIndexProps) {
         const [useUsage] = bind(
             combineLatest([Model.releaseYear.$, UsageIndexModel.useIndex$]).pipe(
                 map(([releaseYear, useIndex]) =>
-                    match(useIndex)
-                        .with(P.array(), (usage) =>
+                    Match.type<number | number[] | undefined>().pipe(
+                        Match.whenOr(Match.number, Match.undefined, (constant) => constant),
+                        Match.orElse((usage) =>
                             usage.map((use, i) => ({
                                 year: releaseYear + i,
                                 usage: use,
                             })),
-                        )
-                        .otherwise((constant) => constant),
+                        ),
+                    )(useIndex),
                 ),
             ),
             [],
@@ -123,34 +124,27 @@ export default function UsageIndex({ title }: UsageIndexProps) {
                 <Info text={Strings.USAGE_INDEX}>{title}</Info>
             </Title>
             <span className={"flex flex-row items-center gap-2 pb-2"}>
-                <p className={"text-md pb-1"}>Constant</p>
+                <p className={"pb-1 text-md"}>Constant</p>
                 <Switch wire={sIsConstant$} value$={isConstant$} checkedChildren={"Yes"} unCheckedChildren={"No"} />
             </span>
 
-            {match(rates)
-                .with(P.array(), (rates) => (
-                    <div className={"w-full overflow-hidden rounded shadow-lg"}>
-                        <DataGrid
-                            className={"h-full rdg-light"}
-                            rows={rates}
-                            columns={COLUMNS}
-                            onRowsChange={newRates}
-                        />
-                    </div>
-                ))
-                .otherwise(() => (
-                    <div>
-                        <NumberInput
-                            className={"w-full"}
-                            label={"Constant Escalation Rate"}
-                            showLabel={false}
-                            value$={UsageIndexModel.useIndex$ as Observable<number>}
-                            percent
-                            wire={sConstantChange$}
-                            addonAfter={"%"}
-                        />
-                    </div>
-                ))}
+            {(Array.isArray(rates) && (
+                <div className={"w-full overflow-hidden rounded shadow-lg"}>
+                    <DataGrid className={"rdg-light h-full"} rows={rates} columns={COLUMNS} onRowsChange={newRates} />
+                </div>
+            )) || (
+                <div>
+                    <NumberInput
+                        className={"w-full"}
+                        label={"Constant Escalation Rate"}
+                        showLabel={false}
+                        value$={UsageIndexModel.useIndex$ as Observable<number>}
+                        percent
+                        wire={sConstantChange$}
+                        addonAfter={"%"}
+                    />
+                </div>
+            )}
         </div>
     );
 }

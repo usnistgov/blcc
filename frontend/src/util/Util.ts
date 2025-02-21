@@ -1,13 +1,12 @@
 import type { Measures, Optional } from "@lrd/e3-sdk";
-import { type DefaultedStateObservable, state } from "@react-rxjs/core";
-import { type Alternative, type Cost, CostTypes, FuelType, type ID } from "blcc-format/Format";
+import { type Alternative, FuelType, type ID } from "blcc-format/Format";
 import type { EscalationRateResponse } from "blcc-format/schema";
 import Decimal from "decimal.js";
-import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
+import { Match } from "effect";
+import type { Observable } from "rxjs";
 import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
 import { ajax } from "rxjs/internal/ajax/ajax";
 import { map } from "rxjs/operators";
-import { match } from "ts-pattern";
 
 export const dollarFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -172,12 +171,13 @@ export function groupOptionalByTag(optionals: Optional[]): Map<string, Optional>
 }
 
 export function fuelTypeToRate(rate: EscalationRateResponse, fuelType: FuelType) {
-    return match(fuelType)
-        .with(FuelType.ELECTRICITY, () => rate.electricity)
-        .with(FuelType.PROPANE, () => rate.propane)
-        .with(FuelType.NATURAL_GAS, () => rate.naturalGas)
-        .with(FuelType.COAL, () => rate.coal)
-        .with(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil)
-        .with(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil)
-        .otherwise(() => null);
+    return Match.value(fuelType).pipe(
+        Match.when(FuelType.ELECTRICITY, () => rate.electricity),
+        Match.when(FuelType.PROPANE, () => rate.propane),
+        Match.when(FuelType.NATURAL_GAS, () => rate.naturalGas),
+        Match.when(FuelType.COAL, () => rate.coal),
+        Match.when(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil),
+        Match.when(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil),
+        Match.orElse(() => null),
+    );
 }

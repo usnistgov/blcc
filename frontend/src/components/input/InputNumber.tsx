@@ -4,11 +4,11 @@ import { InputNumber } from "antd";
 import type { InputNumberProps } from "antd/es/input-number";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
+import { Match } from "effect";
 import { type Rule, validate } from "model/rules/Rules";
 import { type PropsWithChildren, type ReactNode, useEffect, useMemo } from "react";
 import { type Observable, type Subject, iif, map, merge, sample, switchMap } from "rxjs";
 import { combineLatestWith, startWith } from "rxjs/operators";
-import { P, match } from "ts-pattern";
 import { guard, isTrue } from "util/Operators";
 
 type NumberOrUndefined<T> = T extends true ? number | undefined : number;
@@ -86,9 +86,10 @@ export function NumberInput<T extends true | false = false>({
     const value = useValue();
 
     // Check whether we have error message
-    const error = match(hasErrors())
-        .with({ type: "invalid", messages: P.select() }, (messages) => messages)
-        .otherwise(() => undefined);
+    const error = Match.value(hasErrors()).pipe(
+        Match.when({ type: "invalid" }, (error) => error.messages),
+        Match.orElse(() => undefined),
+    );
 
     const input = (
         <InputNumber
@@ -101,9 +102,10 @@ export function NumberInput<T extends true | false = false>({
                 else change(value);
             }}
             // Display the value directly or get it out of the validation result
-            value={match(value)
-                .with(P.number, (value) => (percent ? Number.parseFloat((value * 100).toFixed(2)) : value))
-                .otherwise(() => undefined)}
+            value={Match.type<number | unknown>().pipe(
+                Match.when(Match.number, (value) => (percent ? Number.parseFloat((value * 100).toFixed(2)) : value)),
+                Match.orElse(() => undefined),
+            )(value)}
             status={error === undefined ? "" : "error"}
             {...inputProps}
         >
