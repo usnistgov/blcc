@@ -21,6 +21,6 @@ export type Annual = {
 };
 
 export type AltResults = {
-    alternativeNpvCashflowTotal: AlternativeNpvCostTypeTotalRow[][];
+    alternativeNpvByCostType: AlternativeNpvCostTypeTotalRow[][];
     resourceUsage: ResourceUsageRow[][];
 };

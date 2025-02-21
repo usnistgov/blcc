@@ -86,8 +86,8 @@ export function LCCResultsTable({ headers, rows }: LccResultsTableProps) {
                 <View style={styles.row} key={`${alt.name}_lcc_${i}`}>
                     <Text style={styles.alt}>{alt.name}</Text>
                     {/* change to base cost */}
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.investment)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.investment)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.lifeCycleCost)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.energy)}</Text>
                     <Text style={styles.alt}>{dollarFormatter.format(alt.ghgEmissions)}</Text>
@@ -120,8 +120,8 @@ export function LCCBaselineTable({ headers, rows }: LccBaselineTableProps) {
             {rows.map((alt) => (
                 <View style={styles.row} key={`${alt.name}_lccBaseline`}>
                     <Text style={styles.alt}>{alt.name}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
-                    <Text style={styles.alt}>{dollarFormatter.format(alt.initialCost)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.investment)}</Text>
+                    <Text style={styles.alt}>{dollarFormatter.format(alt.investment)}</Text>
                     <Text style={styles.smallCol}>{dollarFormatter.format(alt.sir)}</Text>
                     <Text style={styles.smallCol}>{dollarFormatter.format(alt.airr)}</Text>
                     <Text style={styles.smallCol}>{dollarFormatter.format(alt.spp)}</Text>

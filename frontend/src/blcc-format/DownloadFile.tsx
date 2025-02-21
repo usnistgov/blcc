@@ -23,6 +23,7 @@ import {
     findBaselineID,
     groupOptionalByTag,
     numberFormatter,
+    percentFormatter,
 } from "util/Util";
 
 /**
@@ -44,15 +45,16 @@ export function download(blob: Blob, filename: string, mime: string) {
 /**
  * An effect that downloads a file and sets the dirty check hash to be the hash of the current project.
  */
-export const downloadBlccFile = (downloadName?: string) => Effect.gen(function* () {
-    const db = yield* DexieService;
-    const project = yield* db.getProject();
+export const downloadBlccFile = (downloadName?: string) =>
+    Effect.gen(function* () {
+        const db = yield* DexieService;
+        const project = yield* db.getProject();
 
-    yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
+        yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
 
-    const blob = yield* db.exportDB;
-    download(blob, `${downloadName ?? project.name}.blcc`, "text/json");
-});
+        const blob = yield* db.exportDB;
+        download(blob, `${downloadName ?? project.name}.blcc`, "text/json");
+    });
 
 export const downloadPdf = Effect.gen(function* () {
     const db = yield* DexieService;
@@ -88,7 +90,7 @@ export const downloadPdf = Effect.gen(function* () {
     };
 
     const altResults: AltResults = {
-        alternativeNpvCashflowTotal: measures.map((measure) => createAlternativeNpvCostTypeTotalRow(measure)),
+        alternativeNpvByCostType: measures.map((measure) => createAlternativeNpvCostTypeTotalRow(measure)),
         resourceUsage: measures.map((measure) => createResourceUsageRow(measure)),
     };
 
@@ -155,22 +157,15 @@ export const downloadCsv = Effect.gen(function* () {
     const summaryResults = [
         "Life Cycle Results Comparison",
         [],
-        [
-            "Alternative",
-            "Base Case",
-            "Initial Cost",
-            "Life Cycle Cost",
-            "Energy",
-            "GHG Emissions (kg CO2e)"
-        ],
+        ["Alternative", "Base Case", "Investment", "Life Cycle Cost", "Energy (gJ)", "GHG Emissions (kg CO2e)"],
         ...summary.lccComparisonRows.map((row) =>
             [
                 row.name,
                 row.baseline,
-                dollarFormatter.format(row.initialCost),
+                dollarFormatter.format(row.investment),
                 dollarFormatter.format(row.lifeCycleCost),
                 numberFormatter.format(row.energy),
-                numberFormatter.format(row.ghgEmissions)
+                numberFormatter.format(row.ghgEmissions),
             ].map(wrapCell),
         ),
         [],
@@ -179,25 +174,29 @@ export const downloadCsv = Effect.gen(function* () {
         [
             "Alternative",
             "Base Case",
-            "Initial Cost",
-            "SIRR",
+            "LCC",
+            "Investment",
+            "Net Savings",
+            "SIR",
             "AIRR",
             "SPP",
             "DPP",
             "Change in Energy",
-            "Change in GHG (kg CO2e)"
+            "Change in GHG (kg CO2e)",
         ],
         ...summary.lccBaseline.map((row) =>
             [
                 row.name,
                 row.baseline,
-                dollarFormatter.format(row.initialCost),
+                dollarFormatter.format(row.lcc),
+                dollarFormatter.format(row.investment),
+                dollarFormatter.format(row.netSavings),
                 numberFormatter.format(row.sir),
-                numberFormatter.format(row.airr),
+                percentFormatter.format(row.airr),
                 numberFormatter.format(row.spp),
                 numberFormatter.format(row.dpp),
                 numberFormatter.format(row.deltaEnergy),
-                numberFormatter.format(row.deltaGhg)
+                numberFormatter.format(row.deltaGhg),
             ].map(wrapCell),
         ),
         [],
@@ -243,11 +242,11 @@ export const downloadCsv = Effect.gen(function* () {
             const { year, key, ...rest } = row;
             return [year, ...Object.values(rest).map(dollarFormatter.format)].map(wrapCell);
         }),
+        ["Total", ...measures.map((measure) => measure.totalCosts)],
         [],
         "Annual Results for Alternative",
         [],
         ...annual.alternativeNpvCashflows.flatMap((altFlows, i) => {
-            console.log(altFlows);
             return [
                 altNames[i],
                 ["", "Energy", "", "", "Water", "", "Capital", "", "", "", "Contract", "", "Other", ""],
@@ -268,7 +267,6 @@ export const downloadCsv = Effect.gen(function* () {
                     "Total",
                 ],
                 ...altFlows.map((row) => {
-                    console.log(row);
                     return [
                         row.year,
                         dollarFormatter.format(row.consumption ?? 0),
