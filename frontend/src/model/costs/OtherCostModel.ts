@@ -13,7 +13,7 @@ import {
 import type { OptionType } from "components/SelectOrCreate";
 import { liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
-import { isOtherMonetary } from "model/Guards";
+import { isOtherCost, isOtherMonetary } from "model/Guards";
 import { db } from "model/db";
 import * as O from "optics-ts";
 import { type Observable, from } from "rxjs";
@@ -21,7 +21,8 @@ import { map } from "rxjs/operators";
 import { Var } from "util/var";
 
 export namespace OtherCostModel {
-    const otherCostOptic = O.optic<Cost>().guard(isOtherMonetary);
+    const otherOptic = O.optic<Cost>().guard(isOtherCost);
+    const otherMonetaryOptic = O.optic<Cost>().guard(isOtherMonetary);
 
     /**
      * Gets a list of all the tags for all Other and Other Non-monetary costs.
@@ -49,12 +50,12 @@ export namespace OtherCostModel {
     /**
      * The tags for the current other cost
      */
-    export const tags = new Var(CostModel.cost, otherCostOptic.prop("tags"));
+    export const tags = new Var(CostModel.cost, otherOptic.prop("tags"));
 
     /**
      * The initial occurrence for the current other cost
      */
-    export const initialOccurrence = new Var(CostModel.cost, otherCostOptic.prop("initialOccurrence"));
+    export const initialOccurrence = new Var(CostModel.cost, otherOptic.prop("initialOccurrence"));
 
     const defaultUnits = [
         ...Object.values(EnergyUnit),
@@ -82,17 +83,17 @@ export namespace OtherCostModel {
     /**
      * The unit of the current cost
      */
-    export const unit = new Var(CostModel.cost, otherCostOptic.prop("unit"));
+    export const unit = new Var(CostModel.cost, otherOptic.prop("unit"));
 
     /**
      *  The number of units in the current other cost
      */
-    export const numberOfUnits = new Var(CostModel.cost, otherCostOptic.prop("numberOfUnits"));
+    export const numberOfUnits = new Var(CostModel.cost, otherOptic.prop("numberOfUnits"));
 
     /**
      * The value of each unit
      */
-    export const valuePerUnit = new Var(CostModel.cost, otherCostOptic.prop("valuePerUnit"));
+    export const valuePerUnit = new Var(CostModel.cost, otherMonetaryOptic.prop("valuePerUnit"));
 
     export namespace Actions {
         export function setInitialOccurrence(value: number | null) {

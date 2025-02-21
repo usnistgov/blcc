@@ -1,10 +1,8 @@
-import { useStateObservable } from "@react-rxjs/core";
 import { Select } from "antd";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
 import Recurring from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
-import { NumberInput } from "components/input/InputNumber";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
@@ -26,7 +24,7 @@ export default function OtherCostFields() {
                         className={"w-full"}
                         mode={"tags"}
                         options={allTags}
-                        onChange={(tags: string[] | undefined) => OtherCostModel.tags.set(tags)}
+                        onChange={(tags) => OtherCostModel.tags.set(tags)}
                         value={OtherCostModel.tags.use()}
                     />
                 </div>
@@ -43,14 +41,7 @@ export default function OtherCostFields() {
                     label={"Number of Units"}
                     getter={OtherCostModel.numberOfUnits.use}
                     onChange={OtherCostModel.Actions.setNumberOfUnits}
-                    /*                    addonAfter={
-                        <SelectOrCreate
-                            placeholder={"Select Unit"}
-                            value$={OtherCostModel.unit.$}
-                            wire$={OtherCostModel.sUnit$}
-                            options$={OtherCostModel.allUnits$}
-                        />
-                    }*/
+                    addonAfter={<SelectOrCreate placeholder={"Select Unit"} />}
                 />
                 <TestNumberInput
                     className={"w-full"}
