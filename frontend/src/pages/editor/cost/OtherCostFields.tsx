@@ -1,19 +1,17 @@
-import { useStateObservable } from "@react-rxjs/core";
 import { Select } from "antd";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
 import Recurring from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
-import { NumberInput } from "components/input/InputNumber";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { OtherCostModel } from "model/costs/OtherCostModel";
 
 export default function OtherCostFields() {
-    const tags = useStateObservable(OtherCostModel.tags$);
-    const allTags = useStateObservable(OtherCostModel.allTags$);
-    const unit = useStateObservable(OtherCostModel.unit$);
+    const allTags = OtherCostModel.useAllTags();
     const isSavings = CostModel.costOrSavings.use();
+    const unit = OtherCostModel.unit.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -26,40 +24,33 @@ export default function OtherCostFields() {
                         className={"w-full"}
                         mode={"tags"}
                         options={allTags}
-                        onChange={(tags) => OtherCostModel.sTags$.next(tags)}
-                        value={tags}
+                        onChange={(tags) => OtherCostModel.tags.set(tags)}
+                        value={OtherCostModel.tags.use()}
                     />
                 </div>
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.INITIAL_OCCURRENCE}
                     label={"Initial Occurrence"}
-                    value$={OtherCostModel.initialOccurrence$}
-                    wire={OtherCostModel.sInitialOccurrence$}
+                    getter={OtherCostModel.initialOccurrence.use}
+                    onChange={OtherCostModel.Actions.setInitialOccurrence}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.NUMBER_OF_UNITS}
                     label={"Number of Units"}
-                    value$={OtherCostModel.numberOfUnits$}
-                    wire={OtherCostModel.sNumberOfUnits$}
-                    addonAfter={
-                        <SelectOrCreate
-                            placeholder={"Select Unit"}
-                            value$={OtherCostModel.unit$}
-                            wire$={OtherCostModel.sUnit$}
-                            options$={OtherCostModel.allUnits$}
-                        />
-                    }
+                    getter={OtherCostModel.numberOfUnits.use}
+                    onChange={OtherCostModel.Actions.setNumberOfUnits}
+                    addonAfter={<SelectOrCreate placeholder={"Select Unit"} />}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.UNIT_VALUE}
                     label={isSavings ? "Unit Value Benefits" : "Unit Value"}
                     addonBefore={"$"}
                     addonAfter={unit === undefined ? undefined : `per ${unit}`}
-                    value$={OtherCostModel.valuePerUnit$}
-                    wire={OtherCostModel.sValuePerUnit$}
+                    getter={OtherCostModel.valuePerUnit.use}
+                    onChange={OtherCostModel.Actions.setValuePerUnit}
                 />
                 <span className={"col-span-2"}>
                     <Recurring showUnit />

@@ -20,6 +20,7 @@ export namespace CostModel {
     export const cost = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
     // Write changes back to database
     cost.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
+        console.log("Modifying cost", next);
         collection.modify(next);
     });
 

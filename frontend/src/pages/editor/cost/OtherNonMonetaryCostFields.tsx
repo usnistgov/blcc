@@ -1,15 +1,12 @@
-import { useStateObservable } from "@react-rxjs/core";
 import { Select } from "antd";
 import Title from "antd/es/typography/Title";
 import Recurring from "components/Recurring";
-import { NumberInput } from "components/input/InputNumber";
+import SelectOrCreate from "components/SelectOrCreate";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
-import { OtherNonMonetaryCostModel } from "model/costs/OtherNonMonetaryCostModel";
-import SelectOrCreate from "../../../components/SelectOrCreate";
 
 export default function OtherNonMonetaryCostFields() {
-    const tags = useStateObservable(OtherNonMonetaryCostModel.tags$);
-    const allTags = useStateObservable(OtherCostModel.allTags$);
+    const allTags = OtherCostModel.useAllTags();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -20,29 +17,22 @@ export default function OtherNonMonetaryCostFields() {
                         className={"w-full"}
                         mode={"tags"}
                         options={allTags}
-                        onChange={(tags) => OtherNonMonetaryCostModel.sTags$.next(tags)}
-                        value={tags}
+                        onChange={(tags) => OtherCostModel.tags.set(tags)}
+                        value={OtherCostModel.tags.use()}
                     />
                 </div>
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     label={"Initial Occurrence"}
-                    value$={OtherNonMonetaryCostModel.initialOccurrence$}
-                    wire={OtherNonMonetaryCostModel.sInitialOccurrence$}
+                    getter={OtherCostModel.initialOccurrence.use}
+                    onChange={OtherCostModel.Actions.setInitialOccurrence}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     label={"Number of Units"}
-                    value$={OtherNonMonetaryCostModel.numberOfUnits$}
-                    wire={OtherNonMonetaryCostModel.sNumberOfUnits$}
-                    addonAfter={
-                        <SelectOrCreate
-                            placeholder={"Select Unit"}
-                            value$={OtherNonMonetaryCostModel.unit$}
-                            wire$={OtherNonMonetaryCostModel.sUnit$}
-                            options$={OtherCostModel.allUnits$}
-                        />
-                    }
+                    getter={OtherCostModel.numberOfUnits.use}
+                    onChange={OtherCostModel.Actions.setNumberOfUnits}
+                    addonAfter={<SelectOrCreate placeholder={"Select Unit"} />}
                 />
 
                 <span className={"col-span-2"}>
