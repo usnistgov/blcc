@@ -1,5 +1,5 @@
 import { mdiClose, mdiPlus } from "@mdi/js";
-import { bind, shareLatest } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Select, Typography } from "antd";
 import {
@@ -25,16 +25,15 @@ import {
 import AppliedCheckboxes from "components/AppliedCheckboxes";
 import { Button, ButtonType } from "components/input/Button";
 import TextInput, { TextInputType } from "components/input/TextInput";
+import { Match } from "effect";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
-import { CostModel } from "model/CostModel";
 import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { BehaviorSubject, type Observable, Subject, combineLatest, merge, sample, switchMap } from "rxjs";
+import { BehaviorSubject, type Observable, Subject, merge, switchMap } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
-import { match } from "ts-pattern";
 import { guard, sampleMany } from "util/Operators";
 
 type AddCostModalProps = {
@@ -103,6 +102,7 @@ namespace DefaultCosts {
     export const WATER: Props<WaterCost> = {
         type: CostTypes.WATER,
         unit: LiquidUnit.GALLON,
+        escalation: 0,
         usage: [
             {
                 season: Season.SUMMER,
@@ -191,17 +191,18 @@ function createCostInDB([projectID, name, type, alts]: [
     return db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
         const newCost = {
             name,
-            ...match(type)
-                .with(CostTypes.CAPITAL, () => DefaultCosts.CAPITAL)
-                .with(CostTypes.WATER, () => DefaultCosts.WATER)
-                .with(CostTypes.REPLACEMENT_CAPITAL, () => DefaultCosts.REPLACEMENT_CAPITAL)
-                .with(CostTypes.OMR, () => DefaultCosts.OMR)
-                .with(CostTypes.IMPLEMENTATION_CONTRACT, () => DefaultCosts.IMPLEMENTATION_CONTRACT)
-                .with(CostTypes.RECURRING_CONTRACT, () => DefaultCosts.RECURRING_CONTRACT)
-                .with(CostTypes.OTHER, () => DefaultCosts.OTHER)
-                .with(CostTypes.OTHER_NON_MONETARY, () => DefaultCosts.OTHER_NON_MONETARY)
-                .with(CostTypes.ENERGY, () => DefaultCosts.ENERGY(FuelType.ELECTRICITY))
-                .otherwise((fuelType) => DefaultCosts.ENERGY(fuelType)),
+            ...Match.value(type).pipe(
+                Match.when(CostTypes.CAPITAL, () => DefaultCosts.CAPITAL),
+                Match.when(CostTypes.WATER, () => DefaultCosts.WATER),
+                Match.when(CostTypes.REPLACEMENT_CAPITAL, () => DefaultCosts.REPLACEMENT_CAPITAL),
+                Match.when(CostTypes.OMR, () => DefaultCosts.OMR),
+                Match.when(CostTypes.IMPLEMENTATION_CONTRACT, () => DefaultCosts.IMPLEMENTATION_CONTRACT),
+                Match.when(CostTypes.RECURRING_CONTRACT, () => DefaultCosts.RECURRING_CONTRACT),
+                Match.when(CostTypes.OTHER, () => DefaultCosts.OTHER),
+                Match.when(CostTypes.OTHER_NON_MONETARY, () => DefaultCosts.OTHER_NON_MONETARY),
+                Match.when(CostTypes.ENERGY, () => DefaultCosts.ENERGY(FuelType.ELECTRICITY)),
+                Match.orElse((fuelType) => DefaultCosts.ENERGY(fuelType)),
+            ),
         } as Cost;
 
         // Add new cost to DB and get new ID

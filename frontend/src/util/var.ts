@@ -1,8 +1,8 @@
 import { type StateObservable, bind } from "@react-rxjs/core";
+import { Match } from "effect";
 import * as O from "optics-ts";
 import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap } from "rxjs";
 import { shareReplay, startWith } from "rxjs/operators";
-import { match } from "ts-pattern";
 import type { ZodError, ZodType } from "zod";
 
 export class DexieModel<T> {
@@ -45,6 +45,7 @@ export class Var<A, B> {
     optic: O.Lens<A, any, B> | O.Prism<A, any, B>;
     use: () => B;
     $: Observable<B>;
+    change$: Subject<B>;
     schema?: ZodType;
     useValidation: () => ZodError | undefined;
     validation$: Observable<ZodError | undefined>;
@@ -55,22 +56,16 @@ export class Var<A, B> {
         optic: O.Lens<A, any, B> | O.Prism<A, any, B>,
         schema: ZodType | undefined = undefined,
     ) {
-        const getter = match(optic)
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Lens" }, (optic: O.Lens<A, any, B>) => (a: A) => O.get(optic)(a))
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Prism" }, (optic: O.Prism<A, any, B>) => (a: A) => O.preview(optic)(a))
-            .otherwise(() => {
-                throw new Error("Invalid optic type");
-            });
+        const get = getter(optic);
 
         const [hook, stream$] = bind(
             model.$.pipe(
-                map((a) => getter(a)),
+                map((a) => get(a)),
                 distinctUntilChanged(),
             ),
         );
 
+        this.change$ = new Subject();
         this.model = model;
         this.optic = optic;
         // @ts-ignore
@@ -96,26 +91,25 @@ export class Var<A, B> {
 
     set(value: B) {
         this.model.modify((a) => O.set(this.optic)(value)(a));
+        this.change$.next(value);
     }
 
     modify(mapper: (b: B) => B) {
-        const optic = this.optic;
-        const getter = match(optic)
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Lens" }, (optic: O.Lens<A, any, B>) => (a: A) => O.get(optic)(a))
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Prism" }, (optic: O.Prism<A, any, B>) => (a: A) => O.preview(optic)(a))
-            .otherwise(() => {
-                throw new Error("Invalid optic type");
-            });
         // @ts-ignore
-        this.model.modify((a) => O.set(optic)(mapper(getter(a)))(a));
+        this.model.modify((a) => O.set(optic)(mapper(getter(this.optic)(a)))(a));
     }
+}
 
-    remove() {
-        match(this.optic)
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            .with({ _tag: "Prism" }, (optic: O.Prism<A, any, B>) => this.model.modify((a) => O.remove(optic)(a)))
-            .otherwise(() => {});
-    }
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function getter<A, B>(optic: O.Lens<A, any, B> | O.Prism<A, any, B>) {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    return Match.type<O.Lens<A, any, B> | O.Prism<A, any, B>>().pipe(
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        Match.tag("Lens", (optic: O.Lens<A, any, B>) => (a: A) => O.get(optic)(a)),
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        Match.tag("Prism", (optic: O.Prism<A, any, B>) => (a: A) => O.preview(optic)(a)),
+        Match.orElse(() => {
+            throw new Error("Invalid optic type");
+        }),
+    )(optic);
 }

@@ -107,9 +107,6 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
-      ts-pattern:
-        specifier: ^5.1.2
-        version: 5.6.2
       zod:
         specifier: ^3.23.8
         version: 3.24.1
@@ -2933,9 +2930,6 @@ packages:
 
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
-
-  ts-pattern@5.6.2:
-    resolution: {integrity: sha512-d4IxJUXROL5NCa3amvMg6VQW2HVtZYmUTPfvVtO7zJWGYLJ+mry9v2OmYm+z67aniQoQ8/yFNadiEwtNS9qQiw==}
 
   tsconfck@3.1.5:
     resolution: {integrity: sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==}
@@ -6056,8 +6050,6 @@ snapshots:
   tree-kill@1.2.2: {}
 
   ts-interface-checker@0.1.13: {}
-
-  ts-pattern@5.6.2: {}
 
   tsconfck@3.1.5(typescript@5.7.3):
     optionalDependencies:

@@ -14,7 +14,7 @@ import {
     scan,
     switchMap,
 } from "rxjs";
-import { catchError, filter, map, shareReplay, toArray, withLatestFrom } from "rxjs/operators";
+import { catchError, filter, map, shareReplay, tap, toArray, withLatestFrom } from "rxjs/operators";
 
 /**
  * Counts the number of occurrences of each unique property in type A. The property is obtained with the given property extractor function.
@@ -190,6 +190,7 @@ export function sampleMany<T, Rest extends unknown[]>(
 export function gate<T>(gate: Observable<boolean>): UnaryFunction<Observable<T>, Observable<T>> {
     return pipe(
         withLatestFrom(gate),
+        tap(console.log),
         filter(([t, gate]) => gate),
         map(([t]) => t),
     );

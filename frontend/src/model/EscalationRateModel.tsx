@@ -2,15 +2,16 @@ import { bind } from "@react-rxjs/core";
 import type { Cost } from "blcc-format/Format";
 import { Effect } from "effect";
 import { CostModel } from "model/CostModel";
-import { isEscalationCost } from "model/Guards";
+import { isEnergyCost } from "model/Guards";
 import { Model } from "model/Model";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import * as O from "optics-ts";
+import type { RenderCellProps, RenderEditCellProps } from "react-data-grid";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
 import { combineLatestWith, filter, switchMap } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { gate, guard } from "util/Operators";
-import { fuelTypeToRate } from "util/Util";
+import { fuelTypeToRate, percentFormatter, toDecimal, toPercentage } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { Var } from "util/var";
 
@@ -19,7 +20,7 @@ export type EscalationRateInfo = {
     rate: number;
 };
 
-function toEscalationRateInfo([rates, releaseYear]: [number[], number]): EscalationRateInfo[] {
+export function toEscalationRateInfo([rates, releaseYear]: [number[], number]): EscalationRateInfo[] {
     return rates.map((rate, i) => ({
         year: releaseYear + i,
         rate,
@@ -27,7 +28,37 @@ function toEscalationRateInfo([rates, releaseYear]: [number[], number]): Escalat
 }
 
 export namespace EscalationRateModel {
-    const escalationOptic = O.optic<Cost>().guard(isEscalationCost);
+    export const COLUMNS = [
+        {
+            name: "Year",
+            key: "year",
+        },
+        {
+            name: "Escalation Rate (%)",
+            key: "rate",
+            renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo>) => {
+                return (
+                    <input
+                        className={"w-full pl-4"}
+                        type={"number"}
+                        defaultValue={toPercentage(row.rate)}
+                        onChange={(event) =>
+                            onRowChange({
+                                ...row,
+                                [column.key]: toDecimal(event.currentTarget.value),
+                            })
+                        }
+                    />
+                );
+            },
+            editable: true,
+            renderCell: (info: RenderCellProps<EscalationRateInfo>) => {
+                return percentFormatter.format(info.row.rate);
+            },
+        },
+    ];
+
+    const escalationOptic = O.optic<Cost>().guard(isEnergyCost);
 
     export const escalation = new Var(CostModel.cost, escalationOptic.prop("escalation"));
 

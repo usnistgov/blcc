@@ -12,19 +12,19 @@ import {
     GhgDataSource,
     type Unit,
 } from "blcc-format/Format";
+import type { Collection } from "dexie";
+import { Match } from "effect";
 import { CostModel } from "model/CostModel";
 import { isEnergyCost, isNonUSLocation, isUSLocation } from "model/Guards";
 import { type LocationModel, Model } from "model/Model";
 import * as O from "optics-ts";
 import { type Observable, Subject, combineLatest, distinctUntilChanged, map, merge, of, switchMap } from "rxjs";
-import { catchError, combineLatestWith, filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
-import { P, match } from "ts-pattern";
+import { filter, shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import { COAL_KG_CO2E_PER_MEGAJOULE } from "util/UnitConversion";
 import { fuelTypeToRate, index, makeApiRequest } from "util/Util";
+import { Var } from "util/var";
 import z from "zod";
 import cost = CostModel.cost;
-import type { Collection } from "dexie";
-import { Var } from "util/var";
 
 type ZipInfoResponse = {
     zip: number;
@@ -34,20 +34,6 @@ type ZipInfoResponse = {
     padd: string;
     technobasin: string;
     reeds_ba: string;
-};
-
-type EscalationRateResponse = {
-    case: string;
-    release_year: number;
-    year: number;
-    division: string;
-    electricity: number;
-    natural_gas: number;
-    propane: number;
-    region: string;
-    residual_fuel_oil: number;
-    distillate_fuel_oil: number;
-    sector: string;
 };
 
 const EIA_CASE_MAP = {
@@ -243,30 +229,31 @@ export namespace EnergyCostModel {
                 rate: RATE_MAP[rate],
             };
 
-            return match(fuelType)
-                .with(FuelType.ELECTRICITY, () => {
+            return Match.value(fuelType).pipe(
+                Match.when(FuelType.ELECTRICITY, () => {
                     if (ghgDataSource === GhgDataSource.NIST_NETL)
                         return makeApiRequest<number[]>("region_case_ba", { ...common, ba: zipInfo.ba });
 
                     return makeApiRequest<number[]>("region_case_reeds", { ...common, padd: zipInfo.reeds_ba });
-                })
-                .with(FuelType.NATURAL_GAS, () =>
+                }),
+                Match.when(FuelType.NATURAL_GAS, () =>
                     makeApiRequest<number[]>("region_natgas", { ...common, technobasin: zipInfo.technobasin }),
-                )
-                .with(P.union(FuelType.DISTILLATE_OIL, FuelType.RESIDUAL_OIL), () =>
+                ),
+                Match.whenOr(FuelType.DISTILLATE_OIL, FuelType.RESIDUAL_OIL, () =>
                     makeApiRequest<number[]>("region_case_oil", {
                         ...common,
                         padd: zipInfo.padd,
                     }),
-                )
-                .with(FuelType.PROPANE, () =>
+                ),
+                Match.when(FuelType.PROPANE, () =>
                     makeApiRequest<number[]>("region_case_propane_lng", {
                         ...common,
                         padd: zipInfo.padd,
                     }),
-                )
-                .with(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2E_PER_MEGAJOULE)))
-                .otherwise(() => of(Array(studyPeriod).fill(0)));
+                ),
+                Match.when(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2E_PER_MEGAJOULE))),
+                Match.orElse(() => of(Array(studyPeriod).fill(0))),
+            );
         }
     }
 

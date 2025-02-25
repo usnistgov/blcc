@@ -1,14 +1,14 @@
 import { bind, state } from "@react-rxjs/core";
 import type { Alternative, ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
+import { Match } from "effect";
+import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
 import { alternatives$, currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { BehaviorSubject, type Observable, Subject, distinctUntilChanged, iif, merge, of, switchMap } from "rxjs";
-import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
-import { P, match } from "ts-pattern";
+import { map, shareReplay, withLatestFrom } from "rxjs/operators";
 import { arrayFilter, confirm, defaultValue, guard } from "util/Operators";
-import { cloneName, isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "util/Util";
-import { DexieModel } from "util/var";
+import { cloneName } from "util/Util";
 
 export namespace AlternativeModel {
     /**
@@ -168,9 +168,10 @@ export namespace AlternativeModel {
          */
         async function cloneAlternative([alternativeIDOrObj, projectID]: [ID | Alternative, ID]): Promise<ID> {
             // Get the alternative from the db if necessary
-            const alternative = await match(alternativeIDOrObj)
-                .with(P.number, async (id) => await db.alternatives.where("id").equals(id).first())
-                .otherwise(async (obj) => obj);
+            const alternative = await Match.type<Alternative | number>().pipe(
+                Match.when(Match.number, async (id) => await db.alternatives.where("id").equals(id).first()),
+                Match.orElse(async (obj) => obj),
+            )(alternativeIDOrObj);
 
             if (alternative === undefined) return 0;
 

@@ -1,70 +1,56 @@
 import { mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
-import { type StateObservable, state, useStateObservable } from "@react-rxjs/core";
+import { bind, shareLatest } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import { Select, type SelectProps } from "antd";
 import { useSubscribe } from "hooks/UseSubscribe";
+import { OtherCostModel } from "model/costs/OtherCostModel";
 import type * as React from "react";
-import { useMemo } from "react";
-import { BehaviorSubject, type Observable, Subject, combineLatest } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
-
-type SelectOrCreateProps<T> = {
-    value$: StateObservable<T | undefined>;
-    wire$: Subject<T>;
-    options$: Observable<OptionType[]>;
-};
+import { combineLatest } from "rxjs";
+import { map, startWith, withLatestFrom } from "rxjs/operators";
 
 export type OptionType = {
     label: React.ReactNode;
     value: string;
     identifier?: symbol;
 };
+
 const CREATE_SYMBOL = Symbol("create new unit");
+const CREATE_OPTION = {
+    identifier: CREATE_SYMBOL,
+    value: "Create New Unit",
+    label: (
+        <div className={"flex items-center gap-1"}>
+            <Icon className={"align-middle"} path={mdiPlus} size={0.8} />
+            <p>Create New Unit</p>
+        </div>
+    ),
+};
 
-export default function SelectOrCreate({
-    value$,
-    wire$,
-    options$,
-    ...selectProps
-}: SelectOrCreateProps<string> & SelectProps<string, OptionType>) {
-    const [sSearch$, totalOptions$, sOnChange$, output$] = useMemo(() => {
-        const sSearch$ = new BehaviorSubject<string>("");
-        const totalOptions$ = state(
-            combineLatest([sSearch$, options$]).pipe(
-                map(([query, options]) => {
-                    if (query === undefined || query === "") return options;
+namespace Model {
+    export const [search$, search] = createSignal<string>();
+    const defaultedSearch$ = search$.pipe(startWith(undefined), shareLatest());
 
-                    return [
-                        ...((options as OptionType[]) ?? []),
-                        {
-                            identifier: CREATE_SYMBOL,
-                            value: "Create New Unit",
-                            label: (
-                                <div className={"flex items-center gap-1"}>
-                                    <Icon className={"align-middle"} path={mdiPlus} size={0.8} />
-                                    <p>Create New Unit</p>
-                                </div>
-                            ),
-                        },
-                    ];
-                }),
-            ),
-            [],
-        );
+    export const [change$, change] = createSignal<OptionType>();
+    export const [useOptionsWithDefault] = bind(
+        combineLatest([defaultedSearch$, OtherCostModel.allUnits$]).pipe(
+            map(([query, options]) => {
+                if (query === undefined || query === "") return options;
 
-        const sOnChange$ = new Subject<OptionType>();
-        const output$ = sOnChange$.pipe(
-            withLatestFrom(sSearch$),
-            map(([{ identifier, value }, newUnit]) => (identifier === CREATE_SYMBOL ? newUnit : value)),
-        );
+                return [...options, CREATE_OPTION];
+            }),
+        ),
+        [],
+    );
 
-        return [sSearch$, totalOptions$, sOnChange$, output$];
-    }, [options$]);
+    export const output$ = Model.change$.pipe(
+        withLatestFrom(defaultedSearch$),
+        map(([{ identifier, value }, newUnit]) => (identifier === CREATE_SYMBOL ? newUnit : value)),
+    );
+}
 
-    const optionWithDefault = useStateObservable(totalOptions$);
-    const value = useStateObservable(value$);
-
-    useSubscribe(output$, wire$);
+export default function SelectOrCreate({ ...selectProps }: SelectProps<string, OptionType>) {
+    useSubscribe(Model.output$, (unit) => OtherCostModel.unit.set(unit));
 
     return (
         <Select
@@ -77,12 +63,12 @@ export default function SelectOrCreate({
 
                 return option.value.toLowerCase().includes(input.toLowerCase());
             }}
-            options={optionWithDefault}
-            value={value}
-            onSearch={(query) => sSearch$.next(query)}
+            options={Model.useOptionsWithDefault()}
+            value={OtherCostModel.unit.use()}
+            onSearch={Model.search}
             onChange={(_, option) => {
                 if (Array.isArray(option)) return;
-                if (option !== undefined) sOnChange$.next(option);
+                if (option !== undefined) Model.change(option);
             }}
             {...selectProps}
         />
