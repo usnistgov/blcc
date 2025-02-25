@@ -10,7 +10,7 @@ import CapitalCostInput from "./CapitalCostInput";
 import EnergyCostInput from "./EnergyCostInput";
 import OtherCostInput from "./OtherCostInput";
 import WaterCostInput from "./WaterCostInput";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
 
 type AlternativesProps = {
     alts: Alternative[];

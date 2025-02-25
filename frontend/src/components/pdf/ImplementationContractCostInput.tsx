@@ -8,7 +8,8 @@ import {
     InitialCost,
     InitialOccurence,
 } from "./CostComponents";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
+import { dollarFormatter } from "util/Util";
 
 type ImplementationContractCostInputProps = {
     cost: ImplementationContractCost;
@@ -24,7 +25,7 @@ export default function ImplementationContractCostInput({ cost }: Implementation
             {cost.occurrence ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Occurrence:&nbsp;</Text>
-                    <Text style={styles.value}> Year - {cost?.occurrence}</Text>
+                    <Text style={styles.value}>Year - {cost?.occurrence}</Text>
                 </View>
             ) : null}
 
@@ -39,7 +40,7 @@ export default function ImplementationContractCostInput({ cost }: Implementation
                     ) : (
                         <Text style={styles.text}>Cost:&nbsp;</Text>
                     )}
-                    <Text style={styles.value}> ${cost?.cost}</Text>
+                    <Text style={styles.value}>{dollarFormatter.format(cost?.cost)}</Text>
                 </View>
             ) : null}
 

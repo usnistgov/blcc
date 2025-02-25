@@ -33,20 +33,15 @@ export default function OmrCostInput({ cost, year }: OmrCostInputProps) {
 
             <InitialOccurence cost={cost} />
 
-            <ExpectedLife cost={cost} />
-
-            <AnnualRateOfChange cost={cost} />
-
-            <CostAdjustmentFactor cost={cost} />
-
             {cost.recurring ? (
                 <>
                     <RateOfRecurrence cost={cost} />
                     <RateOfChangeValue cost={cost} year={year} />
                     <RateOfChangeUnits cost={cost} year={year} />
                 </>
-            ) : null}
-            <PhaseIn cost={cost} year={year} />
+            ) : (
+                <></>
+            )}
         </View>
     );
 }

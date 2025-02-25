@@ -1,7 +1,8 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { EnergyCost, USLocation } from "blcc-format/Format";
 import { CostName, CostPerUnit, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
+import { dollarFormatter } from "util/Util";
 
 type EnergyCostInputProps = {
     cost: EnergyCost;
@@ -18,14 +19,14 @@ export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
             {cost?.fuelType ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Fuel Type:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.fuelType}</Text>
+                    <Text style={styles.value}>{cost?.fuelType}</Text>
                 </View>
             ) : null}
 
             {cost?.customerSector ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Customer Sector:&nbsp;</Text>
-                    <Text style={styles.value}> {cost?.customerSector}</Text>
+                    <Text style={styles.value}>{cost?.customerSector}</Text>
                 </View>
             ) : null}
 
@@ -45,14 +46,14 @@ export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
             {cost?.rebate ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Rebate:&nbsp;</Text>
-                    <Text style={styles.value}> ${cost?.rebate}</Text>
+                    <Text style={styles.value}>{dollarFormatter.format(cost?.rebate)}</Text>
                 </View>
             ) : null}
 
             {cost?.demandCharge ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Demand Charge:&nbsp;</Text>
-                    <Text style={styles.value}> ${cost?.demandCharge}</Text>
+                    <Text style={styles.value}>{dollarFormatter.format(cost?.demandCharge)}</Text>
                 </View>
             ) : null}
 
@@ -61,28 +62,28 @@ export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
                     <View style={styles.row}>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>Country:&nbsp;</Text>
-                            <Text style={styles.value}> {cost?.location?.country}</Text>
+                            <Text style={styles.value}>{cost?.location?.country}</Text>
                         </View>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>State:&nbsp;</Text>
-                            <Text style={styles.value}> {(cost.location as USLocation)?.state ?? ""}</Text>
+                            <Text style={styles.value}>{(cost.location as USLocation)?.state ?? ""}</Text>
                         </View>
                     </View>
                     <View style={styles.row}>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>City:&nbsp;</Text>
-                            <Text style={styles.value}> {cost?.location?.city}</Text>
+                            <Text style={styles.value}>{cost?.location?.city}</Text>
                         </View>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>Zipcode:&nbsp;</Text>
-                            <Text style={styles.value}> {(cost.location as USLocation)?.zipcode ?? ""}</Text>
+                            <Text style={styles.value}>{(cost.location as USLocation)?.zipcode ?? ""}</Text>
                         </View>
                     </View>
                 </View>
             ) : (
                 <View style={styles.key}>
                     <Text style={styles.text}>Location:&nbsp;</Text>
-                    <Text style={styles.value}> Same as Project Location</Text>
+                    <Text style={styles.value}>Same as Project Location</Text>
                 </View>
             )}
 

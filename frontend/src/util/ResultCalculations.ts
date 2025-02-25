@@ -107,7 +107,15 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
 /*
  * Summary - Lifecycle Resource
  */
-export function createLccResourceRows(measures: Measures[]): CategorySubcategoryRow[] {
+export type LCCResourceRow = {
+    category: string;
+    subcategory: string;
+    units?: "gJ" | "kg CO2e" | "Liter(s)";
+} & {
+    [key: string]: number;
+};
+
+export function createLccResourceRows(measures: Measures[]): LCCResourceRow[] {
     const energy = [
         FuelType.ELECTRICITY,
         FuelType.NATURAL_GAS,
@@ -126,21 +134,21 @@ export function createLccResourceRows(measures: Measures[]): CategorySubcategory
     ].map((fuelType) => getQuantitySumTag(measures, fuelType === "Total" ? "Emissions" : `${fuelType} Emissions`));
 
     return [
-        { category: "Energy", subcategory: FuelType.ELECTRICITY, ...energy[0] },
-        { subcategory: FuelType.NATURAL_GAS, ...energy[1] },
-        { subcategory: FuelType.DISTILLATE_OIL, ...energy[2] },
-        { subcategory: FuelType.RESIDUAL_OIL, ...energy[3] },
-        { subcategory: FuelType.PROPANE, ...energy[4] },
-        { subcategory: "Total", ...getTotalEnergyForMeasures(measures) },
-        { category: "Emissions", subcategory: FuelType.ELECTRICITY, ...emissions[0] },
-        { subcategory: FuelType.NATURAL_GAS, ...emissions[1] },
-        { subcategory: FuelType.DISTILLATE_OIL, ...emissions[2] },
-        { subcategory: FuelType.RESIDUAL_OIL, ...emissions[3] },
-        { subcategory: FuelType.PROPANE, ...emissions[4] },
-        { subcategory: "Total", ...emissions[5] },
-        { category: "Water", subcategory: "Use", ...getQuantitySumTag(measures, "Usage") },
-        { subcategory: "Disposal", ...getQuantitySumTag(measures, "Disposal") }, //TODO: Add in water usage category
-    ] as CategorySubcategoryRow[]; // FIXME there is probably a better way to type this
+        { category: "Energy", subcategory: FuelType.ELECTRICITY, units: "gJ", ...energy[0] },
+        { subcategory: FuelType.NATURAL_GAS, units: "gJ", ...energy[1] },
+        { subcategory: FuelType.DISTILLATE_OIL, units: "gJ", ...energy[2] },
+        { subcategory: FuelType.RESIDUAL_OIL, units: "gJ", ...energy[3] },
+        { subcategory: FuelType.PROPANE, units: "gJ", ...energy[4] },
+        { subcategory: "Total", units: "gJ", ...getTotalEnergyForMeasures(measures) },
+        { category: "Emissions", subcategory: FuelType.ELECTRICITY, units: "kg CO2e", ...emissions[0] },
+        { subcategory: FuelType.NATURAL_GAS, units: "kg CO2e", ...emissions[1] },
+        { subcategory: FuelType.DISTILLATE_OIL, units: "kg CO2e", ...emissions[2] },
+        { subcategory: FuelType.RESIDUAL_OIL, units: "kg CO2e", ...emissions[3] },
+        { subcategory: FuelType.PROPANE, units: "kg CO2e", ...emissions[4] },
+        { subcategory: "Total", units: "kg CO2e", ...emissions[5] },
+        { category: "Water", subcategory: "Use", units: "Liter(s)", ...getQuantitySumTag(measures, "Usage") },
+        { subcategory: "Disposal", units: "Liter(s)", ...getQuantitySumTag(measures, "Disposal") }, //TODO: Add in water usage category
+    ] as LCCResourceRow[]; // FIXME there is probably a better way to type this
 }
 
 /*
@@ -320,7 +328,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
         "Energy",
-    ].map((fuelType) => measure.quantitySum[fuelType]);
+    ].map((fuelType) => measure.quantitySum[fuelType] ?? 0);
 
     return [
         {

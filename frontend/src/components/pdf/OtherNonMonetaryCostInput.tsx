@@ -9,7 +9,7 @@ import {
     RateOfRecurrence,
     Recurring,
 } from "components/pdf/CostComponents";
-import { styles } from "components/pdf/pdfStyles";
+import { styles } from "components/pdf/styles/pdfStyles";
 
 type OtherNonMonetaryCostInputProps = {
     cost: OtherNonMonetary;

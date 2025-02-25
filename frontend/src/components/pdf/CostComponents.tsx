@@ -1,8 +1,8 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { Recurring as RecurringType } from "blcc-format/Format";
-import { percentFormatter } from "util/Util";
+import { dollarFormatter, percentFormatter } from "util/Util";
 import InputTable from "./InputTable";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
 
 interface Props {
     cost: {
@@ -12,7 +12,7 @@ interface Props {
         costSavings?: boolean;
         initialCost?: number;
         costPerUnit?: number;
-        expectedLifetime?: number;
+        expectedLife?: number;
         costAdjustment?: number;
         initialOccurrence?: number;
         annualRateOfChange?: number;
@@ -46,8 +46,8 @@ export const CostSavings = ({ cost }: Props) => (
     <>
         {cost?.costSavings ? (
             <View style={styles.key}>
-                <Text style={styles.text}>Cost Savings:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.costSavings ? "Yes" : "No"}</Text>
+                <Text style={styles.text}>Cost or Savings:&nbsp;</Text>
+                <Text style={styles.value}> {cost?.costSavings ? "Savings" : "Cost"}</Text>
             </View>
         ) : null}
     </>
@@ -62,7 +62,7 @@ export const InitialCost = ({ cost }: Props) => (
                 ) : (
                     <Text style={styles.text}>Initial Cost:&nbsp;</Text>
                 )}
-                <Text style={styles.value}> ${cost?.initialCost}</Text>
+                <Text style={styles.value}> {dollarFormatter.format(cost?.initialCost)}</Text>
             </View>
         ) : null}
     </>
@@ -77,7 +77,7 @@ export const CostPerUnit = ({ cost }: Props) => (
                 ) : (
                     <Text style={styles.text}>Cost per Unit:&nbsp;</Text>
                 )}
-                <Text style={styles.value}> ${cost?.costPerUnit} </Text>
+                <Text style={styles.value}> {dollarFormatter.format(cost?.costPerUnit)} </Text>
             </View>
         ) : null}
     </>
@@ -86,7 +86,7 @@ export const CostPerUnit = ({ cost }: Props) => (
 export const ExpectedLife = ({ cost }: Props) => (
     <View style={styles.key}>
         <Text style={styles.text}>Expected Lifetime:&nbsp;</Text>
-        <Text style={styles.value}> {cost?.expectedLifetime || 0} year(s)</Text>
+        <Text style={styles.value}> {cost?.expectedLife ?? 0} year(s)</Text>
     </View>
 );
 
@@ -95,7 +95,7 @@ export const CostAdjustmentFactor = ({ cost }: Props) => (
         {cost?.costAdjustment ? (
             <View style={styles.key}>
                 <Text style={styles.text}>Cost Adjustment Factor:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.costAdjustment}%</Text>
+                <Text style={styles.value}>{percentFormatter.format(cost?.costAdjustment)}</Text>
             </View>
         ) : null}
     </>
@@ -106,7 +106,7 @@ export const AnnualRateOfChange = ({ cost }: Props) => (
         {cost?.annualRateOfChange ? (
             <View style={styles.key}>
                 <Text style={styles.text}>Annual Rate of Change:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.annualRateOfChange}%</Text>
+                <Text style={styles.value}> {percentFormatter.format(cost?.annualRateOfChange)}</Text>
             </View>
         ) : null}
     </>
@@ -132,10 +132,10 @@ export const InitialOccurence = ({ cost }: Props) => (
 
 export const RateOfRecurrence = ({ cost }: Props) => (
     <>
-        {cost?.rateOfRecurrence ? (
+        {cost?.recurring?.rateOfRecurrence ? (
             <View style={styles.key}>
                 <Text style={styles.text}>Rate Of Recurrence:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.rateOfRecurrence} year(s)</Text>
+                <Text style={styles.value}>{cost?.recurring.rateOfRecurrence} year(s)</Text>
             </View>
         ) : null}
     </>
@@ -151,7 +151,7 @@ export const UseIndex = ({ cost, year }: Props) => {
                     <InputTable header={"Usage (%)"} inputRows={(cost.useIndex as number[]) ?? []} year={year ?? -1} />
                 </View>
             ) : (
-                <Text style={styles.value}> {cost?.useIndex}%</Text>
+                <Text style={styles.value}> {percentFormatter.format((cost?.useIndex as number) ?? 0)}</Text>
             )}
         </View>
     );
@@ -184,7 +184,9 @@ export const RateOfChangeValue = ({ cost, year }: Props) => {
                     />
                 </View>
             ) : (
-                <Text style={styles.value}> {cost?.recurring?.rateOfChangeValue}%</Text>
+                <Text style={styles.value}>
+                    {percentFormatter.format((cost?.recurring?.rateOfChangeValue as number) ?? 0)}
+                </Text>
             )}
         </View>
     );
@@ -205,7 +207,10 @@ export const RateOfChangeUnits = ({ cost, year }: Props) => {
                     />
                 </View>
             ) : (
-                <Text style={styles.value}> {cost?.recurring?.rateOfChangeUnits}%</Text>
+                <Text style={styles.value}>
+                    {" "}
+                    {percentFormatter.format((cost?.recurring?.rateOfChangeUnits as number) ?? 0)}
+                </Text>
             )}
         </View>
     );

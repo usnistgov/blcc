@@ -11,7 +11,9 @@ import {
     InitialOccurence,
     PhaseIn,
 } from "./CostComponents";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
+import { dollarFormatter } from "util/Util";
+import ResidualValue from "./ResidualValue";
 
 type CapitalCostInputProps = {
     cost: CapitalCost;
@@ -34,7 +36,7 @@ export default function CapitalCostInput({ cost, year }: CapitalCostInputProps) 
             {cost?.amountFinanced ? (
                 <View style={styles.key}>
                     <Text style={styles.text}>Amount Financed:&nbsp;</Text>
-                    <Text style={styles.value}> ${cost?.amountFinanced}</Text>
+                    <Text style={styles.value}>{dollarFormatter.format(cost?.amountFinanced)}</Text>
                 </View>
             ) : null}
 
@@ -46,17 +48,11 @@ export default function CapitalCostInput({ cost, year }: CapitalCostInputProps) 
 
             <View style={styles.key}>
                 <Text style={styles.text}>Residual Value:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.residualValue ? "Yes" : "No"}</Text>
+                <Text style={styles.value}>{cost?.residualValue ? "Yes" : "No"}</Text>
             </View>
 
             {cost?.residualValue ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Residual Value:&nbsp;</Text>
-                    <Text style={styles.value}>
-                        {cost?.residualValue?.value}
-                        {cost?.residualValue?.approach}
-                    </Text>
-                </View>
+                <ResidualValue residualValue={cost?.residualValue.value} approach={cost.residualValue.approach} />
             ) : null}
 
             <PhaseIn cost={cost} year={year} />

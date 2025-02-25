@@ -1,6 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import { AnalysisType, DollarMethod, type Project, type USLocation } from "blcc-format/Format";
-import { styles } from "components/pdf/pdfStyles";
+import { styles } from "components/pdf/styles/pdfStyles";
+import { percentFormatter } from "util/Util";
 
 type GeneralInformationProps = {
     project: Project;
@@ -80,18 +81,20 @@ export default function GeneralInformation({ project }: GeneralInformationProps)
                     <View style={styles.row}>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>Real Discount Rate:&nbsp;</Text>
-                            <Text style={styles.value}>{project.realDiscountRate}%</Text>
+                            <Text style={styles.value}>{percentFormatter.format(project.realDiscountRate ?? 0)}</Text>
                         </View>
                     </View>
                 ) : (
                     <View style={styles.row}>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>Inflation Rate:&nbsp;</Text>
-                            <Text style={styles.value}>{project.inflationRate}%</Text>
+                            <Text style={styles.value}>{percentFormatter.format(project.inflationRate ?? 0)}</Text>
                         </View>
                         <View style={{ ...styles.item, ...styles.key }}>
                             <Text style={styles.text}>Nominal Discount Rate:&nbsp;</Text>
-                            <Text style={styles.value}>{project.nominalDiscountRate}%</Text>
+                            <Text style={styles.value}>
+                                {percentFormatter.format(project.nominalDiscountRate ?? 0)}
+                            </Text>
                         </View>
                     </View>
                 )}

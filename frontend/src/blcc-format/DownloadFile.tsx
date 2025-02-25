@@ -2,7 +2,7 @@ import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
-import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
+import type { AltResults, Annual, NpvCashflowComparisonSummary, Summary } from "blcc-format/ExportTypes";
 import Pdf from "components/Pdf";
 import { Effect } from "effect";
 import { DexieService } from "model/db";
@@ -16,6 +16,7 @@ import {
     createNpvCashflowComparisonRow,
     createNpvCategoryRow,
     createResourceUsageRow,
+    type NpvCashflowComparisonRow,
 } from "util/ResultCalculations";
 import {
     createAlternativeNameMap,
@@ -86,8 +87,19 @@ export const downloadPdf = Effect.gen(function* () {
         alternativeNpvCashflows: project.alternatives.map((id) =>
             createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true),
         ),
-        npvCashflowComparison: createNpvCashflowComparisonRow(required),
+        npvCashflowComparison: [...createNpvCashflowComparisonRow(required)],
+        npvCashflowComparisonSummary: getSummaryRow(),
     };
+
+    function getSummaryRow(): NpvCashflowComparisonSummary {
+        let alternativeId: number;
+        const summaryRow: NpvCashflowComparisonSummary = { key: -1 };
+        for (let i = 0; i < project.alternatives.length; i++) {
+            alternativeId = alternatives[i].id ?? 0;
+            summaryRow[alternativeId] = measures[i].totalCosts;
+        }
+        return summaryRow;
+    }
 
     const altResults: AltResults = {
         alternativeNpvByCostType: measures.map((measure) => createAlternativeNpvCostTypeTotalRow(measure)),
@@ -217,7 +229,7 @@ export const downloadCsv = Effect.gen(function* () {
         [],
         ["Resource Category", "Resource Subcategory", ...altNames],
         ...summary.lccResourceRows.map((row) => {
-            const { category, subcategory, ...rest } = row;
+            const { category, subcategory, units, ...rest } = row;
 
             return [
                 category ?? "",
@@ -232,7 +244,18 @@ export const downloadCsv = Effect.gen(function* () {
             createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true),
         ),
         npvCashflowComparison: createNpvCashflowComparisonRow(required),
+        npvCashflowComparisonSummary: getSummaryRow(),
     };
+
+    function getSummaryRow(): NpvCashflowComparisonSummary {
+        let alternativeId: number;
+        const summaryRow: NpvCashflowComparisonSummary = { key: -1 };
+        for (let i = 0; i < project.alternatives.length; i++) {
+            alternativeId = alternatives[i].id ?? 0;
+            summaryRow[alternativeId] = measures[i].totalCosts;
+        }
+        return summaryRow;
+    }
 
     const annualResults = [
         "NPV Cash Flow Comparison",
@@ -242,7 +265,7 @@ export const downloadCsv = Effect.gen(function* () {
             const { year, key, ...rest } = row;
             return [year, ...Object.values(rest).map(dollarFormatter.format)].map(wrapCell);
         }),
-        ["Total", ...measures.map((measure) => measure.totalCosts)],
+        ["Total", annual.npvCashflowComparisonSummary],
         [],
         "Annual Results for Alternative",
         [],

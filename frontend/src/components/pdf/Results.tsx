@@ -4,7 +4,7 @@ import type { Alternative } from "blcc-format/Format";
 import AlternativeResultsPdf from "./Results/AlternativeResultsPdf";
 import AnnualResultsPdf from "./Results/AnnualResultsPdf";
 import ResultsSummary from "./Results/ResultsSummary";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
 
 type ResultsProps = {
     alternatives: Alternative[];
