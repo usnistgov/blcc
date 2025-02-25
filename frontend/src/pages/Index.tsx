@@ -1,7 +1,7 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import "nist-header-footer.sass";
-import { mdiChevronDoubleRight, mdiGithub, mdiOpenInNew } from "@mdi/js";
+import { mdiChevronDoubleRight, mdiGithub, mdiHome, mdiLink, mdiOpenInNew } from "@mdi/js";
 import NistHeaderFooter from "components/NistHeaderFooter";
 import { Button, ButtonType } from "components/input/Button";
 import Logo from "images/logo.svg?react";
@@ -31,7 +31,17 @@ export default function Index() {
                     <div className="sticky top-0 py-4 px-10 bg-white text-black z-50 shadow-md">
                         <Button
                             type={ButtonType.LINK}
-                            icon={mdiOpenInNew}
+                            icon={mdiHome}
+                            className="py-2"
+                            onClick={() => {
+                                window.location.href = "https://www.energy.gov/femp/building-life-cycle-cost-programs";
+                            }}
+                        >
+                            FEMP BLCC Home
+                        </Button>
+                        <Button
+                            type={ButtonType.LINK}
+                            icon={mdiLink}
                             className="py-2"
                             onClick={() => {
                                 window.location.href = "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5185-3.pdf";
