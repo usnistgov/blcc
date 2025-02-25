@@ -18,6 +18,7 @@ import {
     CostBenefit,
     CostTypes,
     DiscountingMethod,
+    DollarMethod,
     DollarOrPercent,
     type EnergyCost,
     FuelType,
@@ -77,11 +78,12 @@ export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3Object
                         ? TimestepComp.END_OF_YEAR
                         : TimestepComp.MID_YEAR,
                 )
-                .real()
                 .discountRateReal(project.realDiscountRate ?? 0)
                 .discountRateNominal(project.nominalDiscountRate ?? 0)
                 .inflationRate(project.inflationRate ?? 0)
                 .reinvestRate(project.inflationRate ?? 0); //replace with actual reinvest rate
+
+            project.dollarMethod === DollarMethod.CONSTANT ? analysisBuilder.real() : analysisBuilder.nominal();
 
             // Create costs
             const costs = yield* db.getCosts;
