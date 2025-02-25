@@ -37,9 +37,9 @@ const columns = [
     },
     {
         name: "Investment",
-        key: "initialCost",
+        key: "investment",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.initialCost)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.investment)}</p>
         ),
         ...cellClasses,
     },
@@ -66,7 +66,7 @@ const columns = [
             <p className={"text-right"}>{numberFormatter.format(row.ghgEmissions ?? 0)}</p>
         ),
         ...cellClasses,
-    }
+    },
 ];
 
 const [useRows] = bind(

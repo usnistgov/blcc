@@ -24,7 +24,7 @@ export default function AlternativeResultsPdf({ altNames, altResults }: Alternat
                         <Text style={styles.subHeading}>NPV Cash Flow Comparison</Text>
                         <NpvAltCashflowTable
                             headers={["Cost Type", "", name]}
-                            rows={altResults.alternativeNpvCashflowTotal[index]}
+                            rows={altResults.alternativeNpvByCostType[index]}
                         />
                         <Text style={styles.subHeading}>Energy and Water use, Emissions, and Social Cost of GHG</Text>
                         <NpvAltResourceTable
