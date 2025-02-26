@@ -1,34 +1,15 @@
-import { useStateObservable } from "@react-rxjs/core";
-import { Divider } from "antd";
+import { Divider, Switch } from "antd";
 import { DollarOrPercent } from "blcc-format/Format";
-import { Dropdown } from "components/input/Dropdown";
-import { NumberInput } from "components/input/InputNumber";
-import Switch from "components/input/Switch";
+import { TestNumberInput } from "components/input/TestNumberInput";
+import { TestSelect } from "components/input/TestSelect";
 import { Strings } from "constants/Strings";
 import { ResidualValueModel } from "model/ResidualValueModel";
-import { useMemo } from "react";
-import { map } from "rxjs";
-import { toPercentage } from "util/Util";
 
 /**
  * Component to display the inputs associated with residual value
  */
 export default function ResidualValue() {
-    const approach = useStateObservable(ResidualValueModel.approach$);
-    const hasResidualValue = useStateObservable(ResidualValueModel.hasResidualValue$);
-
-    const approachDropdown = useMemo(
-        () => (
-            <Dropdown
-                label={"Approach"}
-                showLabel={false}
-                options={Object.values(DollarOrPercent)}
-                wire={ResidualValueModel.sApproach$}
-                value$={ResidualValueModel.approach$}
-            />
-        ),
-        [],
-    );
+    const hasResidualValue = ResidualValueModel.hasResidualValue();
 
     return (
         <div className={"flex flex-col"}>
@@ -37,31 +18,51 @@ export default function ResidualValue() {
             </Divider>
             <div>
                 <Switch
-                    unCheckedChildren={"None"}
-                    wire={ResidualValueModel.sSetResidualValue$}
-                    value$={ResidualValueModel.hasResidualValue$}
+                    checkedChildren={"Yes"}
+                    unCheckedChildren={"No"}
+                    value={hasResidualValue}
+                    onChange={ResidualValueModel.Actions.toggle}
                 />
             </div>
-            {hasResidualValue && (
-                <div className={"grid grid-cols-3 gap-x-16 gap-y-4 pt-6"}>
-                    <NumberInput
-                        className={"w-full"}
-                        info={Strings.RESIDUAL_VALUE}
-                        id={"residual-value"}
-                        addonBefore={
-                            approach === DollarOrPercent.DOLLAR ? approachDropdown : undefined
-                        }
-                        addonAfter={
-                            approach === DollarOrPercent.PERCENT ? approachDropdown : undefined
-                        }
-                        label={"Value"}
-                        allowEmpty
-                        value$={ResidualValueModel.value$.pipe(
-                            map(value => toPercentage(value ?? 0)))}
-                        wire={ResidualValueModel.sValue$}
-                    />
-                </div>
-            )}
+            {hasResidualValue && <ResidualValueInput />}
+        </div>
+    );
+}
+
+function ApproachSelect() {
+    const approach = ResidualValueModel.approach.use();
+    const value = ResidualValueModel.value.use();
+
+    return (
+        <TestSelect
+            label={"Approach"}
+            showLabel={false}
+            options={Object.values(DollarOrPercent)}
+            getter={ResidualValueModel.approach.use}
+            onChange={(option) => ResidualValueModel.Actions.setApproach(approach, option, value)}
+        />
+    );
+}
+
+function ResidualValueInput() {
+    const approach = ResidualValueModel.approach.use();
+
+    return (
+        <div className={"grid grid-cols-3 gap-x-16 gap-y-4 pt-6"}>
+            <TestNumberInput
+                className={"w-full"}
+                info={Strings.RESIDUAL_VALUE}
+                id={"residual-value"}
+                addonBefore={approach === DollarOrPercent.DOLLAR ? <ApproachSelect /> : undefined}
+                addonAfter={approach === DollarOrPercent.PERCENT ? <ApproachSelect /> : undefined}
+                label={"Value"}
+                getter={
+                    approach === DollarOrPercent.PERCENT
+                        ? ResidualValueModel.useValuePercent
+                        : ResidualValueModel.value.use
+                }
+                onChange={(change) => ResidualValueModel.Actions.setValue(change, approach)}
+            />
         </div>
     );
 }
