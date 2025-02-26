@@ -2,18 +2,24 @@ import { type StateObservable, bind } from "@react-rxjs/core";
 import { Match } from "effect";
 import * as O from "optics-ts";
 import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap } from "rxjs";
-import { shareReplay, startWith } from "rxjs/operators";
+import { shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import type { ZodError, ZodType } from "zod";
+import type { Collection } from "dexie";
 
-export class DexieModel<T> {
+export class DexieModel<T extends object> {
     private sModify$: Subject<(t: T) => T> = new Subject<(t: T) => T>();
     $: Observable<T>;
 
-    constructor(getter$: Observable<T>) {
+    constructor(getter$: Observable<T>, collection$: Observable<Collection<T>>) {
         this.$ = getter$.pipe(
-            switchMap((value) =>
+            withLatestFrom(collection$),
+            switchMap(([value, collection]) =>
                 this.sModify$.pipe(
                     scan((acc, modifier) => modifier(acc), value),
+                    tap((next) => {
+                        console.log("Modifying from dexie model class");
+                        collection.modify(next);
+                    }),
                     startWith(value),
                 ),
             ),
@@ -39,7 +45,7 @@ export class ModelType<A> {
     }
 }
 
-export class Var<A, B> {
+export class Var<A extends object, B> {
     model: DexieModel<A>;
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     optic: O.Lens<A, any, B> | O.Prism<A, any, B>;

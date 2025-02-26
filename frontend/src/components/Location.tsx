@@ -11,7 +11,7 @@ import type React from "react";
  * If the country is the United States, this component is a dropdown with all 50 states.
  * Otherwise, this component is a text input.
  */
-function StateOrProvince<T>({ model }: { model: LocationModel<T> }) {
+function StateOrProvince<T extends object>({ model }: { model: LocationModel<T> }) {
     return model.country.use() === Country.USA ? (
         <TestSelect
             label={"State"}
@@ -42,7 +42,9 @@ function StateOrProvince<T>({ model }: { model: LocationModel<T> }) {
  * @param model - The location model containing the zipcode to be updated.
  * @returns A function to handle the change event for a zipcode input.
  */
-function setZipcodeHandler<T>(model: LocationModel<T>): (event: React.ChangeEvent<HTMLInputElement>) => void {
+function setZipcodeHandler<T extends object>(
+    model: LocationModel<T>,
+): (event: React.ChangeEvent<HTMLInputElement>) => void {
     return (event) => {
         // Only allow 5-digit numbers or empty
         const value = event.currentTarget.value;
@@ -55,7 +57,7 @@ function setZipcodeHandler<T>(model: LocationModel<T>): (event: React.ChangeEven
  * This component is only visible if the country is the United States.
  * The zipcode must be a 5-digit number.
  */
-function Zipcode<T>({ model }: { model: LocationModel<T> }) {
+function Zipcode<T extends object>({ model }: { model: LocationModel<T> }) {
     if (model.country.use() !== Country.USA) return;
 
     return (
@@ -80,7 +82,7 @@ function Zipcode<T>({ model }: { model: LocationModel<T> }) {
  * @param model - The location model
  * @returns Function that takes a country and updates the model
  */
-function setCountryHandler<T>(model: LocationModel<T>): (country: Country) => void {
+function setCountryHandler<T extends object>(model: LocationModel<T>): (country: Country) => void {
     return (country) => {
         // If the country is not the United States, clear the state and zipcode
         // otherwise clear the state/province
@@ -107,7 +109,7 @@ function setCountryHandler<T>(model: LocationModel<T>): (country: Country) => vo
  * 4. Zipcode, which is a text input that must be a 5-digit number
  *    (only visible if the country is the United States).
  */
-export default function Location<T>({ model }: { model: LocationModel<T> }) {
+export default function Location<T extends object>({ model }: { model: LocationModel<T> }) {
     return (
         <>
             <TestSelect
