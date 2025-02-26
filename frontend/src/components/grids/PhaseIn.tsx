@@ -1,14 +1,11 @@
-import { state, useStateObservable } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { Divider } from "antd";
-import type { CapitalCost } from "blcc-format/Format";
-import type { Collection } from "dexie";
-import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { combineLatest, map } from "rxjs";
-import { filter, withLatestFrom } from "rxjs/operators";
+import { map } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 import { percentFormatter, toDecimal, toPercentage } from "util/Util";
 
 type PhaseInRateInfo = {
@@ -46,49 +43,61 @@ const COLUMNS = [
     },
 ];
 
-export default function PhaseIn() {
-    const [default$, rates$] = useMemo(() => {
-        const default$ = combineLatest([CapitalCostModel.phaseIn.$, Model.constructionPeriod.$]).pipe(
-            filter(([phaseIn, constructionPeriod]) => constructionPeriod > 0 && phaseIn === undefined),
-            map(([, constructionPeriod]) => {
-                // Create default array with a size equal to the construction period
-                const array = Array(constructionPeriod).fill(0);
-                // Set the first year to 100% (1.0f)
-                array[0] = 1;
+function defaultPhaseIn(constructionPeriod: number): number[] {
+    // Create default array with a size equal to the construction period
+    const array = Array(constructionPeriod).fill(0);
+    // Set the first year to 100% (1.0f)
+    array[0] = 1;
 
-                return array;
-            }),
-            withLatestFrom(CostModel.collection$),
-        );
+    return array;
+}
 
-        const rates$ = state(
-            CapitalCostModel.phaseIn.$.pipe(
-                map(
-                    (rates) =>
-                        rates?.map(
-                            (rate, i) =>
-                                ({
-                                    year: i,
-                                    phaseIn: rate,
-                                }) as PhaseInRateInfo,
-                        ) ?? [],
-                ),
+function resize(array: number[], length: number) {
+    // If array is shorter than length, pad with zeros
+    if (array.length < length) {
+        return [...array, ...Array(length - array.length).fill(0)];
+    }
+
+    // If array is longer than length, truncate to length
+    return array.slice(0, length);
+}
+
+namespace PhaseInModel {
+    export const phaseInOrDefault$ = CapitalCostModel.phaseIn.$.pipe(
+        withLatestFrom(Model.constructionPeriod.$),
+        map(([phaseIn, constructionPeriod]) => {
+            if (phaseIn === undefined) {
+                return defaultPhaseIn(constructionPeriod);
+            }
+
+            // If phase in is not the correct size, create new array with correct size, and set
+            if (phaseIn.length !== constructionPeriod) {
+                const newSize = resize(phaseIn, constructionPeriod);
+                CapitalCostModel.Actions.setPhaseIn(newSize);
+                return newSize;
+            }
+
+            return phaseIn;
+        }),
+    );
+    export const [useColumns] = bind(
+        phaseInOrDefault$.pipe(
+            map(
+                (rates) =>
+                    rates?.map(
+                        (rate, i) =>
+                            ({
+                                year: i,
+                                phaseIn: rate,
+                            }) as PhaseInRateInfo,
+                    ) ?? [],
             ),
-        );
+        ),
+    );
+}
 
-        return [default$, rates$];
-    }, []);
-
-    useEffect(() => {
-        const subscription = default$.subscribe(([phaseIn, collection]) =>
-            (collection as Collection<CapitalCost>).modify({ phaseIn }),
-        );
-
-        return () => subscription.unsubscribe();
-    }, [default$]);
-
+export default function PhaseIn() {
     const constructionPeriod = Model.constructionPeriod.use();
-    const rates = useStateObservable(rates$);
 
     return (
         <div className={"grid grid-cols-2"}>
@@ -100,7 +109,7 @@ export default function PhaseIn() {
                 <div className={"w-full overflow-hidden rounded shadow-lg"}>
                     <DataGrid
                         className={"rdg-light h-full"}
-                        rows={rates}
+                        rows={PhaseInModel.useColumns()}
                         columns={COLUMNS}
                         onRowsChange={(change) =>
                             // Convert back to flat float array
