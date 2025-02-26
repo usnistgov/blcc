@@ -17,12 +17,7 @@ export namespace CostModel {
 
     export const collection$ = id$.pipe(distinctUntilChanged(), DexieOps.byId(db.costs), shareReplay(1));
 
-    export const cost = new DexieModel(collection$.pipe(DexieOps.first(), guard()));
-    // Write changes back to database
-    cost.$.pipe(withLatestFrom(collection$)).subscribe(([next, collection]) => {
-        console.log("Modifying cost", next);
-        collection.modify(next);
-    });
+    export const cost = new DexieModel(collection$.pipe(DexieOps.first(), guard()), collection$);
 
     export const id = new Var(cost, O.optic<Cost>().prop("id"));
 

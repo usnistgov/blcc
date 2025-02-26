@@ -1,4 +1,5 @@
 import {
+    type CapitalCost,
     type Cost,
     CostTypes,
     type EnergyCost,
@@ -9,6 +10,7 @@ import {
     type OtherNonMonetary,
     type RecurringContractCost,
     type ReplacementCapitalCost,
+    ResidualValueCost,
     type USLocation,
 } from "blcc-format/Format";
 import { Country } from "constants/LOCATION";
@@ -119,4 +121,15 @@ export function isOtherMonetary(cost: Cost) {
 
 export function isOtherNonMonetary(cost: Cost) {
     return cost.type === CostTypes.OTHER_NON_MONETARY;
+}
+
+export function isCapital(cost: Cost) {
+    return cost.type === CostTypes.CAPITAL;
+}
+
+/**
+ * Checks if the given cost is a cost with residual value
+ */
+export function isResidualValueCost(cost: Cost): cost is CapitalCost | ReplacementCapitalCost {
+    return cost.type === CostTypes.CAPITAL || cost.type === CostTypes.REPLACEMENT_CAPITAL;
 }

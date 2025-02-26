@@ -1,53 +1,74 @@
-import { state } from "@react-rxjs/core";
-import { DollarOrPercent, type ResidualValueCost, type ResidualValue as ResidualValueType } from "blcc-format/Format";
-import type { Collection } from "dexie";
+import { bind } from "@react-rxjs/core";
+import { type CapitalCost, DollarOrPercent, type ReplacementCapitalCost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
-import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
-import { filter, withLatestFrom } from "rxjs/operators";
+import { isResidualValueCost } from "model/Guards";
+import * as O from "optics-ts";
+import { map } from "rxjs";
+import { guard } from "util/Operators";
+import { toDecimal, toPercentage } from "util/Util";
+import { Var } from "util/var";
 
 export namespace ResidualValueModel {
-    const collection$ = CostModel.collection$ as Observable<Collection<ResidualValueCost>>;
+    // Residual value optic
+    const residualValueOptic = O.optic<CapitalCost | ReplacementCapitalCost>().guard(isResidualValueCost);
 
-    export const hasResidualValue$ = state(
-        // @ts-ignore
-        CostModel.cost.$.pipe(map((cost) => Object.hasOwn(cost, "residualValue"))),
+    export const residualValue = new Var(CostModel.cost, residualValueOptic.prop("residualValue"));
+    export const [hasResidualValue] = bind(
+        residualValue.$.pipe(map((residualValue) => residualValue !== undefined)),
         false,
     );
-    export const sSetResidualValue$ = new Subject<boolean>();
-    sSetResidualValue$.pipe(withLatestFrom(collection$)).subscribe(([hasResidualValue, collection]) => {
-        collection.modify({
-            residualValue: hasResidualValue
-                ? ({
-                      approach: DollarOrPercent.DOLLAR,
-                      value: 0,
-                  } as ResidualValueType)
-                : undefined,
-        });
-    });
 
-    // @ts-ignore
-    const cost$: Observable<ResidualValueCost> = CostModel.cost.$.pipe(
-        // @ts-ignore
-        filter((cost): cost is ResidualValueCost => Object.hasOwn(cost, "residualValue")),
+    export const approach = new Var(
+        CostModel.cost,
+        residualValueOptic.prop("residualValue").optional().prop("approach"),
     );
 
-    export const sApproach$ = new Subject<DollarOrPercent>();
-    export const approach$ = state(
-        merge(cost$.pipe(map((cost) => cost.residualValue?.approach)), sApproach$).pipe(distinctUntilChanged()),
-        DollarOrPercent.DOLLAR,
-    );
-    sApproach$
-        .pipe(withLatestFrom(collection$))
-        // @ts-ignore
-        .subscribe(([approach, collection]) => collection.modify({ "residualValue.approach": approach }));
+    // Value var
+    export const value = new Var(CostModel.cost, residualValueOptic.prop("residualValue").optional().prop("value"));
+    export const [useValuePercent] = bind(value.$.pipe(guard(), map(toPercentage)));
 
-    export const sValue$ = new Subject<number | undefined>();
-    export const value$ = state(
-        merge(sValue$, cost$.pipe(map((cost) => cost.residualValue?.value ?? 0))).pipe(distinctUntilChanged()),
-        0,
-    );
-    sValue$
-        .pipe(withLatestFrom(CostModel.collection$))
-        // @ts-ignore
-        .subscribe(([value, collection]) => collection.modify({ "residualValue.value": value }));
+    export namespace Actions {
+        export function toggle(toggle: boolean) {
+            if (toggle)
+                residualValue.set({
+                    approach: DollarOrPercent.DOLLAR,
+                    value: 0,
+                });
+            else residualValue.set(undefined);
+        }
+
+        /**
+         * Sets the value of the residual value. If the approach is percent, convert to decimal first.
+         *
+         * @param valuePercent the value to change to
+         * @param approach the current approach
+         */
+        export function setValue(valuePercent: number | null, approach: DollarOrPercent) {
+            if (valuePercent === null) return;
+
+            if (approach === DollarOrPercent.PERCENT) value.set(toDecimal(valuePercent));
+            else if (approach === DollarOrPercent.DOLLAR) value.set(valuePercent);
+        }
+
+        /**
+         * Sets the approach of the residual value. If the current approach is the same as the new approach, do nothing.
+         * If the new approach is percent, convert the current value to decimal.
+         * If the new approach is dollar, convert the current value to percent.
+         *
+         * @param current The current approach.
+         * @param newApproach The approach to change to.
+         * @param currentValue The current residual value that may need to be converted to decimal/percent.
+         */
+        export function setApproach(current: DollarOrPercent, newApproach: DollarOrPercent, currentValue: number) {
+            if (newApproach === current) return;
+
+            if (newApproach === DollarOrPercent.DOLLAR) {
+                value.set(toPercentage(currentValue));
+                approach.set(newApproach);
+            } else if (newApproach === DollarOrPercent.PERCENT) {
+                value.set(toDecimal(currentValue));
+                approach.set(newApproach);
+            }
+        }
+    }
 }

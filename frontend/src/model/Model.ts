@@ -35,12 +35,7 @@ export const sProjectCollection$ = new BehaviorSubject<Collection<Project>>(
     db.projects.where("id").equals(Defaults.PROJECT_ID),
 );
 
-const DexieModelTest = new DexieModel(sProject$);
-// Write changes back to database
-DexieModelTest.$.pipe(withLatestFrom(sProjectCollection$)).subscribe(([next, collection]) => {
-    console.log("modifying", next);
-    collection.modify(next);
-});
+const DexieModelTest = new DexieModel(sProject$, sProjectCollection$);
 
 export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
@@ -53,9 +48,7 @@ export const baselineID$ = alternatives$.pipe(
     guard(),
 );
 
-export const hasBaseline$ = alternatives$.pipe(
-    map((alternatives$) => findBaselineID(alternatives$) === undefined)
-);
+export const hasBaseline$ = alternatives$.pipe(map((alternatives$) => findBaselineID(alternatives$) === undefined));
 export const [useHasBaseline] = bind(hasBaseline$, false);
 
 export const costIDs$ = sProject$.pipe(map((p) => p.costs));
@@ -90,7 +83,7 @@ export const isDirty$ = hash$.pipe(
 
 export const [useIsDirty] = bind(isDirty$, false);
 
-export type LocationModel<T> = {
+export type LocationModel<T extends object> = {
     country: Var<T, Country | undefined>;
     city: Var<T, string | undefined>;
     state: Var<T, State | undefined>;

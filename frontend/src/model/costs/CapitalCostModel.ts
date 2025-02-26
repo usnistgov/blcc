@@ -1,61 +1,87 @@
-import { type CapitalCost, CostTypes } from "blcc-format/Format";
+import { bind } from "@react-rxjs/core";
+import type { CapitalCost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
-import { type Observable, Subject, distinctUntilChanged, map, merge } from "rxjs";
-import { filter, withLatestFrom } from "rxjs/operators";
-import cost = CostModel.cost;
-import type { Collection } from "dexie";
+import { isCapital } from "model/Guards";
+import * as O from "optics-ts";
+import { map } from "rxjs/operators";
+import { guard } from "util/Operators";
+import { toDecimal, toPercentage } from "util/Util";
+import { Var } from "util/var";
 
 export namespace CapitalCostModel {
-    export const cost$ = cost.$.pipe(filter((cost): cost is CapitalCost => cost.type === CostTypes.CAPITAL));
-    const collection$ = CostModel.collection$ as Observable<Collection<CapitalCost>>;
+    const capitalCostOptic = O.optic<CapitalCost>().guard(isCapital);
 
-    export const sInitialCost$ = new Subject<number | undefined>();
-    export const initialCost$ = merge(sInitialCost$, cost$.pipe(map((cost) => cost.initialCost))).pipe(
-        distinctUntilChanged(),
+    //Initial Cost
+    export const initialCost = new Var(CostModel.cost, capitalCostOptic.prop("initialCost"));
+
+    // Annual Rate of Change
+    export const annualRateOfChange = new Var(CostModel.cost, capitalCostOptic.prop("annualRateOfChange"));
+    export const [useAnnualRateOfChangePercentage] = bind(
+        annualRateOfChange.$.pipe(guard(), map(toPercentage)),
+        undefined,
     );
-    sInitialCost$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([initialCost, collection]) => collection.modify({ initialCost }));
 
-    export const sAnnualRateOfChange$ = new Subject<number | undefined>();
-    export const annualRateOfChange$ = merge(
-        sAnnualRateOfChange$,
-        cost$.pipe(map((cost) => cost.annualRateOfChange)),
-    ).pipe(distinctUntilChanged());
-    sAnnualRateOfChange$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([annualRateOfChange, collection]) => collection.modify({ annualRateOfChange }));
+    // Expected Lifetime
+    export const expectedLife = new Var(CostModel.cost, capitalCostOptic.prop("expectedLife"));
 
-    export const sExpectedLifetime$ = new Subject<number | undefined>();
-    export const expectedLifetime$ = merge(sExpectedLifetime$, cost$.pipe(map((cost) => cost.expectedLife))).pipe(
-        distinctUntilChanged(),
+    // Cost Adjustment Factor
+    export const costAdjustmentFactor = new Var(CostModel.cost, capitalCostOptic.prop("costAdjustment"));
+    export const [useCostAdjustmentFactorPercentage] = bind(
+        costAdjustmentFactor.$.pipe(guard(), map(toPercentage)),
+        undefined,
     );
-    sExpectedLifetime$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([expectedLife, collection]) => collection.modify({ expectedLife }));
 
-    export const sCostAdjustmentFactor$ = new Subject<number | undefined>();
-    export const costAdjustmentFactor$ = merge(
-        sCostAdjustmentFactor$,
-        cost$.pipe(map((cost) => cost.costAdjustment)),
-    ).pipe(distinctUntilChanged());
-    sCostAdjustmentFactor$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([costAdjustment, collection]) => collection.modify({ costAdjustment }));
+    // Amount Financed
+    export const amountFinanced = new Var(CostModel.cost, capitalCostOptic.prop("amountFinanced"));
 
-    export const sAmountFinanced$ = new Subject<number | undefined>();
-    export const amountFinanced$ = merge(sAmountFinanced$, cost$.pipe(map((cost) => cost.amountFinanced))).pipe(
-        distinctUntilChanged(),
-    );
-    amountFinanced$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([amountFinanced, collection]) => collection.modify({ amountFinanced }));
+    // Phase In
+    export const phaseIn = new Var(CostModel.cost, capitalCostOptic.prop("phaseIn"));
 
-    export const sPhaseInChange$ = new Subject<number[]>();
-    export const phaseIn$ = merge(sPhaseInChange$, cost$.pipe(map((cost) => cost.phaseIn))).pipe(
-        distinctUntilChanged(),
-    );
-    sPhaseInChange$
-        .pipe(withLatestFrom(collection$))
-        .subscribe(([phaseIn, collection]) => collection.modify({ phaseIn }));
+    export namespace Actions {
+        /**
+         * Sets the initial cost to the given value. If the value is null, sets the initial cost to undefined.
+         */
+        export function setInitialCost(newInitialCost: number | null) {
+            initialCost.set(newInitialCost ?? undefined);
+        }
+
+        /**
+         * Sets the amount financed to the given value. If the value is null, sets the amount financed to undefined.
+         */
+        export function setAmountFinanced(newAmountFinanced: number | null) {
+            amountFinanced.set(newAmountFinanced ?? undefined);
+        }
+
+        /**
+         * Sets the expected lifetime to the given value. If the value is null, do nothing
+         */
+        export function setExpectedLife(newExpectedLife: number | null) {
+            if (newExpectedLife === null) return;
+
+            expectedLife.set(newExpectedLife);
+        }
+
+        /**
+         * Sets the annual rate of change to the given value. If the value is null, sets the annual rate of change to undefined.
+         */
+        export function setAnnualRateOfChange(newAnnualRateOfChangePercent: number | null) {
+            if (newAnnualRateOfChangePercent === null) annualRateOfChange.set(undefined);
+            else annualRateOfChange.set(toDecimal(newAnnualRateOfChangePercent));
+        }
+
+        /**
+         * Sets the cost adjustment factor to the given value. If the value is null, sets the cost adjustment factor to undefined.
+         */
+        export function setCostAdjustmentFactor(newCostAdjustmentFactorPercent: number | null) {
+            if (newCostAdjustmentFactorPercent === null) costAdjustmentFactor.set(undefined);
+            else costAdjustmentFactor.set(toDecimal(newCostAdjustmentFactorPercent));
+        }
+
+        /**
+         * Sets the phase in to the given values.
+         */
+        export function setPhaseIn(newPhaseIn: number[]) {
+            phaseIn.set(newPhaseIn);
+        }
+    }
 }
