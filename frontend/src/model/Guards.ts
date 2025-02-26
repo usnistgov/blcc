@@ -120,3 +120,7 @@ export function isOtherMonetary(cost: Cost) {
 export function isOtherNonMonetary(cost: Cost) {
     return cost.type === CostTypes.OTHER_NON_MONETARY;
 }
+
+export function isCapital(cost: Cost) {
+    return cost.type === CostTypes.CAPITAL;
+}

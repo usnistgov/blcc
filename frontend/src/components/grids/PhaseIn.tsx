@@ -15,6 +15,7 @@ type PhaseInRateInfo = {
     year: number;
     phaseIn: number;
 };
+
 const COLUMNS = [
     {
         name: "Year",
@@ -47,9 +48,9 @@ const COLUMNS = [
 
 export default function PhaseIn() {
     const [default$, rates$] = useMemo(() => {
-        const default$ = combineLatest([CapitalCostModel.phaseIn$, Model.constructionPeriod.$]).pipe(
+        const default$ = combineLatest([CapitalCostModel.phaseIn.$, Model.constructionPeriod.$]).pipe(
             filter(([phaseIn, constructionPeriod]) => constructionPeriod > 0 && phaseIn === undefined),
-            map(([phaseIn, constructionPeriod]) => {
+            map(([, constructionPeriod]) => {
                 // Create default array with a size equal to the construction period
                 const array = Array(constructionPeriod).fill(0);
                 // Set the first year to 100% (1.0f)
@@ -61,7 +62,7 @@ export default function PhaseIn() {
         );
 
         const rates$ = state(
-            CapitalCostModel.phaseIn$.pipe(
+            CapitalCostModel.phaseIn.$.pipe(
                 map(
                     (rates) =>
                         rates?.map(
@@ -93,17 +94,17 @@ export default function PhaseIn() {
         <div className={"grid grid-cols-2"}>
             <Divider className={"col-span-2"} style={{ fontSize: "20px" }} orientation={"left"} orientationMargin={"0"}>
                 Cost-Phasing of Initial Cost
-                <p className={"text-xs text-base-light"}>Percentages must add up to 100%</p>
+                <p className={"text-base-light text-xs"}>Percentages must add up to 100%</p>
             </Divider>
             {constructionPeriod > 0 ? (
                 <div className={"w-full overflow-hidden rounded shadow-lg"}>
                     <DataGrid
-                        className={"h-full rdg-light"}
+                        className={"rdg-light h-full"}
                         rows={rates}
                         columns={COLUMNS}
                         onRowsChange={(change) =>
                             // Convert back to flat float array
-                            CapitalCostModel.sPhaseInChange$.next(change.map((info) => info.phaseIn))
+                            CapitalCostModel.Actions.setPhaseIn(change.map((info) => info.phaseIn))
                         }
                     />
                 </div>

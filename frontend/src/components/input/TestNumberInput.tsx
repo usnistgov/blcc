@@ -6,11 +6,12 @@ import Nbsp from "util/Nbsp";
 
 export function TestNumberInput<T extends number | undefined>({
     label,
+    subLabel,
     getter,
     info,
     required,
     ...defaultProps
-}: { getter: () => T; required?: boolean; label?: ReactNode; info?: ReactNode } & Omit<
+}: { getter: () => T; required?: boolean; label?: ReactNode; subLabel?: ReactNode; info?: ReactNode } & Omit<
     InputNumberProps<number>,
     "value"
 >) {
@@ -29,6 +30,7 @@ export function TestNumberInput<T extends number | undefined>({
                             {label}
                             {requiredElement}
                         </Info>
+                        {subLabel && <p className={"text-base-light text-xs"}>{subLabel}</p>}
                     </Title>
                 ) : (
                     <Title level={5}>

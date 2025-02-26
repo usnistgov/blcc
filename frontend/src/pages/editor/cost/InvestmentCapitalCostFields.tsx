@@ -1,74 +1,66 @@
 import ResidualValue from "components/ResidualValue";
 import PhaseIn from "components/grids/PhaseIn";
-import { NumberInput } from "components/input/InputNumber";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
 import React from "react";
-import { map } from "rxjs";
-import { toPercentage } from "util/Util";
 
 export default function InvestmentCapitalCostFields() {
-    const isSavings = CostModel.costOrSavings;
+    const isSavings = CostModel.costOrSavings.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.INITIAL_COST}
                     addonBefore={"$"}
                     controls
-                    allowEmpty
                     label={isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"}
-                    wire={CapitalCostModel.sInitialCost$}
-                    value$={CapitalCostModel.initialCost$}
+                    getter={CapitalCostModel.initialCost.use}
+                    onChange={CapitalCostModel.Actions.setInitialCost}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.AMOUNT_FINANCED}
                     addonBefore={"$"}
                     controls
-                    allowEmpty
                     label={"Amount Financed"}
-                    wire={CapitalCostModel.sAmountFinanced$}
-                    value$={CapitalCostModel.amountFinanced$}
+                    getter={CapitalCostModel.amountFinanced.use}
+                    onChange={CapitalCostModel.Actions.setAmountFinanced}
                 />
 
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     id={"expected-lifetime"}
                     info={Strings.EXPECTED_LIFETIME}
                     addonAfter={"years"}
                     controls
-                    allowEmpty
                     label={"Expected Lifetime"}
-                    wire={CapitalCostModel.sExpectedLifetime$}
-                    value$={CapitalCostModel.expectedLifetime$}
+                    getter={CapitalCostModel.expectedLife.use}
+                    onChange={CapitalCostModel.Actions.setExpectedLife}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.ANNUAL_RATE_OF_CHANGE}
                     addonAfter={"%"}
                     controls
-                    allowEmpty
                     label={"Annual Rate of Change"}
                     subLabel={"for residual value calculation"}
-                    wire={CapitalCostModel.sAnnualRateOfChange$}
-                    value$={CapitalCostModel.annualRateOfChange$}
+                    getter={CapitalCostModel.useAnnualRateOfChangePercentage}
+                    onChange={CapitalCostModel.Actions.setAnnualRateOfChange}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     id={"cost-adjustment-factor"}
                     info={Strings.COST_ADJUSTMENT_FACTOR}
                     addonAfter={"%"}
                     controls
-                    allowEmpty
                     label={"Cost Adjustment Factor"}
                     subLabel={"for phased-in investments"}
-                    wire={CapitalCostModel.sCostAdjustmentFactor$}
-                    value$={CapitalCostModel.costAdjustmentFactor$.pipe(
-                        map(value => toPercentage(value ?? 0)))}
+                    getter={CapitalCostModel.useCostAdjustmentFactorPercentage}
+                    onChange={CapitalCostModel.Actions.setCostAdjustmentFactor}
                 />
             </div>
 
