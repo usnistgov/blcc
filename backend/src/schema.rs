@@ -46,7 +46,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    escalation_rates (release_year, year, division, sector, case) {
+    escalation_rates (release_year, year, division, sector, case, region) {
         release_year -> Int4,
         year -> Int4,
         division -> Text,
