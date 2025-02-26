@@ -11,7 +11,8 @@ import {
     InitialOccurence,
     PhaseIn,
 } from "components/pdf/CostComponents";
-import { styles } from "components/pdf/pdfStyles";
+import { styles } from "components/pdf/styles/pdfStyles";
+import ResidualValue from "./ResidualValue";
 
 type ReplacementCapitalCostInputProps = {
     cost: ReplacementCapitalCost;
@@ -19,6 +20,7 @@ type ReplacementCapitalCostInputProps = {
 };
 
 export default function ReplacementCapitalCostInput({ cost, year }: ReplacementCapitalCostInputProps) {
+    console.log(cost);
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -43,13 +45,7 @@ export default function ReplacementCapitalCostInput({ cost, year }: ReplacementC
             </View>
 
             {cost?.residualValue ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Residual Value:&nbsp;</Text>
-                    <Text style={styles.value}>
-                        {cost?.residualValue?.value}
-                        {cost?.residualValue?.approach}
-                    </Text>
-                </View>
+                <ResidualValue residualValue={cost?.residualValue.value} approach={cost.residualValue.approach} />
             ) : null}
 
             <PhaseIn cost={cost} year={year} />

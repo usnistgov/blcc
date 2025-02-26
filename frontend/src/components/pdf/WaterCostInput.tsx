@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { WaterCost } from "blcc-format/Format";
 import { CostName, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
+import { dollarFormatter } from "util/Util";
 
 const border = "1px solid #000";
 const fontSize = 10;
@@ -43,17 +44,17 @@ export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
             <View style={{ marginBottom: 8 }}>
                 {cost?.costSavings ? (
                     <View style={styles.key}>
-                        {cost?.costSavings ? (
-                            <Text style={styles.text}>Usage Savings:&nbsp;</Text>
-                        ) : (
-                            <Text style={styles.text}>Usage:&nbsp;</Text>
-                        )}
+                        <Text style={styles.text}>Usage Savings:&nbsp;</Text>
                     </View>
-                ) : null}
+                ) : (
+                    <View style={styles.key}>
+                        <Text style={styles.text}>Usage:&nbsp;</Text>
+                    </View>
+                )}
 
                 <View style={localStyles.container}>
                     <Text style={styles.cell}>Season</Text>
-                    <Text style={styles.cell}>Qty/Unit</Text>
+                    <Text style={styles.cell}>Qty</Text>
                     <Text style={styles.cell}>Price/Unit</Text>
                 </View>
                 {cost?.usage?.map((use) => {
@@ -61,10 +62,10 @@ export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
                         <View key={use.season} style={styles.table}>
                             <Text style={styles.alt}>{use?.season}</Text>
                             <Text style={styles.alt}>
-                                {use?.amount}/{cost?.unit}
+                                {use?.amount} {cost?.unit}
                             </Text>
                             <Text style={styles.alt}>
-                                {use?.costPerUnit} $/{cost?.unit}
+                                {dollarFormatter.format(use?.costPerUnit)}/{cost?.unit}
                             </Text>
                         </View>
                     );
@@ -74,17 +75,17 @@ export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
             <View style={{ marginBottom: 8 }}>
                 {cost?.costSavings ? (
                     <View style={styles.key}>
-                        {cost?.costSavings ? (
-                            <Text style={styles.text}>Disposal Savings:&nbsp;</Text>
-                        ) : (
-                            <Text style={styles.text}>Disaposal:&nbsp;</Text>
-                        )}
+                        <Text style={styles.text}>Disposal Savings:&nbsp;</Text>
                     </View>
-                ) : null}
+                ) : (
+                    <View style={styles.key}>
+                        <Text style={styles.text}>Disposal:&nbsp;</Text>
+                    </View>
+                )}
 
                 <View style={localStyles.container}>
                     <Text style={styles.cell}>Season</Text>
-                    <Text style={styles.cell}>Qty/Unit</Text>
+                    <Text style={styles.cell}>Qty</Text>
                     <Text style={styles.cell}>Price/Unit</Text>
                 </View>
                 {cost?.disposal?.map((dis) => {
@@ -92,10 +93,10 @@ export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
                         <View key={dis.season} style={styles.table}>
                             <Text style={styles.alt}>{dis?.season}</Text>
                             <Text style={styles.alt}>
-                                {dis?.amount}/{cost?.unit}
+                                {dis?.amount} {cost?.unit}
                             </Text>
                             <Text style={styles.alt}>
-                                {dis?.costPerUnit}$/{cost?.unit}
+                                {dollarFormatter.format(dis?.costPerUnit)}/{cost?.unit}
                             </Text>
                         </View>
                     );

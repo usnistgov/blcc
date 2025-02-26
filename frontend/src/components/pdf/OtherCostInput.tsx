@@ -10,7 +10,8 @@ import {
 } from "./CostComponents";
 
 import type { OtherCost } from "blcc-format/Format";
-import { styles } from "./pdfStyles";
+import { styles } from "./styles/pdfStyles";
+import { dollarFormatter } from "util/Util";
 
 type OtherCostInputProps = {
     cost: OtherCost;
@@ -48,7 +49,7 @@ export default function OtherCostInput({ cost, year }: OtherCostInputProps) {
                 <View style={styles.key}>
                     <Text style={styles.text}>Value per Unit:&nbsp;</Text>
                     <Text style={styles.value}>
-                        {cost?.valuePerUnit} per {cost?.unit}
+                        {dollarFormatter.format(cost?.valuePerUnit)} per {cost?.unit}
                     </Text>
                 </View>
             ) : null}

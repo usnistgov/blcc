@@ -11,9 +11,12 @@ import { map } from "rxjs/operators";
 export const dollarFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    maximumFractionDigits: 0,
 });
 
-export const numberFormatter = Intl.NumberFormat("en-US");
+export const numberFormatter = Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+});
 
 export const percentFormatter = Intl.NumberFormat("en-US", {
     style: "percent",

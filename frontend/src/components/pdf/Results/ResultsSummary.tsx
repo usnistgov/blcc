@@ -1,27 +1,29 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { Summary } from "blcc-format/ExportTypes";
-import { styles } from "components/pdf/pdfStyles";
+import { styles } from "components/pdf/styles/pdfStyles";
 import { LCCBaselineTable, LCCResourceTable, LCCResultsTable, NPVSubTable } from "./ResultsSummaryTables";
 
 const lifeCycleResultsColumns = [
     "Alternative",
     "Base Case",
-    "Initial Cost",
+    "Investment",
     "Life Cycle Cost",
     "Energy",
-    "GHG Emissions (kg CO2e)"
+    "GHG Emissions (kg CO2e)",
 ];
 
 const lifeCycleResultsBaseline = [
     "Alternative",
     "Base Case",
-    "Initial Cost",
-    "SIRR",
+    "LCC",
+    "Investment",
+    "Net Savings",
+    "SIR",
     "AIRR",
     "SPP",
     "DPP",
     "Change in Energy",
-    "Change in GHG (kg CO2e)"
+    "Change in GHG (kg CO2e)",
 ];
 
 type ResultSummaryProps = {
@@ -40,13 +42,9 @@ export default function ResultsSummary({ altNames, summary }: ResultSummaryProps
                 <hr style={styles.titleDivider} />
             </View>
             <View>
-                <Text style={styles.subHeading}>Life Cycle Results Comparison</Text>
                 <LCCResultsTable headers={lifeCycleResultsColumns} rows={summary.lccComparisonRows} />
-                <Text style={styles.subHeading}>Life Cycle Results Relative to Baseline Alternative</Text>
                 <LCCBaselineTable headers={lifeCycleResultsBaseline} rows={summary.lccBaseline} />
-                <Text style={styles.subHeading}>NPV Costs by Cost Subcategory</Text>
                 <NPVSubTable headers={["Cost Type", "", ...altNames]} rows={summary.npvCosts} />
-                <Text style={styles.subHeading}>Life Cycle Resource Consumption and Emissions Comparison</Text>
                 <LCCResourceTable headers={["Resource Type", "", ...altNames]} rows={summary.lccResourceRows} />
             </View>
         </>

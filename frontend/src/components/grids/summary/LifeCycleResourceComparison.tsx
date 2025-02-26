@@ -3,8 +3,8 @@ import { alternatives$ } from "model/Model";
 import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
-import { type CategorySubcategoryRow, createLccResourceRows } from "util/ResultCalculations";
-import { dollarFormatter, numberFormatter } from "util/Util";
+import { createLccResourceRows, type LCCResourceRow } from "util/ResultCalculations";
+import { numberFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",
@@ -20,15 +20,15 @@ const [useColumns] = bind(
                         name: alternative.name,
                         key: i.toString(),
                         minWidth: 75,
-                        renderCell: ({ row, rowIdx }: { row: CategorySubcategoryRow; rowIdx: number }) => {
+                        renderCell: ({ row }: { row: LCCResourceRow }) => {
                             return (
                                 <p className={"text-right"}>
-                                    {numberFormatter.format(row[i.toString()] ?? 0)} {rowIdx <= 5 && "gJ"} {rowIdx > 5 && rowIdx < 12 && "kg CO2e"} {rowIdx >= 12 && "Liter(s)"}
+                                    {numberFormatter.format(row[i.toString()] ?? 0)} {row.units}
                                 </p>
                             );
                         },
                         ...cellClasses,
-                    }) as Column<CategorySubcategoryRow>,
+                    }) as Column<LCCResourceRow>,
             );
 
             cols.unshift(
@@ -68,7 +68,7 @@ export default function LifeCycleResourceComparison() {
                 rows={rows}
                 columns={useColumns()}
                 defaultColumnOptions={{
-                    resizable: true
+                    resizable: true,
                 }}
                 style={{
                     // @ts-ignore
@@ -76,9 +76,7 @@ export default function LifeCycleResourceComparison() {
                     "--rdg-background-color": "#565C65",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
-                rowClass={(_row: CategorySubcategoryRow, index: number) =>
-                    index % 2 === 0 ? "bg-white" : "bg-base-lightest"
-                }
+                rowClass={(_row: LCCResourceRow, index: number) => (index % 2 === 0 ? "bg-white" : "bg-base-lightest")}
                 rowGetter={rows}
                 rowsCount={rows.length}
             />
