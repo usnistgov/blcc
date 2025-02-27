@@ -86,7 +86,7 @@ export enum CostTypes {
     WATER = "Water",
     REPLACEMENT_CAPITAL = "Capital Replacement Cost",
     OMR = "OMR",
-    IMPLEMENTATION_CONTRACT = "Contract Implementation",
+    IMPLEMENTATION_CONTRACT = "Non-Recurring Contract",
     RECURRING_CONTRACT = "Recurring Contract",
     OTHER = "Other Monetary",
     OTHER_NON_MONETARY = "Other Non-Monetary",

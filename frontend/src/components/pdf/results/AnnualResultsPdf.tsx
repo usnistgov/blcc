@@ -2,7 +2,7 @@ import { Image, Text, View } from "@react-pdf/renderer";
 import type { Annual } from "blcc-format/ExportTypes";
 import { styles } from "../pdfStyles";
 import { type GridCol, Title } from "../components/GeneralComponents";
-import { NPVAltTable, NPVComparisonTable } from "./AnnualResultsTables";
+import { CashFlowCostType, NPVComparisonTable } from "./AnnualResultsTables";
 import { dollarFormatter } from "util/Util";
 
 const costTypeColumns = [
@@ -16,7 +16,7 @@ const costTypeColumns = [
     { name: ["", "OMR"], key: "omr", formatter: dollarFormatter },
     { name: ["", "Replace"], key: "replace", formatter: dollarFormatter },
     { name: ["", "Residual Value"], key: "residualValue", formatter: dollarFormatter },
-    { name: ["Contract", "Implementation"], key: "implementation", formatter: dollarFormatter },
+    { name: ["Contract", "Non-Recurring"], key: "implementation", formatter: dollarFormatter },
     { name: ["", "Recurring"], key: "recurringContract", formatter: dollarFormatter },
     { name: ["Other", "Monetary"], key: "otherCosts", formatter: dollarFormatter },
     { name: ["", "Total"], key: "total", formatter: dollarFormatter },
@@ -49,7 +49,7 @@ export default function AnnualResultsPdf({ altNames, annual, graphs }: AnnualRes
                 {altNames?.map((name, index) => (
                     <View key={name} wrap={false}>
                         <Text style={styles.heading}>Annual Results for Alternative: {name}</Text>
-                        <NPVAltTable columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
+                        <CashFlowCostType columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
                         <Text style={styles.subHeading}>NPV Cash Flows</Text>
                         <Text style={styles.subHeading}>Tag/Object by Year</Text>
                     </View>
