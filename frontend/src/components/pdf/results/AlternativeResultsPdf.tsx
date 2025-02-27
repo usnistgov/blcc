@@ -3,7 +3,7 @@ import type { AltResults } from "blcc-format/ExportTypes";
 import { styles } from "../pdfStyles";
 import { NpvAltCashflowTable, NpvAltResourceTable } from "./AlternativeResultsTables";
 import { Title } from "../components/GeneralComponents";
-import { dollarFormatter } from "util/Util";
+import { dollarFormatter, wholeNumberFormatter } from "util/Util";
 import type { ResourceUsageRow } from "util/ResultCalculations";
 
 type AlternativeResultsPdfProps = {
@@ -35,14 +35,22 @@ export default function AlternativeResultsPdf({ altNames, altResults }: Alternat
                                     name: "Consumption",
                                     key: "consumption",
                                     renderCell: (row: ResourceUsageRow) => {
-                                        return <Text style={styles.smallFontSize}>{row.consumption} gJ</Text>;
+                                        return (
+                                            <Text style={styles.smallFontSize}>
+                                                {wholeNumberFormatter.format(row.consumption ?? 0)} gJ
+                                            </Text>
+                                        );
                                     },
                                 },
                                 {
                                     name: "Emissions",
                                     key: "emissions",
                                     renderCell: (row: ResourceUsageRow) => {
-                                        return <Text style={styles.smallFontSize}>{row.emissions} kg CO2e</Text>;
+                                        return (
+                                            <Text style={styles.smallFontSize}>
+                                                {wholeNumberFormatter.format(row.emissions ?? 0)} kg CO2e
+                                            </Text>
+                                        );
                                     },
                                 },
                             ]}

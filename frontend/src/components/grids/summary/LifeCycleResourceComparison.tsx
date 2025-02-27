@@ -4,7 +4,7 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
 import { createLccResourceRows, type LCCResourceRow } from "util/ResultCalculations";
-import { numberFormatter } from "util/Util";
+import { numberFormatter, wholeNumberFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",
@@ -23,7 +23,7 @@ const [useColumns] = bind(
                         renderCell: ({ row }: { row: LCCResourceRow }) => {
                             return (
                                 <p className={"text-right"}>
-                                    {numberFormatter.format(row[i.toString()] ?? 0)} {row.units}
+                                    {wholeNumberFormatter.format(row[i.toString()] ?? 0)} {row.units}
                                 </p>
                             );
                         },

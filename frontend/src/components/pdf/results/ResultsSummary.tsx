@@ -18,9 +18,9 @@ const lifeCycleComparisonColumns = [
     {
         name: "Energy",
         key: "energy",
-        renderCell: (row: LccComparisonRow) => <SmallText text={`${numberFormatter.format(row.energy)} gJ`} />,
+        renderCell: (row: LccComparisonRow) => <SmallText text={`${wholeNumberFormatter.format(row.energy)} gJ`} />,
     },
-    { name: "GHG Emissions (kg CO2e)", key: "ghgEmissions", formatter: numberFormatter },
+    { name: "GHG Emissions (kg CO2e)", key: "ghgEmissions", formatter: wholeNumberFormatter },
 ];
 
 const lifeCycleBaselineColumns = [
@@ -82,7 +82,9 @@ export default function ResultsSummary({ altNames, summary }: ResultSummaryProps
                                 key: `${i}`,
                                 name: [altName],
                                 renderCell: (row: LCCResourceRow, col: { key: string; name: string }) => (
-                                    <SmallText text={`${numberFormatter.format(row[col.key] ?? 0)} ${row.units}`} />
+                                    <SmallText
+                                        text={`${wholeNumberFormatter.format(row[col.key] ?? 0)} ${row.units}`}
+                                    />
                                 ),
                             };
                         }),

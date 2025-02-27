@@ -25,6 +25,7 @@ import {
     groupOptionalByTag,
     numberFormatter,
     percentFormatter,
+    wholeNumberFormatter,
 } from "util/Util";
 
 /**
@@ -176,8 +177,8 @@ export const downloadCsv = Effect.gen(function* () {
                 row.baseline,
                 dollarFormatter.format(row.investment),
                 dollarFormatter.format(row.lifeCycleCost),
-                numberFormatter.format(row.energy),
-                numberFormatter.format(row.ghgEmissions),
+                wholeNumberFormatter.format(row.energy),
+                wholeNumberFormatter.format(row.ghgEmissions),
             ].map(wrapCell),
         ),
         [],
@@ -207,8 +208,8 @@ export const downloadCsv = Effect.gen(function* () {
                 percentFormatter.format(row.airr),
                 numberFormatter.format(row.spp),
                 numberFormatter.format(row.dpp),
-                numberFormatter.format(row.deltaEnergy),
-                numberFormatter.format(row.deltaGhg),
+                wholeNumberFormatter.format(row.deltaEnergy),
+                wholeNumberFormatter.format(row.deltaGhg),
             ].map(wrapCell),
         ),
         [],
@@ -234,7 +235,7 @@ export const downloadCsv = Effect.gen(function* () {
             return [
                 category ?? "",
                 subcategory ?? "",
-                ...Object.values(rest).map((value) => numberFormatter.format(value ?? 0)),
+                ...Object.values(rest).map((value) => wholeNumberFormatter.format(value ?? 0)),
             ].map(wrapCell);
         }),
     ];
@@ -249,7 +250,7 @@ export const downloadCsv = Effect.gen(function* () {
 
     function getSummaryRow(): NpvCashflowComparisonSummary {
         let alternativeId: number;
-        const summaryRow: NpvCashflowComparisonSummary = { key: -1 };
+        const summaryRow: NpvCashflowComparisonSummary = {};
         for (let i = 0; i < project.alternatives.length; i++) {
             alternativeId = alternatives[i].id ?? 0;
             summaryRow[alternativeId] = measures[i].totalCosts;
@@ -265,7 +266,12 @@ export const downloadCsv = Effect.gen(function* () {
             const { year, key, ...rest } = row;
             return [year, ...Object.values(rest).map(dollarFormatter.format)].map(wrapCell);
         }),
-        ["Total", annual.npvCashflowComparisonSummary],
+        [
+            "Total",
+            alternatives
+                .map((alt) => dollarFormatter.format((annual.npvCashflowComparisonSummary[`${alt.id}`] as number) ?? 0))
+                .map(wrapCell),
+        ],
         [],
         "Annual Results for Alternative",
         [],
