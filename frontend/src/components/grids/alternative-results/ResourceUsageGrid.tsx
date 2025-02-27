@@ -3,7 +3,7 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
 import { type ResourceUsageRow, createResourceUsageRow } from "util/ResultCalculations";
-import { dollarFormatter, numberFormatter } from "util/Util";
+import { dollarFormatter, numberFormatter, wholeNumberFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",
@@ -29,7 +29,7 @@ const columns = [
         key: "consumption",
         renderCell: ({ row, rowIdx }: { row: ResourceUsageRow; rowIdx: number }) => (
             <p className={"text-right"}>
-                {numberFormatter.format(row.consumption ?? 0)} {rowIdx < 6 && "gJ"} {rowIdx === 6 && "Liter(s)"}
+                {wholeNumberFormatter.format(row.consumption ?? 0)} {rowIdx < 6 && "gJ"} {rowIdx === 6 && "Liter(s)"}
             </p>
         ),
         ...cellClasses,
@@ -39,7 +39,7 @@ const columns = [
         key: "emissions",
         renderCell: ({ row, rowIdx }: { row: ResourceUsageRow; rowIdx: number }) => (
             <p className={"text-right"}>
-                {rowIdx < 6 && numberFormatter.format(row.emissions)} {rowIdx < 6 && "kg CO2e"}
+                {rowIdx < 6 && wholeNumberFormatter.format(row.emissions)} {rowIdx < 6 && "kg CO2e"}
             </p>
         ),
         ...cellClasses,
