@@ -18,6 +18,10 @@ export const numberFormatter = Intl.NumberFormat("en-US", {
     maximumFractionDigits: 2,
 });
 
+export const wholeNumberFormatter = Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+});
+
 export const percentFormatter = Intl.NumberFormat("en-US", {
     style: "percent",
     minimumFractionDigits: 2,

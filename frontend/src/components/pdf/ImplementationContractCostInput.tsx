@@ -7,9 +7,10 @@ import {
     Description,
     InitialCost,
     InitialOccurence,
-} from "./CostComponents";
-import { styles } from "./styles/pdfStyles";
+} from "./components/CostComponents";
+import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
+import { LabeledText } from "./components/GeneralComponents";
 
 type ImplementationContractCostInputProps = {
     cost: ImplementationContractCost;
@@ -22,26 +23,14 @@ export default function ImplementationContractCostInput({ cost }: Implementation
 
             <Description cost={cost} />
 
-            {cost.occurrence ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Occurrence:&nbsp;</Text>
-                    <Text style={styles.value}>Year - {cost?.occurrence}</Text>
-                </View>
-            ) : null}
+            {cost.occurrence ? <LabeledText label="Occurrence" text={`Year - ${cost?.occurrence}`} /> : null}
 
             <InitialOccurence cost={cost} />
 
             <CostSavings cost={cost} />
 
             {cost.cost ? (
-                <View style={styles.key}>
-                    {cost.costSavings ? (
-                        <Text style={styles.text}>Savings:&nbsp;</Text>
-                    ) : (
-                        <Text style={styles.text}>Cost:&nbsp;</Text>
-                    )}
-                    <Text style={styles.value}>{dollarFormatter.format(cost?.cost)}</Text>
-                </View>
+                <LabeledText label={cost.costSavings ? "Savings" : "Cost"} text={dollarFormatter.format(cost?.cost)} />
             ) : null}
 
             <InitialCost cost={cost} />

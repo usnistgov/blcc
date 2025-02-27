@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { WaterCost } from "blcc-format/Format";
-import { CostName, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
-import { styles } from "./styles/pdfStyles";
+import { CostName, CostSavings, Description, EscalationRates, UseIndex } from "./components/CostComponents";
+import { blue, styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
 
 const border = "1px solid #000";
@@ -12,9 +12,9 @@ const localStyles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
-        color: "#fff",
+        color: "white",
         textAlign: "center",
-        backgroundColor: "#005fa3ff",
+        backgroundColor: blue,
         border,
         width: "300px",
     },

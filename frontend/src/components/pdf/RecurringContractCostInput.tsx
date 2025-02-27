@@ -10,7 +10,7 @@ import {
     RateOfChangeValue,
     RateOfRecurrence,
     Recurring,
-} from "components/pdf/CostComponents";
+} from "components/pdf/components/CostComponents";
 
 type RecurringContractCostInputProps = {
     cost: RecurringContractCost;

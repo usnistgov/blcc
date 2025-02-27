@@ -1,7 +1,9 @@
 import { StyleSheet } from "@react-pdf/renderer";
 
-const blue = "#005fa3ff";
+export const blue = "#005fa3";
 const black = "rgb(0,0,0)";
+export const lightGray = "#dbdbdb";
+const smallFontSize = 10;
 
 export const styles = StyleSheet.create({
     page: {
@@ -97,20 +99,20 @@ export const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         marginBottom: 6,
-        fontSize: 10,
+        fontSize: smallFontSize,
     },
     text: {
-        fontSize: 10,
+        fontSize: smallFontSize,
         color: blue,
     },
     value: {
-        fontSize: 10,
+        fontSize: smallFontSize,
         marginBottom: 3,
     },
     desc: {
         maxWidth: "100vw",
         marginBottom: 4,
-        fontSize: 10,
+        fontSize: smallFontSize,
     },
     tableWrapper: {
         display: "flex",
@@ -160,24 +162,41 @@ export const styles = StyleSheet.create({
     },
     cell: {
         width: "100px",
-        fontSize: 10,
+        fontSize: smallFontSize,
         textAlign: "center",
         borderRight: "1px solid black",
-        backgroundColor: "#005fa3ff",
+        backgroundColor: blue,
         color: "#fff",
     },
     alt: {
         width: "100px",
-        fontSize: 10,
+        fontSize: smallFontSize,
         textAlign: "center",
         borderRight: "1px solid black",
     },
     tag: {
         backgroundColor: "rgb(169 174 177)",
         padding: "1.5 3",
-        fontSize: 10,
+        fontSize: smallFontSize,
         border: "1px solid #000",
         borderRadius: 2,
         marginRight: 2,
+    },
+    flexRow: {
+        display: "flex",
+        flexDirection: "row",
+    },
+    gridHeader: {
+        backgroundColor: blue,
+        color: "#ffffff",
+    },
+    gridItem: {
+        borderRight: "1px solid #000",
+        borderBottom: "1px solid #000",
+        flex: 1,
+        padding: "2px",
+    },
+    smallFontSize: {
+        fontSize: smallFontSize,
     },
 });

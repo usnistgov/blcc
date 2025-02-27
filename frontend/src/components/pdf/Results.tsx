@@ -1,10 +1,11 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
 import type { Alternative } from "blcc-format/Format";
-import AlternativeResultsPdf from "./Results/AlternativeResultsPdf";
-import AnnualResultsPdf from "./Results/AnnualResultsPdf";
-import ResultsSummary from "./Results/ResultsSummary";
-import { styles } from "./styles/pdfStyles";
+import { styles } from "./pdfStyles";
+import { Title } from "./components/GeneralComponents";
+import AnnualResultsPdf from "./results/AnnualResultsPdf";
+import ResultsSummary from "./results/ResultsSummary";
+import AlternativeResultsPdf from "./results/AlternativeResultsPdf";
 
 type ResultsProps = {
     alternatives: Alternative[];
@@ -19,11 +20,7 @@ export default function Results({ alternatives, summary, annual, altResults, gra
 
     return (
         <View style={styles.section}>
-            <hr style={styles.titleDivider} />
-            <View style={styles.titleWrapper}>
-                <Text style={{ ...styles.title, marginBottom: 5 }}>Results</Text>
-            </View>
-            <hr style={styles.titleDivider} />
+            <Title title="Results" />
             <ResultsSummary altNames={altNames} summary={summary} />
             <AnnualResultsPdf altNames={altNames} annual={annual} graphs={graphs} />
             <AlternativeResultsPdf altNames={altNames} altResults={altResults} />

@@ -10,9 +10,10 @@ import {
     InitialCost,
     InitialOccurence,
     PhaseIn,
-} from "components/pdf/CostComponents";
-import { styles } from "components/pdf/styles/pdfStyles";
+} from "components/pdf/components/CostComponents";
+import { styles } from "components/pdf/pdfStyles";
 import ResidualValue from "./ResidualValue";
+import { LabeledText } from "./components/GeneralComponents";
 
 type ReplacementCapitalCostInputProps = {
     cost: ReplacementCapitalCost;
@@ -39,10 +40,7 @@ export default function ReplacementCapitalCostInput({ cost, year }: ReplacementC
 
             <CostAdjustmentFactor cost={cost} />
 
-            <View style={styles.key}>
-                <Text style={styles.text}>Residual Value:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.residualValue ? "Yes" : "No"}</Text>
-            </View>
+            <LabeledText label="Residual Value" text={cost?.residualValue ? "Yes" : "No"} />
 
             {cost?.residualValue ? (
                 <ResidualValue residualValue={cost?.residualValue.value} approach={cost.residualValue.approach} />

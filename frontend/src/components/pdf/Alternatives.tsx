@@ -10,7 +10,8 @@ import CapitalCostInput from "./CapitalCostInput";
 import EnergyCostInput from "./EnergyCostInput";
 import OtherCostInput from "./OtherCostInput";
 import WaterCostInput from "./WaterCostInput";
-import { styles } from "./styles/pdfStyles";
+import { styles } from "./pdfStyles";
+import { LabeledText, TitleWithSubtitle } from "./components/GeneralComponents";
 
 type AlternativesProps = {
     alts: Alternative[];
@@ -31,12 +32,7 @@ export default function Alternatives({ alts, costs, releaseYear }: AlternativesP
 
     return (
         <View style={styles.section}>
-            <hr style={styles.titleDivider} />
-            <View style={styles.titleWrapper}>
-                <Text style={{ ...styles.title, marginBottom: 5 }}>Alternatives</Text>
-                <Text style={styles.subTitle}>Total - {alts.length}</Text>
-            </View>
-            <hr style={styles.titleDivider} />
+            <TitleWithSubtitle title="Alternatives" subtitle={`Total - ${alts.length}`} />
             <br />
             {alts.map((alt: Alternative, idx: number) => {
                 return (
@@ -48,17 +44,11 @@ export default function Alternatives({ alts, costs, releaseYear }: AlternativesP
                         {alt?.description ? (
                             <View style={styles.key}>
                                 <Text style={styles.text}>Description:&nbsp;</Text>
-                                <Text style={styles.desc}> {alt.description}</Text>
+                                <Text style={styles.desc}>{alt.description}</Text>
                             </View>
                         ) : null}
-                        <View style={styles.key}>
-                            <Text style={styles.text}>Baseline:&nbsp;</Text>
-                            <Text style={styles.value}> {alt.baseline === false ? "No" : "Yes"}</Text>
-                        </View>
-                        <View style={styles.key}>
-                            <Text style={styles.text}>Total Costs:&nbsp;</Text>
-                            <Text style={styles.value}> {alt.costs.length}</Text>
-                        </View>
+                        <LabeledText label="Baseline" text={alt.baseline === false ? "No" : "Yes"} />
+                        <LabeledText label="Total Costs" text={`${alt.costs.length}`} />
                         {getAltCosts(alt)?.map((cost: Cost) => {
                             return (
                                 <View style={styles.costContainer} key={cost.id}>

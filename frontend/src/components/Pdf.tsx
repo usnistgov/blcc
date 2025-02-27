@@ -7,7 +7,7 @@ import NISTHeader from "components/pdf/NISTHeader";
 import PageNumber from "components/pdf/PageNumber";
 import PdfDisclaimer from "components/pdf/PdfDisclaimer";
 import Results from "components/pdf/Results";
-import { styles } from "components/pdf/styles/pdfStyles";
+import { styles } from "components/pdf/pdfStyles";
 
 type PdfProps = {
     project: Project;

@@ -1,5 +1,5 @@
 import { Image, StyleSheet, View } from "@react-pdf/renderer";
-import { styles } from "./styles/pdfStyles";
+import { styles } from "./pdfStyles";
 
 const NISTHeader = () => {
     return (

@@ -8,8 +8,9 @@ import {
     RateOfChangeValue,
     RateOfRecurrence,
     Recurring,
-} from "components/pdf/CostComponents";
-import { styles } from "components/pdf/styles/pdfStyles";
+} from "components/pdf/components/CostComponents";
+import { styles } from "components/pdf/pdfStyles";
+import { LabeledText } from "./components/GeneralComponents";
 
 type OtherNonMonetaryCostInputProps = {
     cost: OtherNonMonetary;
@@ -37,12 +38,7 @@ export default function OtherNonMonetaryCostInput({ cost, year }: OtherNonMoneta
             <InitialOccurence cost={cost} />
 
             {cost?.numberOfUnits ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Number Of Units:&nbsp;</Text>
-                    <Text style={styles.value}>
-                        {cost?.numberOfUnits} {cost?.unit}
-                    </Text>
-                </View>
+                <LabeledText label="Number Of Units" text={`${cost?.numberOfUnits} ${cost?.unit}`} />
             ) : null}
 
             <Recurring cost={cost} />
