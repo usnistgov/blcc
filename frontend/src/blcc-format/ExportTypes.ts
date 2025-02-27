@@ -29,5 +29,5 @@ export type AltResults = {
 
 export type NpvCashflowComparisonSummary = {
     key: number;
-    [key: string]: number;
+    [key: string]: number | string;
 };

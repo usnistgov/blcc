@@ -1,7 +1,8 @@
 import { Text, View } from "@react-pdf/renderer";
 import { AnalysisType, DollarMethod, type Project, type USLocation } from "blcc-format/Format";
-import { styles } from "components/pdf/styles/pdfStyles";
+import { styles } from "components/pdf/pdfStyles";
 import { percentFormatter } from "util/Util";
+import { Grid, LabeledText, Title } from "./components/GeneralComponents";
 
 type GeneralInformationProps = {
     project: Project;
@@ -10,92 +11,72 @@ type GeneralInformationProps = {
 export default function GeneralInformation({ project }: GeneralInformationProps) {
     return (
         <View style={styles.section}>
-            <hr style={styles.titleDivider} />
-            <Text style={styles.title}>General Information</Text>
-            <hr style={styles.titleDivider} />
-            <View style={styles.key}>
-                <Text style={styles.text}>Project Name:&nbsp;</Text>
-                <Text style={styles.value}>{project.name}</Text>
-            </View>
-            <View style={styles.key}>
-                <Text style={styles.text}>Analyst:&nbsp;</Text>
-                <Text style={styles.value}>{project.analyst}</Text>
-            </View>
-            <View style={styles.key}>
-                <Text style={styles.text}>Analysis Type:&nbsp;</Text>
-                <Text style={styles.value}>{project.analysisType}</Text>
-            </View>
+            <Title title="General Information" />
+            <br />
+            <LabeledText label="Project Name" text={project.name} />
+            <LabeledText label="Analyst" text={project.analyst} />
+            <LabeledText label="Analysis Type" text={project.analysisType} />
             <br />
             {project.analysisType === AnalysisType.OMB_NON_ENERGY ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Analysis Purpose:&nbsp;</Text>
-                    <Text style={styles.value}>{project.purpose}</Text>
-                    <br />
-                </View>
+                <LabeledText label="Analysis Purpose" text={project.purpose} />
             ) : null}
             <br />
             {project.description ? (
-                <View style={{ ...styles.desc }}>
-                    <Text style={styles.text}>Project Description:&nbsp;</Text>
-                    <Text style={styles.value}>{project.description}</Text>
-                    <br />
-                </View>
+                <LabeledText containerStyle={styles.desc} label="Project Description" text={project.description} />
             ) : null}
             <View style={{ ...styles.container, margin: 0 }}>
                 <View style={styles.key}>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Study Period:&nbsp;</Text>
-                        <Text style={styles.value}>{project.studyPeriod} year(s)</Text>
-                    </View>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Construction Period:&nbsp;</Text>
-                        <Text style={styles.value}>{project.constructionPeriod} year(s)</Text>
-                    </View>
+                    <LabeledText
+                        containerStyle={styles.item}
+                        label="Study Period"
+                        text={`${project.studyPeriod} year(s)`}
+                    />
+                    <LabeledText
+                        containerStyle={styles.item}
+                        label="Construction Period"
+                        text={`${project.constructionPeriod} year(s)`}
+                    />
                 </View>
                 <View style={styles.row}>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Data Release Year:&nbsp;</Text>
-                        <Text style={styles.value}>{project.releaseYear}</Text>
-                    </View>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>EIA Projection Scenario:&nbsp;</Text>
-                        <Text style={styles.value}>{project.case}</Text>
-                    </View>
+                    <LabeledText
+                        containerStyle={styles.item}
+                        label="Data Release Year:"
+                        text={`${project.releaseYear}`}
+                    />
+                    <LabeledText containerStyle={styles.item} label="EIA Projection Scenario" text={project.case} />
                 </View>
             </View>
             <br />
             <Text style={styles.heading}>Discounting:</Text>
-            {/* <hr style={{ ...styles.divider, maxWidth: 85 }} /> */}
             <View style={styles.container}>
                 <View style={styles.key}>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Dollar Value:&nbsp;</Text>
-                        <Text style={styles.value}>{project.dollarMethod}</Text>
-                    </View>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Discounting Convention:&nbsp;</Text>
-                        <Text style={styles.value}>{project.discountingMethod}</Text>
-                    </View>
+                    <LabeledText containerStyle={styles.item} label="Dollar Value" text={project.dollarMethod} />
+                    <LabeledText
+                        containerStyle={styles.item}
+                        label="Discounting Convention"
+                        text={project.discountingMethod}
+                    />
                 </View>
                 {project.dollarMethod === DollarMethod.CONSTANT ? (
                     <View style={styles.row}>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Real Discount Rate:&nbsp;</Text>
-                            <Text style={styles.value}>{percentFormatter.format(project.realDiscountRate ?? 0)}</Text>
-                        </View>
+                        <LabeledText
+                            containerStyle={styles.item}
+                            label="Real Discount Rate"
+                            text={percentFormatter.format(project.realDiscountRate ?? 0)}
+                        />
                     </View>
                 ) : (
                     <View style={styles.row}>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Inflation Rate:&nbsp;</Text>
-                            <Text style={styles.value}>{percentFormatter.format(project.inflationRate ?? 0)}</Text>
-                        </View>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Nominal Discount Rate:&nbsp;</Text>
-                            <Text style={styles.value}>
-                                {percentFormatter.format(project.nominalDiscountRate ?? 0)}
-                            </Text>
-                        </View>
+                        <LabeledText
+                            containerStyle={styles.item}
+                            label="Inflation Rate"
+                            text={percentFormatter.format(project.inflationRate ?? 0)}
+                        />
+                        <LabeledText
+                            containerStyle={styles.item}
+                            label="Nominal Discount Rate"
+                            text={percentFormatter.format(project.nominalDiscountRate ?? 0)}
+                        />
                     </View>
                 )}
             </View>
@@ -104,24 +85,20 @@ export default function GeneralInformation({ project }: GeneralInformationProps)
             {/* <hr style={{ ...styles.divider, maxWidth: 70 }} /> */}
             <View style={styles.container}>
                 <View style={styles.key}>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Country:&nbsp;</Text>
-                        <Text style={styles.value}>{project.location?.country}</Text>
-                    </View>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>State:&nbsp;</Text>
-                        <Text style={styles.value}>{(project.location as USLocation)?.state}</Text>
-                    </View>
+                    <LabeledText containerStyle={styles.item} label="Country" text={project.location?.country} />
+                    <LabeledText
+                        containerStyle={styles.item}
+                        label="State"
+                        text={(project.location as USLocation)?.state}
+                    />
                 </View>
                 <View style={styles.row}>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>City:&nbsp;</Text>
-                        <Text style={styles.value}>{project.location?.city}</Text>
-                    </View>
-                    <View style={{ ...styles.item, ...styles.key }}>
-                        <Text style={styles.text}>Zip:&nbsp;</Text>
-                        <Text style={styles.value}>{(project.location as USLocation)?.zipcode}</Text>
-                    </View>
+                    <LabeledText containerStyle={styles.item} label="City" text={project.location?.city} />
+                    <LabeledText
+                        containerStyle={styles.item}
+                        label="Zip"
+                        text={(project.location as USLocation)?.zipcode}
+                    />
                 </View>
             </View>
             <br />
@@ -131,14 +108,12 @@ export default function GeneralInformation({ project }: GeneralInformationProps)
                 {/* <hr style={{ ...styles.divider, maxWidth: 380 }} /> */}
                 <View style={styles.container}>
                     <View style={styles.key}>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Data Source:&nbsp;</Text>
-                            <Text style={styles.value}>{project.ghg?.dataSource}</Text>
-                        </View>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Emissions Rate Type:&nbsp;</Text>
-                            <Text style={styles.value}>{project.ghg?.emissionsRateType}</Text>
-                        </View>
+                        <LabeledText containerStyle={styles.item} label="Data Source" text={project.ghg?.dataSource} />
+                        <LabeledText
+                            containerStyle={styles.item}
+                            label="Emissions Rate Type"
+                            text={project.ghg?.emissionsRateType}
+                        />
                     </View>
                 </View>
             </View>

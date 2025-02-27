@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { percentFormatter } from "util/Util";
 import InputTableRows from "./InputTableRows";
+import { blue } from "./pdfStyles";
 
 const border = "1px solid #000";
 const fontSize = 10;
@@ -11,9 +12,9 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
-        color: "#fff",
+        color: "white",
         textAlign: "center",
-        backgroundColor: "#005fa3ff",
+        backgroundColor: blue,
         border,
     },
     year: {

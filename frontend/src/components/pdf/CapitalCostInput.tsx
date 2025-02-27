@@ -10,10 +10,11 @@ import {
     InitialCost,
     InitialOccurence,
     PhaseIn,
-} from "./CostComponents";
-import { styles } from "./styles/pdfStyles";
+} from "./components/CostComponents";
+import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
 import ResidualValue from "./ResidualValue";
+import { LabeledText } from "./components/GeneralComponents";
 
 type CapitalCostInputProps = {
     cost: CapitalCost;
@@ -34,10 +35,7 @@ export default function CapitalCostInput({ cost, year }: CapitalCostInputProps) 
             <InitialOccurence cost={cost} />
 
             {cost?.amountFinanced ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Amount Financed:&nbsp;</Text>
-                    <Text style={styles.value}>{dollarFormatter.format(cost?.amountFinanced)}</Text>
-                </View>
+                <LabeledText label="Amount Financed:" text={dollarFormatter.format(cost?.amountFinanced)} />
             ) : null}
 
             <ExpectedLife cost={cost} />
@@ -46,10 +44,7 @@ export default function CapitalCostInput({ cost, year }: CapitalCostInputProps) 
 
             <CostAdjustmentFactor cost={cost} />
 
-            <View style={styles.key}>
-                <Text style={styles.text}>Residual Value:&nbsp;</Text>
-                <Text style={styles.value}>{cost?.residualValue ? "Yes" : "No"}</Text>
-            </View>
+            <LabeledText label="Residual Value" text={cost?.residualValue ? "Yes" : "No"} />
 
             {cost?.residualValue ? (
                 <ResidualValue residualValue={cost?.residualValue.value} approach={cost.residualValue.approach} />

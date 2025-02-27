@@ -1,8 +1,16 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { EnergyCost, USLocation } from "blcc-format/Format";
-import { CostName, CostPerUnit, CostSavings, Description, EscalationRates, UseIndex } from "./CostComponents";
-import { styles } from "./styles/pdfStyles";
+import {
+    CostName,
+    CostPerUnit,
+    CostSavings,
+    Description,
+    EscalationRates,
+    UseIndex,
+} from "./components/CostComponents";
+import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
+import { LabeledText } from "./components/GeneralComponents";
 
 type EnergyCostInputProps = {
     cost: EnergyCost;
@@ -16,75 +24,46 @@ export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
             <Description cost={cost} />
             <CostSavings cost={cost} />
 
-            {cost?.fuelType ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Fuel Type:&nbsp;</Text>
-                    <Text style={styles.value}>{cost?.fuelType}</Text>
-                </View>
-            ) : null}
+            {cost?.fuelType ? <LabeledText label="Fuel Type" text={cost?.fuelType} /> : null}
 
-            {cost?.customerSector ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Customer Sector:&nbsp;</Text>
-                    <Text style={styles.value}>{cost?.customerSector}</Text>
-                </View>
-            ) : null}
+            {cost?.customerSector ? <LabeledText label="Customer Sector" text={cost?.customerSector} /> : null}
 
             {cost?.annualConsumption ? (
-                <View style={styles.key}>
-                    {cost?.costSavings ? (
-                        <Text style={styles.text}>Annual Consumption Savings:&nbsp;</Text>
-                    ) : (
-                        <Text style={styles.text}>Annual Consumption:&nbsp;</Text>
-                    )}
-                    <Text style={styles.value}>{`${cost?.annualConsumption} ${cost?.unit}`}</Text>
-                </View>
+                <LabeledText
+                    label={cost?.costSavings ? "Annual Consumption Savings" : "Annnual Consumption"}
+                    text={`${cost?.annualConsumption} ${cost?.unit}`}
+                />
             ) : null}
 
             <CostPerUnit cost={cost} />
 
-            {cost?.rebate ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Rebate:&nbsp;</Text>
-                    <Text style={styles.value}>{dollarFormatter.format(cost?.rebate)}</Text>
-                </View>
-            ) : null}
+            {cost?.rebate ? <LabeledText label="Rebate" text={dollarFormatter.format(cost?.rebate)} /> : null}
 
             {cost?.demandCharge ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Demand Charge:&nbsp;</Text>
-                    <Text style={styles.value}>{dollarFormatter.format(cost?.demandCharge)}</Text>
-                </View>
+                <LabeledText label="Demand Charge" text={dollarFormatter.format(cost?.demandCharge)} />
             ) : null}
 
             {cost?.location ? (
                 <View style={styles.container}>
                     <View style={styles.row}>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Country:&nbsp;</Text>
-                            <Text style={styles.value}>{cost?.location?.country}</Text>
-                        </View>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>State:&nbsp;</Text>
-                            <Text style={styles.value}>{(cost.location as USLocation)?.state ?? ""}</Text>
-                        </View>
+                        <LabeledText containerStyle={styles.item} label="Country" text={cost?.location?.country} />
+                        <LabeledText
+                            containerStyle={styles.item}
+                            label="State"
+                            text={(cost.location as USLocation)?.state}
+                        />
                     </View>
                     <View style={styles.row}>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>City:&nbsp;</Text>
-                            <Text style={styles.value}>{cost?.location?.city}</Text>
-                        </View>
-                        <View style={{ ...styles.item, ...styles.key }}>
-                            <Text style={styles.text}>Zipcode:&nbsp;</Text>
-                            <Text style={styles.value}>{(cost.location as USLocation)?.zipcode ?? ""}</Text>
-                        </View>
+                        <LabeledText containerStyle={styles.item} label="City" text={cost?.location?.city} />
+                        <LabeledText
+                            containerStyle={styles.item}
+                            label="Zipcode"
+                            text={(cost.location as USLocation)?.zipcode ?? ""}
+                        />
                     </View>
                 </View>
             ) : (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Location:&nbsp;</Text>
-                    <Text style={styles.value}>Same as Project Location</Text>
-                </View>
+                <LabeledText label="Location" text="Same as Project Location" />
             )}
 
             <EscalationRates cost={cost} year={year} />

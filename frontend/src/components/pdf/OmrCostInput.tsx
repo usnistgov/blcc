@@ -13,7 +13,7 @@ import {
     RateOfChangeUnits,
     RateOfChangeValue,
     RateOfRecurrence,
-} from "components/pdf/CostComponents";
+} from "components/pdf/components/CostComponents";
 
 type OmrCostInputProps = {
     cost: OMRCost;

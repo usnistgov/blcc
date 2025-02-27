@@ -1,8 +1,9 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { Recurring as RecurringType } from "blcc-format/Format";
 import { dollarFormatter, percentFormatter } from "util/Util";
-import InputTable from "./InputTable";
-import { styles } from "./styles/pdfStyles";
+import InputTable from "../InputTable";
+import { styles } from "../pdfStyles";
+import { LabeledText } from "./GeneralComponents";
 
 interface Props {
     cost: {
@@ -45,10 +46,7 @@ export const Description = ({ cost }: Props) => (
 export const CostSavings = ({ cost }: Props) => (
     <>
         {cost?.costSavings ? (
-            <View style={styles.key}>
-                <Text style={styles.text}>Cost or Savings:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.costSavings ? "Savings" : "Cost"}</Text>
-            </View>
+            <LabeledText label="Cost or Savings" text={cost?.costSavings ? "Savings" : "Cost"} />
         ) : null}
     </>
 );
@@ -56,14 +54,10 @@ export const CostSavings = ({ cost }: Props) => (
 export const InitialCost = ({ cost }: Props) => (
     <>
         {cost?.initialCost ? (
-            <View style={styles.key}>
-                {cost?.costSavings ? (
-                    <Text style={styles.text}>Initial Cost Savings (Base Year):&nbsp;</Text>
-                ) : (
-                    <Text style={styles.text}>Initial Cost:&nbsp;</Text>
-                )}
-                <Text style={styles.value}> {dollarFormatter.format(cost?.initialCost)}</Text>
-            </View>
+            <LabeledText
+                label={cost.costSavings ? "Initial Cost Savings (Base Year)" : "Initial Cost"}
+                text={dollarFormatter.format(cost?.initialCost)}
+            />
         ) : null}
     </>
 );
@@ -71,32 +65,22 @@ export const InitialCost = ({ cost }: Props) => (
 export const CostPerUnit = ({ cost }: Props) => (
     <>
         {cost?.costPerUnit ? (
-            <View style={styles.key}>
-                {cost?.costSavings ? (
-                    <Text style={styles.text}>Cost Savings per Unit:&nbsp;</Text>
-                ) : (
-                    <Text style={styles.text}>Cost per Unit:&nbsp;</Text>
-                )}
-                <Text style={styles.value}> {dollarFormatter.format(cost?.costPerUnit)} </Text>
-            </View>
+            <LabeledText
+                label={cost.costSavings ? "Cost Savings per Unit" : "Cost per Unit"}
+                text={dollarFormatter.format(cost?.costPerUnit)}
+            />
         ) : null}
     </>
 );
 
 export const ExpectedLife = ({ cost }: Props) => (
-    <View style={styles.key}>
-        <Text style={styles.text}>Expected Lifetime:&nbsp;</Text>
-        <Text style={styles.value}> {cost?.expectedLife ?? 0} year(s)</Text>
-    </View>
+    <LabeledText label="Expected Lifetime" text={`${cost?.expectedLife ?? 0} year(s)`} />
 );
 
 export const CostAdjustmentFactor = ({ cost }: Props) => (
     <>
         {cost?.costAdjustment ? (
-            <View style={styles.key}>
-                <Text style={styles.text}>Cost Adjustment Factor:&nbsp;</Text>
-                <Text style={styles.value}>{percentFormatter.format(cost?.costAdjustment)}</Text>
-            </View>
+            <LabeledText label="Cost Adjustment Factor" text={percentFormatter.format(cost?.costAdjustment)} />
         ) : null}
     </>
 );
@@ -104,28 +88,19 @@ export const CostAdjustmentFactor = ({ cost }: Props) => (
 export const AnnualRateOfChange = ({ cost }: Props) => (
     <>
         {cost?.annualRateOfChange ? (
-            <View style={styles.key}>
-                <Text style={styles.text}>Annual Rate of Change:&nbsp;</Text>
-                <Text style={styles.value}> {percentFormatter.format(cost?.annualRateOfChange)}</Text>
-            </View>
+            <LabeledText label="Annual Rate of Change" text={percentFormatter.format(cost?.annualRateOfChange)} />
         ) : null}
     </>
 );
 
 export const Recurring = ({ cost }: Props) => (
-    <View style={styles.key}>
-        <Text style={styles.text}>Recurring:&nbsp;</Text>
-        <Text style={styles.value}> {cost?.recurring !== undefined ? "Yes" : "No"}</Text>
-    </View>
+    <LabeledText label="Recurring" text={cost?.recurring !== undefined ? "Yes" : "No"} />
 );
 
 export const InitialOccurence = ({ cost }: Props) => (
     <>
         {cost?.initialOccurrence ? (
-            <View style={styles.key}>
-                <Text style={styles.text}>Initial Occurrence:&nbsp;</Text>
-                <Text style={styles.value}> {cost?.initialOccurrence} year(s)</Text>
-            </View>
+            <LabeledText label="Initial Occurrence" text={`${cost?.initialOccurrence} year(s)`} />
         ) : null}
     </>
 );
@@ -133,10 +108,7 @@ export const InitialOccurence = ({ cost }: Props) => (
 export const RateOfRecurrence = ({ cost }: Props) => (
     <>
         {cost?.recurring?.rateOfRecurrence ? (
-            <View style={styles.key}>
-                <Text style={styles.text}>Rate Of Recurrence:&nbsp;</Text>
-                <Text style={styles.value}>{cost?.recurring.rateOfRecurrence} year(s)</Text>
-            </View>
+            <LabeledText label="Rate of Recurrence" text={`${cost?.recurring.rateOfRecurrence} year(s)`} />
         ) : null}
     </>
 );

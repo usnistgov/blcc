@@ -7,11 +7,12 @@ import {
     RateOfChangeValue,
     RateOfRecurrence,
     Recurring,
-} from "./CostComponents";
+} from "./components/CostComponents";
 
 import type { OtherCost } from "blcc-format/Format";
-import { styles } from "./styles/pdfStyles";
+import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
+import { LabeledText } from "./components/GeneralComponents";
 
 type OtherCostInputProps = {
     cost: OtherCost;
@@ -36,31 +37,19 @@ export default function OtherCostInput({ cost, year }: OtherCostInputProps) {
                 </View>
             ) : null}
 
-            {cost?.costOrBenefit ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Cost or Benefit:&nbsp;</Text>
-                    <Text style={styles.value}>{cost?.costOrBenefit}</Text>
-                </View>
-            ) : null}
+            {cost?.costOrBenefit ? <LabeledText label="Cost or Benefit" text={cost?.costOrBenefit} /> : null}
 
             <InitialOccurence cost={cost} />
 
             {cost?.valuePerUnit ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Value per Unit:&nbsp;</Text>
-                    <Text style={styles.value}>
-                        {dollarFormatter.format(cost?.valuePerUnit)} per {cost?.unit}
-                    </Text>
-                </View>
+                <LabeledText
+                    label="Value per Unit"
+                    text={`${dollarFormatter.format(cost?.valuePerUnit)} per ${cost?.unit}`}
+                />
             ) : null}
 
             {cost?.numberOfUnits ? (
-                <View style={styles.key}>
-                    <Text style={styles.text}>Number Of Units:&nbsp;</Text>
-                    <Text style={styles.value}>
-                        {cost?.numberOfUnits} {cost?.unit}
-                    </Text>
-                </View>
+                <LabeledText label="Number Of Units" text={`${cost?.numberOfUnits} ${cost?.unit}`} />
             ) : null}
 
             <Recurring cost={cost} />
