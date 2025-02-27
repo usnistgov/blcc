@@ -3,13 +3,13 @@ import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
 import { Button, ButtonType } from "components/input/Button";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import { useSubscribe } from "hooks/UseSubscribe";
-import { EscalationRateModel } from "model/EscalationRateModel";
+import { type EscalationRateInfo, EscalationRateModel } from "model/EscalationRateModel";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import type { ReactNode } from "react";
 import DataGrid from "react-data-grid";
 import { Link } from "react-router-dom";
-import { type Observable, combineLatest } from "rxjs";
+import type { Observable } from "rxjs";
+import { Subscribe } from "@react-rxjs/core";
 
 type EscalationRatesProps = {
     title: ReactNode;
@@ -19,23 +19,6 @@ type EscalationRatesProps = {
 export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
     const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
-
-    // If the location is set to null, and we are not using custom rates, reset to project rates if available
-    useSubscribe(
-        combineLatest([
-            EnergyCostModel.location.$,
-            EnergyCostModel.Location.isZipValid$,
-            EscalationRateModel.isUsingCustomEscalationRates$,
-        ]),
-        ([location, isZipValid, isUsingCustomEscalationRates]) => {
-            if ((location === undefined || !isZipValid) && !isUsingCustomEscalationRates) {
-                EscalationRateModel.escalation.set(undefined);
-            }
-        },
-    );
-
-    // Set the rates when the custom zipcode get set
-    useSubscribe(EscalationRateModel.setCustomZipRates$, (rates) => EscalationRateModel.escalation.set(rates));
 
     return (
         <div>
@@ -61,33 +44,29 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
                     />
                 )}
             </div>
-            {(isConstant && <ConstantEscalationInput />) || <ArrayEscalationInput />}
+            {(isConstant && <ConstantEscalationInput />) || (
+                <Subscribe fallback={"Array Escalation Input fallback"}>
+                    <ArrayEscalationInput />
+                </Subscribe>
+            )}
         </div>
     );
 }
 
 function ArrayEscalationInput() {
-    return EscalationRateModel.showGrid() ? <EscalationRateGrid /> : <Message />;
-}
-
-function EscalationRateGrid() {
-    return (
-        <div className={"w-full overflow-hidden rounded shadow-lg"}>
-            <DataGrid
-                className={"rdg-light h-full"}
-                rows={EscalationRateModel.gridValues()}
-                columns={EscalationRateModel.COLUMNS}
-                onRowsChange={EscalationRateModel.Actions.setRates}
-            />
-        </div>
-    );
-}
-
-function Message() {
-    const isUsingCustomLocation = EnergyCostModel.Location.isUsingCustomLocation();
-    const isCustomZipValid = EnergyCostModel.Location.isZipValid();
+    const isUsingCustomEscalationRates = EscalationRateModel.isUsingCustomEscalationRates();
     const isSectorValid = EscalationRateModel.isSectorValid();
+    const isZipValid = EnergyCostModel.Location.isZipValid();
+    const isUsingCustomLocation = EnergyCostModel.Location.isUsingCustomLocation();
+    const isProjectZipValid = EscalationRateModel.isProjectZipValid();
 
+    // Using custom values, display grid
+    if (isUsingCustomEscalationRates) {
+        console.log("Using custom escalation rates");
+        return <EscalationRateGrid rates={EscalationRateModel.useCustomEscalationGridValues} />;
+    }
+
+    // Sector is not valid, display message
     if (!isSectorValid) {
         return (
             <div className={"flex flex-col gap-y-2 text-base-dark"}>
@@ -96,7 +75,8 @@ function Message() {
         );
     }
 
-    if (isUsingCustomLocation && !isCustomZipValid) {
+    // Custom location is being used, but the zip code is not valid, display message
+    if (isUsingCustomLocation && !isZipValid) {
         return (
             <div className={"flex flex-col gap-y-2 text-base-dark"}>
                 <p>Custom ZIP code is invalid</p>
@@ -104,16 +84,45 @@ function Message() {
         );
     }
 
+    // Custom location is being used, zip code is valid, display grid
+    if (isUsingCustomLocation && isZipValid) {
+        // Typescript doesn't like typing this hook for some reason, so I have done it manually
+        return <EscalationRateGrid rates={EscalationRateModel.useCustomZipGridValues as () => EscalationRateInfo[]} />;
+    }
+
+    // Project zip code is not valid, display message
+    if (!isProjectZipValid) {
+        return (
+            <div className={"flex flex-col gap-y-2 text-base-dark"}>
+                <p>Default escalation rates requires a ZIP code</p>
+                <p>
+                    Set the ZIP code for this cost or for the entire project on the{" "}
+                    <Link className={"text-primary"} to={"/editor"}>
+                        General Information
+                    </Link>{" "}
+                    page
+                </p>
+            </div>
+        );
+    }
+
+    // Using project rates, display grid
+    return <EscalationRateGrid rates={EscalationRateModel.useProjectRatesGridValues} />;
+}
+
+type EscalationRateGridProps = {
+    rates: () => EscalationRateInfo[];
+};
+
+function EscalationRateGrid({ rates }: EscalationRateGridProps) {
     return (
-        <div className={"flex flex-col gap-y-2 text-base-dark"}>
-            <p>Default escalation rates requires a ZIP code</p>
-            <p>
-                Set the ZIP code for this cost or for the entire project on the{" "}
-                <Link className={"text-primary"} to={"/editor"}>
-                    General Information
-                </Link>{" "}
-                page
-            </p>
+        <div className={"w-full overflow-hidden rounded shadow-lg"}>
+            <DataGrid
+                className={"rdg-light h-full"}
+                rows={rates()}
+                columns={EscalationRateModel.COLUMNS}
+                onRowsChange={EscalationRateModel.Actions.setRates}
+            />
         </div>
     );
 }
@@ -123,7 +132,7 @@ function ConstantEscalationInput() {
         <div>
             <TestNumberInput
                 className={"w-full"}
-                getter={EscalationRateModel.escalation.use as () => number}
+                getter={EscalationRateModel.useConstantEscalationRatePercentage}
                 onChange={EscalationRateModel.Actions.setConstant}
                 addonAfter={"%"}
             />

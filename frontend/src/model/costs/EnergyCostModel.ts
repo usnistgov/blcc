@@ -85,12 +85,11 @@ export namespace EnergyCostModel {
          * True if the location property exists, otherwise false.
          * Indicates we are using a custom location for this cost.
          */
-        export const [isUsingCustomLocation, isUsingCustomLocation$] = bind(
-            location.$.pipe(map((location) => location !== undefined)),
-        );
+        export const [isUsingCustomLocation] = bind(location.$.pipe(map((location) => location !== undefined)), false);
 
-        export const [isZipValid, isZipValid$] = bind(
+        export const [isZipValid] = bind(
             model.zipcode.$.pipe(map((zip) => zip !== undefined && zip !== "" && zip.length === 5)),
+            false,
         );
 
         /**

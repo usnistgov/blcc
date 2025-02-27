@@ -17,7 +17,7 @@ export class DexieModel<T extends object> {
                 this.sModify$.pipe(
                     scan((acc, modifier) => modifier(acc), value),
                     tap((next) => {
-                        console.log("Modifying from dexie model class");
+                        console.log("Modifying from dexie model class", next);
                         collection.modify(next);
                     }),
                     startWith(value),
