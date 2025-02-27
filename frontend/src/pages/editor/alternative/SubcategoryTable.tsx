@@ -1,8 +1,12 @@
-import { mdiPlus } from "@mdi/js";
+import { mdiMinus, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import { useNavigate } from "react-router-dom";
 import type { Subject } from "rxjs";
+import { Button, ButtonType } from "components/input/Button";
+import { Tooltip } from "antd";
+import { removeCost } from "pages/editor/Cost";
+import { Defaults } from "blcc-format/Defaults";
 
 type CategoryTableProps = {
     name: string;
@@ -15,7 +19,7 @@ export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableP
 
     return (
         <span>
-            <div className={"bg-primary px-2 py-1.5 text-center text-white flex justify-between"}>
+            <div className={"flex justify-between bg-primary px-2 py-1.5 text-center text-white"}>
                 <div />
                 <p>{name}</p>
                 <div
@@ -23,7 +27,7 @@ export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableP
                     onKeyUp={() => sAddCostModal$.next(name as FuelType | CostTypes)}
                 >
                     <Icon
-                        className={"self-center hover:bg-primary-light active:bg-primary-dark cursor-pointer rounded"}
+                        className={"cursor-pointer self-center rounded hover:bg-primary-light active:bg-primary-dark"}
                         path={mdiPlus}
                         size={1}
                     />
@@ -33,7 +37,7 @@ export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableP
                 {costs.length <= 0 && (
                     <li
                         className={
-                            "text-base-dark overflow-hidden text-ellipsis px-2 py-1.5 cursor-default even:bg-base-lightest"
+                            "cursor-default overflow-hidden text-ellipsis px-2 py-1.5 text-base-dark even:bg-base-lightest"
                         }
                     >
                         None
@@ -45,13 +49,29 @@ export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableP
                         <li
                             key={item.id}
                             className={
-                                "overflow-hidden text-ellipsis px-2 py-1.5 even:bg-base-lightest hover:text-primary hover:cursor-pointer"
+                                "flex flex-row justify-between overflow-hidden text-ellipsis even:bg-base-lightest hover:cursor-pointer"
                             }
-                            onClick={navigateToItem}
-                            onKeyDown={navigateToItem}
                         >
-                            {/*FIXME switch to button so keyboard navigation works*/}
-                            {item?.name || "Unknown"}
+                            <div
+                                className={"flex-grow px-2 py-1.5 hover:text-primary "}
+                                onClick={navigateToItem}
+                                onKeyDown={navigateToItem}
+                            >
+                                {item?.name || "Unknown"}
+                            </div>
+
+                            <div
+                                onClick={() => removeCost([item.id ?? Defaults.INVALID_ID, Defaults.PROJECT_ID])}
+                                onKeyUp={() => removeCost([item.id ?? Defaults.INVALID_ID, Defaults.PROJECT_ID])}
+                            >
+                                <Icon
+                                    className={
+                                        "mx-2 my-1.5 cursor-pointer self-center rounded text-error hover:bg-error-lighter active:bg-error-light"
+                                    }
+                                    path={mdiMinus}
+                                    size={1}
+                                />
+                            </div>
                         </li>
                     );
                 })}

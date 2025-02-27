@@ -1,20 +1,21 @@
-import { type ConfirmConfig, confirm as modalConfirm } from "components/modal/ConfirmationModal";
+import { confirm as modalConfirm, type ConfirmConfig } from "components/modal/ConfirmationModal";
 import type { Collection, Table } from "dexie";
 import {
-    type Observable,
-    type ObservableInputTuple,
-    Subject,
-    type UnaryFunction,
     count,
     from,
     groupBy,
     mergeMap,
+    type Observable,
+    type ObservableInputTuple,
     of,
+    type OperatorFunction,
     pipe,
     scan,
+    Subject,
     switchMap,
+    type UnaryFunction,
 } from "rxjs";
-import { catchError, filter, map, shareReplay, tap, toArray, withLatestFrom } from "rxjs/operators";
+import { catchError, filter, map, shareReplay, toArray, withLatestFrom } from "rxjs/operators";
 
 /**
  * Counts the number of occurrences of each unique property in type A. The property is obtained with the given property extractor function.
@@ -184,14 +185,14 @@ export function sampleMany<T, Rest extends unknown[]>(
 }
 
 /**
- * Only lets the observable emit when the given gate observabale is currently true.
+ * Only lets the observable emit when the given gate observable is currently true.
  * @param gate the observable to gate behind.
+ * @param predicate
  */
-export function gate<T>(gate: Observable<boolean>): UnaryFunction<Observable<T>, Observable<T>> {
+export function gate<A, B>(gate: Observable<B>, predicate: (b: B) => boolean): OperatorFunction<A, A> {
     return pipe(
         withLatestFrom(gate),
-        tap(console.log),
-        filter(([t, gate]) => gate),
+        filter(([, gate]) => predicate(gate)),
         map(([t]) => t),
     );
 }
