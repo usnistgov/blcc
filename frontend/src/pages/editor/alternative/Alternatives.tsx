@@ -133,7 +133,7 @@ export default function Alternatives() {
 
     return (
         <motion.div
-            className="h-full w-full flex flex-col"
+            className="flex h-full w-full flex-col"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -143,7 +143,7 @@ export default function Alternatives() {
 
             <AlternativeSubHeader />
 
-            <div className={"flex flex-col p-6 h-full overflow-y-auto"}>
+            <div className={"flex h-full flex-col overflow-y-auto p-6"}>
                 <div className={"max-w-screen-lg"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <TextInput
@@ -163,7 +163,7 @@ export default function Alternatives() {
 
                         <span className={"col-span-2"}>
                             <TextArea
-                                className={"w-full max-h-36"}
+                                className={"max-h-36 w-full"}
                                 label={"Description"}
                                 value$={AlternativeModel.description$}
                                 wire={AlternativeModel.sDescription$}
@@ -173,7 +173,7 @@ export default function Alternatives() {
                 </div>
 
                 <br />
-                <div className={"flex justify-between border-b-2 border-base-lightest"}>
+                <div className={"flex justify-between border-base-lightest border-b-2"}>
                     <Title level={4}>
                         <Info text={Strings.ALTERNATIVE_COSTS}>Alternative Costs</Info>
                     </Title>
@@ -182,7 +182,7 @@ export default function Alternatives() {
                         Add Cost
                     </Button>
                 </div>
-                <div className={"flex flex-wrap gap-16 py-6 mb-32"}>
+                <div className={"mb-32 flex flex-wrap gap-16 py-6"}>
                     {categories.map((category) => (
                         <CategoryTable
                             key={category.label}

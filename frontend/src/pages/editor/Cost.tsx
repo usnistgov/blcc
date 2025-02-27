@@ -47,7 +47,7 @@ const removeClick$ = new Subject<void>();
 const remove$ = combineLatest([CostModel.id$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
 const clone$ = combineLatest([cost.$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
 
-function removeCost([costID, projectID]: [number, number]) {
+export function removeCost([costID, projectID]: [number, number]) {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
         // Delete cost
         db.costs.where("id").equals(costID).delete();
