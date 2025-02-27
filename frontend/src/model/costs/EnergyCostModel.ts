@@ -224,7 +224,7 @@ export namespace EnergyCostModel {
             const common = {
                 from: releaseYear,
                 to: releaseYear + (studyPeriod ?? 0),
-                release_year: releaseYear,
+                releaseYear,
                 case: EIA_CASE_MAP[eiaCase],
                 rate: RATE_MAP[rate],
             };
