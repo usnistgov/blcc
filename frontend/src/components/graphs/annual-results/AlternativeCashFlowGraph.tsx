@@ -85,7 +85,7 @@ export default function AlternativeCashFlowGraph() {
                 padding: 0,
             },
             legend: {
-                show: false,
+                show: true,
             },
             tooltip: {
                 format: {
