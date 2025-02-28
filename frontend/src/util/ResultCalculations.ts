@@ -95,7 +95,7 @@ export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryR
         { subcategory: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
         {
             category: "Contract",
-            subcategory: "Implementation",
+            subcategory: "Non-Recurring",
             ...getOptionalTag(measures, "Implementation Contract Cost"),
         },
         { subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost") },
@@ -294,7 +294,7 @@ export function createAlternativeNpvCostTypeTotalRow(measure: Measures): Alterna
         { subcategory: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
         {
             category: "Contract",
-            subcategory: "Implementation",
+            subcategory: "Non-Recurring",
             alternative: measure.totalTagFlows["Implementation Contract Cost"],
         },
         { subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"] },

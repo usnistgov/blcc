@@ -29,7 +29,7 @@ type NpvAltTableProps = {
     rows: AnnualCostTypeNpvCashflowRow[];
 };
 
-export function NPVAltTable({ columns, rows }: NpvAltTableProps) {
+export function CashFlowCostType({ columns, rows }: NpvAltTableProps) {
     return (
         <View wrap={false}>
             <Text style={styles.subHeading}>Cash Flow by Cost Type</Text>

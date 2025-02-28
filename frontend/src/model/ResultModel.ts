@@ -133,7 +133,7 @@ export namespace ResultModel {
         ["Disposal", "Water Disposal"],
         ["OMR", "OMR"],
         ["Recurring Contract Cost", "Recurring Contract"],
-        ["Implementation Contract Cost", "Implementation Contract"],
+        ["Implementation Contract Cost", "Non-Recurring Contract"],
         ["Replacement Capital", "Replacement Capital"],
         ["Residual Value", "Residual Value"],
         ["Other", "Other"],

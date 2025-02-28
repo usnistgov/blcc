@@ -112,7 +112,7 @@ const columns = [
         cellClass: "text-ink",
         children: [
             {
-                name: "Implementation",
+                name: "Non-Recurring",
                 key: "implementationContract",
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.implementation ?? 0)}</p>

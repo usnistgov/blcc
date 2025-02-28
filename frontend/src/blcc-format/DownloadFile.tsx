@@ -290,7 +290,7 @@ export const downloadCsv = Effect.gen(function* () {
                     "OMR",
                     "Replace",
                     "Residual Value",
-                    "Implementation",
+                    "Non-Recurring",
                     "Recurring",
                     "Monetary",
                     "Total",
