@@ -38,7 +38,7 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
                         className={"-scale-x-100"}
                         icon={mdiRefresh}
                         type={ButtonType.LINK}
-                        tooltip={"Reset to default"}
+                        tooltip={"Reset to default based on selected location"}
                         disabled={!areProjectRatesValid}
                         onClick={() => EscalationRateModel.Actions.resetToDefault()}
                     />
