@@ -44,7 +44,7 @@ export default function OtherNonMonetaryCostFields() {
 				/>
 
 				<span className={"col-span-2"}>
-					<Recurring />
+					<Recurring showValue={false} />
 				</span>
 			</div>
 		</div>
