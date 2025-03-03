@@ -160,7 +160,7 @@ namespace DefaultCosts {
 
     export const OTHER: Props<OtherCost> = {
         type: CostTypes.OTHER,
-        tags: ["Other"],
+        tags: ["Other"], // This cost is hidden from the user and can't be removed
         costOrBenefit: CostBenefit.COST,
         initialOccurrence: 0,
         valuePerUnit: 0,
