@@ -68,7 +68,7 @@ function createDataGridColumns(name: string) {
 }
 
 type RecurringProps = {
-	showUnit?: boolean;
+	showValue?: boolean;
 };
 
 /**
@@ -77,9 +77,9 @@ type RecurringProps = {
  * input the rate of recurrence and the rate of change for the value and unit
  * costs.
  *
- * @param showUnit If true, will show the unit rate of change input.
+ * @param showValue If true, will show the value rate of change input.
  */
-export default function Recurring({ showUnit = false }: RecurringProps) {
+export default function Recurring({ showValue = true }: RecurringProps) {
 	return (
 		<div>
 			<Title level={5}>
@@ -90,7 +90,7 @@ export default function Recurring({ showUnit = false }: RecurringProps) {
 				unCheckedChildren={"No"}
 				checked={RecurringModel.isRecurring()}
 				onChange={(toggle) =>
-					RecurringModel.Actions.toggleRecurring(toggle, showUnit)
+					RecurringModel.Actions.toggleRecurring(toggle, showValue)
 				}
 			/>
 			{RecurringModel.isRecurring() && (
@@ -100,8 +100,8 @@ export default function Recurring({ showUnit = false }: RecurringProps) {
 					</div>
 
 					<div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-						<ValueRateOfChange />
-						{showUnit && <UnitRateOfChange />}
+						{showValue && <ValueRateOfChange />}
+						<UnitRateOfChange />
 					</div>
 				</>
 			)}
@@ -233,7 +233,11 @@ function UnitRateOfChangeInput() {
 		<div>
 			<TestNumberInput
 				className={"w-full"}
-				getter={RecurringModel.Units.rate.use as () => number}
+				getter={() =>
+					+toPercentage(
+						(RecurringModel.Units.rate.use() as number) ?? 0,
+					).toFixed(2)
+				}
 				onChange={RecurringModel.Units.Actions.setConstant}
 				addonAfter={"%"}
 			/>
