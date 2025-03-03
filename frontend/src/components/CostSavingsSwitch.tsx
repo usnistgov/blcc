@@ -30,7 +30,7 @@ export function CostSavingsSwitch() {
                 buttonStyle="solid"
             >
                 <Radio.Button value={false}>Cost</Radio.Button>
-                <Radio.Button value={true}>Savings</Radio.Button>
+                <Radio.Button value={true}>{savingsOrBenefits}</Radio.Button>
             </Radio.Group>
         </span>
     );
