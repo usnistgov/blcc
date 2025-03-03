@@ -44,8 +44,9 @@ export default function ImplementationContractCostFields() {
                 <NumberInput
                     className={"w-full"}
                     info={Strings.OCCURRENCE}
-                    addonBefore={"year"}
-                    label={"Occurrence"}
+                    addonAfter={"years"}
+                    label={"Initial occurrence"}
+                    subLabel={"(from service date)"}
                     allowEmpty={true}
                     value$={occurrence$}
                     wire={sOccurrence$}
