@@ -22,17 +22,20 @@ export default function AnnualResults() {
                     <NpvCashFlowGraph />
                 </div>
             </div>
+            <div className="-mb-7 -mt-3 flex flex-row">
+                <Header level={3}>Cash Flows by Alternative</Header>
+            </div>
             <div className="flex flex-row gap-4">
                 <ResultAlternativeSelect />
                 <ResultsSwitch />
             </div>
             <div>
-                <Header>Cash Flow by Cost Type</Header>
+                <Header>By Cost Type</Header>
                 <AnnualCostTypeCashFlowGrid />
             </div>
             <div className="grid grid-cols-2 gap-8">
                 <div>
-                    <Header>Cash Flows</Header>
+                    <Header>By Subtype</Header>
                     <AlternativeCashFlowGraph />
                 </div>
                 <div>
@@ -41,7 +44,7 @@ export default function AnnualResults() {
                         options={ResultModel.useCategoryOptions}
                         value={ResultModel.useCategorySelection}
                     >
-                        Tag/Object by Year
+                        For Selected Cost Type
                     </HeaderWithSelect>
                     <TagObjectByYearGraph />
                 </div>
