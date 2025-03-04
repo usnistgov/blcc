@@ -71,7 +71,10 @@ export default function Index() {
                     </div>
                     <div className={"mt-16 flex flex-col items-center"}>
                         <div className="mb-16">
-                            <Logo className={"h-52 w-full mx-8"} onClick={() => navigate("/editor")} />
+                            <Logo
+                                className={"h-52 w-full mx-8 cursor-pointer select-none"}
+                                onClick={() => navigate("/editor")}
+                            />
                         </div>
                         <div className="bg-blue-200 flex-col flex flex-wrap items-center w-full px-16 py-8">
                             <Title className="flex-grow">Features</Title>
