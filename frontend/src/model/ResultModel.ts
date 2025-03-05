@@ -5,7 +5,7 @@ import { liveQuery } from "dexie";
 import { alternatives$, hash$ } from "model/Model";
 import { DexieService, db } from "model/db";
 import { combineLatest, merge, switchMap } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { map, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { Effect } from "effect";
@@ -19,6 +19,7 @@ import { BlccRuntime } from "util/runtime";
 function initializeBillboardJS() {
     bar();
     pie();
+    console.log("initBillboard");
 }
 initializeBillboardJS();
 
@@ -96,10 +97,12 @@ export namespace ResultModel {
     export const [useSelection] = bind(selection$, 0);
 
     export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
+    export const [useMeasures] = bind(measures$, []);
 
     export const selectedMeasure$ = combineLatest([measures$, selection$]).pipe(
         map(([measures, selection]) => measures.find((measure) => measure.altId === selection)),
         guard(),
+        shareReplay(1),
     );
 
     export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));

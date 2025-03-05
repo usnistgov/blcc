@@ -1,4 +1,4 @@
-import { Text, View } from "@react-pdf/renderer";
+import { Text, View, Image } from "@react-pdf/renderer";
 import type { AltResults } from "blcc-format/ExportTypes";
 import { styles } from "../pdfStyles";
 import { NpvAltCashflowTable, NpvAltResourceTable } from "./AlternativeResultsTables";
@@ -9,9 +9,11 @@ import type { ResourceUsageRow } from "util/ResultCalculations";
 type AlternativeResultsPdfProps = {
     altNames: string[];
     altResults: AltResults;
+    shareOfEnergyUse: string[];
 };
 
-export default function AlternativeResultsPdf({ altNames, altResults }: AlternativeResultsPdfProps) {
+export default function AlternativeResultsPdf({ altNames, altResults, shareOfEnergyUse }: AlternativeResultsPdfProps) {
+    console.log(shareOfEnergyUse);
     return (
         <View style={styles.section}>
             <Title title="Annual Results for Alternative" />
@@ -58,6 +60,7 @@ export default function AlternativeResultsPdf({ altNames, altResults }: Alternat
                         />
                         <Text style={styles.subHeading}>Share of LCC</Text>
                         <Text style={styles.subHeading}>Share of Energy Use</Text>
+                        <Image key={shareOfEnergyUse[index]} src={shareOfEnergyUse[index]} />
                     </View>
                 ))}
             </View>

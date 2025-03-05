@@ -30,3 +30,10 @@ export type AltResults = {
 export type NpvCashflowComparisonSummary = {
     [key: string]: number | string;
 };
+
+export type GraphSources = {
+    annualCashFlows: string;
+    // cashFlowBySubtype: string[];
+    // shareOfLcc: string;
+    shareOfEnergyUse: string[];
+};

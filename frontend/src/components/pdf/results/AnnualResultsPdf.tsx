@@ -25,10 +25,10 @@ const costTypeColumns = [
 type AnnualResultsPdfProps = {
     altNames: string[];
     annual: Annual;
-    graphs: string[];
+    annualCashFlows: string;
 };
 
-export default function AnnualResultsPdf({ altNames, annual, graphs }: AnnualResultsPdfProps) {
+export default function AnnualResultsPdf({ altNames, annual, annualCashFlows }: AnnualResultsPdfProps) {
     const npvComparisonColumns: GridCol[] = [
         { name: "Year", key: "year" },
         ...altNames.map((altName, i) => {
@@ -46,18 +46,14 @@ export default function AnnualResultsPdf({ altNames, annual, graphs }: AnnualRes
                     rows={annual.npvCashflowComparison}
                     summary={annual.npvCashflowComparisonSummary}
                 />
+                <Text style={styles.heading}>NPV Cash Flows</Text>
+                <Image key={annualCashFlows} src={annualCashFlows} />
                 {altNames?.map((name, index) => (
                     <View key={name} wrap={false}>
                         <Text style={styles.heading}>Annual Results for Alternative: {name}</Text>
                         <CashFlowCostType columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
-                        <Text style={styles.subHeading}>NPV Cash Flows</Text>
-                        <Text style={styles.subHeading}>Tag/Object by Year</Text>
+                        <Text style={styles.subHeading}>Cash Flows by Subtype</Text>
                     </View>
-                ))}
-            </View>
-            <View>
-                {graphs.map((src: string) => (
-                    <Image key={src} src={src} />
                 ))}
             </View>
         </View>

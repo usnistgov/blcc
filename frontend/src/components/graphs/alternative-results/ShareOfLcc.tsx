@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { combineLatest } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
-const GRAPH_ID = "share-of-lcc-chart";
+export const GRAPH_ID = "share-of-lcc-chart";
 
 const [chart$, setChart] = createSignal<Chart>();
 const loadData$ = combineLatest([ResultModel.selectedMeasure$, chart$]).pipe(debounceTime(1));

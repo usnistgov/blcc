@@ -1,5 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
+import type { AltResults, Annual, GraphSources, Summary } from "blcc-format/ExportTypes";
 import type { Alternative } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 import { Title } from "./components/GeneralComponents";
@@ -12,7 +12,7 @@ type ResultsProps = {
     summary: Summary;
     annual: Annual;
     altResults: AltResults;
-    graphs: string[];
+    graphs: GraphSources;
 };
 
 export default function Results({ alternatives, summary, annual, altResults, graphs }: ResultsProps) {
@@ -22,8 +22,12 @@ export default function Results({ alternatives, summary, annual, altResults, gra
         <View style={styles.section}>
             <Title title="Results" />
             <ResultsSummary altNames={altNames} summary={summary} />
-            <AnnualResultsPdf altNames={altNames} annual={annual} graphs={graphs} />
-            <AlternativeResultsPdf altNames={altNames} altResults={altResults} />
+            <AnnualResultsPdf altNames={altNames} annual={annual} annualCashFlows={graphs.annualCashFlows} />
+            <AlternativeResultsPdf
+                altNames={altNames}
+                altResults={altResults}
+                shareOfEnergyUse={graphs.shareOfEnergyUse}
+            />
         </View>
     );
 }

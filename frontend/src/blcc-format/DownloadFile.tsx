@@ -2,9 +2,12 @@ import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
-import type { AltResults, Annual, NpvCashflowComparisonSummary, Summary } from "blcc-format/ExportTypes";
+import type { AltResults, Annual, GraphSources, NpvCashflowComparisonSummary, Summary } from "blcc-format/ExportTypes";
+import * as ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
+import * as NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
 import Pdf from "components/Pdf";
 import { Effect } from "effect";
+import html2canvas from "html2canvas";
 import { DexieService } from "model/db";
 import type React from "react";
 import {
@@ -107,15 +110,15 @@ export const downloadPdf = Effect.gen(function* () {
         resourceUsage: measures.map((measure) => createResourceUsageRow(measure)),
     };
 
-    //TODO re-add pdf graphs
-    /*
-            const pdfGraphs = document.getElementsByClassName("result-graph");
-            // if (pdfGraphs.length === 0) return;
+    const npvCashFlowGraph: HTMLElement | null = document.getElementById(NpvCashFlowGraph.OFFSCREEN_GRAPH_ID);
+    const shareOfEnergyUse: HTMLElement[] | null = Array.from(
+        document.getElementsByClassName(ShareOfEnergyUse.OFFSCREEN_GRAPH_CLASS),
+    ) as HTMLElement[];
 
-            const promises = [...pdfGraphs].map((graph) =>
-                htmlToImage.toPng(graph as HTMLElement).then((graphSrc) => graphSrc),
-            );
-     */
+    const graphSources: GraphSources = {
+        annualCashFlows: yield* getGraphSource(npvCashFlowGraph as HTMLElement),
+        shareOfEnergyUse: yield* Effect.all(shareOfEnergyUse.map((ele) => getGraphSource(ele))),
+    };
 
     const blob = yield* createPdfBlob(
         <Pdf
@@ -125,12 +128,15 @@ export const downloadPdf = Effect.gen(function* () {
             summary={summary}
             annual={annual}
             altResults={altResults}
-            graphSources={[]}
+            graphSources={graphSources}
         />,
     );
 
     download(blob, `${project.name}.pdf`, "application/pdf");
 });
+
+const getGraphSource = (graph: HTMLElement) =>
+    Effect.promise(() => html2canvas(graph).then((canvas) => canvas.toDataURL("image/png")));
 
 const createPdfBlob = (element: React.ReactElement<DocumentProps>) =>
     Effect.tryPromise({ try: () => pdf(element).toBlob(), catch: (error) => Effect.logError(error) });
