@@ -26,6 +26,7 @@ export default function Results({ alternatives, summary, annual, altResults, gra
             <AlternativeResultsPdf
                 altNames={altNames}
                 altResults={altResults}
+                shareOfLcc={graphs.shareOfLcc}
                 shareOfEnergyUse={graphs.shareOfEnergyUse}
             />
         </View>

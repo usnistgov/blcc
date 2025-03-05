@@ -34,6 +34,6 @@ export type NpvCashflowComparisonSummary = {
 export type GraphSources = {
     annualCashFlows: string;
     // cashFlowBySubtype: string[];
-    // shareOfLcc: string;
+    shareOfLcc: string[];
     shareOfEnergyUse: string[];
 };

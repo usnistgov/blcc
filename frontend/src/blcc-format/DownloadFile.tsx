@@ -4,6 +4,7 @@ import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
 import type { AltResults, Annual, GraphSources, NpvCashflowComparisonSummary, Summary } from "blcc-format/ExportTypes";
 import * as ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
+import * as ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import * as NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
 import Pdf from "components/Pdf";
 import { Effect } from "effect";
@@ -114,10 +115,14 @@ export const downloadPdf = Effect.gen(function* () {
     const shareOfEnergyUse: HTMLElement[] | null = Array.from(
         document.getElementsByClassName(ShareOfEnergyUse.OFFSCREEN_GRAPH_CLASS),
     ) as HTMLElement[];
+    const shareOfLcc: HTMLElement[] | null = Array.from(
+        document.getElementsByClassName(ShareOfLcc.OFFSCREEN_GRAPH_CLASS),
+    ) as HTMLElement[];
 
     const graphSources: GraphSources = {
         annualCashFlows: yield* getGraphSource(npvCashFlowGraph as HTMLElement),
         shareOfEnergyUse: yield* Effect.all(shareOfEnergyUse.map((ele) => getGraphSource(ele))),
+        shareOfLcc: yield* Effect.all(shareOfLcc.map((ele) => getGraphSource(ele))),
     };
 
     const blob = yield* createPdfBlob(

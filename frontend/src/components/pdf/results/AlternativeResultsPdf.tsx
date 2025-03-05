@@ -9,11 +9,17 @@ import type { ResourceUsageRow } from "util/ResultCalculations";
 type AlternativeResultsPdfProps = {
     altNames: string[];
     altResults: AltResults;
+    shareOfLcc: string[];
     shareOfEnergyUse: string[];
 };
 
-export default function AlternativeResultsPdf({ altNames, altResults, shareOfEnergyUse }: AlternativeResultsPdfProps) {
-    console.log(shareOfEnergyUse);
+export default function AlternativeResultsPdf({
+    altNames,
+    altResults,
+    shareOfLcc,
+    shareOfEnergyUse,
+}: AlternativeResultsPdfProps) {
+    console.log(shareOfLcc);
     return (
         <View style={styles.section}>
             <Title title="Annual Results for Alternative" />
@@ -59,6 +65,7 @@ export default function AlternativeResultsPdf({ altNames, altResults, shareOfEne
                             rows={altResults?.resourceUsage?.[index]}
                         />
                         <Text style={styles.subHeading}>Share of LCC</Text>
+                        <Image key={shareOfLcc[index]} src={shareOfLcc[index]} />
                         <Text style={styles.subHeading}>Share of Energy Use</Text>
                         <Image key={shareOfEnergyUse[index]} src={shareOfEnergyUse[index]} />
                     </View>

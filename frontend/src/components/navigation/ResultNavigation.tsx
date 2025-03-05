@@ -1,6 +1,7 @@
 import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEditOutline } from "@mdi/js";
 import { bind } from "@react-rxjs/core";
 import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
+import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
 import { Button } from "components/input/Button";
 import { useActiveLink } from "hooks/UseActiveLink";
@@ -9,7 +10,7 @@ import type { PropsWithChildren } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 function OffScreenWrapper({ children }: PropsWithChildren) {
-    return <div style={{ position: "absolute", left: 0, top: "0vh", width: 750 }}>{children}</div>;
+    return <div style={{ position: "absolute", left: 0, top: "-100vh", width: 750 }}>{children}</div>;
 }
 
 export default function ResultNavigation() {
@@ -25,6 +26,11 @@ export default function ResultNavigation() {
             {measures.map((measure, i) => (
                 <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
                     <ShareOfEnergyUse offscreen measure={measure} />
+                </OffScreenWrapper>
+            ))}
+            {measures.map((measure, i) => (
+                <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
+                    <ShareOfLcc offscreen measure={measure} />
                 </OffScreenWrapper>
             ))}
 
