@@ -2,6 +2,7 @@ import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEdi
 import { bind } from "@react-rxjs/core";
 import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
+import AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
 import NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
 import { Button } from "components/input/Button";
 import { useActiveLink } from "hooks/UseActiveLink";
@@ -10,29 +11,36 @@ import type { PropsWithChildren } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 function OffScreenWrapper({ children }: PropsWithChildren) {
-    return <div style={{ position: "absolute", left: 0, top: "-100vh", width: 750 }}>{children}</div>;
+    return <div style={{ position: "absolute", left: 0, top: "0vh", width: 750, zIndex: 100 }}>{children}</div>;
 }
 
 export default function ResultNavigation() {
     const navigate = useNavigate();
     const measures = ResultModel.useMeasures();
-    console.log(measures);
+
+    // {
+    //     measures.map((measure, i) => (
+    //         <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
+    //             <ShareOfEnergyUse offscreen measure={measure} />
+    //         </OffScreenWrapper>
+    //     ));
+    // }
+    // {
+    //     measures.map((measure, i) => (
+    //         <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
+    //             <ShareOfLcc offscreen measure={measure} />
+    //         </OffScreenWrapper>
+    //     ));
+    // }
 
     return (
         <>
-            <OffScreenWrapper>
+            {/* <OffScreenWrapper>
                 <NpvCashFlowGraph offscreen />
+            </OffScreenWrapper> */}
+            <OffScreenWrapper>
+                <AlternativeCashFlowGraph offscreen measure={measures[0]} />
             </OffScreenWrapper>
-            {measures.map((measure, i) => (
-                <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
-                    <ShareOfEnergyUse offscreen measure={measure} />
-                </OffScreenWrapper>
-            ))}
-            {measures.map((measure, i) => (
-                <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
-                    <ShareOfLcc offscreen measure={measure} />
-                </OffScreenWrapper>
-            ))}
 
             <nav className="z-40 flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 <Button
