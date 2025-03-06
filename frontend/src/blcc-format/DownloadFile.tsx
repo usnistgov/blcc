@@ -6,6 +6,7 @@ import type { AltResults, Annual, GraphSources, NpvCashflowComparisonSummary, Su
 import * as ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import * as ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import * as NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
+import * as AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
 import Pdf from "components/Pdf";
 import { Effect } from "effect";
 import html2canvas from "html2canvas";
@@ -112,6 +113,9 @@ export const downloadPdf = Effect.gen(function* () {
     };
 
     const npvCashFlowGraph: HTMLElement | null = document.getElementById(NpvCashFlowGraph.OFFSCREEN_GRAPH_ID);
+    const cashFlowBySubtype: HTMLElement[] | null = Array.from(
+        document.getElementsByClassName(AlternativeCashFlowGraph.OFFSCREEN_GRAPH_CLASS),
+    ) as HTMLElement[];
     const shareOfEnergyUse: HTMLElement[] | null = Array.from(
         document.getElementsByClassName(ShareOfEnergyUse.OFFSCREEN_GRAPH_CLASS),
     ) as HTMLElement[];
@@ -121,8 +125,18 @@ export const downloadPdf = Effect.gen(function* () {
 
     const graphSources: GraphSources = {
         annualCashFlows: yield* getGraphSource(npvCashFlowGraph as HTMLElement),
-        shareOfEnergyUse: yield* Effect.all(shareOfEnergyUse.map((ele) => getGraphSource(ele))),
-        shareOfLcc: yield* Effect.all(shareOfLcc.map((ele) => getGraphSource(ele))),
+        cashFlowBySubtype: yield* Effect.all(
+            cashFlowBySubtype.map((ele) => getGraphSource(ele)),
+            { concurrency: "unbounded" },
+        ),
+        shareOfEnergyUse: yield* Effect.all(
+            shareOfEnergyUse.map((ele) => getGraphSource(ele)),
+            { concurrency: "unbounded" },
+        ),
+        shareOfLcc: yield* Effect.all(
+            shareOfLcc.map((ele) => getGraphSource(ele)),
+            { concurrency: "unbounded" },
+        ),
     };
 
     const blob = yield* createPdfBlob(
@@ -144,7 +158,10 @@ const getGraphSource = (graph: HTMLElement) =>
     Effect.promise(() => html2canvas(graph).then((canvas) => canvas.toDataURL("image/png")));
 
 const createPdfBlob = (element: React.ReactElement<DocumentProps>) =>
-    Effect.tryPromise({ try: () => pdf(element).toBlob(), catch: (error) => Effect.logError(error) });
+    Effect.tryPromise({
+        try: () => pdf(element).toBlob(),
+        catch: (error) => Effect.logError(error),
+    });
 
 function wrapCell(value: number | string | boolean): string {
     return `"${value}"`;
@@ -361,7 +378,9 @@ export const downloadE3Request = (builder: RequestBuilder) =>
         if (project === undefined) return;
 
         download(
-            new Blob([JSON.stringify(builder.build(), null, 2)], { type: "application/json" }),
+            new Blob([JSON.stringify(builder.build(), null, 2)], {
+                type: "application/json",
+            }),
             `${project.name}-E3.json`,
             "application/json",
         );

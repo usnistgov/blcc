@@ -10,45 +10,57 @@ import NpvCashFlowComparison from "components/grids/annual-results/NpvCashFlowCo
 import { ResultModel } from "model/ResultModel";
 
 export default function AnnualResults() {
-    return (
-        <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5 pb-48"}>
-            <div className="grid grid-cols-2 gap-8">
-                <div>
-                    <Header>NPV Cash Flow Comparison</Header>
-                    <NpvCashFlowComparison />
-                </div>
-                <div>
-                    <Header>NPV Cash Flows</Header>
-                    <NpvCashFlowGraph />
-                </div>
-            </div>
-            <div className="-mb-7 -mt-3 flex flex-row">
-                <Header level={3}>Cash Flows by Alternative</Header>
-            </div>
-            <div className="flex flex-row gap-4">
-                <ResultAlternativeSelect />
-                <ResultsSwitch />
-            </div>
-            <div>
-                <Header>By Cost Type</Header>
-                <AnnualCostTypeCashFlowGrid />
-            </div>
-            <div className="grid grid-cols-2 gap-8">
-                <div>
-                    <Header>By Subtype</Header>
-                    <AlternativeCashFlowGraph />
-                </div>
-                <div>
-                    <HeaderWithSelect
-                        onChange={ResultModel.setCategorySelection}
-                        options={ResultModel.useCategoryOptions}
-                        value={ResultModel.useCategorySelection}
-                    >
-                        For Selected Cost Type
-                    </HeaderWithSelect>
-                    <TagObjectByYearGraph />
-                </div>
-            </div>
-        </div>
-    );
+	const selection = ResultModel.useSelection();
+	const optionals = ResultModel.useOptionalsByTag();
+	const discountedCashFlow = ResultModel.useDiscountedCashFlow();
+
+	return (
+		<div
+			className={
+				"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5 pb-48"
+			}
+		>
+			<div className="grid grid-cols-2 gap-8">
+				<div>
+					<Header>NPV Cash Flow Comparison</Header>
+					<NpvCashFlowComparison />
+				</div>
+				<div>
+					<Header>NPV Cash Flows</Header>
+					<NpvCashFlowGraph />
+				</div>
+			</div>
+			<div className="-mb-7 -mt-3 flex flex-row">
+				<Header level={3}>Cash Flows by Alternative</Header>
+			</div>
+			<div className="flex flex-row gap-4">
+				<ResultAlternativeSelect />
+				<ResultsSwitch />
+			</div>
+			<div>
+				<Header>By Cost Type</Header>
+				<AnnualCostTypeCashFlowGrid />
+			</div>
+			<div className="grid grid-cols-2 gap-8">
+				<div>
+					<Header>By Subtype</Header>
+					<AlternativeCashFlowGraph
+						selection={selection}
+						discountedCashFlow={discountedCashFlow}
+						optionals={optionals}
+					/>
+				</div>
+				<div>
+					<HeaderWithSelect
+						onChange={ResultModel.setCategorySelection}
+						options={ResultModel.useCategoryOptions}
+						value={ResultModel.useCategorySelection}
+					>
+						For Selected Cost Type
+					</HeaderWithSelect>
+					<TagObjectByYearGraph />
+				</div>
+			</div>
+		</div>
+	);
 }
