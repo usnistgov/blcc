@@ -32,6 +32,7 @@ import {
     percentFormatter,
     wholeNumberFormatter,
 } from "util/Util";
+import { PdfLoadingModel } from "components/modal/PdfLoadingModal";
 
 /**
  * Accepts a JSON object and a filename and converts it to a string and downloads the file.
@@ -152,6 +153,7 @@ export const downloadPdf = Effect.gen(function* () {
     );
 
     download(blob, `${project.name}.pdf`, "application/pdf");
+    PdfLoadingModel.setShowLoadingModal(false);
 });
 
 const getGraphSource = (graph: HTMLElement) =>

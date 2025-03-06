@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { E3ObjectService } from "services/E3ObjectService";
 import { BlccRuntime } from "util/runtime";
 import SaveAsModal, { showSaveAsModal } from "./modal/SaveAsModal";
+import PdfLoadingModal, { PdfLoadingModel } from "./modal/PdfLoadingModal";
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
@@ -32,6 +33,9 @@ export default function ResultsAppBar() {
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
+            <Subscribe>
+                <PdfLoadingModal />
+            </Subscribe>
             <Subscribe>
                 <SaveAsModal />
             </Subscribe>
@@ -42,7 +46,13 @@ export default function ResultsAppBar() {
                 <Button icon={mdiContentSave} onClick={() => EditorModel.saveClick()}>
                     Save
                 </Button>
-                <Button icon={mdiFileDownload} onClick={() => BlccRuntime.runPromise(downloadPdf)}>
+                <Button
+                    icon={mdiFileDownload}
+                    onClick={() => {
+                        PdfLoadingModel.setShowLoadingModal(true);
+                        BlccRuntime.runPromise(downloadPdf);
+                    }}
+                >
                     Export PDF
                 </Button>
                 <Button icon={mdiTableArrowDown} onClick={() => BlccRuntime.runPromise(downloadCsv)}>

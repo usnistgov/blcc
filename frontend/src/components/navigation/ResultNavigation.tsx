@@ -30,11 +30,13 @@ export default function ResultNavigation() {
     const navigate = useNavigate();
     const measures = ResultModel.useMeasures();
     const optionals = ResultModel.useOptionalsByTag();
+    const required = ResultModel.useRequired();
+    const alternativeNames = ResultModel.useAlternativeNames();
 
     return (
         <>
             <OffScreenWrapper>
-                <NpvCashFlowGraph offscreen />
+                <NpvCashFlowGraph offscreen required={required} alternativeNames={alternativeNames} />
             </OffScreenWrapper>
             {measures.map((measure, i) => (
                 <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>

@@ -6,95 +6,91 @@ import { CashFlowCostType, NPVComparisonTable } from "./AnnualResultsTables";
 import { dollarFormatter } from "util/Util";
 
 const costTypeColumns = [
-	{ name: ["", "Year"], key: "year" },
-	{
-		name: ["Energy", "Consumption"],
-		key: "consumption",
-		formatter: dollarFormatter,
-	},
-	{ name: ["", "Demand"], key: "demand", formatter: dollarFormatter },
-	{ name: ["", "Rebates"], key: "rebates", formatter: dollarFormatter },
-	{ name: ["Water", "Use"], key: "waterUse", formatter: dollarFormatter },
-	{ name: ["", "Disposal"], key: "waterDisposal", formatter: dollarFormatter },
-	{
-		name: ["Capital", "Investment"],
-		key: "investment",
-		formatter: dollarFormatter,
-	},
-	{ name: ["", "OMR"], key: "omr", formatter: dollarFormatter },
-	{ name: ["", "Replace"], key: "replace", formatter: dollarFormatter },
-	{
-		name: ["", "Residual Value"],
-		key: "residualValue",
-		formatter: dollarFormatter,
-	},
-	{
-		name: ["Contract", "Non-Recurring"],
-		key: "implementation",
-		formatter: dollarFormatter,
-	},
-	{
-		name: ["", "Recurring"],
-		key: "recurringContract",
-		formatter: dollarFormatter,
-	},
-	{
-		name: ["Other", "Monetary"],
-		key: "otherCosts",
-		formatter: dollarFormatter,
-	},
-	{ name: ["", "Total"], key: "total", formatter: dollarFormatter },
+    { name: ["", "Year"], key: "year" },
+    {
+        name: ["Energy", "Consumption"],
+        key: "consumption",
+        formatter: dollarFormatter,
+    },
+    { name: ["", "Demand"], key: "demand", formatter: dollarFormatter },
+    { name: ["", "Rebates"], key: "rebates", formatter: dollarFormatter },
+    { name: ["Water", "Use"], key: "waterUse", formatter: dollarFormatter },
+    { name: ["", "Disposal"], key: "waterDisposal", formatter: dollarFormatter },
+    {
+        name: ["Capital", "Investment"],
+        key: "investment",
+        formatter: dollarFormatter,
+    },
+    { name: ["", "OMR"], key: "omr", formatter: dollarFormatter },
+    { name: ["", "Replace"], key: "replace", formatter: dollarFormatter },
+    {
+        name: ["", "Residual Value"],
+        key: "residualValue",
+        formatter: dollarFormatter,
+    },
+    {
+        name: ["Contract", "Non-Recurring"],
+        key: "implementation",
+        formatter: dollarFormatter,
+    },
+    {
+        name: ["", "Recurring"],
+        key: "recurringContract",
+        formatter: dollarFormatter,
+    },
+    {
+        name: ["Other", "Monetary"],
+        key: "otherCosts",
+        formatter: dollarFormatter,
+    },
+    { name: ["", "Total"], key: "total", formatter: dollarFormatter },
 ];
 
 type AnnualResultsPdfProps = {
-	altNames: string[];
-	annual: Annual;
-	annualCashFlows: string;
-	cashFlowBySubtype: string[];
+    altNames: string[];
+    annual: Annual;
+    annualCashFlows: string;
+    cashFlowBySubtype: string[];
 };
 
 export default function AnnualResultsPdf({
-	altNames,
-	annual,
-	annualCashFlows,
-	cashFlowBySubtype,
+    altNames,
+    annual,
+    annualCashFlows,
+    cashFlowBySubtype,
 }: AnnualResultsPdfProps) {
-	const npvComparisonColumns: GridCol[] = [
-		{ name: "Year", key: "year" },
-		...altNames.map((altName, i) => {
-			return { name: altName, key: `${i}`, formatter: dollarFormatter };
-		}),
-	];
-	annual.npvCashflowComparisonSummary.year = "Total";
+    const npvComparisonColumns: GridCol[] = [
+        { name: "Year", key: "year" },
+        ...altNames.map((altName, i) => {
+            return { name: altName, key: `${i}`, formatter: dollarFormatter };
+        }),
+    ];
+    annual.npvCashflowComparisonSummary.year = "Total";
 
-	return (
-		<View style={styles.section}>
-			<Title title="Annual Results" />
-			<View>
-				<NPVComparisonTable
-					columns={npvComparisonColumns}
-					rows={annual.npvCashflowComparison}
-					summary={annual.npvCashflowComparisonSummary}
-				/>
-				<Text style={styles.heading}>NPV Cash Flows</Text>
-				<Image key={annualCashFlows} src={annualCashFlows} />
-				{altNames?.map((name, index) => (
-					<View key={name} wrap={false}>
-						<Text style={styles.heading}>
-							Annual Results for Alternative: {name}
-						</Text>
-						<CashFlowCostType
-							columns={costTypeColumns}
-							rows={annual.alternativeNpvCashflows[index]}
-						/>
-						<Text style={styles.subHeading}>Cash Flows by Subtype</Text>
-						<Image
-							key={cashFlowBySubtype[index]}
-							src={cashFlowBySubtype[index]}
-						/>
-					</View>
-				))}
-			</View>
-		</View>
-	);
+    return (
+        <View style={styles.section}>
+            <Title title="Annual Results" />
+            <View>
+                <NPVComparisonTable
+                    columns={npvComparisonColumns}
+                    rows={annual.npvCashflowComparison}
+                    summary={annual.npvCashflowComparisonSummary}
+                />
+                <View wrap={false}>
+                    <Text style={styles.heading}>NPV Cash Flows</Text>
+                    <Image key={annualCashFlows} src={annualCashFlows} />
+                </View>
+                {altNames?.map((name, index) => (
+                    <View key={name} wrap={false}>
+                        <Text style={styles.heading}>Annual Results for Alternative: {name}</Text>
+                        <CashFlowCostType columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
+                        <View wrap={false}>
+                            <Text style={styles.subHeading}>Cash Flows by Subtype</Text>
+                            <Image key={cashFlowBySubtype[index]} src={cashFlowBySubtype[index]} />
+                        </View>
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
 }
