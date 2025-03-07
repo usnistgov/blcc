@@ -175,6 +175,9 @@ export namespace ResultModel {
     export const [categorySelectionSignal, setCategorySelection] = createSignal<string>();
     // Should start by default selection of the first cost type for the alternative and populated cost types
     export const [useCategorySelection, categorySelection$] = bind(
-        merge(categorySelectionSignal, categoryOptions$.pipe(map((categories) => categories[0].value))),
+        merge(
+            categorySelectionSignal,
+            categoryOptions$.pipe(map((categories) => (categories.length > 0 ? categories[0].value : ""))),
+        ),
     );
 }

@@ -1,7 +1,7 @@
 import { bind } from "@react-rxjs/core";
 import DataGrid, { type Column } from "react-data-grid";
 import { type Observable, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 import "react-data-grid/lib/styles.css";
 import type { Required } from "@lrd/e3-sdk";
 import type { Alternative } from "blcc-format/Format";
@@ -69,7 +69,12 @@ const [useColumns] = bind(
     [],
 );
 
-const [useRows] = bind(ResultModel.required$.pipe(map((required) => createNpvCashflowComparisonRow(required))), []);
+const [useRows] = bind(
+    ResultModel.required$.pipe(
+        map((required) => (required.length > 0 ? createNpvCashflowComparisonRow(required) : [])),
+    ),
+    [],
+);
 
 const [useSummary] = bind(
     requiredWithAlternative$.pipe(
