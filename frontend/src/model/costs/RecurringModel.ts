@@ -60,7 +60,7 @@ export namespace RecurringModel {
         export const [setDefaultArray$, setDefaultArray] = createSignal();
         sampleMany(setDefaultArray$, [Model.studyPeriod.$, Model.constructionPeriod.$, rate.$]).subscribe(
             ([studyPeriod, constructionPeriod, oldRate]) =>
-                rate.set(makeArray((studyPeriod ?? 0) + constructionPeriod, oldRate as number)),
+                rate.set(makeArray((studyPeriod ?? 0) + constructionPeriod + 1, oldRate as number)),
         );
 
         export const [gridValues] = bind(
@@ -99,7 +99,7 @@ export namespace RecurringModel {
         export const [setDefaultArray$, setDefaultArray] = createSignal();
         sampleMany(setDefaultArray$, [Model.studyPeriod.$, Model.constructionPeriod.$, rate.$]).subscribe(
             ([studyPeriod, constructionPeriod, oldRate]) =>
-                rate.set(makeArray((studyPeriod ?? 0) + constructionPeriod, oldRate as number)),
+                rate.set(makeArray((studyPeriod ?? 0) + constructionPeriod + 1, oldRate as number)),
         );
 
         export const [gridValues] = bind(

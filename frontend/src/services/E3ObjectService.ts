@@ -387,6 +387,8 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .quantity(1)
         .quantityValue(cost.initialCost);
 
+    applyRateOfChange(builder, cost);
+
     if (cost.residualValue)
         return [
             builder,
@@ -408,7 +410,8 @@ function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
         .quantity(1);
 
     if (cost.recurring?.rateOfRecurrence) {
-        builder.addTag("OMR Recurring").recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 0)); //TODO rate of change
+        builder.addTag("OMR Recurring").recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 0));
+        applyRateOfChange(builder, cost);
     } else {
         builder.addTag("OMR Non-Recurring");
     }
@@ -432,19 +435,19 @@ function implementationContractCostToBuilder(cost: ImplementationContractCost): 
 }
 
 function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder[] {
-    return [
-        new BcnBuilder()
-            .name(cost.name)
-            .type(BcnType.COST)
-            .subType(BcnSubType.DIRECT)
-            .addTag("Recurring Contract Cost", "LCC")
-            .real()
-            .invest()
-            .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
-            .initialOccurrence(cost.initialOccurrence)
-            .quantity(1)
-            .quantityValue(cost.initialCost + 1),
-    ];
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .addTag("Recurring Contract Cost", "LCC")
+        .real()
+        .invest()
+        .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
+        .initialOccurrence(cost.initialOccurrence)
+        .quantity(1)
+        .quantityValue(cost.initialCost + 1);
+    applyRateOfChange(builder, cost);
+    return [builder];
 }
 
 function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
@@ -485,7 +488,20 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
     return [builder];
 }
 
-function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary) {
+function applyRateOfChange(
+    builder: BcnBuilder,
+    cost: OtherCost | OtherNonMonetary | RecurringContractCost | OMRCost | ReplacementCapitalCost,
+) {
+    if (cost.type === CostTypes.REPLACEMENT_CAPITAL) {
+        const recurBuilder = new RecurBuilder().interval(1);
+
+        if (cost.annualRateOfChange) {
+            recurBuilder.varRate(VarRate.YEAR_BY_YEAR).varValue([cost.annualRateOfChange]);
+        }
+        builder.recur(recurBuilder);
+        return;
+    }
+
     if (cost.recurring?.rateOfChangeUnits)
         builder
             .quantityVarRate(VarRate.YEAR_BY_YEAR)
@@ -496,7 +512,7 @@ function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMoneta
             );
 
     if (cost.recurring) {
-        const recurBuilder = new RecurBuilder().interval(1);
+        const recurBuilder = new RecurBuilder().interval(cost.recurring.rateOfRecurrence ?? 1);
 
         if (cost.recurring.rateOfChangeValue) {
             recurBuilder
