@@ -8,12 +8,14 @@ import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import * as O from "optics-ts";
 import type { RenderCellProps, RenderEditCellProps } from "react-data-grid";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
-import { combineLatestWith, filter, switchMap, tap } from "rxjs/operators";
+import { combineLatestWith, filter, scan, switchMap, tap } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { guard } from "util/Operators";
-import { fuelTypeToRate, percentFormatter, toDecimal, toPercentage } from "util/Util";
+import { fuelTypeToRate, makeArray, percentFormatter, toDecimal, toPercentage } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { Var } from "util/var";
+
+const DEFAULT_CONSTANT_ESCALATION_RATE = 0;
 
 export type EscalationRateInfo = {
     year: number;
@@ -184,12 +186,20 @@ export namespace EscalationRateModel {
         export function toggleConstant(toggle: boolean) {
             if (toggle) {
                 // Is constant
-                escalation.set(0);
+                escalation.set(DEFAULT_CONSTANT_ESCALATION_RATE);
                 customEscalation.set(false);
             } else {
                 // Not constant
-                escalation.set(undefined);
-                customEscalation.set(false);
+                const val = escalation.current();
+                if (val === undefined || Array.isArray(val) || val === DEFAULT_CONSTANT_ESCALATION_RATE) {
+                    customEscalation.set(false);
+                    escalation.set(undefined);
+                } else {
+                    const projectLength =
+                        (Model.constructionPeriod.current() ?? 0) + (Model.studyPeriod.current() ?? 0) + 1;
+                    customEscalation.set(true);
+                    escalation.set(makeArray(projectLength, val));
+                }
             }
         }
 

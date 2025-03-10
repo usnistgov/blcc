@@ -10,6 +10,7 @@ import DataGrid from "react-data-grid";
 import { Link } from "react-router-dom";
 import type { Observable } from "rxjs";
 import { Subscribe } from "@react-rxjs/core";
+import { Model } from "model/Model";
 
 type EscalationRatesProps = {
     title: ReactNode;
@@ -19,6 +20,7 @@ type EscalationRatesProps = {
 export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
     const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
+    const projectLength = Model.constructionPeriod.use() + (Model.studyPeriod.use() ?? 0) + 1;
 
     return (
         <div>
