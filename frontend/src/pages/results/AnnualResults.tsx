@@ -10,6 +10,12 @@ import NpvCashFlowComparison from "components/grids/annual-results/NpvCashFlowCo
 import { ResultModel } from "model/ResultModel";
 
 export default function AnnualResults() {
+    const selection = ResultModel.useSelection();
+    const optionals = ResultModel.useOptionalsByTag();
+    const discountedCashFlow = ResultModel.useDiscountedCashFlow();
+    const required = ResultModel.useRequired();
+    const alternativeNames = ResultModel.useAlternativeNames();
+
     return (
         <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5 pb-48"}>
             <div className="grid grid-cols-2 gap-8">
@@ -19,7 +25,7 @@ export default function AnnualResults() {
                 </div>
                 <div>
                     <Header>NPV Cash Flows</Header>
-                    <NpvCashFlowGraph />
+                    <NpvCashFlowGraph required={required} alternativeNames={alternativeNames} />
                 </div>
             </div>
             <div className="-mb-7 -mt-3 flex flex-row">
@@ -36,7 +42,11 @@ export default function AnnualResults() {
             <div className="grid grid-cols-2 gap-8">
                 <div>
                     <Header>By Subtype</Header>
-                    <AlternativeCashFlowGraph />
+                    <AlternativeCashFlowGraph
+                        selection={selection}
+                        discountedCashFlow={discountedCashFlow}
+                        optionals={optionals}
+                    />
                 </div>
                 <div>
                     <HeaderWithSelect

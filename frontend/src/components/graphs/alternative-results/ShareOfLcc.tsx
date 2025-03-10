@@ -1,46 +1,67 @@
+import type { Measures } from "@lrd/e3-sdk";
 import { createSignal } from "@react-rxjs/utils";
 import { type Chart, bb } from "billboard.js";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { ResultModel } from "model/ResultModel";
-import { useEffect } from "react";
-import { combineLatest } from "rxjs";
-import { debounceTime } from "rxjs/operators";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { combineLatest, iif, of } from "rxjs";
+import { combineLatestWith, debounceTime } from "rxjs/operators";
+import { guard } from "util/Operators";
 
-const GRAPH_ID = "share-of-lcc-chart";
+export const GRAPH_ID = "share-of-lcc-chart";
+export const OFFSCREEN_GRAPH_ID_TEMPLATE = `offscreen-${GRAPH_ID}`;
+export const OFFSCREEN_GRAPH_CLASS = `offscreen-${GRAPH_ID}`;
 
-const [chart$, setChart] = createSignal<Chart>();
-const loadData$ = combineLatest([ResultModel.selectedMeasure$, chart$]).pipe(debounceTime(1));
+type ShareOfLccGraphProps = {
+	measure: Measures;
+	offscreen?: boolean;
+};
+export default function ShareOfLcc({
+	measure,
+	offscreen = false,
+}: ShareOfLccGraphProps) {
+	const graphId = offscreen
+		? `${OFFSCREEN_GRAPH_ID_TEMPLATE}-${measure?.altId}`
+		: GRAPH_ID;
 
-export default function ShareOfLcc() {
-    useSubscribe(loadData$, ([measure, chart]) => {
-        chart.unload({
-            done: () =>
-                chart.load({
-                    columns: [
-                        ["Investment", measure.totalTagFlows["Initial Investment"] ?? 0],
-                        ["Energy", measure.totalTagFlows.Energy ?? 0],
-                        ["Water", measure.totalTagFlows.Water ?? 0],
-                        ["OMR", measure.totalTagFlows.OMR ?? 0],
-                        ["Replacement", measure.totalTagFlows.Replacement ?? 0],
-                        ["Residual Value", measure.totalTagFlows["Residual Value"] ?? 0],
-                    ],
-                }),
-        });
-    });
+	const [chart, setChart] = useState<Chart>();
 
-    useEffect(() => {
-        const chart = bb.generate({
-            data: {
-                columns: [],
-                type: "pie",
-            },
-            bindto: `#${GRAPH_ID}`,
-        });
+	useLayoutEffect(() => {
+		if (!chart) return;
 
-        setChart(chart);
+		chart.unload({
+			done: () =>
+				chart.load({
+					columns: [
+						["Investment", measure.totalTagFlows["Initial Investment"] ?? 0],
+						["Energy", measure.totalTagFlows.Energy ?? 0],
+						["Water", measure.totalTagFlows.Water ?? 0],
+						["OMR", measure.totalTagFlows.OMR ?? 0],
+						["Replacement", measure.totalTagFlows.Replacement ?? 0],
+						["Residual Value", measure.totalTagFlows["Residual Value"] ?? 0],
+					],
+				}),
+		});
+	}, [chart, measure]);
 
-        return () => chart.destroy();
-    }, []);
+	useLayoutEffect(() => {
+		const chart = bb.generate({
+			data: {
+				columns: [],
+				type: "pie",
+			},
+			bindto: `#${graphId}`,
+		});
 
-    return <div id={GRAPH_ID} className={"h-[23rem]"} />;
+		setChart(chart);
+
+		return () => chart.destroy();
+	}, [graphId]);
+
+	return (
+		<div
+			id={graphId}
+			className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`}
+		/>
+	);
 }

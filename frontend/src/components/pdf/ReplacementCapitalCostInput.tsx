@@ -21,7 +21,6 @@ type ReplacementCapitalCostInputProps = {
 };
 
 export default function ReplacementCapitalCostInput({ cost, year }: ReplacementCapitalCostInputProps) {
-    console.log(cost);
     return (
         <View key={cost.id}>
             <CostName cost={cost} />

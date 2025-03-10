@@ -5,7 +5,7 @@ import { liveQuery } from "dexie";
 import { alternatives$, hash$ } from "model/Model";
 import { DexieService, db } from "model/db";
 import { combineLatest, merge, switchMap } from "rxjs";
-import { map, withLatestFrom } from "rxjs/operators";
+import { map, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { Effect } from "effect";
@@ -19,6 +19,7 @@ import { BlccRuntime } from "util/runtime";
 function initializeBillboardJS() {
     bar();
     pie();
+    console.log("initBillboard");
 }
 initializeBillboardJS();
 
@@ -71,8 +72,10 @@ export namespace ResultModel {
     export const [isLoading] = bind(merge(loading$, result$.pipe(map(() => false))), false);
 
     export const required$ = result$.pipe(map((data) => data?.required ?? []));
+    export const [useRequired] = bind(required$, []);
 
     export const alternativeNames$ = alternatives$.pipe(map(createAlternativeNameMap));
+    export const [useAlternativeNames] = bind(alternativeNames$, new Map<number, string>());
 
     export const [selectChange$, selectAlternative] = createSignal<number>();
     export const selection$ = merge(selectChange$, alternatives$.pipe(map((alternatives) => alternatives[0].id ?? 0)));
@@ -88,7 +91,10 @@ export namespace ResultModel {
     export const [useAlternativeOptions] = bind(
         alternatives$.pipe(
             map((alternatives) =>
-                alternatives.map((alternative) => ({ value: alternative.id ?? 0, label: alternative.name })),
+                alternatives.map((alternative) => ({
+                    value: alternative.id ?? 0,
+                    label: alternative.name,
+                })),
             ),
         ),
         [],
@@ -96,14 +102,19 @@ export namespace ResultModel {
     export const [useSelection] = bind(selection$, 0);
 
     export const measures$ = result$.pipe(map((data) => data?.measure ?? []));
+    export const [useMeasures] = bind(measures$, []);
 
     export const selectedMeasure$ = combineLatest([measures$, selection$]).pipe(
         map(([measures, selection]) => measures.find((measure) => measure.altId === selection)),
         guard(),
+        shareReplay(1),
     );
+
+    export const [useSelectedMeasure] = bind(selectedMeasure$);
 
     export const optionals$ = result$.pipe(map((data) => data?.optional ?? []));
     export const optionalsByTag$ = optionals$.pipe(map((optionals) => groupOptionalByTag(optionals)));
+    export const [useOptionalsByTag] = bind(optionalsByTag$, new Map());
 
     export const [discountedCashFlow$, setDiscountedCashFlow] = createSignal<boolean>();
     export const [useDiscountedCashFlow] = bind(discountedCashFlow$, true);
@@ -152,7 +163,10 @@ export namespace ResultModel {
         ), // only need tag name
         map((tags) => categories.filter((category) => tags.includes(category))), // only use category for current alternative and populated optionals
         map((categories) =>
-            categories.map((category) => ({ value: category, label: categoryToDisplayName.get(category) ?? "" })),
+            categories.map((category) => ({
+                value: category,
+                label: categoryToDisplayName.get(category) ?? "",
+            })),
         ), // format for consumption by dropdown
     );
     export const [useCategoryOptions] = bind(categoryOptions$, []);
@@ -161,6 +175,9 @@ export namespace ResultModel {
     export const [categorySelectionSignal, setCategorySelection] = createSignal<string>();
     // Should start by default selection of the first cost type for the alternative and populated cost types
     export const [useCategorySelection, categorySelection$] = bind(
-        merge(categorySelectionSignal, categoryOptions$.pipe(map((categories) => categories[0].value))),
+        merge(
+            categorySelectionSignal,
+            categoryOptions$.pipe(map((categories) => (categories.length > 0 ? categories[0].value : ""))),
+        ),
     );
 }

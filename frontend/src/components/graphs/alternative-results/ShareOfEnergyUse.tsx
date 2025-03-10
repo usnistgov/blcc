@@ -1,19 +1,25 @@
-import { createSignal } from "@react-rxjs/utils";
-import { type Chart, bb } from "billboard.js";
+import type { Measures } from "@lrd/e3-sdk";
+import { bb, type Chart } from "billboard.js";
 import { FuelType } from "blcc-format/Format";
-import { useSubscribe } from "hooks/UseSubscribe";
-import { ResultModel } from "model/ResultModel";
-import { useEffect } from "react";
-import { combineLatest } from "rxjs";
-import { debounceTime } from "rxjs/operators";
+import { useEffect, useLayoutEffect, useState } from "react";
 
-const GRAPH_ID = "share-of-energy-use-chart";
+export const GRAPH_ID = "share-of-energy-use-chart";
+export const OFFSCREEN_GRAPH_ID_TEMPLATE = `offscreen-${GRAPH_ID}`;
+export const OFFSCREEN_GRAPH_CLASS = `offscreen-${GRAPH_ID}`;
 
-const [chart$, setChart] = createSignal<Chart>();
-const loadData$ = combineLatest([ResultModel.selectedMeasure$, chart$]).pipe(debounceTime(1));
+type ShareOfEnergyUseGraphProps = {
+    measure: Measures;
+    offscreen?: boolean;
+};
 
-export default function ShareOfEnergyUse() {
-    useSubscribe(loadData$, ([measure, chart]) => {
+export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOfEnergyUseGraphProps) {
+    const graphId = offscreen ? `${OFFSCREEN_GRAPH_ID_TEMPLATE}-${measure?.altId}` : GRAPH_ID;
+
+    const [chart, setChart] = useState<Chart>();
+
+    useLayoutEffect(() => {
+        if (!chart) return;
+
         const categories = [
             FuelType.ELECTRICITY,
             FuelType.NATURAL_GAS,
@@ -25,21 +31,21 @@ export default function ShareOfEnergyUse() {
         chart.unload({
             done: () => chart.load({ columns: categories }),
         });
-    });
+    }, [chart, measure]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const chart = bb.generate({
             data: {
                 columns: [],
                 type: "pie",
             },
-            bindto: `#${GRAPH_ID}`,
+            bindto: `#${graphId}`,
         });
 
         setChart(chart);
 
         return () => chart.destroy();
-    }, []);
+    }, [graphId]);
 
-    return <div id={GRAPH_ID} className={"h-[23rem]"} />;
+    return <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />;
 }

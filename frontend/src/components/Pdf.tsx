@@ -1,5 +1,5 @@
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
-import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
+import type { AltResults, Annual, GraphSources, Summary } from "blcc-format/ExportTypes";
 import type { Alternative, Cost, Project } from "blcc-format/Format";
 import Alternatives from "components/pdf/Alternatives";
 import GeneralInformation from "components/pdf/GeneralInformation";
@@ -16,7 +16,7 @@ type PdfProps = {
     summary: Summary;
     annual: Annual;
     altResults: AltResults;
-    graphSources: string[];
+    graphSources: GraphSources;
 };
 
 export default function Pdf({ project, alternatives, costs, summary, annual, altResults, graphSources }: PdfProps) {

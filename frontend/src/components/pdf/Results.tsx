@@ -1,5 +1,10 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { AltResults, Annual, Summary } from "blcc-format/ExportTypes";
+import type {
+	AltResults,
+	Annual,
+	GraphSources,
+	Summary,
+} from "blcc-format/ExportTypes";
 import type { Alternative } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 import { Title } from "./components/GeneralComponents";
@@ -8,22 +13,38 @@ import ResultsSummary from "./results/ResultsSummary";
 import AlternativeResultsPdf from "./results/AlternativeResultsPdf";
 
 type ResultsProps = {
-    alternatives: Alternative[];
-    summary: Summary;
-    annual: Annual;
-    altResults: AltResults;
-    graphs: string[];
+	alternatives: Alternative[];
+	summary: Summary;
+	annual: Annual;
+	altResults: AltResults;
+	graphs: GraphSources;
 };
 
-export default function Results({ alternatives, summary, annual, altResults, graphs }: ResultsProps) {
-    const altNames = alternatives.map((alternative) => alternative.name);
+export default function Results({
+	alternatives,
+	summary,
+	annual,
+	altResults,
+	graphs,
+}: ResultsProps) {
+	const altNames = alternatives.map((alternative) => alternative.name);
 
-    return (
-        <View style={styles.section}>
-            <Title title="Results" />
-            <ResultsSummary altNames={altNames} summary={summary} />
-            <AnnualResultsPdf altNames={altNames} annual={annual} graphs={graphs} />
-            <AlternativeResultsPdf altNames={altNames} altResults={altResults} />
-        </View>
-    );
+	return (
+		<View style={styles.section}>
+			<Title title="Results" />
+			<ResultsSummary altNames={altNames} summary={summary} />
+			<AnnualResultsPdf
+				altNames={altNames}
+				annual={annual}
+				annualCashFlows={graphs.annualCashFlows}
+				cashFlowBySubtype={graphs.cashFlowBySubtype}
+			/>
+			<AlternativeResultsPdf
+				altNames={altNames}
+				altResults={altResults}
+				shareOfLcc={graphs.shareOfLcc}
+				shareOfEnergyUse={graphs.shareOfEnergyUse}
+			/>
+		</View>
+	);
 }
