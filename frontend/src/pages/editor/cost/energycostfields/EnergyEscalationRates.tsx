@@ -59,6 +59,7 @@ function ArrayEscalationInput() {
     const isUsingCustomEscalationRates = EscalationRateModel.isUsingCustomEscalationRates();
     const isSectorValid = EscalationRateModel.isSectorValid();
     const isZipValid = EnergyCostModel.Location.isZipValid();
+    const isNonUsLocation = EnergyCostModel.Location.useIsNonUSLocation();
     const isUsingCustomLocation = EnergyCostModel.Location.isUsingCustomLocation();
     const isProjectZipValid = EscalationRateModel.isProjectZipValid();
 
@@ -74,6 +75,13 @@ function ArrayEscalationInput() {
             <div className={"flex flex-col gap-y-2 text-base-dark"}>
                 <p>Please select a Customer Sector</p>
             </div>
+        );
+    }
+
+    console.log("is non us location", isNonUsLocation);
+    if (isUsingCustomLocation && isNonUsLocation) {
+        return (
+            <EscalationRateGrid rates={EscalationRateModel.useNonUSLocationGridValues as () => EscalationRateInfo[]} />
         );
     }
 

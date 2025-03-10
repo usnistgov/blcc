@@ -60,7 +60,7 @@ export class BlccApiService extends Effect.Service<BlccApiService>()("BlccApiSer
                 Effect.andThen(jsonResponse),
                 Effect.andThen(decodeReleaseYear),
             ),
-            fetchEscalationRates: (releaseYear: number, from: number, to: number, zip: number, eiaCase: Case) =>
+            fetchEscalationRates: (releaseYear: number, from: number, to: number, eiaCase: Case, zip?: number) =>
                 Effect.tryPromise({
                     try: () =>
                         fetch("/api/escalation_rates", {

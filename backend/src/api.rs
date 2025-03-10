@@ -22,7 +22,7 @@ pub struct ErrorResponse {
 struct EscalationRateRequest {
     from: i32,
     to: i32,
-    zip: i32,
+    zip: Option<i32>,
     sector: Option<String>,
     release_year: i32,
     case: String,
@@ -33,6 +33,17 @@ async fn post_escalation_rates(
     request: Json<EscalationRateRequest>,
     data: Data<AppData>,
 ) -> impl Responder {
+    match request.zip {
+        Some(zipcode) => division_escalation(request, data, zipcode),
+        None => us_average_escalation(request, data)
+    }
+}
+
+fn division_escalation(
+    request: Json<EscalationRateRequest>,
+    data: Data<AppData>,
+    zipcode: i32
+) -> HttpResponse {
     use crate::schema::escalation_rates::dsl::escalation_rates;
     use crate::schema::escalation_rates::{division, sector, year, case};
     use crate::schema::state_division_region::dsl::state_division_region;
@@ -43,18 +54,19 @@ async fn post_escalation_rates(
     let to = request.to;
     let mut db = data.pool.get().expect("Failed to get a connection");
 
-    let mut query = escalation_rates
-        .into_boxed()
-        .inner_join(
-            state_division_region.on(crate::schema::state_division_region::division.eq(division))
-                .inner_join(zip_info.on(state.eq(crate::schema::state_division_region::state)))
-        )
-        .filter(
-            year.between(from, to)
-                .and(release_year.eq(request.release_year))
-                .and(zip.eq(request.zip))
-                .and(case.eq(request.case.clone()))
-        );
+    let mut query =
+        escalation_rates
+            .into_boxed()
+            .inner_join(
+                state_division_region.on(crate::schema::state_division_region::division.eq(division))
+                    .inner_join(zip_info.on(state.eq(crate::schema::state_division_region::state)))
+            )
+            .filter(
+                year.between(from, to)
+                    .and(release_year.eq(request.release_year))
+                    .and(zip.eq(zipcode))
+                    .and(case.eq(request.case.clone()))
+            );
 
     let sector_option = request.clone().sector;
     if let Some(some_sector) = sector_option {
@@ -62,7 +74,44 @@ async fn post_escalation_rates(
     }
 
     let result = query
-        .limit(80)
+        .select(EscalationRate::as_select())
+        .load(&mut db);
+
+    match result {
+        Ok(rates) => HttpResponse::Ok().json(rates),
+        Err(_) => HttpResponse::BadRequest().json(ErrorResponse {
+            error: format!("Could not get escalation rates from {} to {}", from, to),
+        }),
+    }
+}
+
+fn us_average_escalation(
+    request: Json<EscalationRateRequest>,
+    data: Data<AppData>,
+) -> HttpResponse {
+    use crate::schema::escalation_rates::dsl::escalation_rates;
+    use crate::schema::escalation_rates::{division, sector, year, case};
+
+    let from = request.from;
+    let to = request.to;
+    let mut db = data.pool.get().expect("Failed to get a connection");
+
+    let mut query =
+        escalation_rates
+            .into_boxed()
+            .filter(
+                year.between(from, to)
+                    .and(release_year.eq(request.release_year))
+                    .and(case.eq(request.case.clone()))
+                    .and(division.eq("United States".to_string()))
+            );
+
+    let sector_option = request.clone().sector;
+    if let Some(some_sector) = sector_option {
+        query = query.filter(sector.eq(some_sector.clone()));
+    }
+
+    let result = query
         .select(EscalationRate::as_select())
         .load(&mut db);
 

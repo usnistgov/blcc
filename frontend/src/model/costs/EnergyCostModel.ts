@@ -92,6 +92,12 @@ export namespace EnergyCostModel {
             false,
         );
 
+        // Non-US Location
+        export const [useIsNonUSLocation] = bind(
+            location.$.pipe(map((location) => location !== undefined && isNonUSLocation(location))),
+            false,
+        );
+
         /**
          * Returns the global zipcode if location is undefined, otherwise returns the overridden zipcode
          */

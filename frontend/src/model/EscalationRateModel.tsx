@@ -104,6 +104,53 @@ export namespace EscalationRateModel {
         [],
     );
 
+    export const [useNonUSLocationGridValues] = bind(
+        combineLatest([Model.releaseYear.$, Model.studyPeriod.$, Model.eiaCase.$]).pipe(
+            switchMap(([releaseYear, studyPeriod, eiaCase]) =>
+                BlccRuntime.runPromise(
+                    Effect.gen(function* () {
+                        const api = yield* BlccApiService;
+
+                        yield* Effect.log(
+                            "Fetching custom non us location escalation rates",
+                            releaseYear,
+                            studyPeriod,
+                            eiaCase,
+                        );
+                        return yield* Effect.orElse(
+                            api.fetchEscalationRates(
+                                releaseYear,
+                                releaseYear,
+                                releaseYear + (studyPeriod ?? 0),
+                                eiaCase,
+                            ),
+                            () =>
+                                Effect.andThen(
+                                    Effect.log("Failed to fetch escalation rates, defaulting to undefined"),
+                                    Effect.succeed(undefined),
+                                ),
+                        );
+                    }),
+                ),
+            ),
+            guard(),
+            combineLatestWith(EnergyCostModel.customerSector.$, EnergyCostModel.fuelType.$),
+            map(([rates, sector, fuelType]) => {
+                const escalation = rates
+                    .filter((rate) => rate.sector === sector)
+                    .map((rate) => fuelTypeToRate(rate, fuelType) ?? 0);
+
+                if (escalation === null) return [] as number[];
+
+                return escalation as number[];
+            }),
+            guard(),
+            tap((rates) => escalation.set(rates)),
+            combineLatestWith(Model.releaseYear.$),
+            map(toEscalationRateInfo),
+        ),
+    );
+
     export const [useCustomZipGridValues] = bind(
         combineLatest([
             Model.releaseYear.$,
@@ -131,8 +178,8 @@ export namespace EscalationRateModel {
                                 releaseYear,
                                 releaseYear,
                                 releaseYear + (studyPeriod ?? 0),
-                                Number.parseInt(zipcode ?? "0"),
                                 eiaCase,
+                                zipcode ? Number.parseInt(zipcode) : undefined,
                             ),
                             () =>
                                 Effect.andThen(
