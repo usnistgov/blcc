@@ -6,6 +6,7 @@ import { isReplacementCapitalCost } from "model/Guards";
 import * as O from "optics-ts";
 import { Var } from "util/var";
 import { Strings } from "../../../constants/Strings";
+import { toDecimal, toPercentage } from "util/Util";
 
 namespace Model {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
@@ -25,7 +26,7 @@ namespace Model {
         }
 
         export function setAnnualRateOfChange(change: number | null) {
-            if (change !== null) annualRateOfChange.set(change);
+            if (change !== null) annualRateOfChange.set(toDecimal(change));
             else annualRateOfChange.set(undefined);
         }
 
@@ -67,7 +68,7 @@ export default function ReplacementCapitalCostFields() {
                     addonAfter={"%"}
                     controls
                     label={"Annual Rate of Change"}
-                    getter={Model.annualRateOfChange.use}
+                    getter={() => toPercentage(Model.annualRateOfChange.use() ?? 0)}
                     onChange={Model.Actions.setAnnualRateOfChange}
                     info={Strings.ANNUAL_RATE_OF_CHANGE}
                 />

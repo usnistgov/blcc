@@ -387,6 +387,8 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .quantity(1)
         .quantityValue(cost.initialCost);
 
+    applyRateOfChangeReplacement(builder, cost);
+
     if (cost.residualValue)
         return [
             builder,
@@ -433,19 +435,19 @@ function implementationContractCostToBuilder(cost: ImplementationContractCost): 
 }
 
 function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder[] {
-    return [
-        new BcnBuilder()
-            .name(cost.name)
-            .type(BcnType.COST)
-            .subType(BcnSubType.DIRECT)
-            .addTag("Recurring Contract Cost", "LCC")
-            .real()
-            .invest()
-            .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
-            .initialOccurrence(cost.initialOccurrence)
-            .quantity(1)
-            .quantityValue(cost.initialCost + 1),
-    ];
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .addTag("Recurring Contract Cost", "LCC")
+        .real()
+        .invest()
+        .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
+        .initialOccurrence(cost.initialOccurrence)
+        .quantity(1)
+        .quantityValue(cost.initialCost + 1);
+    applyRateOfChange(builder, cost);
+    return [builder];
 }
 
 function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
@@ -486,7 +488,18 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
     return [builder];
 }
 
-function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary | OMRCost) {
+function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapitalCost) {
+    const recurBuilder = new RecurBuilder()
+        .interval((cost.initialOccurrence ?? 0) + 1)
+        .end((cost.initialOccurrence ?? 0) + 1);
+
+    if (cost.annualRateOfChange) {
+        recurBuilder.varRate(VarRate.YEAR_BY_YEAR).varValue([cost.annualRateOfChange]);
+    }
+    builder.recur(recurBuilder);
+}
+
+function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary | RecurringContractCost | OMRCost) {
     if (cost.recurring?.rateOfChangeUnits)
         builder
             .quantityVarRate(VarRate.YEAR_BY_YEAR)
