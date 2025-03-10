@@ -15,7 +15,7 @@ import { fuelTypeToRate, makeArray, percentFormatter, toDecimal, toPercentage } 
 import { BlccRuntime } from "util/runtime";
 import { Var } from "util/var";
 
-const DEFAULT_CONSTANT_ESCALATION_RATE = 0;
+export const DEFAULT_CONSTANT_ESCALATION_RATE = 0;
 
 export type EscalationRateInfo = {
     year: number;
