@@ -311,8 +311,8 @@ export namespace Model {
                                 releaseYear,
                                 releaseYear,
                                 releaseYear + (studyPeriod ?? 0),
-                                Number.parseInt(zipcode ?? "0"),
                                 eiaCase,
+                                Number.parseInt(zipcode ?? "0"),
                             ),
                             () =>
                                 Effect.andThen(
