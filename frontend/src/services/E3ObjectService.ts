@@ -408,7 +408,8 @@ function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
         .quantity(1);
 
     if (cost.recurring?.rateOfRecurrence) {
-        builder.addTag("OMR Recurring").recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 0)); //TODO rate of change
+        builder.addTag("OMR Recurring");
+        applyRateOfChange(builder, cost);
     } else {
         builder.addTag("OMR Non-Recurring");
     }
@@ -485,7 +486,7 @@ function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
     return [builder];
 }
 
-function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary) {
+function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary | OMRCost) {
     if (cost.recurring?.rateOfChangeUnits)
         builder
             .quantityVarRate(VarRate.YEAR_BY_YEAR)
@@ -496,7 +497,7 @@ function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMoneta
             );
 
     if (cost.recurring) {
-        const recurBuilder = new RecurBuilder().interval(1);
+        const recurBuilder = new RecurBuilder().interval(cost.recurring.rateOfRecurrence ?? 1);
 
         if (cost.recurring.rateOfChangeValue) {
             recurBuilder
