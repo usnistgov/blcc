@@ -1,7 +1,7 @@
 import { type StateObservable, bind } from "@react-rxjs/core";
 import { Match } from "effect";
 import * as O from "optics-ts";
-import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap } from "rxjs";
+import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap, BehaviorSubject } from "rxjs";
 import { shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
 import type { ZodError, ZodType } from "zod";
 import type { Collection } from "dexie";
@@ -55,6 +55,7 @@ export class Var<A extends object, B> {
     schema?: ZodType;
     useValidation: () => ZodError | undefined;
     validation$: Observable<ZodError | undefined>;
+    current$: BehaviorSubject<B | undefined>;
 
     constructor(
         model: DexieModel<A>,
@@ -67,9 +68,11 @@ export class Var<A extends object, B> {
         const [hook, stream$] = bind(
             model.$.pipe(
                 map((a) => get(a)),
+                tap((b) => this.current$.next(b)),
                 distinctUntilChanged(),
             ),
         );
+        this.current$ = new BehaviorSubject(undefined);
 
         this.change$ = new Subject();
         this.model = model;
@@ -102,7 +105,11 @@ export class Var<A extends object, B> {
 
     modify(mapper: (b: B) => B) {
         // @ts-ignore
-        this.model.modify((a) => O.set(optic)(mapper(getter(this.optic)(a)))(a));
+        this.model.modify((a) => O.set(this.optic)(mapper(getter(this.optic)(a)))(a));
+    }
+
+    current() {
+        return this.current$.getValue();
     }
 }
 
