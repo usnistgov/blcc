@@ -207,7 +207,8 @@ export function createAnnualCostTypeNpvCashflowRow(
     const residualValue = getOptionals(`${id} Residual Value`, optionals, discountedCashFlow, defaultArray);
     const otherCosts = getOptionals(`${id} Other`, optionals, discountedCashFlow, defaultArray);
 
-    return required.totalCostsDiscounted.map(
+    const requiredCosts = discountedCashFlow ? required.totalCostsDiscounted : required.totalCostsNonDiscounted;
+    return requiredCosts.map(
         (total, i) =>
             ({
                 year: i,
