@@ -55,7 +55,7 @@ export class Var<A extends object, B> {
     schema?: ZodType;
     useValidation: () => ZodError | undefined;
     validation$: Observable<ZodError | undefined>;
-    current$: BehaviorSubject<B | undefined>;
+    current$: BehaviorSubject<B>;
 
     constructor(
         model: DexieModel<A>,
@@ -68,11 +68,11 @@ export class Var<A extends object, B> {
         const [hook, stream$] = bind(
             model.$.pipe(
                 map((a) => get(a)),
-                tap((b) => this.current$.next(b)),
+                tap((b) => this.current$.next(b as B)),
                 distinctUntilChanged(),
             ),
         );
-        this.current$ = new BehaviorSubject(undefined);
+        this.current$ = new BehaviorSubject(undefined as B);
 
         this.change$ = new Subject();
         this.model = model;
