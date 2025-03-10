@@ -30,7 +30,7 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
                     <p className={"pb-1 text-md"}>Constant</p>
                     <Switch
                         value={isConstant}
-                        onChange={(changeBool) => EscalationRateModel.Actions.toggleConstant(changeBool, projectLength)}
+                        onChange={EscalationRateModel.Actions.toggleConstant}
                         checkedChildren={"Yes"}
                         unCheckedChildren={"No"}
                     />

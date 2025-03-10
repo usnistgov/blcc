@@ -183,7 +183,7 @@ export namespace EscalationRateModel {
     );
 
     export namespace Actions {
-        export function toggleConstant(toggle: boolean, projectLength: number) {
+        export function toggleConstant(toggle: boolean) {
             if (toggle) {
                 // Is constant
                 escalation.set(DEFAULT_CONSTANT_ESCALATION_RATE);
@@ -195,6 +195,8 @@ export namespace EscalationRateModel {
                     customEscalation.set(false);
                     escalation.set(undefined);
                 } else {
+                    const projectLength =
+                        (Model.constructionPeriod.current() ?? 0) + (Model.studyPeriod.current() ?? 0) + 1;
                     customEscalation.set(true);
                     escalation.set(makeArray(projectLength, val));
                 }
