@@ -204,7 +204,7 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
     // We are using custom escalation for this cost.
     if (cost.escalation !== undefined) {
         // @ts-ignore
-        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
+        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(cost.escalation);
     }
 
     // We are not using custom escalation but project escalation rates exist.
