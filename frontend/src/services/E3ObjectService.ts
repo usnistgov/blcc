@@ -262,12 +262,15 @@ function energyCostToBuilder(
 ): BcnBuilder[] {
     const result = [];
 
+    const initial = project.constructionPeriod + 1;
+
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit, "LCC")
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
+        .initialOccurrence(initial)
         .recur(energyCostRecurrence(project, cost))
         .quantityValue(cost.costPerUnit)
         .quantity(cost.annualConsumption)
@@ -283,6 +286,7 @@ function energyCostToBuilder(
                 .real()
                 .type(BcnType.COST)
                 .subType(BcnSubType.DIRECT)
+                .initialOccurrence(initial)
                 .recur(energyCostRecurrence(project, cost))
                 .quantityValue(cost.demandCharge)
                 .quantity(1),
@@ -298,6 +302,7 @@ function energyCostToBuilder(
                 .type(BcnType.BENEFIT)
                 .recur(energyCostRecurrence(project, cost))
                 .subType(BcnSubType.DIRECT)
+                .initialOccurrence(initial)
                 .quantityValue(-cost.rebate)
                 .quantity(1),
         );
@@ -330,6 +335,7 @@ function energyCostToBuilder(
                 .addTag("Emissions", `${cost.fuelType} Emissions`, "kg CO2e")
                 .real()
                 .type(BcnType.NON_MONETARY)
+                .initialOccurrence(initial)
                 .recur(recurrence(cost))
                 .quantity(1)
                 .quantityValue(1)
