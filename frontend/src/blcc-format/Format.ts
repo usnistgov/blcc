@@ -254,6 +254,7 @@ export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT>
     BaseCost & {
         occurrence: number;
         cost: number;
+        valueRateOfChange?: number;
     };
 
 export type Recurring = {

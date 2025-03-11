@@ -1,8 +1,10 @@
 import type { Measures, Optional } from "@lrd/e3-sdk";
-import { type Alternative, FuelType, type ID } from "blcc-format/Format";
+import { Defaults } from "blcc-format/Defaults";
+import { type Alternative, DollarMethod, FuelType, type ID } from "blcc-format/Format";
 import type { EscalationRateResponse } from "blcc-format/schema";
 import Decimal from "decimal.js";
 import { Match } from "effect";
+import { Model } from "model/Model";
 import type { Observable } from "rxjs";
 import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
 import { ajax } from "rxjs/internal/ajax/ajax";
@@ -70,6 +72,10 @@ export function cloneName(name: string): string {
     return `${name} Copy`;
 }
 
+export function getDefaultRateOfChange(dollarMethod: DollarMethod) {
+    return dollarMethod === DollarMethod.CONSTANT ? 0 : calculateNominalDiscountRate(0, Defaults.INFLATION_RATE);
+}
+
 /**
  * Calculates the nominal discount rate from the given real and inflation rates.
  *
@@ -106,7 +112,7 @@ export function closest<T>(array: readonly T[], extractor: (t: T) => number, val
  * @returns A percentage value.
  */
 export function toPercentage(decimal: number | string) {
-    return new Decimal(decimal).mul(100).toNumber();
+    return new Decimal(decimal).mul(100).toDecimalPlaces(2).toNumber();
 }
 
 /**

@@ -3,6 +3,7 @@ import {
     type Cost,
     CostTypes,
     type EnergyCost,
+    type ImplementationContractCost,
     type Location,
     type NonUSLocation,
     type OMRCost,
@@ -90,6 +91,10 @@ export function isRecurringContractCost(cost: Cost): cost is RecurringContractCo
  */
 export function isReplacementCapitalCost(cost: Cost): cost is ReplacementCapitalCost {
     return cost.type === CostTypes.REPLACEMENT_CAPITAL;
+}
+
+export function isImplementationContractCost(cost: Cost): cost is ImplementationContractCost {
+    return cost.type === CostTypes.IMPLEMENTATION_CONTRACT;
 }
 
 // Returns true if the given cost is a water cost.
