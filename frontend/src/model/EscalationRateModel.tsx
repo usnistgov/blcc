@@ -8,7 +8,7 @@ import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import * as O from "optics-ts";
 import type { RenderCellProps, RenderEditCellProps } from "react-data-grid";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
-import { combineLatestWith, filter, switchMap, tap } from "rxjs/operators";
+import { combineLatestWith, filter, switchMap, tap, withLatestFrom } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { guard } from "util/Operators";
 import {
@@ -99,6 +99,13 @@ export namespace EscalationRateModel {
     export const [useConstantEscalationRatePercentage] = bind(
         escalation.$.pipe(
             filter((escalation): escalation is number => escalation !== undefined && !Array.isArray(escalation)),
+            withLatestFrom(Model.dollarMethod.$, Model.inflationRate.$),
+            map(([escalation, dollarMethod, inflationRate]) =>
+                // Convert to nominal rate if needed
+                dollarMethod === DollarMethod.CURRENT
+                    ? calculateNominalDiscountRate(escalation, inflationRate ?? Defaults.INFLATION_RATE)
+                    : escalation,
+            ),
             map(toPercentage),
         ),
     );
@@ -284,7 +291,19 @@ export namespace EscalationRateModel {
         }
 
         export function setConstant(value: number | null) {
-            if (value !== null) escalation.set(toDecimal(value));
+            if (value === null) return;
+
+            // Convert back to real if necessary
+            if (Model.dollarMethod.current() === DollarMethod.CURRENT) {
+                escalation.set(
+                    calculateRealDiscountRate(
+                        toDecimal(value),
+                        Model.inflationRate.current() ?? Defaults.INFLATION_RATE,
+                    ),
+                );
+            } else {
+                escalation.set(toDecimal(value));
+            }
         }
 
         export function setRates(rates: EscalationRateInfo[]) {
