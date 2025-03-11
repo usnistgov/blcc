@@ -38,6 +38,10 @@ import { Effect, Match } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
 import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
+import { Model } from "model/Model";
+import dollarMethod = Model.dollarMethod;
+import { calculateNominalDiscountRate } from "util/Util";
+import { Defaults } from "blcc-format/Defaults";
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
     effect: Effect.gen(function* () {
@@ -134,13 +138,15 @@ function costToBuilders(
         Match.when({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions)),
         Match.when({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost)),
         Match.when({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) =>
-            replacementCapitalCostToBuilder(cost, studyPeriod),
+            replacementCapitalCostToBuilder(project, cost, studyPeriod),
         ),
-        Match.when({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(cost)),
-        Match.when({ type: CostTypes.IMPLEMENTATION_CONTRACT }, (cost) => implementationContractCostToBuilder(cost)),
-        Match.when({ type: CostTypes.RECURRING_CONTRACT }, (cost) => recurringContractCostToBuilder(cost)),
-        Match.when({ type: CostTypes.OTHER }, (cost) => otherCostToBuilder(cost)),
-        Match.when({ type: CostTypes.OTHER_NON_MONETARY }, (cost) => otherNonMonetaryCostToBuilder(cost)),
+        Match.when({ type: CostTypes.OMR }, (cost) => omrCostToBuilder(project, cost)),
+        Match.when({ type: CostTypes.IMPLEMENTATION_CONTRACT }, (cost) =>
+            implementationContractCostToBuilder(project, cost),
+        ),
+        Match.when({ type: CostTypes.RECURRING_CONTRACT }, (cost) => recurringContractCostToBuilder(project, cost)),
+        Match.when({ type: CostTypes.OTHER }, (cost) => otherCostToBuilder(project, cost)),
+        Match.when({ type: CostTypes.OTHER_NON_MONETARY }, (cost) => otherNonMonetaryCostToBuilder(project, cost)),
         Match.exhaustive,
     )(cost);
 }
@@ -203,8 +209,28 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
 function energyCostRecurrence(project: Project, cost: EnergyCost) {
     // We are using custom escalation for this cost.
     if (cost.escalation !== undefined) {
-        // @ts-ignore
-        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(cost.escalation);
+        const recurBuilder = new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA);
+
+        if (Array.isArray(cost.escalation)) {
+            // Convert array to nominal rates if dollar method is current
+            recurBuilder.varValue(
+                project.dollarMethod === DollarMethod.CURRENT
+                    ? cost.escalation.map((rate) =>
+                          calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE),
+                      )
+                    : cost.escalation,
+            );
+        } else {
+            // Convert single raet to nominal if dollar method is current
+            recurBuilder.varValue(
+                // @ts-ignore
+                project.dollarMethod === DollarMethod.CURRENT
+                    ? calculateNominalDiscountRate(cost.escalation, project.inflationRate ?? Defaults.INFLATION_RATE)
+                    : cost.escalation,
+            );
+        }
+
+        return recurBuilder;
     }
 
     // We are not using custom escalation but project escalation rates exist.
@@ -238,12 +264,15 @@ function energyCostToBuilder(
 ): BcnBuilder[] {
     const result = [];
 
+    const initial = project.constructionPeriod + 1;
+
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit, "LCC")
         .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
+        .initialOccurrence(initial)
         .recur(energyCostRecurrence(project, cost))
         .quantityValue(cost.costPerUnit)
         .quantity(cost.annualConsumption)
@@ -259,6 +288,7 @@ function energyCostToBuilder(
                 .real()
                 .type(BcnType.COST)
                 .subType(BcnSubType.DIRECT)
+                .initialOccurrence(initial)
                 .recur(energyCostRecurrence(project, cost))
                 .quantityValue(cost.demandCharge)
                 .quantity(1),
@@ -274,6 +304,7 @@ function energyCostToBuilder(
                 .type(BcnType.BENEFIT)
                 .recur(energyCostRecurrence(project, cost))
                 .subType(BcnSubType.DIRECT)
+                .initialOccurrence(initial)
                 .quantityValue(-cost.rebate)
                 .quantity(1),
         );
@@ -306,6 +337,7 @@ function energyCostToBuilder(
                 .addTag("Emissions", `${cost.fuelType} Emissions`, "kg CO2e")
                 .real()
                 .type(BcnType.NON_MONETARY)
+                .initialOccurrence(initial)
                 .recur(recurrence(cost))
                 .quantity(1)
                 .quantityValue(1)
@@ -374,7 +406,11 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
     ];
 }
 
-function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeriod: number): BcnBuilder[] {
+function replacementCapitalCostToBuilder(
+    project: Project,
+    cost: ReplacementCapitalCost,
+    studyPeriod: number,
+): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .real()
@@ -383,7 +419,7 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
         .subType(BcnSubType.DIRECT)
         .addTag("Replacement Capital", "LCC")
         .life(cost.expectedLife ?? 1)
-        .initialOccurrence(cost.initialOccurrence ?? 1)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
         .quantity(1)
         .quantityValue(cost.initialCost);
 
@@ -398,13 +434,13 @@ function replacementCapitalCostToBuilder(cost: ReplacementCapitalCost, studyPeri
     return [builder];
 }
 
-function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
+function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("OMR", "LCC")
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .initialOccurrence(cost.initialOccurrence)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
         .real()
         .quantityValue(cost.initialCost)
         .quantity(1);
@@ -419,7 +455,7 @@ function omrCostToBuilder(cost: OMRCost): BcnBuilder[] {
     return [builder];
 }
 
-function implementationContractCostToBuilder(cost: ImplementationContractCost): BcnBuilder[] {
+function implementationContractCostToBuilder(project: Project, cost: ImplementationContractCost): BcnBuilder[] {
     return [
         new BcnBuilder()
             .name(cost.name)
@@ -441,7 +477,7 @@ function implementationContractCostToBuilder(cost: ImplementationContractCost): 
     ];
 }
 
-function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder[] {
+function recurringContractCostToBuilder(project: Project, cost: RecurringContractCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .type(BcnType.COST)
@@ -450,19 +486,19 @@ function recurringContractCostToBuilder(cost: RecurringContractCost): BcnBuilder
         .real()
         .invest()
         .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
-        .initialOccurrence(cost.initialOccurrence)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
         .quantity(1)
         .quantityValue(cost.initialCost + 1);
     applyRateOfChange(builder, cost);
     return [builder];
 }
 
-function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
+function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .real()
         .invest()
-        .initialOccurrence(cost.initialOccurrence)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
         .type(cost.costOrBenefit === CostBenefit.COST ? BcnType.COST : BcnType.BENEFIT)
         .subType(BcnSubType.DIRECT)
         .addTag("Other", "LCC")
@@ -477,13 +513,13 @@ function otherCostToBuilder(cost: OtherCost): BcnBuilder[] {
     return [builder];
 }
 
-function otherNonMonetaryCostToBuilder(cost: OtherNonMonetary): BcnBuilder[] {
+function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Other Non-Monetary")
         .addTag(cost.unit ?? "")
         .addTag(...(cost.tags ?? []))
-        .initialOccurrence(cost.initialOccurrence)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
         .type(BcnType.NON_MONETARY)
         .subType(BcnSubType.DIRECT)
         .quantity(cost.numberOfUnits)

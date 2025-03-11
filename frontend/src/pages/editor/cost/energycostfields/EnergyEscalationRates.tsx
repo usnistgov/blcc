@@ -3,7 +3,11 @@ import { Switch } from "antd";
 import Title from "antd/es/typography/Title";
 import { Button, ButtonType } from "components/input/Button";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import { type EscalationRateInfo, EscalationRateModel } from "model/EscalationRateModel";
+import {
+    DEFAULT_CONSTANT_ESCALATION_RATE,
+    type EscalationRateInfo,
+    EscalationRateModel,
+} from "model/EscalationRateModel";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import type { ReactNode } from "react";
 import DataGrid from "react-data-grid";
@@ -20,11 +24,18 @@ type EscalationRatesProps = {
 export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
     const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
-    const projectLength = Model.constructionPeriod.use() + (Model.studyPeriod.use() ?? 0) + 1;
+    const isUsingCustomEscalationRates = EscalationRateModel.isUsingCustomEscalationRates();
+    const isCustomConstantEscRate =
+        EscalationRateModel.escalation.use() !== DEFAULT_CONSTANT_ESCALATION_RATE && isConstant;
 
     return (
         <div>
-            <Title level={5}>{title}</Title>
+            <div className="flex flex-row items-center justify-between">
+                <Title level={5}>{title}</Title>
+                {(isUsingCustomEscalationRates || isCustomConstantEscRate) && (
+                    <p className={"-mt-2 text-base-light text-xs"}>{"(User has customized rates)"}</p>
+                )}
+            </div>
             <div className={"flex flex-row justify-between pb-2"}>
                 <span className={"flex flex-row items-center gap-2"}>
                     <p className={"pb-1 text-md"}>Constant</p>
@@ -36,14 +47,17 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
                     />
                 </span>
                 {!isConstant && (
-                    <Button
-                        className={"-scale-x-100"}
-                        icon={mdiRefresh}
-                        type={ButtonType.LINK}
-                        tooltip={"Reset to default based on selected location"}
-                        disabled={!areProjectRatesValid}
-                        onClick={() => EscalationRateModel.Actions.resetToDefault()}
-                    />
+                    <div className="flex flex-row items-center">
+                        <p className={"text-base-light text-xs -mr-1"}>{"Reset"}</p>
+                        <Button
+                            className={"-scale-x-100"}
+                            icon={mdiRefresh}
+                            type={ButtonType.LINK}
+                            tooltip={"Reset to default based on selected location"}
+                            disabled={!areProjectRatesValid}
+                            onClick={() => EscalationRateModel.Actions.resetToDefault()}
+                        />
+                    </div>
                 )}
             </div>
             {(isConstant && <ConstantEscalationInput />) || (
@@ -143,7 +157,9 @@ function ConstantEscalationInput() {
             <TestNumberInput
                 className={"w-full"}
                 getter={EscalationRateModel.useConstantEscalationRatePercentage}
-                onChange={EscalationRateModel.Actions.setConstant}
+                onBlur={(event) =>
+                    EscalationRateModel.Actions.setConstant(Number.parseFloat(event.currentTarget.value))
+                }
                 addonAfter={"%"}
             />
         </div>
