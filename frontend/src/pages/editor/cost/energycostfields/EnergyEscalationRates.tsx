@@ -157,7 +157,9 @@ function ConstantEscalationInput() {
             <TestNumberInput
                 className={"w-full"}
                 getter={EscalationRateModel.useConstantEscalationRatePercentage}
-                onChange={EscalationRateModel.Actions.setConstant}
+                onBlur={(event) =>
+                    EscalationRateModel.Actions.setConstant(Number.parseFloat(event.currentTarget.value))
+                }
                 addonAfter={"%"}
             />
         </div>

@@ -1,5 +1,5 @@
 import { bind } from "@react-rxjs/core";
-import type { Cost } from "blcc-format/Format";
+import { type Cost, DollarMethod } from "blcc-format/Format";
 import { Effect } from "effect";
 import { CostModel } from "model/CostModel";
 import { isEnergyCost } from "model/Guards";
@@ -8,12 +8,21 @@ import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import * as O from "optics-ts";
 import type { RenderCellProps, RenderEditCellProps } from "react-data-grid";
 import { combineLatest, distinctUntilChanged, map } from "rxjs";
-import { combineLatestWith, filter, scan, switchMap, tap } from "rxjs/operators";
+import { combineLatestWith, filter, switchMap, tap, withLatestFrom } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { guard } from "util/Operators";
-import { fuelTypeToRate, makeArray, percentFormatter, toDecimal, toPercentage } from "util/Util";
+import {
+    calculateNominalDiscountRate,
+    calculateRealDiscountRate,
+    fuelTypeToRate,
+    makeArray,
+    percentFormatter,
+    toDecimal,
+    toPercentage,
+} from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { Var } from "util/var";
+import { Defaults } from "blcc-format/Defaults";
 
 export const DEFAULT_CONSTANT_ESCALATION_RATE = 0;
 
@@ -39,23 +48,47 @@ export namespace EscalationRateModel {
             name: "Escalation Rate (%)",
             key: "rate",
             renderEditCell: ({ row, column, onRowChange }: RenderEditCellProps<EscalationRateInfo>) => {
+                // If the dollar method is current, convert back to real rate to store.
+                const dollarMethod = Model.dollarMethod.use();
+                const inflationRate = Model.inflationRate.use() ?? Defaults.INFLATION_RATE;
+
                 return (
-                    <input
-                        className={"w-full pl-4"}
-                        type={"number"}
-                        defaultValue={toPercentage(row.rate)}
-                        onChange={(event) =>
-                            onRowChange({
-                                ...row,
-                                [column.key]: toDecimal(event.currentTarget.value),
-                            })
-                        }
-                    />
+                    <>
+                        <input
+                            className={"w-full pl-4"}
+                            type={"number"}
+                            defaultValue={
+                                dollarMethod === DollarMethod.CONSTANT
+                                    ? toPercentage(row.rate) // Real rate
+                                    : toPercentage(calculateNominalDiscountRate(row.rate, inflationRate)) // Nominal rate
+                            }
+                            onChange={(event) => {
+                                const value = toDecimal(event.currentTarget.value);
+
+                                onRowChange({
+                                    ...row,
+                                    [column.key]:
+                                        dollarMethod === DollarMethod.CONSTANT
+                                            ? value // Real rate
+                                            : calculateRealDiscountRate(value, inflationRate), // Nominal rate
+                                });
+                            }}
+                            ref={(input) => input?.focus()}
+                        />
+                    </>
                 );
             },
             editable: true,
             renderCell: (info: RenderCellProps<EscalationRateInfo>) => {
-                return percentFormatter.format(info.row.rate);
+                // If the dollar method is current, display nominal rate from stored real rate.
+                const dollarMethod = Model.dollarMethod.use();
+                const inflationRate = Model.inflationRate.use() ?? Defaults.INFLATION_RATE;
+
+                return percentFormatter.format(
+                    dollarMethod === DollarMethod.CONSTANT
+                        ? info.row.rate // Real rate
+                        : calculateNominalDiscountRate(info.row.rate, inflationRate), // Nominal rate
+                );
             },
         },
     ];
@@ -66,6 +99,13 @@ export namespace EscalationRateModel {
     export const [useConstantEscalationRatePercentage] = bind(
         escalation.$.pipe(
             filter((escalation): escalation is number => escalation !== undefined && !Array.isArray(escalation)),
+            withLatestFrom(Model.dollarMethod.$, Model.inflationRate.$),
+            map(([escalation, dollarMethod, inflationRate]) =>
+                // Convert to nominal rate if needed
+                dollarMethod === DollarMethod.CURRENT
+                    ? calculateNominalDiscountRate(escalation, inflationRate ?? Defaults.INFLATION_RATE)
+                    : escalation,
+            ),
             map(toPercentage),
         ),
     );
@@ -251,7 +291,19 @@ export namespace EscalationRateModel {
         }
 
         export function setConstant(value: number | null) {
-            if (value !== null) escalation.set(toDecimal(value));
+            if (value === null) return;
+
+            // Convert back to real if necessary
+            if (Model.dollarMethod.current() === DollarMethod.CURRENT) {
+                escalation.set(
+                    calculateRealDiscountRate(
+                        toDecimal(value),
+                        Model.inflationRate.current() ?? Defaults.INFLATION_RATE,
+                    ),
+                );
+            } else {
+                escalation.set(toDecimal(value));
+            }
         }
 
         export function setRates(rates: EscalationRateInfo[]) {

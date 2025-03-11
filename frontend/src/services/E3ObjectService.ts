@@ -38,6 +38,10 @@ import { Effect, Match } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
 import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
+import { Model } from "model/Model";
+import dollarMethod = Model.dollarMethod;
+import { calculateNominalDiscountRate } from "util/Util";
+import { Defaults } from "blcc-format/Defaults";
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
     effect: Effect.gen(function* () {
@@ -203,8 +207,28 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
 function energyCostRecurrence(project: Project, cost: EnergyCost) {
     // We are using custom escalation for this cost.
     if (cost.escalation !== undefined) {
-        // @ts-ignore
-        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(cost.escalation);
+        const recurBuilder = new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA);
+
+        if (Array.isArray(cost.escalation)) {
+            // Convert array to nominal rates if dollar method is current
+            recurBuilder.varValue(
+                project.dollarMethod === DollarMethod.CURRENT
+                    ? cost.escalation.map((rate) =>
+                          calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE),
+                      )
+                    : cost.escalation,
+            );
+        } else {
+            // Convert single raet to nominal if dollar method is current
+            recurBuilder.varValue(
+                // @ts-ignore
+                project.dollarMethod === DollarMethod.CURRENT
+                    ? calculateNominalDiscountRate(cost.escalation, project.inflationRate ?? Defaults.INFLATION_RATE)
+                    : cost.escalation,
+            );
+        }
+
+        return recurBuilder;
     }
 
     // We are not using custom escalation but project escalation rates exist.
