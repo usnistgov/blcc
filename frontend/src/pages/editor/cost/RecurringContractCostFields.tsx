@@ -36,6 +36,7 @@ export default function RecurringContractCostFields() {
                     info={Strings.INITIAL_COST_INFO}
                     addonBefore={"$"}
                     label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
+                    subLabel={"(Base Year Dollars)"}
                     getter={Model.initialCost.use}
                     onChange={Model.Actions.setInitialCost}
                 />

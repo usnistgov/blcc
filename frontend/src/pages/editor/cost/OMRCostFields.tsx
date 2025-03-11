@@ -48,8 +48,10 @@ export default function OMRCostFields() {
                     controls
                     id={"initial-cost"}
                     label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
+                    subLabel={"(Base Year Dollars)"}
                     value$={initialCost$}
                     wire={sInitialCost$}
+                    info={Strings.INITIAL_COST_INFO}
                 />
                 <NumberInput
                     className={"w-full"}
