@@ -25,15 +25,15 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
     const isConstant = EscalationRateModel.isConstant();
     const areProjectRatesValid = EscalationRateModel.isProjectRatesValid();
     const isUsingCustomEscalationRates = EscalationRateModel.isUsingCustomEscalationRates();
-    const isCustomContantEscRate =
-        EscalationRateModel.isConstant() && EscalationRateModel.escalation.use() !== DEFAULT_CONSTANT_ESCALATION_RATE;
+    const isCustomConstantEscRate =
+        EscalationRateModel.escalation.use() !== DEFAULT_CONSTANT_ESCALATION_RATE && isConstant;
 
     return (
         <div>
             <div className="flex flex-row items-center justify-between">
                 <Title level={5}>{title}</Title>
-                {(isUsingCustomEscalationRates || isCustomContantEscRate) && (
-                    <p className={"text-base-light text-xs -mt-2"}>{"(User has customized rates)"}</p>
+                {(isUsingCustomEscalationRates || isCustomConstantEscRate) && (
+                    <p className={"-mt-2 text-base-light text-xs"}>{"(User has customized rates)"}</p>
                 )}
             </div>
             <div className={"flex flex-row justify-between pb-2"}>
