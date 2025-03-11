@@ -430,7 +430,14 @@ function implementationContractCostToBuilder(cost: ImplementationContractCost): 
             .invest()
             .quantity(1)
             .quantityValue(cost.cost)
-            .initialOccurrence(cost.occurrence + 1),
+            .initialOccurrence(cost.occurrence + 1 + project.constructionPeriod)
+            .recur(
+                new RecurBuilder()
+                    .interval((cost.occurrence ?? 0) + 1)
+                    .end((cost.occurrence ?? 0) + 1)
+                    .varRate(VarRate.YEAR_BY_YEAR)
+                    .varValue([cost.valueRateOfChange ?? 0]),
+            ),
     ];
 }
 

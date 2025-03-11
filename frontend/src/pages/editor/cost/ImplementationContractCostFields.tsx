@@ -1,4 +1,4 @@
-import { CostTypes, type ImplementationContractCost } from "blcc-format/Format";
+import { type Cost, CostTypes, DollarMethod, type ImplementationContractCost } from "blcc-format/Format";
 import { NumberInput } from "components/input/InputNumber";
 import { Strings } from "constants/Strings";
 import type { Collection } from "dexie";
@@ -6,16 +6,24 @@ import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
-import { filter, map } from "rxjs/operators";
+import { filter, map, tap } from "rxjs/operators";
 import cost = CostModel.cost;
+import * as O from "optics-ts";
+import { ValueRateOfChange } from "components/Recurring";
+import { TestNumberInput } from "components/input/TestNumberInput";
+import { calculateNominalDiscountRate, getDefaultRateOfChange, toDecimal, toPercentage } from "util/Util";
+import { Var } from "util/var";
+import { isImplementationContractCost } from "model/Guards";
+import { Model } from "model/Model";
+import { Defaults } from "blcc-format/Defaults";
 
 /**
  * Component for the implementation contract fields in the cost pages
  */
 export default function ImplementationContractCostFields() {
     // Set up streams
-    const [sCost$, cost$, sOccurrence$, occurrence$, collection$] = useMemo(() => {
-        // If we are on this page that means the cost collection can be narrowed to ImplementationContractCost.
+    const [sCost$, cost$, sOccurrence$, occurrence$, collection$, valueRateOfChange] = useMemo(() => {
+        // If we are on this page that means the cost collection can be narrowed to ImplementationContract
         const collection$ = CostModel.collection$ as Observable<Collection<ImplementationContractCost, number>>;
 
         const contractCost$ = cost.$.pipe(
@@ -30,13 +38,18 @@ export default function ImplementationContractCostFields() {
             distinctUntilChanged(),
         );
 
-        return [sCost$, cost$, sOccurrence$, occurrence$, collection$];
+        const costOptic = O.optic<Cost>().guard(isImplementationContractCost);
+        const valueRateOfChange = new Var(CostModel.cost, costOptic.prop("valueRateOfChange"));
+
+        return [sCost$, cost$, sOccurrence$, occurrence$, collection$, valueRateOfChange];
     }, []);
 
     useDbUpdate(sCost$, collection$, "cost");
     useDbUpdate(sOccurrence$, collection$, "occurrence");
 
     const isSavings = CostModel.costOrSavings.use();
+
+    const defaultRateOfChange = getDefaultRateOfChange(Model.dollarMethod.current());
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -45,7 +58,7 @@ export default function ImplementationContractCostFields() {
                     className={"w-full"}
                     info={Strings.OCCURRENCE}
                     addonAfter={"years"}
-                    label={"Initial occurrence"}
+                    label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
                     allowEmpty={true}
                     value$={occurrence$}
@@ -58,6 +71,15 @@ export default function ImplementationContractCostFields() {
                     allowEmpty={true}
                     value$={cost$}
                     wire={sCost$}
+                />
+                <TestNumberInput
+                    className={"w-full"}
+                    addonAfter={"%"}
+                    controls
+                    label={"Value Rate of Change"}
+                    getter={() => toPercentage(valueRateOfChange.use() ?? defaultRateOfChange)}
+                    onChange={(val) => valueRateOfChange.set(toDecimal(val ?? defaultRateOfChange))}
+                    info={Strings.VALUE_RATE_OF_CHANGE_INFO}
                 />
             </div>
         </div>
