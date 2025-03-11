@@ -47,7 +47,8 @@ export default function ReplacementCapitalCostFields() {
                     className={"w-full"}
                     addonBefore={"$"}
                     controls
-                    label={isSavings ? "Initial Cost Savings (Base Year Dollars)" : "Initial Cost (Base Year Dollars)"}
+                    label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
+                    subLabel={"(Base Year Dollars)"}
                     getter={Model.initialCost.use}
                     onChange={Model.Actions.setInitialCost}
                     info={Strings.INITIAL_COST_INFO}
