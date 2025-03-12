@@ -139,9 +139,6 @@ namespace DefaultCosts {
         type: CostTypes.OMR,
         initialCost: 0,
         initialOccurrence: 0,
-        recurring: {
-            rateOfChangeValue: 0,
-        },
     };
 
     export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost> = {
