@@ -56,6 +56,16 @@ export default function ImplementationContractCostFields() {
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <NumberInput
                     className={"w-full"}
+                    addonBefore={"$"}
+                    label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
+                    subLabel={"(Base Year Dollars)"}
+                    allowEmpty={true}
+                    value$={cost$}
+                    wire={sCost$}
+                    info={Strings.INITIAL_COST_INFO}
+                />
+                <NumberInput
+                    className={"w-full"}
                     info={Strings.OCCURRENCE}
                     addonAfter={"years"}
                     label={"Initial Occurrence"}
@@ -63,14 +73,6 @@ export default function ImplementationContractCostFields() {
                     allowEmpty={true}
                     value$={occurrence$}
                     wire={sOccurrence$}
-                />
-                <NumberInput
-                    className={"w-full"}
-                    addonBefore={"$"}
-                    label={isSavings ? "Savings" : "Cost"}
-                    allowEmpty={true}
-                    value$={cost$}
-                    wire={sCost$}
                 />
                 <TestNumberInput
                     className={"w-full"}
