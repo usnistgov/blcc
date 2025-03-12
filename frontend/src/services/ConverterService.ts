@@ -256,7 +256,7 @@ function parseAlternativesAndHashCosts(
     inflation: number,
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
-    let costID: ID = 0;
+    let costID: ID = 1;
 
     const newAlternatives = alternatives.map((alternative, altID) => {
         const capitalComponents = extractCosts(alternative, "CapitalComponent");
@@ -296,7 +296,7 @@ function parseAlternativesAndHashCosts(
         }
 
         return {
-            id: altID,
+            id: altID + 1,
             name: alternative.Name,
             description: alternative.Comment,
             costs: costs
