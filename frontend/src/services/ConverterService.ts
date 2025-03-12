@@ -340,7 +340,7 @@ function convertCost(
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 residualValue: {
                     approach: DollarOrPercent.PERCENT,
-                    value: cost.ResaleValueFactor,
+                    value: cost.ResaleValueFactor ?? 0,
                 },
             } as ReplacementCapitalCost;
         case "NonRecurringCost": {
