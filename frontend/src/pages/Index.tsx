@@ -1,7 +1,7 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import "nist-header-footer.sass";
-import { mdiChevronDoubleRight, mdiGithub, mdiHome, mdiLink, mdiOpenInNew } from "@mdi/js";
+import { mdiChevronDoubleRight, mdiGithub, mdiHome, mdiLink } from "@mdi/js";
 import NistHeaderFooter from "components/NistHeaderFooter";
 import { Button, ButtonType } from "components/input/Button";
 import Logo from "images/logo.svg?react";
@@ -28,7 +28,7 @@ export default function Index() {
                 }
             >
                 <NistHeaderFooter>
-                    <div className="sticky top-0 py-4 px-10 bg-white text-black z-50 shadow-md">
+                    <div className="sticky top-0 z-50 bg-white px-10 py-4 text-black shadow-md">
                         <Button
                             type={ButtonType.LINK}
                             icon={mdiHome}
@@ -72,13 +72,13 @@ export default function Index() {
                     <div className={"mt-16 flex flex-col items-center"}>
                         <div className="mb-16">
                             <Logo
-                                className={"h-52 w-full mx-8 cursor-pointer select-none"}
+                                className={"mx-8 h-52 w-full cursor-pointer select-none"}
                                 onClick={() => navigate("/editor")}
                             />
                         </div>
-                        <div className="bg-blue-200 flex-col flex flex-wrap items-center w-full px-16 py-8">
+                        <div className="flex w-full flex-col flex-wrap items-center bg-blue-200 px-16 py-8">
                             <Title className="flex-grow">Features</Title>
-                            <div className="flex-row flex flex-wrap justify-center w-full">
+                            <div className="flex w-full flex-row flex-wrap justify-center">
                                 <FeaturesCard
                                     image={analysisUrl}
                                     headerText="New Capabilities"
@@ -143,7 +143,7 @@ export default function Index() {
                                         <li>
                                             • Energy Escalation Rate Calculator (
                                             <a
-                                                className={"visited:text-visited text-primary-dark underline"}
+                                                className={"text-primary-dark underline visited:text-visited"}
                                                 href={"https://pages.nist.gov/eerc/"}
                                             >
                                                 EERC
@@ -153,7 +153,7 @@ export default function Index() {
                                         <li>
                                             •{" "}
                                             <a
-                                                className={"visited:text-visited text-primary-dark underline"}
+                                                className={"text-primary-dark underline visited:text-visited"}
                                                 href={"https://doi.org/10.6028/NIST.HB.135e2022-upd1"}
                                             >
                                                 Handbook 135
@@ -162,7 +162,7 @@ export default function Index() {
                                         <li>
                                             •{" "}
                                             <a
-                                                className={"visited:text-visited text-primary-dark underline"}
+                                                className={"text-primary-dark underline visited:text-visited"}
                                                 href={"https://doi.org/10.6028/NIST.IR.85-3273-39"}
                                             >
                                                 Annual Supplement to Handbook 135
@@ -171,7 +171,7 @@ export default function Index() {
                                         <li>
                                             •{" "}
                                             <a
-                                                className={"visited:text-visited text-primary-dark underline"}
+                                                className={"text-primary-dark underline visited:text-visited"}
                                                 href={"https://doi.org/10.18434/mds2-3194"}
                                             >
                                                 Data Tables for Annual Supplement
@@ -180,7 +180,7 @@ export default function Index() {
                                     </ul>
                                     All these resources can be found at the DOE FEMP{" "}
                                     <a
-                                        className={"visited:text-visited text-primary-dark underline"}
+                                        className={"text-primary-dark underline visited:text-visited"}
                                         href={"https://www.energy.gov/femp/building-life-cycle-cost-programs"}
                                     >
                                         BLCC Program Page
@@ -189,7 +189,7 @@ export default function Index() {
                                 </span>
                             </div>
                         </div>
-                        <div className={"bg-primary-dark p-10 text-center text-xs text-white"}>
+                        <div className={"bg-primary-dark p-10 text-center text-white text-xs"}>
                             This software was developed at the National Institute of Standards and Technology by
                             employees of the Federal Government in the course of their official duties. Pursuant to
                             title 17 Section 105 of the United States Code this software is not subject to copyright

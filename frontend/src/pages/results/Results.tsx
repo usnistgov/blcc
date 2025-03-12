@@ -25,7 +25,7 @@ export default function Results() {
             <div className={"flex h-full overflow-hidden"}>
                 <ResultNavigation />
                 {(hasError && (
-                    <div className="flex flex-col items-center w-full p-6">
+                    <div className="flex w-full flex-col items-center p-6">
                         <Alert
                             message="Error: E3 could not evaluate your request."
                             description="Please check your inputs in the editor and try again."

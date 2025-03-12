@@ -1,5 +1,4 @@
 import { mdiContentCopy, mdiMinus, mdiPlus } from "@mdi/js";
-import Icon from "@mdi/react";
 import { useStateObservable } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import SubHeader from "components/SubHeader";

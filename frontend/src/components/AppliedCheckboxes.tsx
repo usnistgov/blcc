@@ -43,7 +43,7 @@ export default function AppliedCheckboxes({ defaults, value$, wire, sToggle$ }: 
     const state = internalState();
 
     return (
-        <div className={"grid gap-2 grid-cols-2 max-h-64 overflow-y-auto bg-white border p-2 shadow rounded-md"}>
+        <div className={"grid max-h-64 grid-cols-2 gap-2 overflow-y-auto rounded-md border bg-white p-2 shadow"}>
             {alternatives.map((alt) => (
                 <Checkbox
                     key={alt.id}

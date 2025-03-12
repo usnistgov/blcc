@@ -1,9 +1,5 @@
-import { createSignal } from "@react-rxjs/utils";
 import { type Chart, bb } from "billboard.js";
-import { useSubscribe } from "hooks/UseSubscribe";
-import { ResultModel } from "model/ResultModel";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { combineLatestWith } from "rxjs/operators";
+import { useLayoutEffect, useState } from "react";
 import { dollarFormatter } from "util/Util";
 import type { Required } from "@lrd/e3-sdk";
 
@@ -65,5 +61,5 @@ export default function NpvCashFlowGraph({ required, alternativeNames, offscreen
         return () => chart.destroy();
     }, [graphId]);
 
-    return <div id={graphId} className={"h-[23rem] result-graph"} />;
+    return <div id={graphId} className={"result-graph h-[23rem]"} />;
 }

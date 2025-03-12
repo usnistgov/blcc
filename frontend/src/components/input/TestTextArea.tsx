@@ -2,7 +2,6 @@ import { Input } from "antd";
 import type { TextAreaProps } from "antd/es/input/index";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
-import { TextInputType } from "components/input/TextInput";
 import type { ReactNode } from "react";
 import Nbsp from "util/Nbsp";
 

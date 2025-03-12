@@ -1,19 +1,19 @@
 describe("populate each capital component", () => {
-    const alternative1Name = "Existing";;
-    const alternative1Desc = `Base Case: Keep existing system for remaining 15 years of its useful life.`;
+    const alternative1Name = "Existing";
+    const alternative1Desc = "Base Case: Keep existing system for remaining 15 years of its useful life.";
     const alternative2Name = "Lighting Retrofit";
     const capitalComponentName = "Existing System";
-    const capitalComponentDesc = `Keep existing system for the remaining 15 years of its useful life.`;
+    const capitalComponentDesc = "Keep existing system for the remaining 15 years of its useful life.";
     const capitalComponentRecurringName = "cost";
     const capitalComponentLifetime = "15";
     const capitalComponentRecurringAmount = "5600";
 
-    beforeEach(() => {       
+    beforeEach(() => {
         cy.visit("http://localhost:5173/editor");
 
         // Wait for page to fully load
         cy.contains("Project Name").should("exist");
-        
+
         // Set file to open
         cy.get("#open").selectFile("cypress/e2e/old-blcc-files/FederalFinanced.xml", { force: true });
 
@@ -22,8 +22,8 @@ describe("populate each capital component", () => {
 
         // Close the dialog
         cy.contains("OK").click();
-    })
-    
+    });
+
     it("populates on first sidebar", () => {
         cy.contains(alternative1Name).should("exist");
         cy.contains(alternative2Name).should("exist");
@@ -34,7 +34,7 @@ describe("populate each capital component", () => {
         cy.contains(alternative1Name).click();
         // Check for both the capital component and its recurring cost
         cy.contains(capitalComponentName).should("exist");
-        cy.contains(capitalComponentName + " " + capitalComponentRecurringName).should("exist");
+        cy.contains(`${capitalComponentName} ${capitalComponentRecurringName}`).should("exist");
     });
 
     it("populates alternative name correctly on the main page", () => {
@@ -56,11 +56,11 @@ describe("populate each capital component", () => {
             // Navigate to the capital component page
             cy.contains(alternative1Name).click();
             cy.contains(capitalComponentName).click();
-        })
+        });
 
         it("populates capital component name correctly", () => {
-            // Ensure the name is under "Name" 
-            cy.contains("Name").siblings().should("have.value", capitalComponentName)
+            // Ensure the name is under "Name"
+            cy.contains("Name").siblings().should("have.value", capitalComponentName);
         });
 
         it("populates capital component description correctly", () => {
@@ -80,17 +80,19 @@ describe("populate each capital component", () => {
         beforeEach(() => {
             // Navigate to recurring component page
             cy.contains(alternative1Name).click();
-            cy.contains(capitalComponentName + " " + capitalComponentRecurringName).click();
-        })
+            cy.contains(`${capitalComponentName} ${capitalComponentRecurringName}`).click();
+        });
 
         it("populates recurring component name correctly", () => {
             // Check name field for accuracy
-            cy.contains("Name").siblings().should("have.value", capitalComponentName + " " + capitalComponentRecurringName);
-        })
+            cy.contains("Name")
+                .siblings()
+                .should("have.value", `${capitalComponentName} ${capitalComponentRecurringName}`);
+        });
 
         it("populates recurring cost correctly", () => {
             // Check initial cost field for accuracy
-            cy.get("input[id='initial-cost']").should("have.value",capitalComponentRecurringAmount);
-        })
+            cy.get("input[id='initial-cost']").should("have.value", capitalComponentRecurringAmount);
+        });
     });
 });

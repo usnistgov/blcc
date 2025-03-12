@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import { AnalysisType, DollarMethod, type Project, type USLocation } from "blcc-format/Format";
 import { styles } from "components/pdf/pdfStyles";
 import { percentFormatter } from "util/Util";
-import { Grid, LabeledText, Title } from "./components/GeneralComponents";
+import { LabeledText, Title } from "./components/GeneralComponents";
 
 type GeneralInformationProps = {
     project: Project;

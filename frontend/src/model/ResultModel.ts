@@ -5,7 +5,7 @@ import { liveQuery } from "dexie";
 import { alternatives$, hash$ } from "model/Model";
 import { DexieService, db } from "model/db";
 import { combineLatest, merge, switchMap } from "rxjs";
-import { map, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
+import { map, shareReplay, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { Effect } from "effect";

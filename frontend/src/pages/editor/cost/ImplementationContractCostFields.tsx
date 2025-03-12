@@ -1,4 +1,4 @@
-import { type Cost, CostTypes, DollarMethod, type ImplementationContractCost } from "blcc-format/Format";
+import { type Cost, CostTypes, type ImplementationContractCost } from "blcc-format/Format";
 import { NumberInput } from "components/input/InputNumber";
 import { Strings } from "constants/Strings";
 import type { Collection } from "dexie";
@@ -6,16 +6,14 @@ import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
 import { useMemo } from "react";
 import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
-import { filter, map, tap } from "rxjs/operators";
+import { filter, map } from "rxjs/operators";
 import cost = CostModel.cost;
 import * as O from "optics-ts";
-import { ValueRateOfChange } from "components/Recurring";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import { calculateNominalDiscountRate, getDefaultRateOfChange, toDecimal, toPercentage } from "util/Util";
+import { getDefaultRateOfChange, toDecimal, toPercentage } from "util/Util";
 import { Var } from "util/var";
 import { isImplementationContractCost } from "model/Guards";
 import { Model } from "model/Model";
-import { Defaults } from "blcc-format/Defaults";
 
 /**
  * Component for the implementation contract fields in the cost pages

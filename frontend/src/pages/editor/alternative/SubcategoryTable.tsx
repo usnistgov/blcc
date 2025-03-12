@@ -3,8 +3,6 @@ import Icon from "@mdi/react";
 import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import { useNavigate } from "react-router-dom";
 import type { Subject } from "rxjs";
-import { Button, ButtonType } from "components/input/Button";
-import { Tooltip } from "antd";
 import { removeCost } from "pages/editor/Cost";
 import { Defaults } from "blcc-format/Defaults";
 

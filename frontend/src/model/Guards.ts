@@ -11,7 +11,6 @@ import {
     type OtherNonMonetary,
     type RecurringContractCost,
     type ReplacementCapitalCost,
-    ResidualValueCost,
     type USLocation,
 } from "blcc-format/Format";
 import { Country } from "constants/LOCATION";

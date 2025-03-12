@@ -1,4 +1,4 @@
-import { Text, View } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import type { EnergyCost, USLocation } from "blcc-format/Format";
 import {
     CostName,

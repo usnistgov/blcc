@@ -38,8 +38,6 @@ import { Effect, Match } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
 import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
-import { Model } from "model/Model";
-import dollarMethod = Model.dollarMethod;
 import { calculateNominalDiscountRate } from "util/Util";
 import { Defaults } from "blcc-format/Defaults";
 

@@ -1,5 +1,4 @@
 import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEditOutline } from "@mdi/js";
-import { bind } from "@react-rxjs/core";
 import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
@@ -9,7 +8,6 @@ import { useActiveLink } from "hooks/UseActiveLink";
 import { ResultModel } from "model/ResultModel";
 import type { PropsWithChildren } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { startWith } from "rxjs/operators";
 
 function OffScreenWrapper({ children }: PropsWithChildren) {
     return (

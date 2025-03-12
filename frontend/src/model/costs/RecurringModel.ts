@@ -5,7 +5,7 @@ import { CostModel } from "model/CostModel";
 import { isRecurringCost } from "model/Guards";
 import { Model } from "model/Model";
 import * as O from "optics-ts";
-import { combineLatestWith, filter, map, tap } from "rxjs/operators";
+import { combineLatestWith, filter, map } from "rxjs/operators";
 import { isConstant as isConstantOp, sampleMany } from "util/Operators";
 import { makeArray, toDecimal } from "util/Util";
 import { Var } from "util/var";

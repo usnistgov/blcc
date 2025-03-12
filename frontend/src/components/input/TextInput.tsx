@@ -1,4 +1,4 @@
-import { type StateObservable, bind } from "@react-rxjs/core";
+import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Input, type InputProps } from "antd";
 import Title from "antd/es/typography/Title";

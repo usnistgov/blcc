@@ -3,7 +3,7 @@ import { type Cost, Season, type SeasonUsage, type WaterUnit } from "blcc-format
 import { CostModel } from "model/CostModel";
 import { isWaterCost } from "model/Guards";
 import * as O from "optics-ts";
-import { map, tap } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import { guard } from "util/Operators";
 import { Var } from "util/var";
 

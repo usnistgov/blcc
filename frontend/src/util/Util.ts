@@ -4,7 +4,6 @@ import { type Alternative, DollarMethod, FuelType, type ID } from "blcc-format/F
 import type { EscalationRateResponse } from "blcc-format/schema";
 import Decimal from "decimal.js";
 import { Match } from "effect";
-import { Model } from "model/Model";
 import type { Observable } from "rxjs";
 import type { AjaxResponse } from "rxjs/internal/ajax/AjaxResponse";
 import { ajax } from "rxjs/internal/ajax/ajax";
