@@ -1,4 +1,4 @@
-import { G, Path, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 import type { CategorySubcategoryRow, LccBaselineRow, LccComparisonRow, LCCResourceRow } from "util/ResultCalculations";
 import { Grid, type GridCol } from "../components/GeneralComponents";
 import { styles } from "../pdfStyles";

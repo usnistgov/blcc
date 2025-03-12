@@ -2,7 +2,7 @@ import type { Output } from "@lrd/e3-sdk";
 import { Defaults } from "blcc-format/Defaults";
 import type { Alternative, Cost, ID, Project } from "blcc-format/Format";
 import Dexie, { type Table } from "dexie";
-import { Context, Data, Effect } from "effect";
+import { Data, Effect } from "effect";
 import objectHash from "object-hash";
 
 /**

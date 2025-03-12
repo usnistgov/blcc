@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 import type { NpvCashflowComparisonSummary } from "blcc-format/ExportTypes";
 import type { AnnualCostTypeNpvCashflowRow, NpvCashflowComparisonRow } from "util/ResultCalculations";
 import { Grid, type GridCol } from "../components/GeneralComponents";

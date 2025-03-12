@@ -1,12 +1,11 @@
-import { bind, shareLatest, state } from "@react-rxjs/core";
-import { type Cost, CostTypes, type ID, type Project } from "blcc-format/Format";
-import { liveQuery } from "dexie";
+import { shareLatest } from "@react-rxjs/core";
+import type { Cost, ID } from "blcc-format/Format";
 import { db } from "model/db";
 import * as O from "optics-ts";
-import { Subject, distinctUntilChanged, map, merge, switchMap } from "rxjs";
-import { shareReplay, tap, withLatestFrom } from "rxjs/operators";
-import { DexieOps, defaultValue, guard, toggle } from "util/Operators";
-import { DexieModel, ModelType, Var } from "util/var";
+import { Subject, distinctUntilChanged } from "rxjs";
+import { shareReplay, withLatestFrom } from "rxjs/operators";
+import { DexieOps, guard, toggle } from "util/Operators";
+import { DexieModel, Var } from "util/var";
 
 export namespace CostModel {
     /**

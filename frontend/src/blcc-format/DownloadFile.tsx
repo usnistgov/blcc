@@ -21,7 +21,6 @@ import {
     createNpvCashflowComparisonRow,
     createNpvCategoryRow,
     createResourceUsageRow,
-    type NpvCashflowComparisonRow,
 } from "util/ResultCalculations";
 import {
     createAlternativeNameMap,

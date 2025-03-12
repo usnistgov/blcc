@@ -282,15 +282,15 @@ export function createAlternativeNpvCostTypeTotalRow(measure: Measures): Alterna
     return [
         { category: "Energy", subcategory: "Consumption", alternative: measure.totalTagFlows.Energy },
         { subcategory: "Demand", alternative: measure.totalTagFlows["Demand Charge"] },
-        { subcategory: "Rebates", alternative: measure.totalTagFlows["Rebate"] },
-        { category: "Water", subcategory: "Usage", alternative: measure.totalTagFlows["Usage"] },
-        { subcategory: "Disposal ", alternative: measure.totalTagFlows["Disposal"] },
+        { subcategory: "Rebates", alternative: measure.totalTagFlows.Rebate },
+        { category: "Water", subcategory: "Usage", alternative: measure.totalTagFlows.Usage },
+        { subcategory: "Disposal ", alternative: measure.totalTagFlows.Disposal },
         {
             category: "Capital Components",
             subcategory: "Investment",
             alternative: measure.totalTagFlows["Initial Investment"],
         },
-        { subcategory: "OMR", alternative: measure.totalTagFlows["OMR"] },
+        { subcategory: "OMR", alternative: measure.totalTagFlows.OMR },
         { subcategory: "Replacement", alternative: measure.totalTagFlows["Replacement Capital"] },
         { subcategory: "Residual Value", alternative: measure.totalTagFlows["Residual Value"] },
         {
@@ -299,7 +299,7 @@ export function createAlternativeNpvCostTypeTotalRow(measure: Measures): Alterna
             alternative: measure.totalTagFlows["Implementation Contract Cost"],
         },
         { subcategory: "Recurring", alternative: measure.totalTagFlows["Recurring Contract Cost"] },
-        { category: "Other", subcategory: "Monetary", alternative: measure.totalTagFlows["Other"] },
+        { category: "Other", subcategory: "Monetary", alternative: measure.totalTagFlows.Other },
     ] as AlternativeNpvCostTypeTotalRow[]; //FIXME this could be typed better
 }
 
@@ -343,7 +343,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
         { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
         { subcategory: "Total", consumption: getTotalEnergy(measure), emissions: emissions[5] },
-        { category: "Water", subcategory: "Use", consumption: measure.quantitySum["Usage"] },
+        { category: "Water", subcategory: "Use", consumption: measure.quantitySum.Usage },
     ] as ResourceUsageRow[]; //FIXME this could be typed better
 }
 

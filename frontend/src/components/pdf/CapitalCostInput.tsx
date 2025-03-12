@@ -1,4 +1,4 @@
-import { Text, View } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import type { CapitalCost } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
@@ -11,7 +11,6 @@ import {
     InitialOccurence,
     PhaseIn,
 } from "./components/CostComponents";
-import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
 import ResidualValue from "./ResidualValue";
 import { LabeledText } from "./components/GeneralComponents";

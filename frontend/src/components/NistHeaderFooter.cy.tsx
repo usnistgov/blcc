@@ -1,4 +1,3 @@
-import React from "react";
 import NistHeaderFooter from "./NistHeaderFooter";
 import { Subscribe } from "@react-rxjs/core";
 

@@ -1,10 +1,10 @@
-import { Path, Svg, Text, View } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import type { Summary } from "blcc-format/ExportTypes";
 import { styles } from "components/pdf/pdfStyles";
-import { Checkmark, Grid, SmallText, Title } from "../components/GeneralComponents";
+import { Checkmark, SmallText, Title } from "../components/GeneralComponents";
 import { LCCBaselineTable, LCCResourceTable, LCCResultsTable, NPVSubTable } from "./ResultsSummaryTables";
 import { dollarFormatter, numberFormatter, percentFormatter, wholeNumberFormatter } from "util/Util";
-import type { CategorySubcategoryRow, LccBaselineRow, LccComparisonRow, LCCResourceRow } from "util/ResultCalculations";
+import type { LccBaselineRow, LccComparisonRow, LCCResourceRow } from "util/ResultCalculations";
 
 const lifeCycleComparisonColumns = [
     { name: "Alternative", key: "name" },

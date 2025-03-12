@@ -31,7 +31,7 @@ import RecurringContractCostFields from "pages/editor/cost/RecurringContractCost
 import ReplacementCapitalCostFields from "pages/editor/cost/ReplacementCapitalCostFields";
 import WaterCostFields from "pages/editor/cost/WaterCostFields";
 import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostFields";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
 import { cloneName } from "util/Util";

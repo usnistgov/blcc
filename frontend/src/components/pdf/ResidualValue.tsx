@@ -1,6 +1,4 @@
-import { Text, View } from "@react-pdf/renderer";
 import type { DollarOrPercent } from "blcc-format/Format";
-import { styles } from "./pdfStyles";
 import { dollarFormatter, percentFormatter } from "util/Util";
 import { LabeledText } from "./components/GeneralComponents";
 

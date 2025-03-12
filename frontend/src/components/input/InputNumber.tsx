@@ -120,14 +120,14 @@ export function NumberInput<T extends true | false = false>({
                     {(info && (
                         <Title level={5}>
                             <Info text={info}>{label}</Info>
-                            {subLabel && <p className={"text-xs text-base-light"}>{subLabel}</p>}
+                            {subLabel && <p className={"text-base-light text-xs"}>{subLabel}</p>}
                         </Title>
                     )) || <Title level={5}>{label}</Title>}
                     {input}
                 </>
             )) ||
                 input}
-            <div className={"pt-2 text-xs text-error"}>{error}</div>
+            <div className={"pt-2 text-error text-xs"}>{error}</div>
         </div>
     );
 }

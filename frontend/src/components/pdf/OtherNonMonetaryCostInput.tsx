@@ -1,5 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { OtherCost, OtherNonMonetary } from "blcc-format/Format";
+import type { OtherNonMonetary } from "blcc-format/Format";
 import {
     CostName,
     Description,
