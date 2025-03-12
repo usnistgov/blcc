@@ -2,7 +2,6 @@ import { bind } from "@react-rxjs/core";
 import { Divider } from "antd";
 import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
-import React from "react";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
 import { map } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";

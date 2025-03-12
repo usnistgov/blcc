@@ -14,7 +14,6 @@ import DataGrid from "react-data-grid";
 import { Link } from "react-router-dom";
 import type { Observable } from "rxjs";
 import { Subscribe } from "@react-rxjs/core";
-import { Model } from "model/Model";
 
 type EscalationRatesProps = {
     title: ReactNode;
@@ -48,7 +47,7 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
                 </span>
                 {!isConstant && (
                     <div className="flex flex-row items-center">
-                        <p className={"text-base-light text-xs -mr-1"}>{"Reset"}</p>
+                        <p className={"-mr-1 text-base-light text-xs"}>{"Reset"}</p>
                         <Button
                             className={"-scale-x-100"}
                             icon={mdiRefresh}

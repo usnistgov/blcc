@@ -3,7 +3,6 @@ import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
-import { ButtonType } from "components/input/Button";
 
 export namespace PdfLoadingModel {
     export const [showLoadingModal, setShowLoadingModal] = createSignal<boolean>();
@@ -16,7 +15,7 @@ export default function PdfLoadingModal() {
     return (
         <Modal
             title={
-                <div className="flex justify-center mt-4">
+                <div className="mt-4 flex justify-center">
                     <Icon path={mdiLoading} size={4} className="animate-spin" />
                 </div>
             }
@@ -24,7 +23,7 @@ export default function PdfLoadingModal() {
             closable={false}
             footer={null}
         >
-            <div className="flex justify-center mt-10">
+            <div className="mt-10 flex justify-center">
                 <Typography.Title level={4}>Downloading...</Typography.Title>
             </div>
         </Modal>

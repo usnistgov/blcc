@@ -5,7 +5,7 @@ import DataGrid, { type Column } from "react-data-grid";
 import { combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
 import { type CategorySubcategoryRow, createNpvCategoryRow } from "util/ResultCalculations";
-import { dollarFormatter, getOptionalTag } from "util/Util";
+import { dollarFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",
@@ -69,7 +69,7 @@ export default function NpvCostsBySubcategory() {
                 rows={rows}
                 columns={useColumns()}
                 defaultColumnOptions={{
-                    resizable: true
+                    resizable: true,
                 }}
                 style={{
                     // @ts-ignore

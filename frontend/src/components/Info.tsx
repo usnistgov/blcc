@@ -15,7 +15,7 @@ type InfoProps = {
  */
 export default function Info({ text, children }: PropsWithChildren<InfoProps>) {
     return (
-        <div className={"flex flex-row gap-2 items-center"}>
+        <div className={"flex flex-row items-center gap-2"}>
             {children}
             <Tooltip title={text} className={"cursor-help"}>
                 <Icon className={"text-base-light"} path={mdiHelpCircle} size={0.8} />

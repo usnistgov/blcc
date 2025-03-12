@@ -4,7 +4,7 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid, { type Column } from "react-data-grid";
 import { map } from "rxjs/operators";
 import { createLccResourceRows, type LCCResourceRow } from "util/ResultCalculations";
-import { numberFormatter, wholeNumberFormatter } from "util/Util";
+import { wholeNumberFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",

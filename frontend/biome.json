@@ -10,6 +10,9 @@
             "recommended": true,
             "nursery": {
                 "useSortedClasses": "warn"
+            },
+            "correctness": {
+                "noUnusedImports": "warn"
             }
         },
         "include": ["**/*.ts", "**/*.js", "**/*.json", "**/*.tsx"]

@@ -3,7 +3,7 @@ import { ResultModel } from "model/ResultModel";
 import DataGrid from "react-data-grid";
 import { map } from "rxjs/operators";
 import { type ResourceUsageRow, createResourceUsageRow } from "util/ResultCalculations";
-import { dollarFormatter, numberFormatter, wholeNumberFormatter } from "util/Util";
+import { wholeNumberFormatter } from "util/Util";
 
 const cellClasses = {
     headerCellClass: "bg-primary text-white text-right",

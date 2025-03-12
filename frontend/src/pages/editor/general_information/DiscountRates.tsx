@@ -2,7 +2,7 @@ import { DollarMethod } from "blcc-format/Format";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { Model } from "model/Model";
-import { percentFormatter, toDecimal, toPercentage } from "util/Util";
+import { toDecimal, toPercentage } from "util/Util";
 
 /**
  * Component to display the discount rates for the current project
@@ -19,7 +19,7 @@ export default function DiscountRates() {
                 disabled={dollarMethod !== DollarMethod.CURRENT}
                 addonAfter={"%"}
                 controls={false}
-                getter={() => +(toPercentage(Model.inflationRate.use() ?? 0).toFixed(2))}
+                getter={() => +toPercentage(Model.inflationRate.use() ?? 0).toFixed(2)}
                 onChange={(value) => Model.inflationRate.set(value ? toDecimal(value) : undefined)}
             />
             <TestNumberInput
@@ -31,7 +31,7 @@ export default function DiscountRates() {
                 addonAfter={"%"}
                 controls={false}
                 min={0.0}
-                getter={() => +(toPercentage(Model.nominalDiscountRate.use() ?? 0).toFixed(2))}
+                getter={() => +toPercentage(Model.nominalDiscountRate.use() ?? 0).toFixed(2)}
                 onChange={(value) => Model.nominalDiscountRate.set(value ? toDecimal(value) : undefined)}
             />
             <TestNumberInput
@@ -43,7 +43,7 @@ export default function DiscountRates() {
                 addonAfter={"%"}
                 controls={false}
                 min={0.0}
-                getter={() => +(toPercentage(Model.realDiscountRate.use() ?? 0).toFixed(2))}
+                getter={() => +toPercentage(Model.realDiscountRate.use() ?? 0).toFixed(2)}
                 onChange={(value) => Model.realDiscountRate.set(value ? toDecimal(value) : undefined)}
             />
         </div>

@@ -4,7 +4,6 @@ import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
-import React from "react";
 
 export default function InvestmentCapitalCostFields() {
     const isSavings = CostModel.costOrSavings.use();

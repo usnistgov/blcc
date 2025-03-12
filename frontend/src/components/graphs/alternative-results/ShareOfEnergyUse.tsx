@@ -1,7 +1,7 @@
 import type { Measures } from "@lrd/e3-sdk";
 import { bb, type Chart } from "billboard.js";
 import { FuelType } from "blcc-format/Format";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 export const GRAPH_ID = "share-of-energy-use-chart";
 export const OFFSCREEN_GRAPH_ID_TEMPLATE = `offscreen-${GRAPH_ID}`;

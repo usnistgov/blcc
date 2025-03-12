@@ -9,7 +9,7 @@ import {
 } from "@mdi/js";
 import Icon from "@mdi/react";
 import { Subscribe } from "@react-rxjs/core";
-import { downloadBlccFile, downloadCsv, downloadE3Request, downloadPdf } from "blcc-format/DownloadFile";
+import { downloadCsv, downloadE3Request, downloadPdf } from "blcc-format/DownloadFile";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -19,7 +19,6 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import { EditorModel } from "model/EditorModel";
 import { Model } from "model/Model";
 import { ResultModel } from "model/ResultModel";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { E3ObjectService } from "services/E3ObjectService";
 import { BlccRuntime } from "util/runtime";

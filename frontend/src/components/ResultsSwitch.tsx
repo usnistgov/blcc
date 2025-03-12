@@ -1,4 +1,4 @@
-import { Radio, type RadioChangeEvent, Switch } from "antd";
+import { Radio, type RadioChangeEvent } from "antd";
 import Title from "antd/es/typography/Title";
 import { ResultModel } from "model/ResultModel";
 
