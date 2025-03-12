@@ -77,10 +77,10 @@ export default function Recurring({ showValue = true }: RecurringProps) {
             <Switch
                 checkedChildren={"Yes"}
                 unCheckedChildren={"No"}
-                checked={RecurringModel.showExtraFields()}
-                onChange={RecurringModel.Actions.toggleRecurring}
+                checked={RecurringModel.isRecurring()}
+                onChange={(toggle) => RecurringModel.Actions.toggleRecurring(toggle, showValue)}
             />
-            {(RecurringModel.showExtraFields() && (
+            {RecurringModel.isRecurring() && (
                 <>
                     <div className={"my-4 grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <RateOfRecurrenceInput />
@@ -91,12 +91,7 @@ export default function Recurring({ showValue = true }: RecurringProps) {
                         <UnitRateOfChange />
                     </div>
                 </>
-            )) ||
-                (showValue && (
-                    <div className={"my-4 grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        <ValueRateOfChange />
-                    </div>
-                ))}
+            )}
         </div>
     );
 }

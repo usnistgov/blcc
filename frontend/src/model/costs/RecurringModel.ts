@@ -35,11 +35,7 @@ export namespace RecurringModel {
     /**
      * True if the current cost is a recurring cost.
      */
-    export const [showExtraFields] = bind(
-        recurring.$.pipe(
-            map((recurring) => recurring?.rateOfChangeUnits !== undefined && recurring?.rateOfRecurrence !== undefined),
-        ),
-    );
+    export const [isRecurring] = bind(recurring.$.pipe(map((recurring) => !!recurring)));
 
     /**
      * The rate of recurrence for the current recurring cost.
@@ -140,22 +136,24 @@ export namespace RecurringModel {
          *                   of change. This is only applicable if `recurring` is true.
          *                   If true, the constant unit rate of change is set to 0.
          */
-        export function toggleRecurring(recurring: boolean) {
-            console.log(recurring);
+        export function toggleRecurring(recurring: boolean, showValue: boolean) {
             // If not recurring, unset the recurring state
             if (!recurring) {
-                //RecurringModel.recurring.set(undefined);
-                rateOfRecurrence.set(undefined);
-                Units.rate.set(undefined);
+                RecurringModel.recurring.set(undefined);
                 return;
             }
 
             // Otherwise, set the default recurring state
-            RecurringModel.recurring.set({
-                rateOfRecurrence: 0,
-                rateOfChangeValue: Value.rate.current(),
-                rateOfChangeUnits: 0,
-            });
+            showValue
+                ? RecurringModel.recurring.set({
+                      rateOfRecurrence: 0,
+                      rateOfChangeValue: 0,
+                      rateOfChangeUnits: 0,
+                  })
+                : RecurringModel.recurring.set({
+                      rateOfRecurrence: 0,
+                      rateOfChangeUnits: 0,
+                  });
         }
 
         /**
