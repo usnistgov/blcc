@@ -15,6 +15,7 @@ export default function AnnualResults() {
     const discountedCashFlow = ResultModel.useDiscountedCashFlow();
     const required = ResultModel.useRequired();
     const alternativeNames = ResultModel.useAlternativeNames();
+    const categorySelection = ResultModel.useCategorySelection();
 
     return (
         <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5 pb-48"}>
@@ -56,7 +57,12 @@ export default function AnnualResults() {
                     >
                         For Selected Cost Type
                     </HeaderWithSelect>
-                    <TagObjectByYearGraph />
+                    <TagObjectByYearGraph
+                        selection={selection}
+                        optionals={optionals}
+                        discountedCashFlow={discountedCashFlow}
+                        categorySelection={categorySelection}
+                    />
                 </div>
             </div>
         </div>
