@@ -47,7 +47,7 @@ export default function EnergyEscalationRates({ title }: EscalationRatesProps) {
                 </span>
                 {!isConstant && (
                     <div className="flex flex-row items-center">
-                        <p className={"-mr-1 text-base-light text-xs"}>{"Reset"}</p>
+                        <p className={"-mr-1 text-base-light text-xs"}>{areProjectRatesValid && "Reset"}</p>
                         <Button
                             className={"-scale-x-100"}
                             icon={mdiRefresh}

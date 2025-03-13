@@ -2,11 +2,14 @@ import ResidualValue from "components/ResidualValue";
 import PhaseIn from "components/grids/PhaseIn";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
+import { cons } from "effect/List";
 import { CostModel } from "model/CostModel";
+import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
 
 export default function InvestmentCapitalCostFields() {
     const isSavings = CostModel.costOrSavings.use();
+    const constructionPeriod = Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -16,7 +19,7 @@ export default function InvestmentCapitalCostFields() {
                     info={Strings.INITIAL_COST_INFO}
                     addonBefore={"$"}
                     controls
-                    label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
+                    label={isSavings ? "Initial Cost Savings*" : "Initial Cost*"}
                     subLabel={"(Base Year Dollars)"}
                     getter={CapitalCostModel.initialCost.use}
                     onChange={CapitalCostModel.Actions.setInitialCost}
@@ -46,7 +49,7 @@ export default function InvestmentCapitalCostFields() {
                     info={Strings.ANNUAL_RATE_OF_CHANGE}
                     addonAfter={"%"}
                     controls
-                    label={"Annual Rate of Change"}
+                    label={"Annual Rate of Change*"}
                     subLabel={"for residual value calculation"}
                     getter={CapitalCostModel.useAnnualRateOfChangePercentage}
                     onChange={CapitalCostModel.Actions.setAnnualRateOfChange}
@@ -57,7 +60,7 @@ export default function InvestmentCapitalCostFields() {
                     info={Strings.COST_ADJUSTMENT_FACTOR}
                     addonAfter={"%"}
                     controls
-                    label={"Cost Adjustment Factor"}
+                    label={constructionPeriod > 0 ? "Cost Adjustment Factor*" : "Cost Adjustment Factor"}
                     subLabel={"for phased-in investments"}
                     getter={CapitalCostModel.useCostAdjustmentFactorPercentage}
                     onChange={CapitalCostModel.Actions.setCostAdjustmentFactor}

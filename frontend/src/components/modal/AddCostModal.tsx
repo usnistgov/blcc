@@ -166,6 +166,7 @@ namespace DefaultCosts {
         valuePerUnit: 0,
         numberOfUnits: 0,
         recurring: {
+            rateOfRecurrence: 0,
             rateOfChangeValue: 0,
         },
     };
