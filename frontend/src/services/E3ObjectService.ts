@@ -484,9 +484,9 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
         .real()
         .invest()
         .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
-        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .quantity(1)
-        .quantityValue(cost.initialCost + 1);
+        .quantityValue(cost.initialCost);
     applyRateOfChange(builder, cost);
     return [builder];
 }
@@ -555,7 +555,7 @@ function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMoneta
 
         if (cost.recurring.rateOfChangeValue) {
             recurBuilder
-                .varRate(VarRate.YEAR_BY_YEAR)
+                .varRate(VarRate.PERCENT_DELTA)
                 .varValue(
                     Array.isArray(cost.recurring.rateOfChangeValue)
                         ? cost.recurring.rateOfChangeValue
