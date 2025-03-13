@@ -438,7 +438,7 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
         .addTag("OMR", "LCC")
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .real()
         .quantityValue(cost.initialCost)
         .quantity(1);
