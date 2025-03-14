@@ -95,6 +95,7 @@ const [useSummary] = bind(
 
 export default function NpvCashFlowComparison() {
     const rows = useRows();
+    const dynamicHeight = `${Math.min(rows.length * 37 + 74, 334)}px`;
 
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
@@ -102,7 +103,9 @@ export default function NpvCashFlowComparison() {
                 rows={rows}
                 // @ts-ignore
                 columns={useColumns()}
+                rowHeight={37}
                 style={{
+                    height: dynamicHeight,
                     // @ts-ignore
                     "--rdg-color-scheme": "light",
                     "--rdg-background-color": "#b3b9bd",

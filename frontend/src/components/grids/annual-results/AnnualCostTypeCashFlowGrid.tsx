@@ -12,7 +12,13 @@ const cellClasses = {
 };
 
 const columns = [
-    { name: "Year", key: "year", headerCellClass: "bg-primary text-white text-center", cellClass: "text-ink", width: 10 },
+    {
+        name: "Year",
+        key: "year",
+        headerCellClass: "bg-primary text-white text-center",
+        cellClass: "text-ink",
+        width: 10,
+    },
     {
         name: "Energy",
         headerCellClass: "bg-primary text-white text-center",
@@ -78,7 +84,7 @@ const columns = [
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.investment ?? 0)}</p>
                 ),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "OMR",
@@ -86,7 +92,7 @@ const columns = [
                 renderCell: ({ row }: { row: AnnualCostTypeNpvCashflowRow }) => (
                     <p className={"text-right"}>{dollarFormatter.format(row.omr ?? 0)}</p>
                 ),
-                ...cellClasses
+                ...cellClasses,
             },
             {
                 name: "Replacement",
@@ -104,7 +110,7 @@ const columns = [
                 ),
                 ...cellClasses,
             },
-        ]
+        ],
     },
     {
         name: "Contract",
@@ -126,7 +132,7 @@ const columns = [
                     <p className={"text-right"}>{dollarFormatter.format(row.recurringContract ?? 0)}</p>
                 ),
                 ...cellClasses,
-            }
+            },
         ],
     },
     {
@@ -141,8 +147,8 @@ const columns = [
                     <p className={"text-right"}>{dollarFormatter.format(row.otherCosts)}</p>
                 ),
                 ...cellClasses,
-            }
-        ]
+            },
+        ],
     },
     {
         name: "Total",
@@ -155,7 +161,12 @@ const columns = [
 ] as Column<AnnualCostTypeNpvCashflowRow>[];
 
 const [useRows] = bind(
-    combineLatest([ResultModel.required$, ResultModel.optionalsByTag$, ResultModel.selection$, ResultModel.discountedCashFlow$.pipe(startWith(true))]).pipe(
+    combineLatest([
+        ResultModel.required$,
+        ResultModel.optionalsByTag$,
+        ResultModel.selection$,
+        ResultModel.discountedCashFlow$.pipe(startWith(true)),
+    ]).pipe(
         map(([allRequired, optionals, selectedID, discountedCashFlow]) =>
             createAnnualCostTypeNpvCashflowRow(allRequired, optionals, selectedID, discountedCashFlow),
         ),
@@ -165,16 +176,19 @@ const [useRows] = bind(
 
 export default function AnnualCostTypeCashFlowGrid() {
     const rows = useRows();
+    const dynamicHeight = `${Math.min(rows.length * 37 + 74, 408)}px`;
 
     return (
         <div className={"overflow-hidden rounded shadow-lg"}>
             <DataGrid
                 rows={rows}
                 columns={columns}
+                rowHeight={37}
                 style={{
+                    height: dynamicHeight,
                     // @ts-ignore
                     "--rdg-color-scheme": "light",
-                    "--rdg-background-color": "#565C65",
+                    "--rdg-background-color": "#005EA2",
                     "--rdg-row-hover-background-color": "#3D4551",
                 }}
                 rowClass={(_row: AnnualCostTypeNpvCashflowRow, index: number) =>
