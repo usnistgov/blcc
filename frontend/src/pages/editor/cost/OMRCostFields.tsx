@@ -64,7 +64,7 @@ export default function OMRCostFields() {
                     info={Strings.INITIAL_OCCURRENCE_AFTER_SERVICE}
                 />
             </div>
-            <Recurring />
+            <Recurring showUnit={false} />
         </div>
     );
 }

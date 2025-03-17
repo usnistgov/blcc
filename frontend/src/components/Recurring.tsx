@@ -58,6 +58,7 @@ function createDataGridColumns(name: string) {
 
 type RecurringProps = {
     showValue?: boolean;
+    showUnit?: boolean;
 };
 
 /**
@@ -68,7 +69,7 @@ type RecurringProps = {
  *
  * @param showValue If true, will show the value rate of change input.
  */
-export default function Recurring({ showValue = true }: RecurringProps) {
+export default function Recurring({ showValue = true, showUnit = true }: RecurringProps) {
     return (
         <div>
             <Title level={5}>
@@ -88,7 +89,7 @@ export default function Recurring({ showValue = true }: RecurringProps) {
 
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         {showValue && <ValueRateOfChange />}
-                        <UnitRateOfChange />
+                        {showUnit && <UnitRateOfChange />}
                     </div>
                 </>
             )}
