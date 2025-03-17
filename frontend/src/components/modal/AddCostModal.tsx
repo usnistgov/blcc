@@ -127,6 +127,7 @@ namespace DefaultCosts {
                 costPerUnit: 0,
             },
         ],
+        useIndex: 1,
     };
 
     export const REPLACEMENT_CAPITAL: Props<ReplacementCapitalCost> = {
