@@ -443,11 +443,12 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
         .quantityValue(cost.initialCost)
         .quantity(1);
 
-    if (cost.recurring?.rateOfRecurrence) {
+    if (cost.recurring?.rateOfRecurrence && cost.recurring.rateOfRecurrence > 0) {
         builder.addTag("OMR Recurring");
         applyRateOfChange(builder, cost);
     } else {
         builder.addTag("OMR Non-Recurring");
+        applyRateOfChangeNonRecurringOMR(builder, cost);
     }
 
     return [builder];
@@ -536,6 +537,22 @@ function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapi
 
     if (cost.annualRateOfChange) {
         recurBuilder.varRate(VarRate.YEAR_BY_YEAR).varValue([cost.annualRateOfChange]);
+    }
+    builder.recur(recurBuilder);
+}
+
+function applyRateOfChangeNonRecurringOMR(builder: BcnBuilder, cost: OMRCost) {
+    const recurBuilder = new RecurBuilder().interval(50);
+    recurBuilder.end(cost.initialOccurrence + 1);
+
+    if (cost.recurring?.rateOfChangeValue) {
+        recurBuilder
+            .varRate(VarRate.PERCENT_DELTA)
+            .varValue(
+                Array.isArray(cost.recurring.rateOfChangeValue)
+                    ? cost.recurring.rateOfChangeValue
+                    : [cost.recurring.rateOfChangeValue],
+            );
     }
     builder.recur(recurBuilder);
 }

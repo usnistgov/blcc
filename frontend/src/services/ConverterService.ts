@@ -345,7 +345,8 @@ function convertCost(
             } as ReplacementCapitalCost;
         case "NonRecurringCost": {
             const escalation = parseEscalation(cost.Escalation, studyPeriod);
-            const recurring = escalation === undefined ? undefined : { rateOfChangeValue: escalation };
+            const recurring =
+                escalation === undefined ? undefined : { rateOfChangeValue: escalation, rateOfRecurrence: 0 };
 
             return {
                 id,
