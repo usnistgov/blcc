@@ -4,8 +4,8 @@ import { createSignal } from "@react-rxjs/utils";
 import Modal from "antd/es/modal/Modal";
 import { Button, ButtonType } from "components/input/Button";
 import { isDirty$ } from "model/Model";
-import { type OperatorFunction, map, merge, of, pipe, switchMap, take } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
+import { type OperatorFunction, identity, map, merge, of, pipe, switchMap, take } from "rxjs";
+import { filter, withLatestFrom } from "rxjs/operators";
 
 export function showSaveDiscard(onSave: OperatorFunction<unknown, void>): OperatorFunction<unknown, void> {
     return pipe(
@@ -13,7 +13,16 @@ export function showSaveDiscard(onSave: OperatorFunction<unknown, void>): Operat
         switchMap(([, isDirty]) => {
             if (isDirty) {
                 SaveDiscardModel.open();
-                return merge(SaveDiscardModel.saveClick$.pipe(onSave), SaveDiscardModel.discardClick$).pipe(take(1));
+                return merge(
+                    SaveDiscardModel.cancel$.pipe(map(() => false)),
+                    merge(SaveDiscardModel.saveClick$.pipe(onSave), SaveDiscardModel.discardClick$).pipe(
+                        map(() => true),
+                    ),
+                ).pipe(
+                    take(1),
+                    filter(identity),
+                    map(() => void 0),
+                );
             }
 
             return of(void 0);
