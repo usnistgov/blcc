@@ -2,7 +2,9 @@ version: "3.9"
 services:
   server:
     build: ./
-    image: blcc:latest
+    image: docker.nist.gov:4567/eldst/blcc:latest
+    volumes:
+      - ./certs:/etc/ssl/certs
     hostname: blcc
     depends_on:
       - postgres
@@ -16,7 +18,9 @@ services:
 
   postgres:
     image: postgres:16.2
-    hostname: postgresget single colum
+    hostname: postgres
+    volumes: 
+      - ./dump.pgdata:/etc/dump.pgdata
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
@@ -31,4 +35,4 @@ networks:
 
 configs:
   server-config:
-    file: ./.env-backend
+    file: ./.env
