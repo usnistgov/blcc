@@ -10,6 +10,7 @@ import Inputs from "pages/results/Inputs";
 import Summary from "pages/results/Summary";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { Alert } from "antd";
+import { delay } from "rxjs";
 
 /**
  * Top level page that displays the E3 results of the project.
@@ -17,6 +18,7 @@ import { Alert } from "antd";
 export default function Results() {
     const noResult = ResultModel.noResult();
     const hasError = ResultModel.hasError();
+    const hasPdfError = ResultModel.hasPdfError();
 
     return (
         <>
@@ -38,6 +40,18 @@ export default function Results() {
                     (noResult && (
                         // If there are no results, display a message telling the user to run the project.
                         <div className={"flex w-full flex-col items-center gap-4 p-8 text-center text-base-dark"}>
+                            {hasPdfError && (
+                                <Alert
+                                    message="Error: must run results before generating PDF."
+                                    description="Please run the results before exporting to PDF."
+                                    type="error"
+                                    onClose={() => {
+                                        setTimeout(() => ResultModel.setPdfError(false), 500);
+                                    }}
+                                    closable
+                                    className="w-1/3"
+                                />
+                            )}
                             <p className={"text-2xl"}>No Results to Display</p>
                             <div className={"flex flex-row"}>
                                 <Button
