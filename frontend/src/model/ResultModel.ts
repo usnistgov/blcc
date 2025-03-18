@@ -56,6 +56,10 @@ export namespace ResultModel {
         false,
     );
 
+    // Download pdf validation logic
+    export const [pdfError$, setPdfError] = createSignal<boolean>();
+    export const [hasPdfError] = bind(pdfError$, false);
+
     hash$.subscribe((x) => console.log("Hash", x));
 
     // True if the project has been run before, if anything has changed since, false.

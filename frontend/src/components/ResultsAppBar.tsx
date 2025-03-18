@@ -27,6 +27,7 @@ import PdfLoadingModal, { PdfLoadingModel } from "./modal/PdfLoadingModal";
 
 export default function ResultsAppBar() {
     const navigate = useNavigate();
+    const noResult = ResultModel.noResult();
 
     useSubscribe(EditorModel.saveClick$.pipe(showSaveAsModal()));
 
@@ -48,8 +49,12 @@ export default function ResultsAppBar() {
                 <Button
                     icon={mdiFileDownload}
                     onClick={() => {
-                        PdfLoadingModel.setShowLoadingModal(true);
-                        BlccRuntime.runPromise(downloadPdf);
+                        if (noResult) {
+                            ResultModel.setPdfError(true);
+                        } else {
+                            PdfLoadingModel.setShowLoadingModal(true);
+                            BlccRuntime.runPromise(downloadPdf);
+                        }
                     }}
                 >
                     Export PDF
