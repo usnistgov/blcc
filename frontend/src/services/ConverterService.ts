@@ -520,7 +520,7 @@ function parseSeason(cost: any, season: Season, category: string): SeasonUsage {
 
 // biome-ignore lint: No need to type XML format
 function parseSeasonalUsage(cost: any, category: string): SeasonUsage[] {
-    return [parseSeason(cost, Season.WINTER, "Usage"), parseSeason(cost, Season.SUMMER, category)];
+    return [parseSeason(cost, Season.WINTER, category), parseSeason(cost, Season.SUMMER, category)];
 }
 
 /**
