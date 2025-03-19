@@ -10,10 +10,17 @@ import { filter, map } from "rxjs/operators";
 import cost = CostModel.cost;
 import * as O from "optics-ts";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import { getDefaultRateOfChange, toDecimal, toPercentage } from "util/Util";
+import {
+    calculateNominalPercentage,
+    calculateRealDecimal,
+    getDefaultRateOfChange,
+    toDecimal,
+    toPercentage,
+} from "util/Util";
 import { Var } from "util/var";
 import { isImplementationContractCost } from "model/Guards";
 import { Model } from "model/Model";
+import { Defaults } from "blcc-format/Defaults";
 
 /**
  * Component for the implementation contract fields in the cost pages
@@ -48,6 +55,8 @@ export default function ImplementationContractCostFields() {
     const isSavings = CostModel.costOrSavings.use();
 
     const defaultRateOfChange = getDefaultRateOfChange(Model.dollarMethod.current());
+    const inflationRate = Model.inflationRate.use();
+    const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -77,8 +86,22 @@ export default function ImplementationContractCostFields() {
                     addonAfter={"%"}
                     controls
                     label={"Value Rate of Change"}
-                    getter={() => toPercentage(valueRateOfChange.use() ?? defaultRateOfChange)}
-                    onChange={(val) => valueRateOfChange.set(toDecimal(val ?? defaultRateOfChange))}
+                    getter={() =>
+                        calculateNominalPercentage(
+                            valueRateOfChange.use() ?? defaultRateOfChange,
+                            inflationRate ?? Defaults.INFLATION_RATE,
+                            isDollarMethodCurrent,
+                        )
+                    }
+                    onChange={(val) =>
+                        valueRateOfChange.set(
+                            calculateRealDecimal(
+                                val ?? defaultRateOfChange,
+                                inflationRate ?? Defaults.INFLATION_RATE,
+                                isDollarMethodCurrent,
+                            ),
+                        )
+                    }
                     info={Strings.VALUE_RATE_OF_CHANGE_INFO}
                 />
             </div>

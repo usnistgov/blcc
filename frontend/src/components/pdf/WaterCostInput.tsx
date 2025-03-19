@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { WaterCost } from "blcc-format/Format";
+import type { Project, WaterCost } from "blcc-format/Format";
 import { CostName, CostSavings, Description, EscalationRates, UseIndex } from "./components/CostComponents";
 import { blue, styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
@@ -32,9 +32,10 @@ const localStyles = StyleSheet.create({
 type WaterCostInputProps = {
     cost: WaterCost;
     year: number;
+    project: Project;
 };
 
-export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
+export default function WaterCostInput({ cost, year, project }: WaterCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -103,7 +104,7 @@ export default function WaterCostInput({ cost, year }: WaterCostInputProps) {
                 })}
             </View>
 
-            <EscalationRates cost={cost} year={year} />
+            <EscalationRates cost={cost} year={year} project={project} />
 
             <UseIndex cost={cost} year={year} />
         </View>

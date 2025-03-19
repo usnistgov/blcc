@@ -1,5 +1,5 @@
 import { View } from "@react-pdf/renderer";
-import type { ReplacementCapitalCost } from "blcc-format/Format";
+import type { Project, ReplacementCapitalCost } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
     CostAdjustmentFactor,
@@ -17,9 +17,10 @@ import { LabeledText } from "./components/GeneralComponents";
 type ReplacementCapitalCostInputProps = {
     cost: ReplacementCapitalCost;
     year: number;
+    project: Project;
 };
 
-export default function ReplacementCapitalCostInput({ cost, year }: ReplacementCapitalCostInputProps) {
+export default function ReplacementCapitalCostInput({ cost, year, project }: ReplacementCapitalCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -34,9 +35,7 @@ export default function ReplacementCapitalCostInput({ cost, year }: ReplacementC
 
             <ExpectedLife cost={cost} />
 
-            <AnnualRateOfChange cost={cost} />
-
-            <CostAdjustmentFactor cost={cost} />
+            <AnnualRateOfChange cost={cost} project={project} />
 
             <LabeledText label="Residual Value" text={cost?.residualValue ? "Yes" : "No"} />
 

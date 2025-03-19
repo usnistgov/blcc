@@ -38,8 +38,8 @@ export const styles = StyleSheet.create({
     logo: {
         display: "flex",
         justifyContent: "center",
-        width: "300px",
-        height: "50px",
+        width: "376px",
+        height: "87px",
         marginBottom: 10,
     },
     date: {

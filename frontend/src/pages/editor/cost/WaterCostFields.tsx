@@ -1,6 +1,7 @@
 import { bind } from "@react-rxjs/core";
 import { InputNumber, Radio, Switch } from "antd";
 import Title from "antd/es/typography/Title";
+import { Defaults } from "blcc-format/Defaults";
 import { CubicUnit, LiquidUnit, type WaterUnit } from "blcc-format/Format";
 import Info from "components/Info";
 import { TestNumberInput } from "components/input/TestNumberInput";
@@ -16,7 +17,7 @@ import DataGrid from "react-data-grid";
 import { map } from "rxjs";
 import { combineLatestWith, filter, switchMap, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
-import { makeArray, toDecimal, toPercentage } from "util/Util";
+import { calculateNominalPercentage, calculateRealDecimal, makeArray, toDecimal, toPercentage } from "util/Util";
 import { Var } from "util/var";
 
 export default function WaterCostFields() {
@@ -115,7 +116,10 @@ namespace WaterEscalationModel {
         escalation.$.pipe(
             guard(),
             filter((rate): rate is number => !Array.isArray(rate)),
-            map((rate) => toPercentage(rate)),
+            withLatestFrom(Model.inflationRate.$, Model.isDollarMethodCurrent$),
+            map(([rate, inflationRate, isDollarMethodCurrent]) =>
+                calculateNominalPercentage(rate, inflationRate ?? Defaults.INFLATION_RATE, isDollarMethodCurrent),
+            ),
         ),
         undefined,
     );
@@ -155,8 +159,8 @@ namespace WaterEscalationModel {
             }
         }
 
-        export function setConstant(value: number | null) {
-            if (value !== null) escalation.set(toDecimal(value));
+        export function setConstant(value: number | null, inflationRate: number, isDollarMethodCurrent: boolean) {
+            if (value !== null) escalation.set(calculateRealDecimal(value, inflationRate, isDollarMethodCurrent));
         }
 
         export function setRates(rates: EscalationRateInfo[]) {
@@ -190,12 +194,15 @@ function EscalationRates() {
 }
 
 function EscalationInput() {
+    const inflationRate = Model.inflationRate.use() ?? Defaults.INFLATION_RATE;
+    const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
+
     return (
         <div>
             <TestNumberInput
                 className={"w-full"}
                 getter={WaterEscalationModel.useConstantPercent}
-                onChange={WaterEscalationModel.Actions.setConstant}
+                onChange={(val) => WaterEscalationModel.Actions.setConstant(val, inflationRate, isDollarMethodCurrent)}
                 addonAfter={"%"}
             />
         </div>
@@ -203,6 +210,9 @@ function EscalationInput() {
 }
 
 function EscalationGrid() {
+    const inflationRate = Model.inflationRate.use() ?? Defaults.INFLATION_RATE;
+    const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
+
     return (
         <div className={"w-full overflow-hidden rounded shadow-lg"}>
             <DataGrid

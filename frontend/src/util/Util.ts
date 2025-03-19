@@ -193,3 +193,17 @@ export function fuelTypeToRate(rate: EscalationRateResponse, fuelType: FuelType)
         Match.orElse(() => null),
     );
 }
+
+export function calculateNominalPercentage(val: number, inflation: number, isDollarMethodCurrent: boolean) {
+    if (isDollarMethodCurrent) {
+        return +toPercentage(calculateNominalDiscountRate(val, inflation)).toFixed(2);
+    }
+    return +toPercentage(val).toFixed(2);
+}
+
+export function calculateRealDecimal(val: number, inflation: number, isDollarMethodCurrent: boolean) {
+    if (isDollarMethodCurrent) {
+        return calculateRealDiscountRate(toDecimal(val), inflation);
+    }
+    return toDecimal(val);
+}

@@ -335,7 +335,7 @@ function convertCost(
                 description: cost.Comment ?? undefined,
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost.InitialCost,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
+                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 initialOccurrence: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 residualValue: {
@@ -344,7 +344,7 @@ function convertCost(
                 },
             } as ReplacementCapitalCost;
         case "NonRecurringCost": {
-            const escalation = parseEscalation(cost.Escalation, studyPeriod);
+            const escalation = parseEscalation(cost.Escalation, studyPeriod) ?? 0;
             const recurring =
                 escalation === undefined ? undefined : { rateOfChangeValue: escalation, rateOfRecurrence: 0 };
 
@@ -367,7 +367,7 @@ function convertCost(
                 initialCost: cost.Amount,
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 recurring: {
-                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod),
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                     rateOfRecurrence: 1,
                 },
             } as OMRCost;
@@ -379,12 +379,9 @@ function convertCost(
                 type: CostTypes.CAPITAL,
                 initialCost: cost.InitialCost ?? 0,
                 amountFinanced: cost.AmountFinanced,
-                annualRateOfChange: parseEscalation(cost.ResaleEscalation, studyPeriod),
+                annualRateOfChange: parseEscalation(cost.ResaleEscalation, studyPeriod) ?? 0,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
-                costAdjustment:
-                    (parseEscalation(cost.Escalation, studyPeriod) ?? dollarMethod === DollarMethod.CONSTANT)
-                        ? 0
-                        : Defaults.INFLATION_RATE,
+                costAdjustment: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 phaseIn: parsePhaseIn(cost, studyPeriod),
                 residualValue: cost.ResaleValueFactor
                     ? ({
@@ -434,7 +431,7 @@ function convertCost(
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 recurring: {
                     rateOfChangeValue: parseRateOfChange(
-                        parseEscalation(cost.Escalation, studyPeriod),
+                        parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                         dollarMethod,
                         inflation,
                     ),
@@ -449,7 +446,7 @@ function convertCost(
                 type: CostTypes.IMPLEMENTATION_CONTRACT,
                 cost: cost.Amount,
                 occurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
-                valueRateOfChange: parseEscalation(cost.Escalation, studyPeriod),
+                valueRateOfChange: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
             } as ImplementationContractCost;
     }
 }

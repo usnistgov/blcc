@@ -6,9 +6,18 @@ import { isReplacementCapitalCost } from "model/Guards";
 import * as O from "optics-ts";
 import { Var } from "util/var";
 import { Strings } from "../../../constants/Strings";
-import { toDecimal, toPercentage } from "util/Util";
+import {
+    calculateNominalDiscountRate,
+    calculateNominalPercentage,
+    calculateRealDecimal,
+    calculateRealDiscountRate,
+    toDecimal,
+    toPercentage,
+} from "util/Util";
+import { Model } from "model/Model";
+import { Defaults } from "blcc-format/Defaults";
 
-namespace Model {
+namespace ReplacementModel {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
 
     export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
@@ -25,8 +34,13 @@ namespace Model {
             if (change !== null) initialOccurrence.set(change);
         }
 
-        export function setAnnualRateOfChange(change: number | null) {
-            if (change !== null) annualRateOfChange.set(toDecimal(change));
+        export function setAnnualRateOfChange(
+            change: number | null,
+            inflation: number,
+            isDollarMethodCurrent: boolean,
+        ) {
+            if (change !== null)
+                annualRateOfChange.set(calculateRealDecimal(change ?? 0, inflation, isDollarMethodCurrent));
             else annualRateOfChange.set(undefined);
         }
 
@@ -39,6 +53,9 @@ namespace Model {
 
 export default function ReplacementCapitalCostFields() {
     const isSavings = CostModel.costOrSavings.use();
+    const inflation = Model.inflationRate.use();
+    const annualRateOfChange = ReplacementModel.annualRateOfChange.use();
+    const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -49,8 +66,8 @@ export default function ReplacementCapitalCostFields() {
                     controls
                     label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
                     subLabel={"(Base Year Dollars)"}
-                    getter={Model.initialCost.use}
-                    onChange={Model.Actions.setInitialCost}
+                    getter={ReplacementModel.initialCost.use}
+                    onChange={ReplacementModel.Actions.setInitialCost}
                     info={Strings.INITIAL_COST_INFO}
                     tooltip={Strings.INITIAL_COST_TOOLTIP}
                 />
@@ -60,8 +77,8 @@ export default function ReplacementCapitalCostFields() {
                     controls
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
-                    getter={Model.initialOccurrence.use}
-                    onChange={Model.Actions.setInitialOccurrence}
+                    getter={ReplacementModel.initialOccurrence.use}
+                    onChange={ReplacementModel.Actions.setInitialOccurrence}
                     info={Strings.INITIAL_OCCURRENCE_AFTER_SERVICE}
                 />
                 <TestNumberInput
@@ -69,8 +86,20 @@ export default function ReplacementCapitalCostFields() {
                     addonAfter={"%"}
                     controls
                     label={"Annual Rate of Change"}
-                    getter={() => toPercentage(Model.annualRateOfChange.use() ?? 0)}
-                    onChange={Model.Actions.setAnnualRateOfChange}
+                    getter={() =>
+                        calculateNominalPercentage(
+                            annualRateOfChange ?? 0,
+                            inflation ?? Defaults.INFLATION_RATE,
+                            isDollarMethodCurrent,
+                        )
+                    }
+                    onChange={(val) =>
+                        ReplacementModel.Actions.setAnnualRateOfChange(
+                            val,
+                            inflation ?? Defaults.INFLATION_RATE,
+                            isDollarMethodCurrent,
+                        )
+                    }
                     info={Strings.ANNUAL_RATE_OF_CHANGE}
                 />
                 <TestNumberInput
@@ -78,8 +107,8 @@ export default function ReplacementCapitalCostFields() {
                     addonAfter={"years"}
                     controls
                     label={"Expected Lifetime"}
-                    getter={Model.expectedLife.use}
-                    onChange={Model.Actions.setExpectedLife}
+                    getter={ReplacementModel.expectedLife.use}
+                    onChange={ReplacementModel.Actions.setExpectedLife}
                     info={Strings.EXPECTED_LIFETIME_INFO}
                     tooltip={Strings.EXPECTED_LIFETIME_TOOLTIP}
                 />
