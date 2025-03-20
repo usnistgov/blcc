@@ -106,7 +106,7 @@ export default function ReplacementCapitalCostFields() {
                     className={"w-full"}
                     addonAfter={"years"}
                     controls
-                    label={"Expected Lifetime"}
+                    label={"Expected Lifetime*"}
                     getter={ReplacementModel.expectedLife.use}
                     onChange={ReplacementModel.Actions.setExpectedLife}
                     info={Strings.EXPECTED_LIFETIME_INFO}

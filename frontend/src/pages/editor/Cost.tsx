@@ -192,7 +192,7 @@ export default function Cost() {
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <TestInput
                             type={TextInputType.PRIMARY}
-                            label={"Name"}
+                            label={"Name*"}
                             getter={CostModel.name.use}
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
                         />

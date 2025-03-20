@@ -90,7 +90,7 @@ export default function GeneralInformation() {
                     {/* Analysis Type */}
                     <TestSelect
                         className={"w-full"}
-                        label={"Analysis Type"}
+                        label={"Analysis Type*"}
                         id={"analysisType"}
                         info={Strings.ANALYSIS_TYPE}
                         required
@@ -177,7 +177,7 @@ export default function GeneralInformation() {
                             </Radio.Group>
                         </div>
                         <TestSelect
-                            label={"Discounting Convention"}
+                            label={"Discounting Convention*"}
                             required
                             className={"w-full"}
                             info={Strings.DISCOUNTING_CONVENTION}
