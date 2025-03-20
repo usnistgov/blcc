@@ -35,7 +35,7 @@ const [useColumns] = bind(
                 {
                     name: "Resource Type",
                     key: "category",
-                    width: 75,
+                    width: 80,
                     // @ts-ignore
                     colSpan: ({ type }: { type: string }) => (type === "HEADER" ? 2 : undefined),
                     headerCellClass: "bg-primary text-white text-left",
