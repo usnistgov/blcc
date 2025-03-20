@@ -245,6 +245,11 @@ export namespace Model {
         withLatestFrom(sProjectCollection$),
     ).subscribe(([realDiscountRate, collection]) => collection.modify({ realDiscountRate }));
 
+    export const isDollarMethodCurrent$ = dollarMethod.$.pipe(
+        map((dollarMethod) => dollarMethod === DollarMethod.CURRENT),
+    );
+    export const [useIsDollarMethodCurrent] = bind(isDollarMethodCurrent$, false);
+
     /**
      * The discounting method of the current project
      */

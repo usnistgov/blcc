@@ -35,7 +35,7 @@ export default function Pdf({ project, alternatives, costs, summary, annual, alt
             </Page>
             <Page size="LETTER">
                 <NISTHeader />
-                <Alternatives alts={alternatives} costs={costs} releaseYear={project.releaseYear} />
+                <Alternatives alts={alternatives} costs={costs} releaseYear={project.releaseYear} project={project} />
                 <PageNumber />
             </Page>
             <Page size="LETTER">

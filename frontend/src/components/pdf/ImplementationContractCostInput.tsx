@@ -1,5 +1,5 @@
 import { View } from "@react-pdf/renderer";
-import type { ImplementationContractCost } from "blcc-format/Format";
+import type { ImplementationContractCost, Project } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
     CostName,
@@ -7,15 +7,17 @@ import {
     Description,
     InitialCost,
     InitialOccurence,
+    ValueRateOfChange,
 } from "./components/CostComponents";
 import { dollarFormatter } from "util/Util";
 import { LabeledText } from "./components/GeneralComponents";
 
 type ImplementationContractCostInputProps = {
     cost: ImplementationContractCost;
+    project: Project;
 };
 
-export default function ImplementationContractCostInput({ cost }: ImplementationContractCostInputProps) {
+export default function ImplementationContractCostInput({ cost, project }: ImplementationContractCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -34,7 +36,7 @@ export default function ImplementationContractCostInput({ cost }: Implementation
 
             <InitialCost cost={cost} />
 
-            <AnnualRateOfChange cost={cost} />
+            <ValueRateOfChange cost={cost} project={project} />
         </View>
     );
 }

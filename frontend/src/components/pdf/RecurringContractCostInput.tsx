@@ -1,5 +1,5 @@
 import { View } from "@react-pdf/renderer";
-import type { RecurringContractCost } from "blcc-format/Format";
+import type { Project, RecurringContractCost } from "blcc-format/Format";
 import {
     AnnualRateOfChange,
     CostName,
@@ -15,9 +15,10 @@ import {
 type RecurringContractCostInputProps = {
     cost: RecurringContractCost;
     year: number;
+    project: Project;
 };
 
-export default function RecurringContractCostInput({ cost, year }: RecurringContractCostInputProps) {
+export default function RecurringContractCostInput({ cost, year, project }: RecurringContractCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -30,13 +31,13 @@ export default function RecurringContractCostInput({ cost, year }: RecurringCont
 
             <InitialCost cost={cost} />
 
-            <AnnualRateOfChange cost={cost} />
+            <AnnualRateOfChange cost={cost} project={project} />
 
             <Recurring cost={cost} />
             {cost.recurring ? (
                 <>
                     <RateOfRecurrence cost={cost} year={year} />
-                    <RateOfChangeValue cost={cost} year={year} />
+                    <RateOfChangeValue cost={cost} year={year} project={project} />
                 </>
             ) : null}
         </View>

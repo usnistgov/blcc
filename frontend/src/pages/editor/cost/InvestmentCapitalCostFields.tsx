@@ -1,15 +1,30 @@
+import { Defaults } from "blcc-format/Defaults";
 import ResidualValue from "components/ResidualValue";
 import PhaseIn from "components/grids/PhaseIn";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
+import Decimal from "decimal.js";
 import { cons } from "effect/List";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
+import { calculateNominalPercentage, toPercentage } from "util/Util";
 
 export default function InvestmentCapitalCostFields() {
-    const isSavings = CostModel.costOrSavings.use();
     const constructionPeriod = Model.constructionPeriod.use();
+    const isSavings = CostModel.costOrSavings.use();
+    const inflation = Model.inflationRate.use() ?? Defaults.INFLATION_RATE;
+    const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
+    const annualRateOfChange = calculateNominalPercentage(
+        CapitalCostModel.useAnnualRateOfChange() ?? 0,
+        inflation ?? Defaults.INFLATION_RATE,
+        isDollarMethodCurrent,
+    );
+    const costAdjustmentFactor = calculateNominalPercentage(
+        CapitalCostModel.useCostAdjustmentFactor() ?? 0,
+        inflation ?? Defaults.INFLATION_RATE,
+        isDollarMethodCurrent,
+    );
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -51,8 +66,10 @@ export default function InvestmentCapitalCostFields() {
                     controls
                     label={"Annual Rate of Change*"}
                     subLabel={"for residual value calculation"}
-                    getter={CapitalCostModel.useAnnualRateOfChangePercentage}
-                    onChange={CapitalCostModel.Actions.setAnnualRateOfChange}
+                    getter={() => annualRateOfChange}
+                    onChange={(val) =>
+                        CapitalCostModel.Actions.setAnnualRateOfChange(val ?? 0, inflation, isDollarMethodCurrent)
+                    }
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -62,8 +79,10 @@ export default function InvestmentCapitalCostFields() {
                     controls
                     label={constructionPeriod > 0 ? "Cost Adjustment Factor*" : "Cost Adjustment Factor"}
                     subLabel={"for phased-in investments"}
-                    getter={CapitalCostModel.useCostAdjustmentFactorPercentage}
-                    onChange={CapitalCostModel.Actions.setCostAdjustmentFactor}
+                    getter={() => costAdjustmentFactor}
+                    onChange={(val) =>
+                        CapitalCostModel.Actions.setCostAdjustmentFactor(val ?? 0, inflation, isDollarMethodCurrent)
+                    }
                 />
             </div>
 

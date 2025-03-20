@@ -1,9 +1,16 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { Recurring as RecurringType } from "blcc-format/Format";
-import { dollarFormatter, percentFormatter } from "util/Util";
+import { DollarMethod, type Project, type Recurring as RecurringType } from "blcc-format/Format";
+import {
+    calculateNominalDiscountRate,
+    calculateNominalPercentage,
+    calculateRealDiscountRate,
+    dollarFormatter,
+    percentFormatter,
+} from "util/Util";
 import InputTable from "../InputTable";
 import { styles } from "../pdfStyles";
 import { LabeledText } from "./GeneralComponents";
+import { Defaults } from "blcc-format/Defaults";
 
 interface Props {
     cost: {
@@ -20,6 +27,7 @@ interface Props {
         recurring?: RecurringType;
         rateOfRecurrence?: number;
         useIndex?: number | number[];
+        valueRateOfChange?: number;
         phaseIn?: number[];
         escalation?: number | number[];
     };
@@ -34,7 +42,7 @@ export const CostName = ({ cost }: Props) => (
 
 export const Description = ({ cost }: Props) => (
     <>
-        {cost?.description ? (
+        {cost?.description !== undefined ? (
             <View style={styles.key}>
                 <Text style={styles.text}>Description:&nbsp;</Text>
                 <Text style={styles.desc}> {cost?.description}</Text>
@@ -45,7 +53,7 @@ export const Description = ({ cost }: Props) => (
 
 export const CostSavings = ({ cost }: Props) => (
     <>
-        {cost?.costSavings ? (
+        {cost?.costSavings !== undefined ? (
             <LabeledText label="Cost or Savings" text={cost?.costSavings ? "Savings" : "Cost"} />
         ) : null}
     </>
@@ -53,7 +61,7 @@ export const CostSavings = ({ cost }: Props) => (
 
 export const InitialCost = ({ cost }: Props) => (
     <>
-        {cost?.initialCost ? (
+        {cost?.initialCost !== undefined ? (
             <LabeledText
                 label={cost.costSavings ? "Initial Cost Savings (Base Year)" : "Initial Cost"}
                 text={dollarFormatter.format(cost?.initialCost)}
@@ -64,7 +72,7 @@ export const InitialCost = ({ cost }: Props) => (
 
 export const CostPerUnit = ({ cost }: Props) => (
     <>
-        {cost?.costPerUnit ? (
+        {cost?.costPerUnit !== undefined ? (
             <LabeledText
                 label={cost.costSavings ? "Cost Savings per Unit" : "Cost per Unit"}
                 text={dollarFormatter.format(cost?.costPerUnit)}
@@ -77,18 +85,47 @@ export const ExpectedLife = ({ cost }: Props) => (
     <LabeledText label="Expected Lifetime" text={`${cost?.expectedLife ?? 0} year(s)`} />
 );
 
-export const CostAdjustmentFactor = ({ cost }: Props) => (
+export const CostAdjustmentFactor = ({ cost, project }: Props & { project: Project }) => (
     <>
-        {cost?.costAdjustment ? (
-            <LabeledText label="Cost Adjustment Factor" text={percentFormatter.format(cost?.costAdjustment)} />
+        {cost?.costAdjustment !== undefined ? (
+            <LabeledText
+                label="Cost Adjustment Factor"
+                text={calculateNominalPercentage(
+                    cost?.costAdjustment,
+                    project.inflationRate ?? Defaults.INFLATION_RATE,
+                    project.dollarMethod === DollarMethod.CURRENT,
+                ).toString()}
+            />
         ) : null}
     </>
 );
 
-export const AnnualRateOfChange = ({ cost }: Props) => (
+export const AnnualRateOfChange = ({ cost, project }: Props & { project: Project }) => (
     <>
-        {cost?.annualRateOfChange ? (
-            <LabeledText label="Annual Rate of Change" text={percentFormatter.format(cost?.annualRateOfChange)} />
+        {cost?.annualRateOfChange !== undefined ? (
+            <LabeledText
+                label="Annual Rate of Change"
+                text={`${calculateNominalPercentage(
+                    cost?.annualRateOfChange,
+                    project?.inflationRate ?? Defaults.INFLATION_RATE,
+                    project?.dollarMethod === DollarMethod.CURRENT,
+                ).toString()}%`}
+            />
+        ) : null}
+    </>
+);
+
+export const ValueRateOfChange = ({ cost, project }: Props & { project: Project }) => (
+    <>
+        {cost?.valueRateOfChange !== undefined ? (
+            <LabeledText
+                label="Value Rate of Change"
+                text={`${calculateNominalPercentage(
+                    cost?.valueRateOfChange,
+                    project?.inflationRate ?? Defaults.INFLATION_RATE,
+                    project?.dollarMethod === DollarMethod.CURRENT,
+                ).toString()}%`}
+            />
         ) : null}
     </>
 );
@@ -99,7 +136,7 @@ export const Recurring = ({ cost }: Props) => (
 
 export const InitialOccurence = ({ cost }: Props) => (
     <>
-        {cost?.initialOccurrence ? (
+        {cost?.initialOccurrence !== undefined ? (
             <LabeledText label="Initial Occurrence" text={`${cost?.initialOccurrence} year(s)`} />
         ) : null}
     </>
@@ -107,7 +144,7 @@ export const InitialOccurence = ({ cost }: Props) => (
 
 export const RateOfRecurrence = ({ cost }: Props) => (
     <>
-        {cost?.recurring?.rateOfRecurrence ? (
+        {cost?.recurring?.rateOfRecurrence !== undefined ? (
             <LabeledText label="Rate of Recurrence" text={`${cost?.recurring.rateOfRecurrence} year(s)`} />
         ) : null}
     </>
@@ -131,7 +168,7 @@ export const UseIndex = ({ cost, year }: Props) => {
 
 export const PhaseIn = ({ cost, year }: Props) => (
     <>
-        {cost?.phaseIn && (
+        {cost?.phaseIn !== undefined && (
             <View style={styles.tableWrapper}>
                 <Text style={styles.text}>Phase In:&nbsp;</Text>
                 <View style={{ margin: 2 }} />
@@ -141,23 +178,34 @@ export const PhaseIn = ({ cost, year }: Props) => (
     </>
 );
 
-export const RateOfChangeValue = ({ cost, year }: Props) => {
+export const RateOfChangeValue = ({ cost, year, project }: Props & { project: Project }) => {
     const isArray = Array.isArray(cost?.recurring?.rateOfChangeValue);
     return (
-        <View style={isArray ? { margin: 0 } : styles.key}>
-            <Text style={styles.text}>Rate Of Change of Value:&nbsp;</Text>
+        <View style={isArray ? { margin: 0 } : styles.key} wrap={false}>
+            <Text style={styles.text}>Value Rate Of Change:&nbsp;</Text>
             {isArray ? (
                 <View style={{ marginBottom: 6 }}>
                     <View style={{ margin: 2 }} />
                     <InputTable
                         header={"Value Rate of Change (%)"}
-                        inputRows={cost?.recurring?.rateOfChangeValue as number[]}
+                        inputRows={(cost?.recurring?.rateOfChangeValue as number[]).map((val) =>
+                            project.dollarMethod === DollarMethod.CURRENT
+                                ? calculateNominalDiscountRate(val, project.inflationRate ?? Defaults.INFLATION_RATE)
+                                : val,
+                        )}
                         year={year ?? -1}
                     />
                 </View>
             ) : (
                 <Text style={styles.value}>
-                    {percentFormatter.format((cost?.recurring?.rateOfChangeValue as number) ?? 0)}
+                    {percentFormatter.format(
+                        project?.dollarMethod === DollarMethod.CURRENT
+                            ? calculateNominalDiscountRate(
+                                  cost.recurring?.rateOfChangeValue as number,
+                                  project?.inflationRate ?? Defaults.INFLATION_RATE,
+                              )
+                            : (cost.recurring?.rateOfChangeValue as number),
+                    )}
                 </Text>
             )}
         </View>
@@ -188,15 +236,25 @@ export const RateOfChangeUnits = ({ cost, year }: Props) => {
     );
 };
 
-export const EscalationRates = ({ cost, year }: Props) => (
+export const EscalationRates = ({ cost, year, project }: Props & { project: Project }) => (
     <>
-        {cost?.escalation ? (
+        {cost?.escalation !== undefined ? (
             <View>
                 <Text style={styles.text}>Escalation:&nbsp;</Text>
                 {Array.isArray(cost?.escalation) ? (
                     <View style={{ marginBottom: 6 }}>
                         <View style={{ margin: 2 }} />
-                        <InputTable header={"Escalation Rates (%)"} inputRows={cost?.escalation} year={year ?? -1} />
+                        <InputTable
+                            header={"Escalation Rates (%)"}
+                            inputRows={cost?.escalation.map((val) =>
+                                calculateNominalPercentage(
+                                    val,
+                                    project.inflationRate ?? Defaults.INFLATION_RATE,
+                                    project.dollarMethod === DollarMethod.CURRENT,
+                                ),
+                            )}
+                            year={year ?? -1}
+                        />
                     </View>
                 ) : (
                     <Text style={styles.value}>{percentFormatter.format((cost?.escalation as number) ?? 0)}</Text>

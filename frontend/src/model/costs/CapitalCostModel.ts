@@ -5,7 +5,7 @@ import { isCapital } from "model/Guards";
 import * as O from "optics-ts";
 import { map } from "rxjs/operators";
 import { guard } from "util/Operators";
-import { toDecimal, toPercentage } from "util/Util";
+import { calculateRealDecimal, calculateRealDiscountRate, toDecimal, toPercentage } from "util/Util";
 import { Var } from "util/var";
 
 export namespace CapitalCostModel {
@@ -16,20 +16,14 @@ export namespace CapitalCostModel {
 
     // Annual Rate of Change
     export const annualRateOfChange = new Var(CostModel.cost, capitalCostOptic.prop("annualRateOfChange"));
-    export const [useAnnualRateOfChangePercentage] = bind(
-        annualRateOfChange.$.pipe(guard(), map(toPercentage)),
-        undefined,
-    );
+    export const [useAnnualRateOfChange] = bind(annualRateOfChange.$.pipe(guard()), undefined);
 
     // Expected Lifetime
     export const expectedLife = new Var(CostModel.cost, capitalCostOptic.prop("expectedLife"));
 
     // Cost Adjustment Factor
     export const costAdjustmentFactor = new Var(CostModel.cost, capitalCostOptic.prop("costAdjustment"));
-    export const [useCostAdjustmentFactorPercentage] = bind(
-        costAdjustmentFactor.$.pipe(guard(), map(toPercentage)),
-        undefined,
-    );
+    export const [useCostAdjustmentFactor] = bind(costAdjustmentFactor.$.pipe(guard()), undefined);
 
     // Amount Financed
     export const amountFinanced = new Var(CostModel.cost, capitalCostOptic.prop("amountFinanced"));
@@ -64,17 +58,31 @@ export namespace CapitalCostModel {
         /**
          * Sets the annual rate of change to the given value. If the value is null, sets the annual rate of change to undefined.
          */
-        export function setAnnualRateOfChange(newAnnualRateOfChangePercent: number | null) {
+        export function setAnnualRateOfChange(
+            newAnnualRateOfChangePercent: number,
+            inflation: number,
+            isDollarMethodCurrent: boolean,
+        ) {
             if (newAnnualRateOfChangePercent === null) annualRateOfChange.set(undefined);
-            else annualRateOfChange.set(toDecimal(newAnnualRateOfChangePercent));
+            else
+                annualRateOfChange.set(
+                    calculateRealDecimal(newAnnualRateOfChangePercent, inflation, isDollarMethodCurrent),
+                );
         }
 
         /**
          * Sets the cost adjustment factor to the given value. If the value is null, sets the cost adjustment factor to undefined.
          */
-        export function setCostAdjustmentFactor(newCostAdjustmentFactorPercent: number | null) {
+        export function setCostAdjustmentFactor(
+            newCostAdjustmentFactorPercent: number,
+            inflation: number,
+            isDollarMethodCurrent: boolean,
+        ) {
             if (newCostAdjustmentFactorPercent === null) costAdjustmentFactor.set(undefined);
-            else costAdjustmentFactor.set(toDecimal(newCostAdjustmentFactorPercent));
+            else
+                costAdjustmentFactor.set(
+                    calculateRealDecimal(newCostAdjustmentFactorPercent, inflation, isDollarMethodCurrent),
+                );
         }
 
         /**

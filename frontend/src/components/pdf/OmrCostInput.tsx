@@ -1,5 +1,5 @@
 import { View } from "@react-pdf/renderer";
-import type { OMRCost } from "blcc-format/Format";
+import type { OMRCost, Project } from "blcc-format/Format";
 import {
     CostName,
     CostSavings,
@@ -14,9 +14,10 @@ import {
 type OmrCostInputProps = {
     cost: OMRCost;
     year: number;
+    project: Project;
 };
 
-export default function OmrCostInput({ cost, year }: OmrCostInputProps) {
+export default function OmrCostInput({ cost, year, project }: OmrCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -32,7 +33,7 @@ export default function OmrCostInput({ cost, year }: OmrCostInputProps) {
             {cost.recurring ? (
                 <>
                     <RateOfRecurrence cost={cost} />
-                    <RateOfChangeValue cost={cost} year={year} />
+                    <RateOfChangeValue cost={cost} year={year} project={project} />
                     <RateOfChangeUnits cost={cost} year={year} />
                 </>
             ) : (

@@ -1,6 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
-import { type Alternative, type Cost, CostTypes } from "blcc-format/Format";
+import { type Alternative, type Cost, CostTypes, Project } from "blcc-format/Format";
 import ImplementationContractCostInput from "components/pdf/ImplementationContractCostInput";
 import OmrCostInput from "components/pdf/OmrCostInput";
 import OtherNonMonetaryCostInput from "components/pdf/OtherNonMonetaryCostInput";
@@ -17,9 +17,10 @@ type AlternativesProps = {
     alts: Alternative[];
     costs: Cost[];
     releaseYear: number;
+    project: Project;
 };
 
-export default function Alternatives({ alts, costs, releaseYear }: AlternativesProps) {
+export default function Alternatives({ alts, costs, releaseYear, project }: AlternativesProps) {
     const getAltCosts = (alt: Alternative) => {
         const altCost = alt.costs;
         const altCosts = [];
@@ -53,29 +54,35 @@ export default function Alternatives({ alts, costs, releaseYear }: AlternativesP
                             return (
                                 <View style={styles.costContainer} key={cost.id}>
                                     {cost.type === CostTypes.CAPITAL && (
-                                        <CapitalCostInput cost={cost} year={releaseYear} />
+                                        <CapitalCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
-                                    {cost.type === CostTypes.OMR && <OmrCostInput cost={cost} year={releaseYear} />}
+                                    {cost.type === CostTypes.OMR && (
+                                        <OmrCostInput cost={cost} year={releaseYear} project={project} />
+                                    )}
                                     {cost.type === CostTypes.REPLACEMENT_CAPITAL && (
-                                        <ReplacementCapitalCostInput cost={cost} year={releaseYear} />
+                                        <ReplacementCapitalCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
 
                                     {cost.type === CostTypes.ENERGY && (
-                                        <EnergyCostInput cost={cost} year={releaseYear} />
+                                        <EnergyCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
 
-                                    {cost.type === CostTypes.OTHER && <OtherCostInput cost={cost} year={releaseYear} />}
+                                    {cost.type === CostTypes.OTHER && (
+                                        <OtherCostInput cost={cost} year={releaseYear} project={project} />
+                                    )}
                                     {cost.type === CostTypes.OTHER_NON_MONETARY && (
-                                        <OtherNonMonetaryCostInput cost={cost} year={releaseYear} />
+                                        <OtherNonMonetaryCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
 
-                                    {cost.type === CostTypes.WATER && <WaterCostInput cost={cost} year={releaseYear} />}
+                                    {cost.type === CostTypes.WATER && (
+                                        <WaterCostInput cost={cost} year={releaseYear} project={project} />
+                                    )}
 
                                     {cost.type === CostTypes.IMPLEMENTATION_CONTRACT && (
-                                        <ImplementationContractCostInput cost={cost} />
+                                        <ImplementationContractCostInput cost={cost} project={project} />
                                     )}
                                     {cost.type === CostTypes.RECURRING_CONTRACT && (
-                                        <RecurringContractCostInput cost={cost} year={releaseYear} />
+                                        <RecurringContractCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
                                 </View>
                             );

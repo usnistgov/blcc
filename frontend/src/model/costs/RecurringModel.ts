@@ -7,7 +7,7 @@ import { Model } from "model/Model";
 import * as O from "optics-ts";
 import { combineLatestWith, filter, map } from "rxjs/operators";
 import { isConstant as isConstantOp, sampleMany } from "util/Operators";
-import { makeArray, toDecimal } from "util/Util";
+import { calculateRealDecimal, makeArray, toDecimal } from "util/Util";
 import { Var } from "util/var";
 
 export type RateChangeInfo = {
@@ -76,8 +76,8 @@ export namespace RecurringModel {
              * Set the constant value rate of change. Value is assumed to be in percent.
              * @param value The value rate of change in percentage to set to.
              */
-            export function setConstant(value: number | null) {
-                if (value !== null) Value.rate.set(toDecimal(value));
+            export function setConstant(value: number | null, inflation: number, isDollarMethodCurrent: boolean) {
+                if (value !== null) Value.rate.set(calculateRealDecimal(value, inflation, isDollarMethodCurrent));
             }
 
             export function setArray(rows: RateChangeInfo[]) {

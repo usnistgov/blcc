@@ -1,5 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { OtherNonMonetary } from "blcc-format/Format";
+import type { OtherNonMonetary, Project } from "blcc-format/Format";
 import {
     CostName,
     Description,
@@ -15,9 +15,10 @@ import { LabeledText } from "./components/GeneralComponents";
 type OtherNonMonetaryCostInputProps = {
     cost: OtherNonMonetary;
     year: number;
+    project: Project;
 };
 
-export default function OtherNonMonetaryCostInput({ cost, year }: OtherNonMonetaryCostInputProps) {
+export default function OtherNonMonetaryCostInput({ cost, year, project }: OtherNonMonetaryCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -46,7 +47,7 @@ export default function OtherNonMonetaryCostInput({ cost, year }: OtherNonMoneta
             {cost?.recurring ? (
                 <>
                     <RateOfRecurrence cost={cost} />
-                    <RateOfChangeValue cost={cost} year={year} />
+                    <RateOfChangeValue cost={cost} year={year} project={project} />
                     <RateOfChangeUnits cost={cost} year={year} />
                 </>
             ) : null}
