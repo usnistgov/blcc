@@ -9,7 +9,7 @@ import {
     Recurring,
 } from "./components/CostComponents";
 
-import type { OtherCost } from "blcc-format/Format";
+import type { OtherCost, Project } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
 import { LabeledText } from "./components/GeneralComponents";
@@ -17,9 +17,10 @@ import { LabeledText } from "./components/GeneralComponents";
 type OtherCostInputProps = {
     cost: OtherCost;
     year: number;
+    project: Project;
 };
 
-export default function OtherCostInput({ cost, year }: OtherCostInputProps) {
+export default function OtherCostInput({ cost, year, project }: OtherCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -57,7 +58,7 @@ export default function OtherCostInput({ cost, year }: OtherCostInputProps) {
             {cost?.recurring ? (
                 <>
                     <RateOfRecurrence cost={cost} />
-                    <RateOfChangeValue cost={cost} year={year} />
+                    <RateOfChangeValue cost={cost} year={year} project={project} />
                     <RateOfChangeUnits cost={cost} year={year} />
                 </>
             ) : null}

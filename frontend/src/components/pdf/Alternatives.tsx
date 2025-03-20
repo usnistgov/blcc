@@ -64,12 +64,14 @@ export default function Alternatives({ alts, costs, releaseYear, project }: Alte
                                     )}
 
                                     {cost.type === CostTypes.ENERGY && (
-                                        <EnergyCostInput cost={cost} year={releaseYear} />
+                                        <EnergyCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
 
-                                    {cost.type === CostTypes.OTHER && <OtherCostInput cost={cost} year={releaseYear} />}
+                                    {cost.type === CostTypes.OTHER && (
+                                        <OtherCostInput cost={cost} year={releaseYear} project={project} />
+                                    )}
                                     {cost.type === CostTypes.OTHER_NON_MONETARY && (
-                                        <OtherNonMonetaryCostInput cost={cost} year={releaseYear} />
+                                        <OtherNonMonetaryCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
 
                                     {cost.type === CostTypes.WATER && (
@@ -80,7 +82,7 @@ export default function Alternatives({ alts, costs, releaseYear, project }: Alte
                                         <ImplementationContractCostInput cost={cost} project={project} />
                                     )}
                                     {cost.type === CostTypes.RECURRING_CONTRACT && (
-                                        <RecurringContractCostInput cost={cost} year={releaseYear} />
+                                        <RecurringContractCostInput cost={cost} year={releaseYear} project={project} />
                                     )}
                                 </View>
                             );

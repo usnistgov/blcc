@@ -1,5 +1,5 @@
 import { View } from "@react-pdf/renderer";
-import type { EnergyCost, USLocation } from "blcc-format/Format";
+import type { EnergyCost, Project, USLocation } from "blcc-format/Format";
 import {
     CostName,
     CostPerUnit,
@@ -15,9 +15,10 @@ import { LabeledText } from "./components/GeneralComponents";
 type EnergyCostInputProps = {
     cost: EnergyCost;
     year: number;
+    project: Project;
 };
 
-export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
+export default function EnergyCostInput({ cost, year, project }: EnergyCostInputProps) {
     return (
         <View key={cost.id}>
             <CostName cost={cost} />
@@ -66,7 +67,7 @@ export default function EnergyCostInput({ cost, year }: EnergyCostInputProps) {
                 <LabeledText label="Location" text="Same as Project Location" />
             )}
 
-            <EscalationRates cost={cost} year={year} />
+            <EscalationRates cost={cost} year={year} project={project} />
             <UseIndex cost={cost} year={year} />
         </View>
     );
