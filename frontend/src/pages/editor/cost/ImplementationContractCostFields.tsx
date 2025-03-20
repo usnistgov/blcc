@@ -1,57 +1,36 @@
-import { type Cost, CostTypes, type ImplementationContractCost } from "blcc-format/Format";
-import { NumberInput } from "components/input/InputNumber";
+import type { Cost } from "blcc-format/Format";
 import { Strings } from "constants/Strings";
-import type { Collection } from "dexie";
-import { useDbUpdate } from "hooks/UseDbUpdate";
 import { CostModel } from "model/CostModel";
-import { useMemo } from "react";
-import { type Observable, Subject, distinctUntilChanged, merge } from "rxjs";
-import { filter, map } from "rxjs/operators";
-import cost = CostModel.cost;
 import * as O from "optics-ts";
 import { TestNumberInput } from "components/input/TestNumberInput";
-import {
-    calculateNominalPercentage,
-    calculateRealDecimal,
-    getDefaultRateOfChange,
-    toDecimal,
-    toPercentage,
-} from "util/Util";
+import { calculateNominalPercentage, calculateRealDecimal, getDefaultRateOfChange } from "util/Util";
 import { Var } from "util/var";
 import { isImplementationContractCost } from "model/Guards";
 import { Model } from "model/Model";
 import { Defaults } from "blcc-format/Defaults";
 
+namespace ImplementationContractModel {
+    const costOptic = O.optic<Cost>().guard(isImplementationContractCost);
+
+    export const valueRateOfChange = new Var(CostModel.cost, costOptic.prop("valueRateOfChange"));
+    export const occurrence = new Var(CostModel.cost, costOptic.prop("occurrence"));
+    export const cost = new Var(CostModel.cost, costOptic.prop("cost"));
+
+    export namespace Actions {
+        export function setOccurrence(value: number | null) {
+            if (value !== null) occurrence.set(value);
+        }
+
+        export function setCost(value: number | null) {
+            if (value !== null) cost.set(value);
+        }
+    }
+}
+
 /**
  * Component for the implementation contract fields in the cost pages
  */
 export default function ImplementationContractCostFields() {
-    // Set up streams
-    const [sCost$, cost$, sOccurrence$, occurrence$, collection$, valueRateOfChange] = useMemo(() => {
-        // If we are on this page that means the cost collection can be narrowed to ImplementationContract
-        const collection$ = CostModel.collection$ as Observable<Collection<ImplementationContractCost, number>>;
-
-        const contractCost$ = cost.$.pipe(
-            filter((cost): cost is ImplementationContractCost => cost.type === CostTypes.IMPLEMENTATION_CONTRACT),
-        );
-
-        const sCost$ = new Subject<number | undefined>();
-        const cost$ = merge(sCost$, contractCost$.pipe(map((cost) => cost.cost))).pipe(distinctUntilChanged());
-
-        const sOccurrence$ = new Subject<number | undefined>();
-        const occurrence$ = merge(sOccurrence$, contractCost$.pipe(map((cost) => cost.occurrence))).pipe(
-            distinctUntilChanged(),
-        );
-
-        const costOptic = O.optic<Cost>().guard(isImplementationContractCost);
-        const valueRateOfChange = new Var(CostModel.cost, costOptic.prop("valueRateOfChange"));
-
-        return [sCost$, cost$, sOccurrence$, occurrence$, collection$, valueRateOfChange];
-    }, []);
-
-    useDbUpdate(sCost$, collection$, "cost");
-    useDbUpdate(sOccurrence$, collection$, "occurrence");
-
     const isSavings = CostModel.costOrSavings.use();
 
     const defaultRateOfChange = getDefaultRateOfChange(Model.dollarMethod.current());
@@ -61,25 +40,23 @@ export default function ImplementationContractCostFields() {
     return (
         <div className={"max-w-screen-lg p-6"}>
             <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     addonBefore={"$"}
                     label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
                     subLabel={"(Base Year Dollars)"}
-                    allowEmpty={true}
-                    value$={cost$}
-                    wire={sCost$}
+                    getter={ImplementationContractModel.cost.use}
+                    onChange={ImplementationContractModel.Actions.setCost}
                     info={Strings.INITIAL_COST_INFO}
                 />
-                <NumberInput
+                <TestNumberInput
                     className={"w-full"}
                     info={Strings.OCCURRENCE}
                     addonAfter={"years"}
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
-                    allowEmpty={true}
-                    value$={occurrence$}
-                    wire={sOccurrence$}
+                    getter={ImplementationContractModel.occurrence.use}
+                    onChange={ImplementationContractModel.Actions.setOccurrence}
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -88,13 +65,13 @@ export default function ImplementationContractCostFields() {
                     label={"Value Rate of Change"}
                     getter={() =>
                         calculateNominalPercentage(
-                            valueRateOfChange.use() ?? defaultRateOfChange,
+                            ImplementationContractModel.valueRateOfChange.use() ?? defaultRateOfChange,
                             inflationRate ?? Defaults.INFLATION_RATE,
                             isDollarMethodCurrent,
                         )
                     }
                     onChange={(val) =>
-                        valueRateOfChange.set(
+                        ImplementationContractModel.valueRateOfChange.set(
                             calculateRealDecimal(
                                 val ?? defaultRateOfChange,
                                 inflationRate ?? Defaults.INFLATION_RATE,
