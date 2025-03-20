@@ -131,6 +131,10 @@ export function isCapital(cost: Cost) {
     return cost.type === CostTypes.CAPITAL;
 }
 
+export function isOMRCost(cost: Cost) {
+    return cost.type === CostTypes.OMR;
+}
+
 /**
  * Checks if the given cost is a cost with residual value
  */
