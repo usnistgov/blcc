@@ -39,7 +39,7 @@ const columns = [
         name: "Investment",
         key: "investment",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.investment)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.investment ?? 0)}</p>
         ),
         ...cellClasses,
     },
@@ -47,7 +47,7 @@ const columns = [
         name: "Life Cycle Cost",
         key: "lifeCycleCost",
         renderCell: ({ row }: { row: LccComparisonRow }) => (
-            <p className={"text-right"}>{dollarFormatter.format(row.lifeCycleCost)}</p>
+            <p className={"text-right"}>{dollarFormatter.format(row.lifeCycleCost ?? 0)}</p>
         ),
         ...cellClasses,
     },
