@@ -57,8 +57,8 @@ export namespace ResultModel {
     );
 
     // Download pdf validation logic
-    export const [pdfError$, setPdfError] = createSignal<boolean>();
-    export const [hasPdfError] = bind(pdfError$, false);
+    export const [downloadError$, setDownloadError] = createSignal<boolean>();
+    export const [hasDownloadError] = bind(downloadError$, false);
 
     hash$.subscribe((x) => console.log("Hash", x));
 

@@ -50,7 +50,7 @@ export default function ResultsAppBar() {
                     icon={mdiFileDownload}
                     onClick={() => {
                         if (noResult) {
-                            ResultModel.setPdfError(true);
+                            ResultModel.setDownloadError(true);
                         } else {
                             PdfLoadingModel.setShowLoadingModal(true);
                             BlccRuntime.runPromise(downloadPdf);
@@ -59,7 +59,16 @@ export default function ResultsAppBar() {
                 >
                     Export PDF
                 </Button>
-                <Button icon={mdiTableArrowDown} onClick={() => BlccRuntime.runPromise(downloadCsv)}>
+                <Button
+                    icon={mdiTableArrowDown}
+                    onClick={() => {
+                        if (noResult) {
+                            ResultModel.setDownloadError(true);
+                        } else {
+                            BlccRuntime.runPromise(downloadCsv);
+                        }
+                    }}
+                >
                     Export CSV
                 </Button>
                 <Button

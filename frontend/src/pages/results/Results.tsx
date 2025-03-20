@@ -18,7 +18,7 @@ import { delay } from "rxjs";
 export default function Results() {
     const noResult = ResultModel.noResult();
     const hasError = ResultModel.hasError();
-    const hasPdfError = ResultModel.hasPdfError();
+    const hasDownloadError = ResultModel.hasDownloadError();
 
     return (
         <>
@@ -40,13 +40,13 @@ export default function Results() {
                     (noResult && (
                         // If there are no results, display a message telling the user to run the project.
                         <div className={"flex w-full flex-col items-center gap-4 p-8 text-center text-base-dark"}>
-                            {hasPdfError && (
+                            {hasDownloadError && (
                                 <Alert
-                                    message="Error: must run results before generating PDF."
-                                    description="Please run the results before exporting to PDF."
+                                    message="Error: must run results before generating a file."
+                                    description="Please run the results before exporting to a file."
                                     type="error"
                                     onClose={() => {
-                                        setTimeout(() => ResultModel.setPdfError(false), 500);
+                                        setTimeout(() => ResultModel.setDownloadError(false), 500);
                                     }}
                                     closable
                                     className="w-1/3"
