@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<Project>
+  <Name>WaterCost</Name>
+  <Location>Alabama</Location>
+  <AnalysisPurpose>1</AnalysisPurpose>
+  <BaseDate>April 1, 2024</BaseDate>
+  <PCPeriod>0 years 0 months</PCPeriod>
+  <Duration>5 years 0 months</Duration>
+  <DiscountingMethod>1</DiscountingMethod>
+  <DiscountRate>0.030000000000000027</DiscountRate>
+  <Alternatives>
+    <Alternative>
+      <Name>A1</Name>
+      <CapitalComponents>
+        <CapitalComponent>
+          <Duration>0 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleEscalation>
+            <SimpleEscalation>
+            </SimpleEscalation>
+          </ResaleEscalation>
+        </CapitalComponent>
+      </CapitalComponents>
+      <EnergyUsages>
+        <EnergyUsage>
+          <FuelType>Electricity</FuelType>
+          <Name>Electricity</Name>
+          <Duration>Remaining</Duration>
+          <YearlyUsage>5900.0</YearlyUsage>
+          <Units>MJ</Units>
+          <UnitCost>5600.0</UnitCost>
+          <DemandCharge>100.0</DemandCharge>
+          <UtilityRebate>250.0</UtilityRebate>
+          <UsageIndex>
+            <UsageIndex>
+              <Intervals>Remaining
+              </Intervals>
+              <Values>1.0
+              </Values>
+            </UsageIndex>
+          </UsageIndex>
+          <State>Maryland</State>
+          <RateSchedule>Residential</RateSchedule>
+          <Emissions>Maryland</Emissions>
+        </EnergyUsage>
+      </EnergyUsages>
+    </Alternative>
+  </Alternatives>
+</Project>

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<Project>
+  <Name>MyProject</Name>
+  <Location>Maryland</Location>
+  <AnalysisPurpose>1</AnalysisPurpose>
+  <BaseDate>April 1, 2024</BaseDate>
+  <PCPeriod>0 years 0 months</PCPeriod>
+  <Duration>5 years 0 months</Duration>
+  <DiscountingMethod>1</DiscountingMethod>
+  <DiscountRate>0.030000000000000027</DiscountRate>
+  <Alternatives>
+    <Alternative>
+      <Name>A1</Name>
+      <CapitalComponents>
+        <CapitalComponent>
+          <InitialCost>1000.0</InitialCost>
+          <Duration>3 years 0 months</Duration>
+            <Escalation>
+              <SimpleEscalation>
+                <Rate>0.050000000000000044</Rate>
+              </SimpleEscalation>
+            </Escalation>
+          <PhaseIn>
+            <PhaseIn>
+              <Portions>1.0
+              </Portions>
+              <Intervals>0 years 0 months
+              </Intervals>
+            </PhaseIn>
+          </PhaseIn>
+          <ResaleEscalation>
+            <SimpleEscalation>
+              <Rate>0.040000000000000036</Rate>
+            </SimpleEscalation>
+          </ResaleEscalation>
+          <RecurringCosts>
+            <RecurringCost>
+              <Name>OMR_Annual</Name>
+              <Duration>Remaining</Duration>
+              <Amount>1000.0</Amount>
+              <Escalation>
+                <SimpleEscalation>
+                  <Rate>0.03499999999999992</Rate>
+                </SimpleEscalation>
+              </Escalation>
+              <Index>
+                <UsageIndex>
+                  <Intervals>2 years 0 months,Remaining
+                  </Intervals>
+                  <Values>0.0,1.0
+                  </Values>
+                </UsageIndex>
+              </Index>
+            </RecurringCost>
+          </RecurringCosts>
+        </CapitalComponent>
+      </CapitalComponents>
+    </Alternative>
+  </Alternatives>
+</Project>
