@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import { Defaults } from "blcc-format/Defaults";
 import { DollarMethod, EmissionsRateType, GhgDataSource, type Project } from "blcc-format/Format";
 import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
-import type { Country, State } from "constants/LOCATION";
+import { Country, type State } from "constants/LOCATION";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
@@ -287,20 +287,26 @@ export namespace Model {
     /**
      * Listen for changes in variables that control escalation rates and fetch new rates if necessary.
      */
-    export const escalationRateVars = combineLatest([releaseYear.$, studyPeriod.$, Location.zipcode.$, eiaCase.$]);
+    export const escalationRateVars = combineLatest([
+        releaseYear.$,
+        studyPeriod.$,
+        Location.country.$,
+        Location.zipcode.$,
+        eiaCase.$,
+    ]);
 
     // If the inputs are *not* valid, set the project escalation rates to undefined
     escalationRateVars
-        .pipe(filter((values) => !(values[2] !== undefined && values[2].length === 5)))
+        .pipe(filter((values) => values[2] === Country.USA && (values[3] === undefined || values[3].length !== 5)))
         .subscribe(() => projectEscalationRates.set(undefined));
 
     escalationRateVars
         .pipe(
             distinctUntilChanged(),
             // Make sure the zipcode exists and is 5 digits
-            filter((values) => values[2] !== undefined && values[2].length === 5),
-            switchMap(([releaseYear, studyPeriod, zipcode, eiaCase]) =>
-                BlccRuntime.runPromise(
+            filter((values) => values[2] !== Country.USA || (values[3] !== undefined && values[3].length === 5)),
+            switchMap(([releaseYear, studyPeriod, country, zipcode, eiaCase]) => {
+                return BlccRuntime.runPromise(
                     Effect.gen(function* () {
                         const api = yield* BlccApiService;
 
@@ -317,7 +323,7 @@ export namespace Model {
                                 releaseYear,
                                 releaseYear + (studyPeriod ?? 0),
                                 eiaCase,
-                                Number.parseInt(zipcode ?? "0"),
+                                country === Country.USA ? Number.parseInt(zipcode ?? "0") : undefined,
                             ),
                             () =>
                                 Effect.andThen(
@@ -326,8 +332,8 @@ export namespace Model {
                                 ),
                         );
                     }),
-                ),
-            ),
+                );
+            }),
         )
         .subscribe((rates) => projectEscalationRates.set(rates));
 

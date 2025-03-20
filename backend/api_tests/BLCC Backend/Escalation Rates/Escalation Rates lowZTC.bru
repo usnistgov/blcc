@@ -1,0 +1,21 @@
+meta {
+  name: Escalation Rates lowZTC
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/escalation_rates
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "releaseYear": 2024,
+      "from": 2024,
+      "to": 2027,
+      "zip": 20877,
+      "case": "lowZTC"
+  }
+}
