@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<Project>
+    <Name>1</Name>
+    <Location>Maryland</Location>
+    <AnalysisPurpose>1</AnalysisPurpose>
+    <BaseDate>April 1, 2024</BaseDate>
+    <PCPeriod>0 years 0 months</PCPeriod>
+    <Duration>5 years 0 months</Duration>
+    <DiscountingMethod>1</DiscountingMethod>
+    <DiscountRate>0.030000000000000027</DiscountRate>
+    <Alternatives>
+        <Alternative>
+            <Name>A1</Name>
+            <CapitalComponents>
+                <CapitalComponent>
+                    <InitialCost>2000.0</InitialCost>
+                    <Duration>3 years 0 months</Duration>
+                    <Escalation>
+                        <SimpleEscalation>
+                            <Rate>0.050000000000000044</Rate>
+                        </SimpleEscalation>
+                    </Escalation>
+                    <PhaseIn>
+                        <PhaseIn>
+                            <Portions>1.0</Portions>
+                            <Intervals>0 years 0 months</Intervals>
+                        </PhaseIn>
+                    </PhaseIn>
+                    <ResaleEscalation>
+                        <SimpleEscalation>
+                            <Rate>0.050000000000000036</Rate>
+                        </SimpleEscalation>
+                    </ResaleEscalation>
+                </CapitalComponent>
+            </CapitalComponents>
+        </Alternative>
+    </Alternatives>
+</Project>

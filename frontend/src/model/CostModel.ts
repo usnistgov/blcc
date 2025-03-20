@@ -2,7 +2,7 @@ import { shareLatest } from "@react-rxjs/core";
 import type { Cost, ID } from "blcc-format/Format";
 import { db } from "model/db";
 import * as O from "optics-ts";
-import { Subject, distinctUntilChanged } from "rxjs";
+import { Subject } from "rxjs";
 import { shareReplay, withLatestFrom } from "rxjs/operators";
 import { DexieOps, guard, toggle } from "util/Operators";
 import { DexieModel, Var } from "util/var";
@@ -14,7 +14,7 @@ export namespace CostModel {
     export const sId$ = new Subject<number>();
     export const id$ = sId$.pipe(shareLatest());
 
-    export const collection$ = id$.pipe(distinctUntilChanged(), DexieOps.byId(db.costs), shareReplay(1));
+    export const collection$ = id$.pipe(DexieOps.byId(db.costs), shareReplay(1));
 
     export const cost = new DexieModel(collection$.pipe(DexieOps.first(), guard()), collection$);
 
