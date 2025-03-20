@@ -14,6 +14,8 @@ import DataGrid from "react-data-grid";
 import { Link } from "react-router-dom";
 import type { Observable } from "rxjs";
 import { Subscribe } from "@react-rxjs/core";
+import { Model } from "model/Model";
+import { Country } from "constants/LOCATION";
 
 type EscalationRatesProps = {
     title: ReactNode;
@@ -75,10 +77,10 @@ function ArrayEscalationInput() {
     const isNonUsLocation = EnergyCostModel.Location.useIsNonUSLocation();
     const isUsingCustomLocation = EnergyCostModel.Location.isUsingCustomLocation();
     const isProjectZipValid = EscalationRateModel.isProjectZipValid();
+    const projectCountry = Model.Location.country.use();
 
     // Using custom values, display grid
     if (isUsingCustomEscalationRates) {
-        console.log("Using custom escalation rates");
         return <EscalationRateGrid rates={EscalationRateModel.useCustomEscalationGridValues} />;
     }
 
@@ -91,7 +93,10 @@ function ArrayEscalationInput() {
         );
     }
 
-    console.log("is non us location", isNonUsLocation);
+    if (!isUsingCustomLocation && projectCountry !== Country.USA) {
+        return <EscalationRateGrid rates={EscalationRateModel.useProjectRatesGridValues} />;
+    }
+
     if (isUsingCustomLocation && isNonUsLocation) {
         return (
             <EscalationRateGrid rates={EscalationRateModel.useNonUSLocationGridValues as () => EscalationRateInfo[]} />

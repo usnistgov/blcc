@@ -25,6 +25,7 @@ import { fuelTypeToRate, index, makeApiRequest } from "util/Util";
 import { Var } from "util/var";
 import z from "zod";
 import cost = CostModel.cost;
+import { Country } from "constants/LOCATION";
 
 type ZipInfoResponse = {
     zip: number;
@@ -33,7 +34,7 @@ type ZipInfoResponse = {
     state: string;
     padd: string;
     technobasin: string;
-    reeds_ba: string;
+    reedsBa: string;
 };
 
 const EIA_CASE_MAP = {
@@ -103,18 +104,25 @@ export namespace EnergyCostModel {
          */
         export const globalOrCustomZip$ = location.$.pipe(
             switchMap((location) => (location === undefined ? Model.Location.zipcode.$ : Location.model.zipcode.$)),
-            tap((x) => console.log("Global Zip: ", x)),
             distinctUntilChanged(),
             shareLatest(),
         );
+
+        //globalOrCustomZip$.subscribe((x) => console.log("Global or Custom zip ", x));
 
         /**
          * The zip info for the global or custom zipcode
          */
         export const zipInfo$ = globalOrCustomZip$.pipe(
-            tap((x) => console.log("Custom Zip: ", x)),
+            filter((zip) => zip !== undefined && zip !== "" && zip.length === 5),
             switchMap((zip) => makeApiRequest<ZipInfoResponse[]>("zip_info", { zip: Number.parseInt(zip ?? "0") })),
             map(index(0)),
+        );
+
+        export const globalOrCustomCountry$ = location.$.pipe(
+            switchMap((location) => (location === undefined ? Model.Location.country.$ : Location.model.country.$)),
+            distinctUntilChanged(),
+            shareReplay(1),
         );
 
         export namespace Actions {
@@ -198,9 +206,10 @@ export namespace EnergyCostModel {
             Model.emissionsRateType.$,
             Model.ghgDataSource.$,
             fuelType.$,
+            EnergyCostModel.Location.globalOrCustomCountry$,
         ]).pipe(
-            switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType]) =>
-                getEmissions(zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType),
+            switchMap(([zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType, country]) =>
+                getEmissions(zipInfo, releaseYear, studyPeriod, eiaCase, rate, ghgDataSource, fuelType, country),
             ),
         );
         emissions$.pipe(withLatestFrom(collection$)).subscribe(([emissions, collection]) => {
@@ -223,9 +232,8 @@ export namespace EnergyCostModel {
             rate: EmissionsRateType,
             ghgDataSource: GhgDataSource,
             fuelType: FuelType,
+            country: Country | undefined,
         ): Observable<number[]> {
-            console.log(zipInfo);
-
             const common = {
                 from: releaseYear,
                 to: releaseYear + (studyPeriod ?? 0),
@@ -234,26 +242,35 @@ export namespace EnergyCostModel {
                 rate: RATE_MAP[rate],
             };
 
+            const isUS = country === Country.USA;
+            const padd = !isUS ? "PADD 3" : zipInfo.padd;
+
             return Match.value(fuelType).pipe(
                 Match.when(FuelType.ELECTRICITY, () => {
                     if (ghgDataSource === GhgDataSource.NIST_NETL)
-                        return makeApiRequest<number[]>("region_case_ba", { ...common, ba: zipInfo.ba });
+                        return makeApiRequest<number[]>("region_case_ba", { ...common, ba: !isUS ? "US" : zipInfo.ba });
 
-                    return makeApiRequest<number[]>("region_case_reeds", { ...common, padd: zipInfo.reeds_ba });
+                    return makeApiRequest<number[]>("region_case_reeds", {
+                        ...common,
+                        reeds: !isUS ? "US" : zipInfo.reedsBa,
+                    });
                 }),
                 Match.when(FuelType.NATURAL_GAS, () =>
-                    makeApiRequest<number[]>("region_natgas", { ...common, technobasin: zipInfo.technobasin }),
+                    makeApiRequest<number[]>("region_natgas", {
+                        ...common,
+                        technobasin: !isUS ? "US" : zipInfo.technobasin,
+                    }),
                 ),
                 Match.whenOr(FuelType.DISTILLATE_OIL, FuelType.RESIDUAL_OIL, () =>
                     makeApiRequest<number[]>("region_case_oil", {
                         ...common,
-                        padd: zipInfo.padd,
+                        padd,
                     }),
                 ),
                 Match.when(FuelType.PROPANE, () =>
                     makeApiRequest<number[]>("region_case_propane_lng", {
                         ...common,
-                        padd: zipInfo.padd,
+                        padd,
                     }),
                 ),
                 Match.when(FuelType.COAL, () => of(Array(studyPeriod).fill(COAL_KG_CO2E_PER_MEGAJOULE))),
