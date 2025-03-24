@@ -64,7 +64,12 @@ const Options = [
     {
         label: <span>Water</span>,
         value: OptionHeader.WATER,
-        options: [{ label: <span key={"water-option"}>Water</span>, value: CostTypes.WATER }],
+        options: [
+            {
+                label: <span key={"water-option"}>Water</span>,
+                value: CostTypes.WATER,
+            },
+        ],
     },
     {
         label: <span>Capital</span>,
@@ -97,6 +102,7 @@ namespace DefaultCosts {
         costPerUnit: 0,
         annualConsumption: 0,
         unit: EnergyUnit.KWH,
+        useIndex: 1,
     });
 
     export const WATER: Props<WaterCost> = {
