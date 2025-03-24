@@ -32,7 +32,7 @@ import { currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { BehaviorSubject, type Observable, Subject, merge, switchMap } from "rxjs";
+import { BehaviorSubject, type Observable, Subject, fromEvent, merge, switchMap } from "rxjs";
 import { map, withLatestFrom } from "rxjs/operators";
 import { guard, sampleMany } from "util/Operators";
 
@@ -302,6 +302,12 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
 
         sName$.next(undefined);
         sType$.next(FuelType.ELECTRICITY);
+    });
+
+    useSubscribe(fromEvent(window, "keydown"), (event) => {
+        if ((event as KeyboardEvent).code === "Enter") {
+            sAddClick$.next();
+        }
     });
 
     const costOrFuel = useType();
