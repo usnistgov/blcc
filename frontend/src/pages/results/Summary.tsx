@@ -15,7 +15,7 @@ export default function Summary() {
                 <div className="flex w-full flex-col items-center">
                     <Alert
                         message="Error: No Baseline"
-                        description="Please set one alternative as a baseline for full results.."
+                        description="Please set one alternative as a baseline for full results."
                         type="error"
                         closable
                         className="w-1/3"
