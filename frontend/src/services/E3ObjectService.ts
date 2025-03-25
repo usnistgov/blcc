@@ -456,7 +456,7 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
         applyRateOfChange(builder, cost);
     } else {
         builder.addTag("OMR Non-Recurring");
-        applyRateOfChangeNonRecurringOMR(builder, cost);
+        applyRateOfChangeNonRecurringOMR(builder, cost, project);
     }
 
     return [builder];
@@ -547,9 +547,9 @@ function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapi
     builder.recur(recurBuilder);
 }
 
-function applyRateOfChangeNonRecurringOMR(builder: BcnBuilder, cost: OMRCost) {
+function applyRateOfChangeNonRecurringOMR(builder: BcnBuilder, cost: OMRCost, project: Project) {
     const recurBuilder = new RecurBuilder().interval(50);
-    recurBuilder.end(cost.initialOccurrence);
+    recurBuilder.end(cost.initialOccurrence + project.constructionPeriod);
 
     if (cost.recurring?.rateOfChangeValue) {
         recurBuilder
