@@ -430,11 +430,7 @@ function convertCost(
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 recurring: {
-                    rateOfChangeValue: parseRateOfChange(
-                        parseEscalation(cost.Escalation, studyPeriod) ?? 0,
-                        dollarMethod,
-                        inflation,
-                    ),
+                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
                 },
             } as RecurringContractCost;
@@ -638,23 +634,4 @@ function parseEscalation(escalation: any, studyPeriod: number): number | number[
             return parseVarying(varying.Intervals, varying.Values, studyPeriod);
         }
     }
-}
-function parseRateOfChange(
-    rateOfChange: number | number[] | undefined,
-    dollarMethod: DollarMethod,
-    inflation: number,
-): number | number[] | undefined {
-    if (rateOfChange === undefined) {
-        return undefined;
-    }
-
-    if (dollarMethod === DollarMethod.CONSTANT) {
-        return rateOfChange;
-    }
-
-    if (typeof rateOfChange === "number") {
-        return calculateNominalDiscountRate(rateOfChange, inflation);
-    }
-
-    return rateOfChange.map((v) => calculateNominalDiscountRate(v, inflation));
 }
