@@ -2,6 +2,7 @@ import type { Measures } from "@lrd/e3-sdk";
 import { bb, type Chart } from "billboard.js";
 import { FuelType } from "blcc-format/Format";
 import { useLayoutEffect, useState } from "react";
+import { getGJByFuelType } from "util/ResultCalculations";
 
 export const GRAPH_ID = "share-of-energy-use-chart";
 export const OFFSCREEN_GRAPH_ID_TEMPLATE = `offscreen-${GRAPH_ID}`;
@@ -26,7 +27,7 @@ export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOf
             FuelType.DISTILLATE_OIL,
             FuelType.RESIDUAL_OIL,
             FuelType.PROPANE,
-        ].map((fuelType) => [fuelType, measure.totalTagFlows[fuelType] ?? 0]);
+        ].map((fuelType) => [fuelType, getGJByFuelType(measure, fuelType) ?? 0]);
 
         chart.unload({
             done: () => chart.load({ columns: categories }),

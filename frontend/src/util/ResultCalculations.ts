@@ -358,7 +358,7 @@ function getTotalEnergy(measure: Measures): number {
     return totalEnergy;
 }
 
-function getGJByFuelType(measure: Measures, fuelType: string): number {
+export function getGJByFuelType(measure: Measures, fuelType: string): number {
     const amount = measure.quantitySum[fuelType];
     const unit = parseUnit(measure.quantityUnits[fuelType]);
     return amount != null && unit != null ? (getConvertMapGJ(FuelType.ELECTRICITY)[unit]?.(amount) ?? 0) : 0;
