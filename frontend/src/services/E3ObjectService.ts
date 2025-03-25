@@ -168,7 +168,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                     .initialOccurrence(0)
                     .life(cost.expectedLife)
                     .addTag(tag, "LCC")
-                    .quantity(1)
+                    .quantity(cost.costSavings ? -1 : 1)
                     .quantityValue(adjusted * phaseIn),
             ),
         );
@@ -184,7 +184,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 .initialOccurrence(0)
                 .life(cost.expectedLife)
                 .addTag(tag, "LCC")
-                .quantity(1)
+                .quantity(cost.costSavings ? -1 : 1)
                 .quantityValue(cost.initialCost ?? 0),
         );
     }
@@ -273,7 +273,7 @@ function energyCostToBuilder(
         .initialOccurrence(initial)
         .recur(energyCostRecurrence(project, cost))
         .quantityValue(cost.costPerUnit)
-        .quantity(cost.annualConsumption)
+        .quantity(cost.costSavings ? -cost.annualConsumption : cost.annualConsumption)
         .quantityUnit(cost.unit ?? "");
 
     result.push(builder);
@@ -371,7 +371,11 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .real()
                 .invest()
                 .recur(recurBuilder)
-                .quantity(convertToLiters(usage.amount, cost.unit))
+                .quantity(
+                    cost.costSavings
+                        ? -convertToLiters(usage.amount, cost.unit)
+                        : convertToLiters(usage.amount, cost.unit),
+                )
                 .quantityValue(convertCostPerUnitToLiters(usage.costPerUnit, cost.unit))
                 .quantityUnit(LiquidUnit.LITER);
 
@@ -390,7 +394,11 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .real()
                 .invest()
                 .recur(recurBuilder)
-                .quantity(convertToLiters(disposal.amount, cost.unit))
+                .quantity(
+                    cost.costSavings
+                        ? -convertToLiters(disposal.amount, cost.unit)
+                        : convertToLiters(disposal.amount, cost.unit),
+                )
                 .quantityValue(convertCostPerUnitToLiters(disposal.costPerUnit, cost.unit))
                 .quantityUnit(LiquidUnit.LITER);
 
@@ -418,7 +426,7 @@ function replacementCapitalCostToBuilder(
         .addTag("Replacement Capital", "LCC")
         .life(cost.expectedLife ?? 1)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
-        .quantity(1)
+        .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.initialCost);
 
     applyRateOfChangeReplacement(builder, cost);
@@ -441,7 +449,7 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .real()
         .quantityValue(cost.initialCost)
-        .quantity(1);
+        .quantity(cost.costSavings ? -1 : 1);
 
     if (cost.recurring?.rateOfRecurrence && cost.recurring.rateOfRecurrence > 0) {
         builder.addTag("OMR Recurring");
@@ -463,7 +471,7 @@ function implementationContractCostToBuilder(project: Project, cost: Implementat
             .addTag("Implementation Contract Cost", "LCC")
             .real()
             .invest()
-            .quantity(1)
+            .quantity(cost.costSavings ? -1 : 1)
             .quantityValue(cost.cost)
             .initialOccurrence(cost.occurrence + project.constructionPeriod)
             .recur(
@@ -486,7 +494,7 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
         .invest()
         .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
-        .quantity(1)
+        .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.initialCost);
     applyRateOfChange(builder, cost);
     return [builder];
@@ -504,7 +512,7 @@ function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
         .addTag(...(cost.tags ?? []))
         .addTag(cost.unit ?? "")
         .quantityValue(cost.valuePerUnit)
-        .quantity(cost.numberOfUnits)
+        .quantity(cost.costOrBenefit ? -cost.numberOfUnits : cost.numberOfUnits)
         .quantityUnit(cost.unit ?? ""); //TODO rate of change
 
     applyRateOfChange(builder, cost);
@@ -521,7 +529,7 @@ function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .type(BcnType.NON_MONETARY)
         .subType(BcnSubType.DIRECT)
-        .quantity(cost.numberOfUnits)
+        .quantity(cost.costSavings ? -cost.numberOfUnits : cost.numberOfUnits)
         .quantityValue(1)
         .quantityUnit(cost.unit ?? "");
 
