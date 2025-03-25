@@ -417,7 +417,7 @@ function replacementCapitalCostToBuilder(
         .subType(BcnSubType.DIRECT)
         .addTag("Replacement Capital", "LCC")
         .life(cost.expectedLife ?? 1)
-        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .quantity(1)
         .quantityValue(cost.initialCost);
 
@@ -465,7 +465,7 @@ function implementationContractCostToBuilder(project: Project, cost: Implementat
             .invest()
             .quantity(1)
             .quantityValue(cost.cost)
-            .initialOccurrence(cost.occurrence + 1 + project.constructionPeriod)
+            .initialOccurrence(cost.occurrence + project.constructionPeriod)
             .recur(
                 new RecurBuilder()
                     .interval((cost.occurrence ?? 0) + 1)
@@ -497,7 +497,7 @@ function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
         .name(cost.name)
         .real()
         .invest()
-        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .type(cost.costOrBenefit === CostBenefit.COST ? BcnType.COST : BcnType.BENEFIT)
         .subType(BcnSubType.DIRECT)
         .addTag("Other", "LCC")
@@ -518,7 +518,7 @@ function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary)
         .addTag("Other Non-Monetary")
         .addTag(cost.unit ?? "")
         .addTag(...(cost.tags ?? []))
-        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod + 1)
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .type(BcnType.NON_MONETARY)
         .subType(BcnSubType.DIRECT)
         .quantity(cost.numberOfUnits)
@@ -531,9 +531,7 @@ function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary)
 }
 
 function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapitalCost) {
-    const recurBuilder = new RecurBuilder()
-        .interval((cost.initialOccurrence ?? 0) + 1)
-        .end((cost.initialOccurrence ?? 0) + 1);
+    const recurBuilder = new RecurBuilder().interval(cost.initialOccurrence ?? 0).end(cost.initialOccurrence ?? 0);
 
     if (cost.annualRateOfChange) {
         recurBuilder.varRate(VarRate.YEAR_BY_YEAR).varValue([cost.annualRateOfChange]);
@@ -543,7 +541,7 @@ function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapi
 
 function applyRateOfChangeNonRecurringOMR(builder: BcnBuilder, cost: OMRCost) {
     const recurBuilder = new RecurBuilder().interval(50);
-    recurBuilder.end(cost.initialOccurrence + 1);
+    recurBuilder.end(cost.initialOccurrence);
 
     if (cost.recurring?.rateOfChangeValue) {
         recurBuilder
