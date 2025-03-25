@@ -351,7 +351,7 @@ function getTotalEnergy(measure: Measures): number {
     let totalEnergy = 0;
     for (const energyUnit of Object.values(EnergyUnit)) {
         const amount: number = measure.quantitySum[energyUnit] ?? 0;
-        if (amount > 0) {
+        if (amount !== 0) {
             totalEnergy += getConvertMapGJ(FuelType.ELECTRICITY)[energyUnit]?.(amount) ?? 0;
         }
     }
