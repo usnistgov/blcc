@@ -428,7 +428,7 @@ function convertCost(
                 description: cost.Comment ?? undefined,
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost.Amount,
-                initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
+                initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod),
                 recurring: {
                     rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
