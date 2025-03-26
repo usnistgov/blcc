@@ -187,9 +187,9 @@ function convertAnalysisType(old: number) {
 function convertAnalysisPurpose(old: number) {
     switch (old) {
         case 0:
-            return Purpose.INVEST_REGULATION;
-        case 1:
             return Purpose.COST_LEASE;
+        case 1:
+            return Purpose.INVEST_REGULATION;
         default:
             return undefined;
     }
