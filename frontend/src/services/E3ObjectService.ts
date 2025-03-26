@@ -134,7 +134,7 @@ function costToBuilders(
     return Match.type<Cost>().pipe(
         Match.when({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod)),
         Match.when({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions)),
-        Match.when({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost)),
+        Match.when({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost, project)),
         Match.when({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) =>
             replacementCapitalCostToBuilder(project, cost, studyPeriod),
         ),
@@ -357,7 +357,7 @@ function recurrence(cost: EnergyCost | WaterCost, varRate: VarRate): RecurBuilde
     return builder;
 }
 
-function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
+function waterCostToBuilder(cost: WaterCost, project: Project): BcnBuilder[] {
     const recurBuilder = recurrence(cost, VarRate.PERCENT_DELTA);
 
     return [
@@ -369,6 +369,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .real()
                 .invest()
                 .recur(recurBuilder)
+                .initialOccurrence(project.constructionPeriod + 1)
                 .quantity(
                     cost.costSavings
                         ? -convertToLiters(usage.amount, cost.unit)
@@ -392,6 +393,7 @@ function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
                 .real()
                 .invest()
                 .recur(recurBuilder)
+                .initialOccurrence(project.constructionPeriod + 1)
                 .quantity(
                     cost.costSavings
                         ? -convertToLiters(disposal.amount, cost.unit)
