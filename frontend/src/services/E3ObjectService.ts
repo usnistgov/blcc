@@ -429,7 +429,7 @@ function replacementCapitalCostToBuilder(
         .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.initialCost);
 
-    applyRateOfChangeReplacement(builder, cost);
+    applyRateOfChangeReplacement(builder, cost, project);
 
     if (cost.residualValue)
         return [
@@ -538,11 +538,11 @@ function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary)
     return [builder];
 }
 
-function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapitalCost) {
-    const recurBuilder = new RecurBuilder().interval(cost.initialOccurrence ?? 0).end(cost.initialOccurrence ?? 0);
+function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapitalCost, project: Project) {
+    const recurBuilder = new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
 
     if (cost.annualRateOfChange) {
-        recurBuilder.varRate(VarRate.YEAR_BY_YEAR).varValue([cost.annualRateOfChange]);
+        recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue([cost.annualRateOfChange]);
     }
     builder.recur(recurBuilder);
 }
