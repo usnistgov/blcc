@@ -459,6 +459,8 @@ function parseFuelType(fuelType: string): FuelType {
             return FuelType.DISTILLATE_OIL;
         case "ResidOil":
             return FuelType.RESIDUAL_OIL;
+        case "Coal":
+            return FuelType.COAL;
         default:
             return FuelType.OTHER;
     }
