@@ -252,7 +252,7 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
     }
 
     // There are no custom escalation nor project escalation rates.
-    return recurrence(cost);
+    return recurrence(cost, VarRate.YEAR_BY_YEAR);
 }
 
 function energyCostToBuilder(
@@ -336,7 +336,7 @@ function energyCostToBuilder(
                 .real()
                 .type(BcnType.NON_MONETARY)
                 .initialOccurrence(initial)
-                .recur(recurrence(cost))
+                .recur(recurrence(cost, VarRate.YEAR_BY_YEAR))
                 .quantity(1)
                 .quantityValue(1)
                 .quantityVarRate(VarRate.YEAR_BY_YEAR)
@@ -348,19 +348,17 @@ function energyCostToBuilder(
     return result;
 }
 
-function recurrence(cost: EnergyCost | WaterCost): RecurBuilder {
+function recurrence(cost: EnergyCost | WaterCost, varRate: VarRate): RecurBuilder {
     const builder = new RecurBuilder().interval(1);
 
     if (cost.escalation)
-        builder
-            .varRate(VarRate.YEAR_BY_YEAR)
-            .varValue(Array.isArray(cost.escalation) ? cost.escalation : [cost.escalation]);
+        builder.varRate(varRate).varValue(Array.isArray(cost.escalation) ? cost.escalation : [cost.escalation]);
 
     return builder;
 }
 
 function waterCostToBuilder(cost: WaterCost): BcnBuilder[] {
-    const recurBuilder = recurrence(cost);
+    const recurBuilder = recurrence(cost, VarRate.PERCENT_DELTA);
 
     return [
         ...cost.usage.map((usage) => {
