@@ -508,8 +508,8 @@ export function parseUnit(unit: string): Unit | undefined {
 function parseSeason(cost: any, season: Season, category: string): SeasonUsage {
     return {
         season: season,
-        amount: cost[`${season}Yearly${category}`],
-        costPerUnit: cost[`${season}${category}UnitCost`],
+        amount: cost[`${season}Yearly${category}`] ?? 0,
+        costPerUnit: cost[`${season}${category}UnitCost`] ?? 0,
     };
 }
 
