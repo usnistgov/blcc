@@ -336,7 +336,7 @@ function convertCost(
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost.InitialCost,
                 annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
-                initialOccurrence: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
+                initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 residualValue: {
                     approach: DollarOrPercent.PERCENT,
