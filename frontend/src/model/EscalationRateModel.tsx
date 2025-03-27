@@ -217,7 +217,7 @@ export namespace EscalationRateModel {
                             api.fetchEscalationRates(
                                 releaseYear,
                                 releaseYear,
-                                releaseYear + (studyPeriod ?? 0),
+                                releaseYear + (studyPeriod ?? 0) - 1, // The study period includes the start year, so subtract 1
                                 eiaCase,
                                 zipcode ? Number.parseInt(zipcode) : undefined,
                             ),

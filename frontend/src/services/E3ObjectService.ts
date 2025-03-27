@@ -38,7 +38,7 @@ import { Effect, Match } from "effect";
 import { DexieService } from "model/db";
 import { BlccApiService } from "services/BlccApiService";
 import { convertCostPerUnitToLiters, convertToLiters, getConvertMap } from "util/UnitConversion";
-import { calculateNominalDiscountRate } from "util/Util";
+import { calculateNominalDiscountRate, makeArray } from "util/Util";
 import { Defaults } from "blcc-format/Defaults";
 
 export class E3ObjectService extends Effect.Service<E3ObjectService>()("E3ObjectService", {
@@ -211,21 +211,24 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
 
         if (Array.isArray(cost.escalation)) {
             // Convert array to nominal rates if dollar method is current
-            recurBuilder.varValue(
+            const rates =
                 project.dollarMethod === DollarMethod.CURRENT
                     ? cost.escalation.map((rate) =>
                           calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE),
                       )
-                    : cost.escalation,
-            );
+                    : cost.escalation;
+
+            // Add 0 for the initial year, so year 1 is the first year of the analysis
+            recurBuilder.varValue([0, ...rates]);
         } else {
-            // Convert single raet to nominal if dollar method is current
-            recurBuilder.varValue(
-                // @ts-ignore
+            // Convert single rate to nominal if dollar method is current
+            const rate =
                 project.dollarMethod === DollarMethod.CURRENT
                     ? calculateNominalDiscountRate(cost.escalation, project.inflationRate ?? Defaults.INFLATION_RATE)
-                    : cost.escalation,
-            );
+                    : cost.escalation;
+
+            // Add 0 for the initial year, so year 1 is the first year of the analysis
+            recurBuilder.varValue([0, ...makeArray(project.studyPeriod ?? 0, rate)]);
         }
 
         return recurBuilder;
@@ -248,7 +251,11 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
                 ),
             ) as number[];
 
-        return new RecurBuilder().interval(1).varRate(VarRate.PERCENT_DELTA).varValue(escalation);
+        // Add 0 for the initial year, so year 1 is the first year of the analysis
+        return new RecurBuilder()
+            .interval(1)
+            .varRate(VarRate.PERCENT_DELTA)
+            .varValue([0, ...escalation]);
     }
 
     // There are no custom escalation nor project escalation rates.
