@@ -321,7 +321,7 @@ export namespace Model {
                             api.fetchEscalationRates(
                                 releaseYear,
                                 releaseYear,
-                                releaseYear + (studyPeriod ?? 0),
+                                releaseYear + (studyPeriod ?? 0) - 1, // The study period includes the start year, so subtract 1
                                 eiaCase,
                                 country === Country.USA ? Number.parseInt(zipcode ?? "0") : undefined,
                             ),
