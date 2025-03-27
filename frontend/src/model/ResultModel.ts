@@ -52,7 +52,9 @@ export namespace ResultModel {
     export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
     export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
     export const [hasError] = bind(
-        result$.pipe(map((result) => result !== undefined && !("measure" in result))),
+        result$.pipe(
+            map((result) => (result !== undefined && !("measure" in result)) || result?.measure?.length === 0),
+        ),
         false,
     );
 
