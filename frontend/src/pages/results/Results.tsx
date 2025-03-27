@@ -32,6 +32,9 @@ export default function Results() {
                             message="Error: E3 could not evaluate your request."
                             description="Please check your inputs in the editor and try again."
                             type="error"
+                            onClose={() => {
+                                setTimeout(() => ResultModel.setAddError(false), 500);
+                            }}
                             closable
                             className="w-1/3"
                         />

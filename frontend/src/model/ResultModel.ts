@@ -43,7 +43,15 @@ export namespace ResultModel {
 
                     yield* db.clearResults;
                     yield* db.addResult(hash, timestamp, results);
-                }),
+                }).pipe(
+                    Effect.catchAll((e) =>
+                        Effect.sync(() => {
+                            console.error(e);
+                            setAddError(true);
+                            setLoading(false);
+                        }),
+                    ),
+                ),
             );
         }
     }
@@ -51,9 +59,13 @@ export namespace ResultModel {
     // Result stream that pulls from cache if available.
     export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
     export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
+    export const [addError$, setAddError] = createSignal<boolean>();
     export const [hasError] = bind(
-        result$.pipe(
-            map((result) => (result !== undefined && !("measure" in result)) || result?.measure?.length === 0),
+        merge(
+            result$.pipe(
+                map((result) => (result !== undefined && !("measure" in result)) || result?.measure?.length === 0),
+            ),
+            addError$,
         ),
         false,
     );
