@@ -78,7 +78,7 @@ export default function UpdateGeneralOptionsModal() {
 }
 
 function setFederalFinanced(rates: readonly DiscountRatesResponse[]) {
-    const nominal = 0.032; //FIXME
+    const nominal = rates[0].nominal;
     const inflation = rates[0].inflation;
     const real = calculateRealDiscountRate(nominal, inflation);
 
@@ -91,9 +91,9 @@ function setFederalFinanced(rates: readonly DiscountRatesResponse[]) {
 }
 
 function setFempEnergy(rates: readonly DiscountRatesResponse[]) {
-    const nominal = 0.03; //FIXME
     const inflation = rates[0].inflation;
-    const real = calculateRealDiscountRate(nominal, inflation);
+    const real = rates[0].real;
+    const nominal = calculateNominalDiscountRate(real, inflation);
 
     Model.purpose.set(undefined);
     Model.dollarMethod.set(DollarMethod.CONSTANT);
@@ -115,8 +115,8 @@ function setOmbNonEnergy(
     Model.inflationRate.set(rate.inflation);
 
     if (purpose === Purpose.INVEST_REGULATION) {
-        const real = 0.07;
-        Model.realDiscountRate.set(0.07); //FIXME
+        const real = 0.07; // This is set to a fixed value of 7% on purpose.
+        Model.realDiscountRate.set(real);
         Model.nominalDiscountRate.set(calculateNominalDiscountRate(real, rate.inflation));
     } else {
         Model.realDiscountRate.set(rate.real);
@@ -125,7 +125,7 @@ function setOmbNonEnergy(
 }
 
 function setMilconEnergyAndEcip(rates: readonly DiscountRatesResponse[]) {
-    const real = 0.03; //FIXME
+    const real = rates[0].real;
     const inflation = rates[0].inflation;
     const nominal = calculateNominalDiscountRate(real, inflation);
 
