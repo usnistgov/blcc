@@ -390,7 +390,9 @@ function convertCost(
                       } as ResidualValue)
                     : undefined,
             } as CapitalCost;
-        case "EnergyUsage":
+        case "EnergyUsage": {
+            const escalation = parseEscalation(cost.Escalation, studyPeriod);
+
             return {
                 id,
                 name: cost.Name,
@@ -405,9 +407,11 @@ function convertCost(
                 unit: parseUnit(cost.Units),
                 demandCharge: cost.DemandCharge as number,
                 rebate: cost.UtilityRebate as number,
-                escalation: parseEscalation(cost, studyPeriod),
+                customEscalation: escalation !== undefined,
+                escalation,
                 useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
             } as EnergyCost;
+        }
         case "WaterUsage":
             return {
                 id,
@@ -633,7 +637,14 @@ function parseEscalation(escalation: any, studyPeriod: number): number | number[
         }
         case "VaryingEscalation": {
             const varying = escalation[type];
-            return parseVarying(varying.Intervals, varying.Values, studyPeriod);
+            const parsedVarying = parseVarying(varying.Intervals, varying.Values, studyPeriod);
+
+            // If the varying escalation is an array, drop any values beyond the study period.
+            if (Array.isArray(parsedVarying)) {
+                return parsedVarying.slice(0, studyPeriod);
+            }
+
+            return parsedVarying;
         }
     }
 }
