@@ -122,6 +122,7 @@ export function createLccResourceRows(measures: Measures[]): LCCResourceRow[] {
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
+        FuelType.COAL,
     ].map((fuelType) => getGJByFuelTypeForMeasures(measures, fuelType));
 
     const emissions = [
@@ -130,6 +131,7 @@ export function createLccResourceRows(measures: Measures[]): LCCResourceRow[] {
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
+        FuelType.COAL,
         "Total",
     ].map((fuelType) => getQuantitySumTag(measures, fuelType === "Total" ? "Emissions" : `${fuelType} Emissions`));
 
@@ -139,13 +141,15 @@ export function createLccResourceRows(measures: Measures[]): LCCResourceRow[] {
         { subcategory: FuelType.DISTILLATE_OIL, units: "gJ", ...energy[2] },
         { subcategory: FuelType.RESIDUAL_OIL, units: "gJ", ...energy[3] },
         { subcategory: FuelType.PROPANE, units: "gJ", ...energy[4] },
+        { subcategory: FuelType.COAL, units: "gJ", ...energy[5] },
         { subcategory: "Total", units: "gJ", ...getTotalEnergyForMeasures(measures) },
         { category: "Emissions", subcategory: FuelType.ELECTRICITY, units: "kg CO2e", ...emissions[0] },
         { subcategory: FuelType.NATURAL_GAS, units: "kg CO2e", ...emissions[1] },
         { subcategory: FuelType.DISTILLATE_OIL, units: "kg CO2e", ...emissions[2] },
         { subcategory: FuelType.RESIDUAL_OIL, units: "kg CO2e", ...emissions[3] },
         { subcategory: FuelType.PROPANE, units: "kg CO2e", ...emissions[4] },
-        { subcategory: "Total", units: "kg CO2e", ...emissions[5] },
+        { subcategory: FuelType.COAL, units: "kg CO2e", ...emissions[5] },
+        { subcategory: "Total", units: "kg CO2e", ...emissions[6] },
         { category: "Water", subcategory: "Use", units: "Liter(s)", ...getQuantitySumTag(measures, "Usage") },
         { subcategory: "Disposal", units: "Liter(s)", ...getQuantitySumTag(measures, "Disposal") }, //TODO: Add in water usage category
     ] as LCCResourceRow[]; // FIXME there is probably a better way to type this
@@ -320,6 +324,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
+        FuelType.COAL,
     ].map((fuelType) => getGJByFuelType(measure, fuelType));
 
     const emissions = [
@@ -328,6 +333,7 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         FuelType.DISTILLATE_OIL,
         FuelType.RESIDUAL_OIL,
         FuelType.PROPANE,
+        FuelType.COAL,
         "Energy",
     ].map((fuelType) => measure.quantitySum[fuelType] ?? 0);
 
@@ -342,7 +348,8 @@ export function createResourceUsageRow(measure: Measures): ResourceUsageRow[] {
         { subcategory: FuelType.DISTILLATE_OIL, consumption: consumption[2], emissions: emissions[2] },
         { subcategory: FuelType.RESIDUAL_OIL, consumption: consumption[3], emissions: emissions[3] },
         { subcategory: FuelType.PROPANE, consumption: consumption[4], emissions: emissions[4] },
-        { subcategory: "Total", consumption: getTotalEnergy(measure), emissions: emissions[5] },
+        { subcategory: FuelType.COAL, consumption: consumption[5], emissions: emissions[5] },
+        { subcategory: "Total", consumption: getTotalEnergy(measure), emissions: emissions[6] },
         { category: "Water", subcategory: "Use", consumption: measure.quantitySum.Usage },
     ] as ResourceUsageRow[]; //FIXME this could be typed better
 }

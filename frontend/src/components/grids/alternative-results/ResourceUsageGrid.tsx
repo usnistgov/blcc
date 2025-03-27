@@ -29,7 +29,7 @@ const columns = [
         key: "consumption",
         renderCell: ({ row, rowIdx }: { row: ResourceUsageRow; rowIdx: number }) => (
             <p className={"text-right"}>
-                {wholeNumberFormatter.format(row.consumption ?? 0)} {rowIdx < 6 && "gJ"} {rowIdx === 6 && "Liter(s)"}
+                {wholeNumberFormatter.format(row.consumption ?? 0)} {rowIdx < 7 && "gJ"} {rowIdx === 7 && "Liter(s)"}
             </p>
         ),
         ...cellClasses,
@@ -39,7 +39,7 @@ const columns = [
         key: "emissions",
         renderCell: ({ row, rowIdx }: { row: ResourceUsageRow; rowIdx: number }) => (
             <p className={"text-right"}>
-                {rowIdx < 6 && wholeNumberFormatter.format(row.emissions)} {rowIdx < 6 && "kg CO2e"}
+                {rowIdx < 7 && wholeNumberFormatter.format(row.emissions)} {rowIdx < 7 && "kg CO2e"}
             </p>
         ),
         ...cellClasses,

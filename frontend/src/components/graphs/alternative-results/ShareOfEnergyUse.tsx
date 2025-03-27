@@ -27,6 +27,7 @@ export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOf
             FuelType.DISTILLATE_OIL,
             FuelType.RESIDUAL_OIL,
             FuelType.PROPANE,
+            FuelType.COAL,
         ].map((fuelType) => [fuelType, getGJByFuelType(measure, fuelType) ?? 0]);
 
         chart.unload({
