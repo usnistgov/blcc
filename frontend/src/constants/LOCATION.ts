@@ -220,7 +220,7 @@ export enum Country {
     Württemberg = "Württemberg",
     Yemen = "Yemen",
     Zambia = "Zambia",
-    Zimbabwe = "Zimbabwe"
+    Zimbabwe = "Zimbabwe",
 }
 
 export enum State {
@@ -287,7 +287,7 @@ export enum State {
     WK = "WK",
     NO = "NO",
     PR = "PR",
-    VI = "VI"
+    VI = "VI",
 }
 
 const stateToAbbreviation: { [key: string]: State } = {
@@ -300,7 +300,7 @@ const stateToAbbreviation: { [key: string]: State } = {
     Colorado: State.CO,
     Connecticut: State.CT,
     Delaware: State.DE,
-    "District Of Columbia": State.DC,
+    "District of Columbia": State.DC,
     Florida: State.FL,
     Georgia: State.GA,
     Guam: State.GU,
@@ -345,7 +345,7 @@ const stateToAbbreviation: { [key: string]: State } = {
     Washington: State.WA,
     "West Virginia": State.WV,
     Wisconsin: State.WI,
-    Wyoming: State.WY
+    Wyoming: State.WY,
 };
 
 export { stateToAbbreviation };
