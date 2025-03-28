@@ -8,6 +8,7 @@ import PageNumber from "components/pdf/PageNumber";
 import PdfDisclaimer from "components/pdf/PdfDisclaimer";
 import Results from "components/pdf/Results";
 import { styles } from "components/pdf/pdfStyles";
+import logoUrl from "images/logo.png";
 
 type PdfProps = {
     project: Project;
@@ -25,7 +26,7 @@ export default function Pdf({ project, alternatives, costs, summary, annual, alt
             <Page style={styles.page} size="LETTER">
                 <NISTHeader />
                 <View style={styles.blccHeader}>
-                    <Image style={styles.logo} src="../public/logo.png" />
+                    <Image style={styles.logo} src={logoUrl} />
                     <Text style={styles.date}>
                         Report Generated: {`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`}
                     </Text>
