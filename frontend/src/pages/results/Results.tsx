@@ -19,6 +19,7 @@ export default function Results() {
     const noResult = ResultModel.noResult();
     const hasError = ResultModel.hasError();
     const hasDownloadError = ResultModel.hasDownloadError();
+    const errorMessage = ResultModel.errorMessage();
 
     return (
         <>
@@ -29,9 +30,12 @@ export default function Results() {
                 {(hasError && (
                     <div className="flex w-full flex-col items-center p-6">
                         <Alert
-                            message="Error: E3 could not evaluate your request."
+                            message={errorMessage}
                             description="Please check your inputs in the editor and try again."
                             type="error"
+                            onClose={() => {
+                                setTimeout(() => ResultModel.setAddError(false), 500);
+                            }}
                             closable
                             className="w-1/3"
                         />

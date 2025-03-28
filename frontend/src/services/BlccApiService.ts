@@ -18,6 +18,8 @@ type RegionCaseRequest = {
 
 export class FetchError extends Data.TaggedError("FetchError") {}
 
+export class E3BuildError extends Data.TaggedError("E3BuildError")<{ message: string }> {}
+
 export const jsonResponse = (response: Response) =>
     Effect.tryPromise({
         try: () => response.json(),
@@ -153,7 +155,10 @@ export class BlccApiService extends Effect.Service<BlccApiService>()("BlccApiSer
                 }),
             fetchE3Request: (builder: RequestBuilder) =>
                 Effect.gen(function* () {
-                    const request = builder.build();
+                    const request = yield* Effect.try({
+                        try: () => builder.build(),
+                        catch: (e) => new E3BuildError({ message: (e as Error).toString() }),
+                    });
 
                     yield* Console.log("Sending E3 request", request);
 
