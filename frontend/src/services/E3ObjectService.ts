@@ -548,7 +548,7 @@ function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary)
 function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapitalCost, project: Project) {
     const recurBuilder = new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
 
-    if (cost.annualRateOfChange) {
+    if (cost.annualRateOfChange !== undefined) {
         recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue([cost.annualRateOfChange]);
     }
     builder.recur(recurBuilder);
@@ -558,7 +558,7 @@ function applyRateOfChangeNonRecurringOMR(builder: BcnBuilder, cost: OMRCost, pr
     const recurBuilder = new RecurBuilder().interval(50);
     recurBuilder.end(cost.initialOccurrence + project.constructionPeriod);
 
-    if (cost.recurring?.rateOfChangeValue) {
+    if (cost.recurring?.rateOfChangeValue !== undefined) {
         recurBuilder
             .varRate(VarRate.PERCENT_DELTA)
             .varValue(
@@ -583,7 +583,7 @@ function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMoneta
     if (cost.recurring) {
         const recurBuilder = new RecurBuilder().interval(cost.recurring.rateOfRecurrence ?? 1);
 
-        if (cost.recurring.rateOfChangeValue) {
+        if (cost.recurring.rateOfChangeValue !== undefined) {
             recurBuilder
                 .varRate(VarRate.PERCENT_DELTA)
                 .varValue(
