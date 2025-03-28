@@ -97,7 +97,7 @@ async fn main() -> std::io::Result<()> {
                         "default-src 'self' https://*.nist.gov; \
                         script-src 'self' 'wasm-unsafe-eval'; \
                         style-src 'self' 'unsafe-inline'; \
-                        img-src 'self' https://pages.nist.gov; data:; \
+                        img-src 'self' https://pages.nist.gov data:; \
                         connect-src 'self' https://*.nist.gov; \
                         object-src 'none'; \
                         frame-ancestors 'none';",
