@@ -47,6 +47,7 @@ export namespace ResultModel {
                     Effect.catchAll((e) =>
                         Effect.sync(() => {
                             console.error(e);
+                            setErrorMessage(e.message);
                             setAddError(true);
                             setLoading(false);
                         }),
@@ -60,6 +61,11 @@ export namespace ResultModel {
     export const result$ = hash$.pipe(switchMap((hash) => liveQuery(() => db.results.get(hash))));
     export const [noResult] = bind(result$.pipe(map((result) => result === undefined)), true);
     export const [addError$, setAddError] = createSignal<boolean>();
+    export const [errorMessage$, setErrorMessage] = createSignal<string>();
+    export const [errorMessage] = bind(
+        merge(result$.pipe(map(() => "Error: E3 could not evaluate your request.")), errorMessage$),
+        "Error: E3 could not evaluate your request.",
+    );
     export const [hasError] = bind(
         merge(
             result$.pipe(
