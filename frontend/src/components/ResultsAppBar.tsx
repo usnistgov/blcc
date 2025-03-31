@@ -1,6 +1,7 @@
 import {
     mdiArrowLeft,
     mdiCodeJson,
+    mdiCommentAlertOutline,
     mdiContentSave,
     mdiFileDownload,
     mdiLoading,
@@ -9,7 +10,7 @@ import {
 } from "@mdi/js";
 import Icon from "@mdi/react";
 import { Subscribe } from "@react-rxjs/core";
-import { downloadCsv, downloadE3Request, downloadPdf } from "blcc-format/DownloadFile";
+import { downloadCsv, downloadDebugInfo, downloadE3Request, downloadPdf } from "blcc-format/DownloadFile";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -82,7 +83,21 @@ export default function ResultsAppBar() {
                         )
                     }
                 >
-                    E3 Request
+                    E3
+                </Button>
+                <Button
+                    type={ButtonType.PRIMARY}
+                    icon={mdiCommentAlertOutline}
+                    onClick={() => {
+                        BlccRuntime.runPromise(
+                            Effect.gen(function* () {
+                                const e3ObjectService = yield* E3ObjectService;
+                                yield* e3ObjectService.createE3Object.pipe(Effect.andThen(downloadDebugInfo));
+                            }),
+                        );
+                    }}
+                >
+                    Debug
                 </Button>
             </ButtonBar>
             <Subscribe>
