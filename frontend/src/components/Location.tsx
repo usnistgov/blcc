@@ -19,7 +19,12 @@ function StateOrProvince<T extends object>({ model }: { model: LocationModel<T> 
             info={Strings.STATE}
             options={Object.values(State)}
             getter={model.state.use}
-            onChange={(state) => model.state.set(state)}
+            onChange={(state) => {
+                model.state.set(state);
+                if (state === State.UV) {
+                    model.zipcode.set(undefined);
+                }
+            }}
         />
     ) : (
         <TestInput
@@ -67,6 +72,7 @@ function Zipcode<T extends object>({ model }: { model: LocationModel<T> }) {
             info={Strings.ZIP}
             type={TextInputType.PRIMARY}
             getter={model.zipcode.use}
+            disabled={model.state.use() === State.UV}
             onChange={setZipcodeHandler(model)}
             maxLength={5}
             error={model.zipcode.useValidation}

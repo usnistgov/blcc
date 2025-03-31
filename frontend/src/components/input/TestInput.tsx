@@ -11,11 +11,13 @@ export function TestInput<T extends string | undefined>({
     getter,
     info,
     required,
+    disabled,
     error,
     ...defaultProps
 }: {
     getter: () => T;
     required?: boolean;
+    disabled?: boolean;
     label?: ReactNode;
     info?: ReactNode;
     error?: () => ZodError | undefined;
@@ -44,12 +46,19 @@ export function TestInput<T extends string | undefined>({
                         {requiredElement}
                     </Title>
                 ))}
-            <Input type={TextInputType.PRIMARY} value={getter()} status={err ? "error" : undefined} {...defaultProps} />
-            {err?.issues.map((error) => (
-                <p key={error.code} style={{ color: "red" }}>
-                    {error.message}
-                </p>
-            ))}
+            <Input
+                type={TextInputType.PRIMARY}
+                value={getter()}
+                status={err && !disabled ? "error" : undefined}
+                disabled={disabled}
+                {...defaultProps}
+            />
+            {!disabled &&
+                err?.issues.map((error) => (
+                    <p key={error.code} style={{ color: "red" }}>
+                        {error.message}
+                    </p>
+                ))}
         </div>
     );
 }
