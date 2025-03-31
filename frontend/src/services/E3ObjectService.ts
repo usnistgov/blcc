@@ -470,25 +470,18 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
 }
 
 function implementationContractCostToBuilder(project: Project, cost: ImplementationContractCost): BcnBuilder[] {
-    return [
-        new BcnBuilder()
-            .name(cost.name)
-            .type(BcnType.COST)
-            .subType(BcnSubType.DIRECT)
-            .addTag("Implementation Contract Cost", "LCC")
-            .real()
-            .invest()
-            .quantity(cost.costSavings ? -1 : 1)
-            .quantityValue(cost.cost)
-            .initialOccurrence(cost.occurrence + project.constructionPeriod)
-            .recur(
-                new RecurBuilder()
-                    .interval((cost.occurrence ?? 0) + 1)
-                    .end((cost.occurrence ?? 0) + 1)
-                    .varRate(VarRate.YEAR_BY_YEAR)
-                    .varValue([cost.valueRateOfChange ?? 0]),
-            ),
-    ];
+    const builder = new BcnBuilder()
+        .name(cost.name)
+        .type(BcnType.COST)
+        .subType(BcnSubType.DIRECT)
+        .addTag("Implementation Contract Cost", "LCC")
+        .real()
+        .invest()
+        .quantity(cost.costSavings ? -1 : 1)
+        .quantityValue(cost.cost)
+        .initialOccurrence(cost.occurrence + project.constructionPeriod);
+    applyRateOfChangeNonRecurringContract(builder, cost, project);
+    return [builder];
 }
 
 function recurringContractCostToBuilder(project: Project, cost: RecurringContractCost): BcnBuilder[] {
@@ -550,6 +543,20 @@ function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapi
 
     if (cost.annualRateOfChange !== undefined) {
         recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue([cost.annualRateOfChange]);
+    }
+    builder.recur(recurBuilder);
+}
+
+function applyRateOfChangeNonRecurringContract(
+    builder: BcnBuilder,
+    cost: ImplementationContractCost,
+    project: Project,
+) {
+    const recurBuilder = new RecurBuilder().interval(50);
+    recurBuilder.end(cost.occurrence + project.constructionPeriod);
+
+    if (cost.valueRateOfChange !== undefined) {
+        recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue([cost.valueRateOfChange]);
     }
     builder.recur(recurBuilder);
 }
