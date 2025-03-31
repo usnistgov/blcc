@@ -32,6 +32,7 @@ import {
     wholeNumberFormatter,
 } from "util/Util";
 import { PdfLoadingModel } from "components/modal/PdfLoadingModal";
+import JSZip from "jszip";
 
 /**
  * Accepts a JSON object and a filename and converts it to a string and downloads the file.
@@ -385,4 +386,40 @@ export const downloadE3Request = (builder: RequestBuilder) =>
             `${project.name}-E3.json`,
             "application/json",
         );
+    });
+
+export const downloadDebugInfo = (builder: RequestBuilder) =>
+    Effect.gen(function* () {
+        const db = yield* DexieService;
+        const project = yield* db.getProject();
+
+        if (project === undefined) return;
+
+        const zipGen = new JSZip();
+
+        const escapedProjectName = project.name?.replaceAll("/", "-") ?? "My Project";
+
+        // Add E3 Request
+        zipGen.file(
+            `${escapedProjectName}-E3.json`,
+            new Blob([JSON.stringify(builder.build(), null, 2)], {
+                type: "application/json",
+            }),
+        );
+
+        // Add BLCC file
+        yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
+        const blob = yield* db.exportDB;
+        zipGen.file(`${escapedProjectName}.blcc`, blob);
+
+        // Add metadata
+        const metadata = `Screen resolution:\n    Height: ${window.screen.availHeight}\n    Width: ${window.screen.availWidth}\nBrowser size:\n    Height: ${window.innerHeight}\n    Width: ${window.innerWidth}\nBrowser version: ${window.navigator.userAgent}`;
+        zipGen.file(`${escapedProjectName}-metadata.txt`, metadata);
+
+        // Download zip
+        const zip = yield* Effect.tryPromise({
+            try: () => zipGen.generateAsync({ type: "blob" }),
+            catch: (e) => console.error(e),
+        });
+        download(zip, `${project.name}-E3.zip`, "application/zip");
     });
