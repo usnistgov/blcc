@@ -471,37 +471,38 @@ function parseFuelType(fuelType: string): FuelType {
 }
 
 export function parseUnit(unit: string): Unit | undefined {
-    switch (unit) {
+    switch (unit?.toUpperCase()) {
         //Energy
-        case "kWh":
+        case "KWH":
             return EnergyUnit.KWH;
         case "GJ":
             return EnergyUnit.GJ;
         case "MJ":
             return EnergyUnit.MJ;
-        case "Therm":
+        case "THERM":
             return EnergyUnit.THERM;
-        case "MBtu":
+        case "MBTU":
             return EnergyUnit.MBTU;
 
         // Volume
-        case "Liter":
+        case "LITER":
             return LiquidUnit.LITER;
-        case "1,000 Liter":
+        case "1,000 LITER":
             return LiquidUnit.K_LITER;
-        case "Gallon":
+        case "GALLON":
             return LiquidUnit.GALLON;
-        case "1,000 Gallon":
+        case "1,000 GALLON":
             return LiquidUnit.K_GALLON;
-        case "Cubic Meters":
+        case "CUBIC METERS":
             return CubicUnit.CUBIC_METERS;
-        case "Cubic Feet":
+        case "CUBIC FEET":
             return CubicUnit.CUBIC_FEET;
 
         // Weight
-        case "kg":
+        case "KG":
             return WeightUnit.KG;
-        case "Pound":
+        case "POUND":
+        case "LB":
             return WeightUnit.POUND;
     }
 
