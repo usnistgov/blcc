@@ -94,6 +94,16 @@ export class DexieService extends Effect.Service<DexieService>()("DexieService",
                     try: () => db.costs.bulkPut(costs),
                     catch: () => new DexieError(),
                 }),
+            getEnergyCosts: Effect.tryPromise({
+                try: () => db.costs.where("type").equals("Energy").toArray(),
+                catch: () => new DexieError(),
+            }),
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            modifyCost: (id: number, objectDelta: any) =>
+                Effect.tryPromise({
+                    try: () => db.costs.where("id").equals(id).modify(objectDelta),
+                    catch: () => new DexieError(),
+                }),
 
             /*
              * Alternatives

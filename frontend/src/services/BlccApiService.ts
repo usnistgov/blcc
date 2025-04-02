@@ -5,6 +5,7 @@ import {
     decodeEscalationRateResponse,
     decodeNumberArray,
     decodeReleaseYear,
+    decodeZipInfoResponse,
 } from "blcc-format/schema";
 import { Console, Data, Effect } from "effect";
 
@@ -153,6 +154,25 @@ export class BlccApiService extends Effect.Service<BlccApiService>()("BlccApiSer
                         Effect.andThen(decodeNumberArray),
                     );
                 }),
+            fetchZipInfo: (zip: number) =>
+                Effect.tryPromise({
+                    try: () =>
+                        fetch("/api/zip_info", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ zip }),
+                        }),
+                    catch: () => new FetchError(),
+                }).pipe(
+                    Effect.filterOrFail(
+                        (response) => response.ok,
+                        () => new FetchError(),
+                    ),
+                    Effect.andThen(jsonResponse),
+                    Effect.andThen(decodeZipInfoResponse),
+                ),
             fetchE3Request: (builder: RequestBuilder) =>
                 Effect.gen(function* () {
                     const request = yield* Effect.try({

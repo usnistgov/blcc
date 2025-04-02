@@ -61,3 +61,15 @@ export class DiscountRatesResponse extends Schema.Class<DiscountRatesResponse>("
 }) {}
 
 export const decodeDiscountRatesResponse = Schema.decodeUnknown(Schema.Array(DiscountRatesResponse));
+
+export class ZipInfoResponse extends Schema.Class<ZipInfoResponse>("ZipInfoResponse")({
+    zip: Schema.Number,
+    ba: Schema.String,
+    gea: Schema.String,
+    state: Schema.String,
+    padd: Schema.String,
+    technobasin: Schema.String,
+    reedsBa: Schema.String,
+}) {}
+
+export const decodeZipInfoResponse = Schema.decodeUnknown(Schema.Array(ZipInfoResponse));
