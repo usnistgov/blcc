@@ -392,7 +392,6 @@ export namespace Model {
             const isUS = cost.location?.country === Country.USA;
             switch (cost.fuelType) {
                 case FuelType.ELECTRICITY: {
-                    console.log("ELECTRICITY");
                     if (ghgDataSource === GhgDataSource.NIST_NETL) {
                         return yield* apiService.fetchRegionCaseBa({
                             ...common,
@@ -405,7 +404,6 @@ export namespace Model {
                     });
                 }
                 case FuelType.NATURAL_GAS: {
-                    console.log("NATURAL GAS");
                     return yield* apiService.fetchRegionCaseNatGas({
                         ...common,
                         technobasin: !isUS ? "US" : zipInfo.technobasin,
@@ -413,7 +411,6 @@ export namespace Model {
                 }
                 case FuelType.DISTILLATE_OIL:
                 case FuelType.RESIDUAL_OIL: {
-                    console.log("DISTILLATE OIL");
                     const padd = !isUS ? "PADD 3" : zipInfo.padd;
 
                     return yield* apiService.fetchRegionCaseOil({
@@ -422,7 +419,6 @@ export namespace Model {
                     });
                 }
                 case FuelType.PROPANE: {
-                    console.log("PROPANE");
                     const padd = !isUS ? "PADD 3" : zipInfo.padd;
                     return yield* apiService.fetchRegionCasePropaneLng({
                         ...common,
@@ -430,7 +426,6 @@ export namespace Model {
                     });
                 }
                 case FuelType.COAL:
-                    console.log("COAL");
                     return Array(studyPeriod + 1).fill(
                         COAL_KG_CO2E_PER_MEGAJOULE *
                             (getConvertMap(FuelType.COAL)[cost.unit]?.(cost.annualConsumption) ?? 1),
@@ -491,8 +486,6 @@ export namespace Model {
                                     )),
                                 ];
                                 cache[cost.fuelType.valueOf()] = emissions;
-                            } else {
-                                console.log("GOT FROM CACHE");
                             }
 
                             yield* dexieService.modifyCost(cost.id ?? Defaults.INVALID_ID, { emissions });
