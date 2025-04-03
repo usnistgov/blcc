@@ -15,7 +15,7 @@ export default function GhgInput() {
                 label={"Data Source"}
                 required
                 className={"w-full"}
-                options={Object.values(GhgDataSource)}
+                options={[GhgDataSource.NIST_NETL]} //Object.values(GhgDataSource)
                 getter={Model.ghgDataSource.use}
                 onChange={(change) => {
                     // If we set to NIST_NETL, make sure emissions rate type is Average since we do not have LRM data
