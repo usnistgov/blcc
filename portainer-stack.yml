@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   server:
-    image: docker.nist.gov:4567/eldst/blcc:latest
+    image: "docker.nist.gov:4567/eldst/blcc/server:${BLCC_SERVER_TAG}"
     hostname: blcc
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
         - "traefik.http.services.blcc_service.loadbalancer.server.port=8080"
 
   postgres:
-    image: docker.nist.gov:4567/eldst/blcc:db
+    image: "docker.nist.gov:4567/eldst/blcc/db:${BLCC_DB_TAG}"
     restart: always
     hostname: postgres
     environment:
