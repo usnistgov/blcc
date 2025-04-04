@@ -171,8 +171,8 @@ portainer-deploy:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
   before_script:
-    - export BLCC_SERVER_TAG=$CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
-    - export BLCC_DB_TAG=$CI_REGISTRY_IMAGE/db:$CI_COMMIT_SHA
+    - export BLCC_SERVER_TAG=$CI_COMMIT_SHA
+    - export BLCC_DB_TAG=$CI_COMMIT_SHA
   # Run the `deploy` command on the portainer docker context with the given compose file and stack name
   script:
     - docker stack deploy --with-registry-auth -c portainer-stack.yml --resolve-image always --prune blcc
