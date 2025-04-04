@@ -330,7 +330,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         >
             <div>
                 <Typography.Title level={5}>Name</Typography.Title>
-                <TextInput type={TextInputType.PRIMARY} wire={sName$} />
+                <TextInput type={TextInputType.PRIMARY} wire={sName$} showCount maxLength={45} />
             </div>
             <br />
             <div className="w-full">

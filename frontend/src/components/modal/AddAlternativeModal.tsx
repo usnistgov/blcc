@@ -148,7 +148,7 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
                     type={TextInputType.PRIMARY}
                     wire={sName$}
                     showCount
-                    maxLength={30}
+                    maxLength={45}
                     status={!unique ? "error" : undefined}
                 />
                 {!unique && (

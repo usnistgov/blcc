@@ -153,7 +153,7 @@ export default function Alternatives() {
                             value$={AlternativeModel.name$}
                             wire={AlternativeModel.sName$}
                             showCount
-                            maxLength={30}
+                            maxLength={45}
                         />
                         <span className={"w-1/2"}>
                             <Title level={5}>

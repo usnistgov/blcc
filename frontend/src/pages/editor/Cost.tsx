@@ -196,7 +196,7 @@ export default function Cost() {
                             getter={CostModel.name.use}
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
                             showCount
-                            maxLength={30}
+                            maxLength={45}
                         />
                         <div className={"flex flex-col"}>
                             <Title level={5}>

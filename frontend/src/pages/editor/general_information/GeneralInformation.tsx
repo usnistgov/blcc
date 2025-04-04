@@ -15,7 +15,6 @@ import { Model } from "model/Model";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
 import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
 import GhgInput from "pages/editor/general_information/GhgInput";
-import { InputNumberErrors } from "util/error";
 
 /**
  * Returns a dropdown for selecting the analysis purpose if the analysis type is OMB Non-Energy,
@@ -69,7 +68,7 @@ export default function GeneralInformation() {
                             Model.name.set(change === "" ? undefined : change);
                         }}
                         showCount
-                        maxLength={30}
+                        maxLength={45}
                         error={Model.name.useValidation}
                     />
 
