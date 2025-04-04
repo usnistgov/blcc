@@ -6,9 +6,12 @@ import { TestNumberInput } from "components/input/TestNumberInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
 import { Strings } from "../../../constants/Strings";
 import Info from "components/Info";
+import { Model } from "model/Model";
 
 export default function OtherNonMonetaryCostFields() {
     const allTags = OtherCostModel.useAllTags();
+    const initialOccurenceWarning =
+        OtherCostModel.initialOccurrence.use() > (Model.studyPeriod.use() ?? 0) + Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -34,6 +37,8 @@ export default function OtherNonMonetaryCostFields() {
                     addonAfter={"years"}
                     getter={OtherCostModel.initialOccurrence.use}
                     onChange={OtherCostModel.Actions.setInitialOccurrence}
+                    error={OtherCostModel.initialOccurrence.useValidation}
+                    warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
                 <TestNumberInput
                     className={"w-full"}

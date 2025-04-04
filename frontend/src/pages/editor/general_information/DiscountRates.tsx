@@ -19,6 +19,9 @@ export default function DiscountRates() {
                 disabled={dollarMethod !== DollarMethod.CURRENT}
                 addonAfter={"%"}
                 controls={false}
+                defaultValue={0}
+                min={-30}
+                max={30}
                 getter={() => +toPercentage(Model.inflationRate.use() ?? 0).toFixed(2)}
                 onChange={(value) => Model.inflationRate.set(value ? toDecimal(value) : undefined)}
             />
@@ -30,7 +33,9 @@ export default function DiscountRates() {
                 disabled={dollarMethod !== DollarMethod.CURRENT}
                 addonAfter={"%"}
                 controls={false}
-                min={0.0}
+                defaultValue={0}
+                min={-30}
+                max={30}
                 getter={() => +toPercentage(Model.nominalDiscountRate.use() ?? 0).toFixed(2)}
                 onChange={(value) => Model.nominalDiscountRate.set(value ? toDecimal(value) : undefined)}
             />
@@ -42,7 +47,9 @@ export default function DiscountRates() {
                 disabled={dollarMethod !== DollarMethod.CONSTANT}
                 addonAfter={"%"}
                 controls={false}
-                min={0.0}
+                defaultValue={0}
+                min={-30}
+                max={30}
                 getter={() => +toPercentage(Model.realDiscountRate.use() ?? 0).toFixed(2)}
                 onChange={(value) => Model.realDiscountRate.set(value ? toDecimal(value) : undefined)}
             />

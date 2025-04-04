@@ -15,6 +15,7 @@ import { Model } from "model/Model";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
 import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
 import GhgInput from "pages/editor/general_information/GhgInput";
+import { InputNumberErrors } from "util/error";
 
 /**
  * Returns a dropdown for selecting the analysis purpose if the analysis type is OMB Non-Energy,
@@ -68,7 +69,7 @@ export default function GeneralInformation() {
                             Model.name.set(change === "" ? undefined : change);
                         }}
                         showCount
-                        maxLength={50}
+                        maxLength={30}
                         error={Model.name.useValidation}
                     />
 
@@ -83,7 +84,7 @@ export default function GeneralInformation() {
                             Model.analyst.set(change === "" ? undefined : change);
                         }}
                         showCount
-                        maxLength={50}
+                        maxLength={30}
                         error={Model.analyst.useValidation}
                     />
 
@@ -108,13 +109,15 @@ export default function GeneralInformation() {
                     <AnalysisPurpose />
 
                     {/* Description */}
-                    <span className={"col-span-2"}>
+                    <span className={"col-span-2 mb-3"}>
                         <TestTextArea
                             name={"description"}
                             label={"Description"}
                             className={"w-full"}
                             info={Strings.DESCRIPTION}
                             getter={Model.description.use}
+                            showCount
+                            maxLength={300}
                             onChange={(event) => Model.description.set(event.currentTarget.value)}
                         />
                     </span>
@@ -125,8 +128,12 @@ export default function GeneralInformation() {
                             label={"Study Period"}
                             name={"studyPeriod"}
                             required
+                            min={1}
+                            error={Model.studyPeriod.useValidation}
                             info={Strings.STUDY_PERIOD}
-                            onChange={(event) => Model.studyPeriod.set(event ?? 0)}
+                            onChange={(event) => {
+                                Model.studyPeriod.set(event ?? undefined);
+                            }}
                         />
                         <TestNumberInput
                             className={"w-full"}
@@ -134,6 +141,8 @@ export default function GeneralInformation() {
                             getter={Model.constructionPeriod.use}
                             label={"Construction Period"}
                             name={"constructionPeriod"}
+                            min={0}
+                            error={Model.constructionPeriod.useValidation}
                             info={Strings.CONSTRUCTION_PERIOD}
                             onChange={(event) => Model.constructionPeriod.set(event ?? 0)}
                         />

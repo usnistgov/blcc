@@ -8,12 +8,17 @@ import { Var } from "util/var";
 import { isImplementationContractCost } from "model/Guards";
 import { Model } from "model/Model";
 import { Defaults } from "blcc-format/Defaults";
+import { z } from "zod";
 
 namespace ImplementationContractModel {
     const costOptic = O.optic<Cost>().guard(isImplementationContractCost);
 
     export const valueRateOfChange = new Var(CostModel.cost, costOptic.prop("valueRateOfChange"));
-    export const occurrence = new Var(CostModel.cost, costOptic.prop("occurrence"));
+    export const occurrence = new Var(
+        CostModel.cost,
+        costOptic.prop("occurrence"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
     export const cost = new Var(CostModel.cost, costOptic.prop("cost"));
 
     export namespace Actions {
@@ -36,6 +41,8 @@ export default function ImplementationContractCostFields() {
     const defaultRateOfChange = getDefaultRateOfChange(Model.dollarMethod.current());
     const inflationRate = Model.inflationRate.use();
     const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
+    const initialOccurenceWarning =
+        ImplementationContractModel.occurrence.use() > (Model.studyPeriod.use() ?? 0) + Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -57,6 +64,8 @@ export default function ImplementationContractCostFields() {
                     subLabel={"(from service date)"}
                     getter={ImplementationContractModel.occurrence.use}
                     onChange={ImplementationContractModel.Actions.setOccurrence}
+                    error={ImplementationContractModel.occurrence.useValidation}
+                    warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
                 <TestNumberInput
                     className={"w-full"}

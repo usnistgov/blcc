@@ -26,6 +26,7 @@ import { Var } from "util/var";
 import z from "zod";
 import cost = CostModel.cost;
 import { Country } from "constants/LOCATION";
+import { Strings } from "constants/Strings";
 
 type ZipInfoResponse = {
     zip: number;
@@ -73,7 +74,10 @@ export namespace EnergyCostModel {
             zipcode: new Var(
                 CostModel.cost,
                 locationOptic.optional().guard(isUSLocation).prop("zipcode"),
-                z.string().max(5),
+                z
+                    .string()
+                    .min(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR })
+                    .max(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR }),
             ),
         };
 

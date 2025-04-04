@@ -195,6 +195,8 @@ export default function Cost() {
                             label={"Name*"}
                             getter={CostModel.name.use}
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
+                            showCount
+                            maxLength={30}
                         />
                         <div className={"flex flex-col"}>
                             <Title level={5}>
@@ -208,6 +210,8 @@ export default function Cost() {
                                 className={"max-h-36 w-full"}
                                 getter={CostModel.description.use}
                                 onChange={(event) => CostModel.description.set(event.currentTarget.value)}
+                                showCount
+                                maxLength={300}
                             />
                         </span>
                         <CostSavingsSwitch />

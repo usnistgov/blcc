@@ -1,5 +1,6 @@
 import { bind } from "@react-rxjs/core";
 import type { CapitalCost } from "blcc-format/Format";
+import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { isCapital } from "model/Guards";
 import * as O from "optics-ts";
@@ -7,6 +8,7 @@ import { map } from "rxjs/operators";
 import { guard } from "util/Operators";
 import { calculateRealDecimal, calculateRealDiscountRate, toDecimal, toPercentage } from "util/Util";
 import { Var } from "util/var";
+import { z } from "zod";
 
 export namespace CapitalCostModel {
     const capitalCostOptic = O.optic<CapitalCost>().guard(isCapital);
@@ -19,7 +21,11 @@ export namespace CapitalCostModel {
     export const [useAnnualRateOfChange] = bind(annualRateOfChange.$.pipe(guard()), undefined);
 
     // Expected Lifetime
-    export const expectedLife = new Var(CostModel.cost, capitalCostOptic.prop("expectedLife"));
+    export const expectedLife = new Var(
+        CostModel.cost,
+        capitalCostOptic.prop("expectedLife"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
 
     // Cost Adjustment Factor
     export const costAdjustmentFactor = new Var(CostModel.cost, capitalCostOptic.prop("costAdjustment"));

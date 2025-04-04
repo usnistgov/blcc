@@ -58,6 +58,7 @@ export default function InvestmentCapitalCostFields() {
                     label={"Expected Lifetime"}
                     getter={CapitalCostModel.expectedLife.use}
                     onChange={CapitalCostModel.Actions.setExpectedLife}
+                    error={CapitalCostModel.expectedLife.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}

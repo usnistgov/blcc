@@ -53,7 +53,8 @@ function setZipcodeHandler<T extends object>(
     return (event) => {
         // Only allow 5-digit numbers or empty
         const value = event.currentTarget.value;
-        if (/^\d+$/.test(value) || value === "") model.zipcode.set(value);
+        if (/^\d+$/.test(value)) model.zipcode.set(value);
+        if (value === "") model.zipcode.set(undefined);
     };
 }
 
@@ -132,6 +133,8 @@ export default function Location<T extends object>({ model }: { model: LocationM
                 info={Strings.CITY}
                 type={TextInputType.PRIMARY}
                 getter={model.city.use}
+                maxLength={50}
+                showCount
                 onChange={(event) => model.city.set(event.currentTarget.value)}
             />
             <StateOrProvince model={model} />

@@ -4,15 +4,21 @@ import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
 import { isRecurringContractCost } from "model/Guards";
+import { Model } from "model/Model";
 import * as O from "optics-ts";
 import { Var } from "util/var";
+import { z } from "zod";
 
-namespace Model {
+namespace RecurringContractModel {
     const costOptic = O.optic<Cost>().guard(isRecurringContractCost);
 
     export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
 
-    export const initialOccurrence = new Var(CostModel.cost, costOptic.prop("initialOccurrence"));
+    export const initialOccurrence = new Var(
+        CostModel.cost,
+        costOptic.prop("initialOccurrence"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
 
     export namespace Actions {
         export function setInitialCost(change: number | null) {
@@ -27,6 +33,9 @@ namespace Model {
 
 export default function RecurringContractCostFields() {
     const isSavings = CostModel.costOrSavings.use();
+    const initialOccurenceWarning =
+        RecurringContractModel.initialOccurrence.use() >
+        (Model.studyPeriod.use() ?? 0) + Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -37,8 +46,8 @@ export default function RecurringContractCostFields() {
                     addonBefore={"$"}
                     label={isSavings ? "Initial Cost Savings" : "Initial Cost"}
                     subLabel={"(Base Year Dollars)"}
-                    getter={Model.initialCost.use}
-                    onChange={Model.Actions.setInitialCost}
+                    getter={RecurringContractModel.initialCost.use}
+                    onChange={RecurringContractModel.Actions.setInitialCost}
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -46,8 +55,10 @@ export default function RecurringContractCostFields() {
                     addonAfter={"years"}
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
-                    getter={Model.initialOccurrence.use}
-                    onChange={Model.Actions.setInitialOccurrence}
+                    getter={RecurringContractModel.initialOccurrence.use}
+                    onChange={RecurringContractModel.Actions.setInitialOccurrence}
+                    error={RecurringContractModel.initialOccurrence.useValidation}
+                    warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
                 <RateOfRecurrenceInput showLabel />
 

@@ -3,6 +3,7 @@ import { Defaults } from "blcc-format/Defaults";
 import { DollarMethod, EmissionsRateType, GhgDataSource, type Project } from "blcc-format/Format";
 import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
 import { Country, type State } from "constants/LOCATION";
+import { Strings } from "constants/Strings";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
@@ -120,7 +121,14 @@ export namespace Model {
         /**
          * The zipcode of the current project's location
          */
-        zipcode: new Var(DexieModelTest, locationOptic.guard(isUSLocation).prop("zipcode"), z.string().max(5)),
+        zipcode: new Var(
+            DexieModelTest,
+            locationOptic.guard(isUSLocation).prop("zipcode"),
+            z
+                .string()
+                .min(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR })
+                .max(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR }),
+        ),
     };
 
     /**
@@ -170,12 +178,20 @@ export namespace Model {
     /**
      * The study period of the current project.
      */
-    export const studyPeriod = new Var(DexieModelTest, O.optic<Project>().prop("studyPeriod"));
+    export const studyPeriod = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("studyPeriod"),
+        z.number().min(1, { message: "Must be at least 1" }).max(43, { message: "Must be less than 44" }),
+    );
 
     /**
      * The construction period of the current project
      */
-    export const constructionPeriod = new Var(DexieModelTest, O.optic<Project>().prop("constructionPeriod"));
+    export const constructionPeriod = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("constructionPeriod"),
+        z.number().min(0, { message: "Must be at least 0" }).max(3, "Must be less than 4"),
+    );
 
     /**
      * The purpose of the current project.
