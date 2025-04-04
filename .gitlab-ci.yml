@@ -106,9 +106,9 @@ docker-db-build:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - "database/docker-entrypoint-initdb.d/dump.pgdata"
-        - 'database/**/*'
+#      changes:
+#        - "database/docker-entrypoint-initdb.d/dump.pgdata"
+#        - 'database/**/*'
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
