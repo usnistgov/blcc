@@ -76,6 +76,7 @@ export default function Index() {
                                 onClick={() => navigate("/editor")}
                             />
                         </div>
+                        <p>Test</p>
                         <div className="flex w-full flex-col flex-wrap items-center bg-blue-200 px-16 py-8">
                             <Title className="flex-grow">Features</Title>
                             <div className="flex w-full flex-row flex-wrap justify-center">
