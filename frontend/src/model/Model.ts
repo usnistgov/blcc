@@ -1,11 +1,22 @@
 import { bind } from "@react-rxjs/core";
 import { Defaults } from "blcc-format/Defaults";
-import { DollarMethod, EmissionsRateType, GhgDataSource, type Project } from "blcc-format/Format";
+import {
+    Case,
+    DollarMethod,
+    EmissionsRateType,
+    GhgDataSource,
+    type USLocation,
+    type Project,
+    type EnergyCost,
+    FuelType,
+} from "blcc-format/Format";
+import type { ZipInfoResponse } from "blcc-format/schema";
 import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
 import { Country, type State } from "constants/LOCATION";
 import { Strings } from "constants/Strings";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
+import { ParseError } from "effect/ParseResult";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
@@ -22,8 +33,9 @@ import {
     switchMap,
 } from "rxjs";
 import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
-import { BlccApiService } from "services/BlccApiService";
+import { BlccApiService, FetchError } from "services/BlccApiService";
 import { guard } from "util/Operators";
+import { COAL_KG_CO2E_PER_MEGAJOULE, getConvertMap } from "util/UnitConversion";
 import { calculateNominalDiscountRate, calculateRealDiscountRate, findBaselineID } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { DexieModel, Var } from "util/var";
@@ -357,4 +369,146 @@ export namespace Model {
         sample(merge(analysisType.change$, releaseYear.change$, purpose.change$)),
         showUpdateGeneralOptionsModal(),
     );
+
+    const RATE_MAP = {
+        [EmissionsRateType.AVERAGE]: "avg",
+        [EmissionsRateType.LONG_RUN_MARGINAL]: "lrm",
+    };
+
+    type FetchEmissionsInput = {
+        from: number;
+        to: number;
+        releaseYear: number;
+        case: Case;
+        rate: string;
+        ba?: string;
+        reeds?: string;
+        technobasin?: string;
+        padd?: string;
+    };
+
+    type CommonType = {
+        from: number;
+        to: number;
+        releaseYear: number;
+        case: Case;
+        rate: string;
+    };
+
+    function getEmissionsForFuelType(
+        common: CommonType,
+        ghgDataSource: GhgDataSource,
+        studyPeriod: number,
+        cost: EnergyCost,
+        zipInfo: ZipInfoResponse,
+    ) {
+        return Effect.gen(function* () {
+            const apiService = yield* BlccApiService;
+            const dexieService = yield* DexieService;
+            const isUS = cost.location?.country === Country.USA;
+            switch (cost.fuelType) {
+                case FuelType.ELECTRICITY: {
+                    if (ghgDataSource === GhgDataSource.NIST_NETL) {
+                        return yield* apiService.fetchRegionCaseBa({
+                            ...common,
+                            ba: !isUS ? "US" : zipInfo.ba,
+                        });
+                    }
+                    return yield* apiService.fetchRegionCaseReeds({
+                        ...common,
+                        reeds: !isUS ? "US" : zipInfo.reedsBa,
+                    });
+                }
+                case FuelType.NATURAL_GAS: {
+                    return yield* apiService.fetchRegionCaseNatGas({
+                        ...common,
+                        technobasin: !isUS ? "US" : zipInfo.technobasin,
+                    });
+                }
+                case FuelType.DISTILLATE_OIL:
+                case FuelType.RESIDUAL_OIL: {
+                    const padd = !isUS ? "PADD 3" : zipInfo.padd;
+
+                    return yield* apiService.fetchRegionCaseOil({
+                        ...common,
+                        padd,
+                    });
+                }
+                case FuelType.PROPANE: {
+                    const padd = !isUS ? "PADD 3" : zipInfo.padd;
+                    return yield* apiService.fetchRegionCasePropaneLng({
+                        ...common,
+                        padd,
+                    });
+                }
+                case FuelType.COAL:
+                    return Array(studyPeriod + 1).fill(
+                        COAL_KG_CO2E_PER_MEGAJOULE *
+                            (getConvertMap(FuelType.COAL)[cost.unit]?.(cost.annualConsumption) ?? 1),
+                    );
+                default:
+                    return Array(studyPeriod + 1).fill(0);
+            }
+        });
+    }
+
+    combineLatest([
+        Model.releaseYear.$,
+        Model.studyPeriod.$,
+        Model.eiaCase.$,
+        Model.emissionsRateType.$,
+        Model.ghgDataSource.$,
+        Model.Location.zipcode.$,
+        Model.Location.country.$,
+    ])
+        .pipe(
+            map(([releaseYear, studyPeriod, eiaCase, emissionsRateType, ghgDataSource, zipcode, country]) =>
+                BlccRuntime.runPromise(
+                    Effect.gen(function* () {
+                        const dexieService = yield* DexieService;
+                        const apiService = yield* BlccApiService;
+                        const energyCosts = yield* dexieService.getEnergyCosts;
+                        const zipInfo: ZipInfoResponse = [
+                            ...(yield* apiService.fetchZipInfo(Number.parseInt(zipcode ?? "0"))),
+                        ][0];
+                        const common = {
+                            from: releaseYear,
+                            to: releaseYear + (studyPeriod ?? 0),
+                            releaseYear,
+                            case: eiaCase,
+                            rate: RATE_MAP[emissionsRateType],
+                        };
+
+                        const cache: { [key: string]: number[] } = {};
+
+                        for (const cost of energyCosts as EnergyCost[]) {
+                            if (
+                                cost.location?.country === Country.USA &&
+                                (cost.location as USLocation).zipcode !== zipcode
+                            ) {
+                                continue;
+                            }
+
+                            let emissions = cache[cost.fuelType.valueOf()];
+
+                            if (emissions === undefined) {
+                                emissions = [
+                                    ...(yield* getEmissionsForFuelType(
+                                        common,
+                                        ghgDataSource,
+                                        studyPeriod ?? 0,
+                                        cost,
+                                        zipInfo,
+                                    )),
+                                ];
+                                cache[cost.fuelType.valueOf()] = emissions;
+                            }
+
+                            yield* dexieService.modifyCost(cost.id ?? Defaults.INVALID_ID, { emissions });
+                        }
+                    }),
+                ),
+            ),
+        )
+        .subscribe();
 }
