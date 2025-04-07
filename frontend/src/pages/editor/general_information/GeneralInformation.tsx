@@ -34,7 +34,9 @@ function AnalysisPurpose() {
             info={Strings.ANALYSIS_PURPOSE}
             options={Object.values(Purpose)}
             getter={Model.purpose.use}
+            required
             onChange={(change) => Model.purpose.set(change)}
+            error={Model.purpose.useValidation}
         />
     );
 }
@@ -90,13 +92,14 @@ export default function GeneralInformation() {
                     {/* Analysis Type */}
                     <TestSelect
                         className={"w-full"}
-                        label={"Analysis Type*"}
+                        label={"Analysis Type"}
                         id={"analysisType"}
                         info={Strings.ANALYSIS_TYPE}
                         required
                         placeholder={"Please select an analysis type"}
                         options={Object.values(AnalysisType)}
                         getter={Model.analysisType.use}
+                        error={Model.analysisType.useValidation}
                         onChange={(change) => {
                             Model.analysisType.set(change);
 
@@ -149,7 +152,6 @@ export default function GeneralInformation() {
                             className={"w-full"}
                             label={"Data Release Year"}
                             info={Strings.DATA_RELEASE_YEAR}
-                            required
                             optionGetter={Model.useReleaseYearList}
                             getter={Model.releaseYear.use}
                             onChange={(releaseYear) => Model.releaseYear.set(releaseYear)}
@@ -185,7 +187,7 @@ export default function GeneralInformation() {
                             </Radio.Group>
                         </div>
                         <TestSelect
-                            label={"Discounting Convention*"}
+                            label={"Discounting Convention"}
                             required
                             className={"w-full"}
                             info={Strings.DISCOUNTING_CONVENTION}
@@ -193,6 +195,7 @@ export default function GeneralInformation() {
                             options={Object.values(DiscountingMethod)}
                             getter={Model.discountingMethod.use}
                             onChange={(change) => Model.discountingMethod.set(change)}
+                            error={Model.discountingMethod.useValidation}
                         />
                         <DiscountRates />
                     </div>

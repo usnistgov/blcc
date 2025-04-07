@@ -1,22 +1,19 @@
 import { mdiCheck, mdiContentSaveAlert, mdiWindowClose } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
-import { createSignal } from "@react-rxjs/utils";
 import { Tooltip } from "antd";
 import AppBar from "components/AppBar";
 import { liveQuery } from "dexie";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { useAlternativeIDs, useCostIDs, useIsDirty } from "model/Model";
+import { Model, useAlternativeIDs, useCostIDs, useIsDirty } from "model/Model";
+import { errorClick, errorClick$, errors$, ratesValidation$ } from "model/Validation";
 import { db } from "model/db";
 import { useNavigate } from "react-router-dom";
-import { from, map, sample } from "rxjs";
+import { from, map, sample, tap } from "rxjs";
 import { guard } from "util/Operators";
 
-// Signal for when an error message is click to navigate to error location
-const [errorClick$, errorClick] = createSignal();
-
 // The first error in the database to display to the user, or undefined if there are no errors
-const [useError, error$] = bind(from(liveQuery(() => db.errors.limit(1).first())), undefined);
+const [useFirstError, firstError$] = bind(errors$.pipe(map((arr) => (arr ? arr[0] : undefined))), undefined);
 
 // The number of errors after the first so we can display how many total errors there are
 const [useExtraErrorCount] = bind(
@@ -25,7 +22,7 @@ const [useExtraErrorCount] = bind(
 );
 
 // True if the project is valid, otherwise false
-const [isValid] = bind(error$.pipe(map((error) => error === undefined)), true);
+const [isValid] = bind(firstError$.pipe(map((error) => error === undefined)), true);
 
 /**
  * A bar that displays some overview statistics and status of the current project.
@@ -33,11 +30,11 @@ const [isValid] = bind(error$.pipe(map((error) => error === undefined)), true);
 export default function Statistics() {
     // Navigates to page with the currently displaying error
     const navigate = useNavigate();
-    useSubscribe(error$.pipe(sample(errorClick$), guard()), (error) => navigate(error.url), [navigate]);
+    useSubscribe(firstError$.pipe(sample(errorClick$), guard()), (error) => navigate(error.url), [navigate]);
 
     // Use hooks
     const valid = isValid();
-    const error = useError();
+    const error = useFirstError();
     const extraErrorCount = useExtraErrorCount();
     const isDirty = useIsDirty();
 
@@ -58,7 +55,7 @@ export default function Statistics() {
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div className={"mx-2 flex cursor-pointer flex-row gap-2"} onClick={errorClick}>
                 {/* The first error in the project */}
-                <p className={"select-none"}>{!valid && `${error?.id}: ${error?.messages[0]}`}</p>
+                <p className={"select-none"}>{!valid && `${error?.messages[0]}`}</p>
 
                 {/* The total number of errors minus the first in the entire project */}
                 {extraErrorCount > 0 && <p className={"select-none"}>Plus {extraErrorCount} more...</p>}

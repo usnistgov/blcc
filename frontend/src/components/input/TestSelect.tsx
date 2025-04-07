@@ -2,6 +2,8 @@ import { Select, type SelectProps } from "antd";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
 import type { Key, ReactNode } from "react";
+import Nbsp from "util/Nbsp";
+import { ZodError } from "zod";
 
 export function TestSelect<T extends Key>({
     optionGetter,
@@ -10,6 +12,7 @@ export function TestSelect<T extends Key>({
     showLabel = true,
     getter,
     info,
+    error,
     required,
     ...selectProps
 }: {
@@ -19,6 +22,7 @@ export function TestSelect<T extends Key>({
     showLabel?: boolean;
     required?: boolean;
     label?: ReactNode;
+    error?: () => ZodError | undefined;
     info?: ReactNode;
 } & Omit<SelectProps, "value" | "options">) {
     if (optionGetter === undefined && options === undefined)
@@ -26,14 +30,29 @@ export function TestSelect<T extends Key>({
 
     const fullOptions: T[] = (optionGetter ? optionGetter() : options) as T[];
 
+    const requiredElement = required && (
+        <>
+            <Nbsp />*
+        </>
+    );
+
+    const err = error?.();
+
     const select = (
-        <Select value={getter()} {...selectProps}>
-            {fullOptions.map((option) => (
-                <Select.Option key={option} value={option}>
-                    {option.toString()}
-                </Select.Option>
+        <>
+            <Select value={getter()} {...selectProps} status={err ? "error" : undefined}>
+                {fullOptions.map((option) => (
+                    <Select.Option key={option} value={option}>
+                        {option.toString()}
+                    </Select.Option>
+                ))}
+            </Select>
+            {err?.issues.map((error) => (
+                <p key={error.code} style={{ color: "red" }}>
+                    {error.message}
+                </p>
             ))}
-        </Select>
+        </>
     );
 
     return (
@@ -42,10 +61,16 @@ export function TestSelect<T extends Key>({
                 {showLabel &&
                     (info ? (
                         <Title level={5}>
-                            <Info text={info}>{label}</Info>
+                            <Info text={info}>
+                                {label}
+                                {requiredElement}
+                            </Info>
                         </Title>
                     ) : (
-                        <Title level={5}>{label}</Title>
+                        <Title level={5}>
+                            {label}
+                            {requiredElement}
+                        </Title>
                     ))}
                 {select}
             </div>

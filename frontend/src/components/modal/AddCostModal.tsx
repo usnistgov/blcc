@@ -93,7 +93,6 @@ namespace DefaultCosts {
 
     export const CAPITAL: Props<CapitalCost> = {
         type: CostTypes.CAPITAL,
-        expectedLife: 0,
     };
 
     export const ENERGY: (fuelType: FuelType) => Props<EnergyCost> = (fuelType: FuelType) => ({

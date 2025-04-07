@@ -28,7 +28,8 @@ export default function EnergyCostFields() {
                 />
                 <TestSelect
                     className={"w-full"}
-                    label={"Customer Sector*"}
+                    label={"Customer Sector"}
+                    required
                     info={Strings.CUSTOMER_SECTOR}
                     optionGetter={EnergyCostModel.sectorOptions}
                     getter={EnergyCostModel.customerSector.use}

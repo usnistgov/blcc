@@ -209,12 +209,12 @@ export namespace Model {
     /**
      * The purpose of the current project.
      */
-    export const purpose = new Var(DexieModelTest, O.optic<Project>().prop("purpose"));
+    export const purpose = new Var(DexieModelTest, O.optic<Project>().prop("purpose"), z.string());
 
     /**
      * The analysis type of the current project.
      */
-    export const analysisType = new Var(DexieModelTest, O.optic<Project>().prop("analysisType"));
+    export const analysisType = new Var(DexieModelTest, O.optic<Project>().prop("analysisType"), z.string());
 
     /**
      * The case of the project. Usually Reference or LowZTC
@@ -294,7 +294,7 @@ export namespace Model {
     /**
      * The discounting method of the current project
      */
-    export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"));
+    export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"), z.string());
 
     /**
      * The data source for the current project.
