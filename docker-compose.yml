@@ -1,8 +1,7 @@
 version: "3.9"
 services:
   server:
-    build: ./
-    image: docker.nist.gov:4567/eldst/blcc:latest
+    image: docker.nist.gov:4567/eldst/blcc/server:latest
     volumes:
       - ./certs:/etc/ssl/certs
     hostname: blcc
@@ -17,10 +16,8 @@ services:
       - postgres
 
   postgres:
-    image: postgres:16.2
+    image: docker.nist.gov:4567/eldst/blcc/db:latest
     hostname: postgres
-    volumes: 
-      - ./dump.pgdata:/etc/dump.pgdata
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
