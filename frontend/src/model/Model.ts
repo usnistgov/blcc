@@ -1,7 +1,8 @@
 import { bind } from "@react-rxjs/core";
+import { message } from "antd";
 import { Defaults } from "blcc-format/Defaults";
 import {
-    Case,
+    type Case,
     DollarMethod,
     EmissionsRateType,
     GhgDataSource,
@@ -228,17 +229,29 @@ export namespace Model {
     /**
      * Inflation rate of the current project
      */
-    export const inflationRate = new Var(DexieModelTest, O.optic<Project>().prop("inflationRate"));
+    export const inflationRate = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("inflationRate"),
+        z.number().min(-0.3, { message: "Must be at least -30%" }).max(0.3, { message: "Must be less than 30%" }),
+    );
 
     /**
      * Nominal Discount Rate of the current project
      */
-    export const nominalDiscountRate = new Var(DexieModelTest, O.optic<Project>().prop("nominalDiscountRate"));
+    export const nominalDiscountRate = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("nominalDiscountRate"),
+        z.number().min(-0.3, { message: "Must be at least -30%" }).max(0.3, { message: "Must be less than 30%" }),
+    );
 
     /**
      * Real discount rate of the current project
      */
-    export const realDiscountRate = new Var(DexieModelTest, O.optic<Project>().prop("realDiscountRate"));
+    export const realDiscountRate = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("realDiscountRate"),
+        z.number().min(-0.3, { message: "Must be at least -30%" }).max(0.3, { message: "Must be less than 30%" }),
+    );
 
     // Inflation rate subscription
     /*
@@ -504,7 +517,9 @@ export namespace Model {
                                 cache[cost.fuelType.valueOf()] = emissions;
                             }
 
-                            yield* dexieService.modifyCost(cost.id ?? Defaults.INVALID_ID, { emissions });
+                            yield* dexieService.modifyCost(cost.id ?? Defaults.INVALID_ID, {
+                                emissions,
+                            });
                         }
                     }),
                 ),
