@@ -35,6 +35,7 @@ export default function EnergyCostFields() {
                     getter={EnergyCostModel.customerSector.use}
                     onChange={EnergyCostModel.Actions.setCustomerSector}
                     showSearch
+                    error={EnergyCostModel.customerSector.useValidation}
                 />
 
                 <TestNumberInput

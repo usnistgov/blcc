@@ -6,6 +6,7 @@ import { Subject } from "rxjs";
 import { shareReplay, withLatestFrom } from "rxjs/operators";
 import { DexieOps, guard, toggle } from "util/Operators";
 import { DexieModel, Var } from "util/var";
+import { z } from "zod";
 
 export namespace CostModel {
     /**
@@ -33,7 +34,7 @@ export namespace CostModel {
     /**
      * The name of the current cost
      */
-    export const name = new Var(cost, O.optic<Cost>().prop("name"));
+    export const name = new Var(cost, O.optic<Cost>().prop("name"), z.string().min(1, { message: "Required" }));
 
     /**
      * The description of the current cost

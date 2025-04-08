@@ -38,6 +38,7 @@ export default function InvestmentCapitalCostFields() {
                     subLabel={"(Base Year Dollars)"}
                     getter={CapitalCostModel.initialCost.use}
                     onChange={CapitalCostModel.Actions.setInitialCost}
+                    error={CapitalCostModel.initialCost.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}

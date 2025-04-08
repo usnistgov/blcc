@@ -14,7 +14,7 @@ export namespace CapitalCostModel {
     const capitalCostOptic = O.optic<CapitalCost>().guard(isCapital);
 
     //Initial Cost
-    export const initialCost = new Var(CostModel.cost, capitalCostOptic.prop("initialCost"));
+    export const initialCost = new Var(CostModel.cost, capitalCostOptic.prop("initialCost"), z.number());
 
     // Annual Rate of Change
     export const annualRateOfChange = new Var(CostModel.cost, capitalCostOptic.prop("annualRateOfChange"));

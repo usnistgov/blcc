@@ -197,6 +197,7 @@ export default function Cost() {
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
                             showCount
                             maxLength={45}
+                            error={CostModel.name.useValidation}
                         />
                         <div className={"flex flex-col"}>
                             <Title level={5}>

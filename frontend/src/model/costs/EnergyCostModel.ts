@@ -157,7 +157,7 @@ export namespace EnergyCostModel {
     /**
      * Customer sector streams
      */
-    export const customerSector = new Var(CostModel.cost, energyCostOptic.prop("customerSector"));
+    export const customerSector = new Var(CostModel.cost, energyCostOptic.prop("customerSector"), z.string());
 
     /**
      * Fuel type streams
