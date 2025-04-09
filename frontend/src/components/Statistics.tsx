@@ -55,6 +55,7 @@ export function ErrorElements() {
 function ErrorMenu({ children }: PropsWithChildren) {
     // Navigates to page with the currently displaying error
     const errorHover = useErrorHover();
+    const valid = isValid();
 
     return (
         <div
@@ -62,13 +63,13 @@ function ErrorMenu({ children }: PropsWithChildren) {
             onMouseEnter={() => onErrorHover(true)}
             onMouseLeave={() => onErrorHover(false)}
         >
-            {/* The first error in the project */}
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-            <div
-                className={`absolute bottom-5 right-6 w-max rounded-md border border-base-light bg-off-white shadow-md p-5 ${errorHover ? "" : "hidden"}`}
-            >
-                <ErrorElements />
-            </div>
+            {!valid && (
+                <div
+                    className={`absolute bottom-5 right-6 w-max rounded-md border border-base-light bg-off-white shadow-md p-5 ${errorHover ? "" : "hidden"}`}
+                >
+                    <ErrorElements />
+                </div>
+            )}
             {children}
         </div>
     );
