@@ -137,25 +137,21 @@ namespace DefaultCosts {
 
     export const REPLACEMENT_CAPITAL: Props<ReplacementCapitalCost> = {
         type: CostTypes.REPLACEMENT_CAPITAL,
-        initialCost: 0,
         initialOccurrence: 1,
     };
 
     export const OMR: Props<OMRCost> = {
         type: CostTypes.OMR,
-        initialCost: 0,
         initialOccurrence: 1,
     };
 
     export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost> = {
         type: CostTypes.IMPLEMENTATION_CONTRACT,
         occurrence: 1,
-        cost: 0,
     };
 
     export const RECURRING_CONTRACT: Props<RecurringContractCost> = {
         type: CostTypes.RECURRING_CONTRACT,
-        initialCost: 0,
         initialOccurrence: 1,
         annualRateOfChange: 0,
         recurring: {

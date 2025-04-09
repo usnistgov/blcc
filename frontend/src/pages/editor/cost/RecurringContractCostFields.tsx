@@ -12,7 +12,7 @@ import { z } from "zod";
 namespace RecurringContractModel {
     const costOptic = O.optic<Cost>().guard(isRecurringContractCost);
 
-    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"), z.number());
 
     export const initialOccurrence = new Var(
         CostModel.cost,
@@ -48,6 +48,7 @@ export default function RecurringContractCostFields() {
                     subLabel={"(Base Year Dollars)"}
                     getter={RecurringContractModel.initialCost.use}
                     onChange={RecurringContractModel.Actions.setInitialCost}
+                    error={RecurringContractModel.initialCost.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}

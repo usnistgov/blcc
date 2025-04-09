@@ -82,7 +82,7 @@ export function removeCost([costID, projectID]: [number, number]) {
  */
 async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        const newCost = { ...cost, id: undefined, name: cloneName(cost.name) } as FormatCost;
+        const newCost = { ...cost, name: cloneName(cost.name) } as FormatCost;
 
         // Create new clone cost
         const newID = await db.costs.add(newCost);

@@ -19,7 +19,7 @@ namespace ImplementationContractModel {
         costOptic.prop("occurrence"),
         z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
     );
-    export const cost = new Var(CostModel.cost, costOptic.prop("cost"));
+    export const cost = new Var(CostModel.cost, costOptic.prop("cost"), z.number());
 
     export namespace Actions {
         export function setOccurrence(value: number | null) {
@@ -55,6 +55,7 @@ export default function ImplementationContractCostFields() {
                     getter={ImplementationContractModel.cost.use}
                     onChange={ImplementationContractModel.Actions.setCost}
                     info={Strings.INITIAL_COST_INFO}
+                    error={ImplementationContractModel.cost.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}

@@ -166,7 +166,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                     .real()
                     .invest()
                     .initialOccurrence(0)
-                    .life(cost.expectedLife)
+                    .life(cost.expectedLife ?? -1)
                     .addTag(tag, "LCC")
                     .quantity(cost.costSavings ? -1 : 1)
                     .quantityValue(adjusted * phaseIn),
@@ -182,7 +182,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 .real()
                 .invest()
                 .initialOccurrence(0)
-                .life(cost.expectedLife)
+                .life(cost.expectedLife ?? -1)
                 .addTag(tag, "LCC")
                 .quantity(cost.costSavings ? -1 : 1)
                 .quantityValue(cost.initialCost ?? 0),
@@ -434,14 +434,20 @@ function replacementCapitalCostToBuilder(
         .life(cost.expectedLife ?? 1)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .quantity(cost.costSavings ? -1 : 1)
-        .quantityValue(cost.initialCost);
+        .quantityValue(cost.initialCost ?? -1);
 
     applyRateOfChangeReplacement(builder, cost, project);
 
     if (cost.residualValue)
         return [
             builder,
-            residualValueBcn(cost, cost.initialCost, cost.residualValue, studyPeriod, cost.annualRateOfChange ?? 0),
+            residualValueBcn(
+                cost,
+                cost.initialCost ?? -1,
+                cost.residualValue,
+                studyPeriod,
+                cost.annualRateOfChange ?? 0,
+            ),
         ];
 
     return [builder];
@@ -455,7 +461,7 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
         .subType(BcnSubType.DIRECT)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .real()
-        .quantityValue(cost.initialCost)
+        .quantityValue(cost.initialCost ?? -1)
         .quantity(cost.costSavings ? -1 : 1);
 
     if (cost.recurring?.rateOfRecurrence && cost.recurring.rateOfRecurrence > 0) {
@@ -478,7 +484,7 @@ function implementationContractCostToBuilder(project: Project, cost: Implementat
         .real()
         .invest()
         .quantity(cost.costSavings ? -1 : 1)
-        .quantityValue(cost.cost)
+        .quantityValue(cost.cost ?? -1)
         .initialOccurrence(cost.occurrence + project.constructionPeriod);
     applyRateOfChangeNonRecurringContract(builder, cost, project);
     return [builder];
@@ -495,7 +501,7 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
         .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .quantity(cost.costSavings ? -1 : 1)
-        .quantityValue(cost.initialCost);
+        .quantityValue(cost.initialCost ?? -1);
     applyRateOfChange(builder, cost);
     return [builder];
 }

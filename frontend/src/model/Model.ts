@@ -10,6 +10,9 @@ import {
     type Project,
     type EnergyCost,
     FuelType,
+    CostTypes,
+    Cost,
+    CapitalCost,
 } from "blcc-format/Format";
 import type { ZipInfoResponse } from "blcc-format/schema";
 import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
@@ -17,7 +20,6 @@ import { Country, type State } from "constants/LOCATION";
 import { Strings } from "constants/Strings";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
-import { ParseError } from "effect/ParseResult";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
@@ -70,12 +72,47 @@ export const [useCostIDs] = bind(costIDs$, []);
 
 export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(Defaults.PROJECT_ID).first()));
 
-export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray()));
+export const allAlternatives$ = from(liveQuery(() => db.alternatives.toArray()));
+export const [useAllAlternatives] = bind(allAlternatives$, []);
 
-export const hashCosts$ = from(liveQuery(() => db.costs.toArray()));
+export const allCosts$ = from(liveQuery(() => db.costs.toArray()));
+export const [useAllCosts] = bind(allCosts$, []);
+
+const costsByAlternative$ = combineLatest([allCosts$, allAlternatives$]).pipe(
+    map(([costs, alternatives]) => {
+        return costs.map((cost) => {
+            const alternative = alternatives.find((alt) => alt.costs.includes(cost.id));
+            return { altId: alternative?.id, altName: alternative?.name, ...cost };
+        });
+    }),
+);
+
+export const energyCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.ENERGY)),
+);
+
+export const investmentCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.CAPITAL)),
+);
+
+export const replacementCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.REPLACEMENT_CAPITAL)),
+);
+
+export const omrCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.OMR)),
+);
+
+export const implementationContractCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.IMPLEMENTATION_CONTRACT)),
+);
+
+export const recurringContractCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.RECURRING_CONTRACT)),
+);
 
 // Creates a hash of the current project
-export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]).pipe(
+export const hash$ = combineLatest([hashProject$, allAlternatives$, allCosts$]).pipe(
     switchMap(() =>
         BlccRuntime.runPromise(
             Effect.gen(function* () {

@@ -14,7 +14,7 @@ import { z } from "zod";
 namespace ReplacementModel {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
 
-    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"), z.number());
     export const initialOccurrence = new Var(
         CostModel.cost,
         costOptic.prop("initialOccurrence"),
@@ -72,6 +72,7 @@ export default function ReplacementCapitalCostFields() {
                     subLabel={"(Base Year Dollars)"}
                     getter={ReplacementModel.initialCost.use}
                     onChange={ReplacementModel.Actions.setInitialCost}
+                    error={ReplacementModel.initialCost.useValidation}
                     info={Strings.INITIAL_COST_INFO}
                     tooltip={Strings.INITIAL_COST_TOOLTIP}
                 />

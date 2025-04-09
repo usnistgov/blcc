@@ -8,7 +8,7 @@ import { Model, sProject$ } from "model/Model";
 import { DexieService } from "model/db";
 import { useMatch, useNavigate } from "react-router-dom";
 import "dexie-export-import";
-import { Subscribe } from "@react-rxjs/core";
+import { bind, Subscribe } from "@react-rxjs/core";
 import { showMessage } from "components/modal/MessageModal";
 import SaveAsModal, { showSaveAsModal } from "components/modal/SaveAsModal";
 import SaveDiscardModal, { showSaveDiscard } from "components/modal/SaveDiscardModal";
@@ -18,6 +18,13 @@ import { resetToDefaultProject } from "effect/DefaultProject";
 import { EditorModel } from "model/EditorModel";
 import { ConverterService } from "services/ConverterService";
 import { BlccRuntime } from "util/runtime";
+import { isValid, isValid$ } from "model/Validation";
+import { Alert } from "antd";
+import { createSignal } from "@react-rxjs/utils";
+import { ErrorElements } from "./Statistics";
+
+const [invalidProjectErrorIsOpen$, openInvalidProjectError] = createSignal<boolean>();
+const [useInvalidProjectErrorIsOpen] = bind(invalidProjectErrorIsOpen$, false);
 
 /**
  * The app bar for the editor context.
@@ -25,6 +32,8 @@ import { BlccRuntime } from "util/runtime";
 export default function EditorAppBar() {
     const navigate = useNavigate();
     const isOnEditorPage = useMatch("/editor");
+    const projectIsValid = isValid();
+    const invalidProjectErrorIsOpen = useInvalidProjectErrorIsOpen();
 
     useSubscribe(
         EditorModel.newClick$.pipe(showSaveDiscard(showSaveAsModal())),
@@ -45,6 +54,12 @@ export default function EditorAppBar() {
         document.getElementById("open")?.click(),
     );
     useSubscribe(EditorModel.saveClick$.pipe(showSaveAsModal()));
+    useSubscribe(isValid$, (valid) => {
+        // automatically closes error window when errors are resolved
+        if (valid) {
+            openInvalidProjectError(false);
+        }
+    });
 
     return (
         <AppBar className={"z-50 bg-primary shadow-lg"}>
@@ -122,7 +137,7 @@ export default function EditorAppBar() {
                     Save
                 </Button>
             </ButtonBar>
-            <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
+            <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white relative"}>
                 <Subscribe>
                     <Name />
                 </Subscribe>
@@ -131,11 +146,27 @@ export default function EditorAppBar() {
                         type={ButtonType.PRIMARY_INVERTED}
                         icon={mdiArrowRight}
                         iconSide={"right"}
-                        onClick={() => navigate("/results")}
+                        onClick={() => {
+                            if (projectIsValid) {
+                                navigate("/results");
+                            } else {
+                                openInvalidProjectError(true);
+                            }
+                        }}
                     >
                         Reports and Analysis
                     </Button>
                 </div>
+                {invalidProjectErrorIsOpen && !projectIsValid && (
+                    <Alert
+                        message="Error: Please resolve all errors first."
+                        description={<ErrorElements />}
+                        type="error"
+                        closable
+                        className="absolute top-14 left-1/2 -ml-48 w-96 shadow"
+                        afterClose={() => openInvalidProjectError(false)}
+                    />
+                )}
             </div>
             <HelpButtons />
         </AppBar>

@@ -12,7 +12,7 @@ import { Model } from "model/Model";
 namespace OMRCostModel {
     const costOptic = O.optic<Cost>().guard(isOMRCost);
 
-    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"), z.number());
     export const initialOccurrence = new Var(
         CostModel.cost,
         costOptic.prop("initialOccurrence"),
@@ -51,6 +51,7 @@ export default function OMRCostFields() {
                     getter={OMRCostModel.initialCost.use}
                     onChange={OMRCostModel.Actions.setInitialCost}
                     info={Strings.INITIAL_COST_INFO}
+                    error={OMRCostModel.initialCost.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}
