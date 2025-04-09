@@ -152,6 +152,8 @@ export default function Alternatives() {
                             label={"Name"}
                             value$={AlternativeModel.name$}
                             wire={AlternativeModel.sName$}
+                            showCount
+                            maxLength={45}
                         />
                         <span className={"w-1/2"}>
                             <Title level={5}>
@@ -163,10 +165,12 @@ export default function Alternatives() {
 
                         <span className={"col-span-2"}>
                             <TextArea
-                                className={"max-h-36 w-full"}
+                                className={"mb-3 max-h-36 w-full"}
                                 label={"Description"}
                                 value$={AlternativeModel.description$}
                                 wire={AlternativeModel.sDescription$}
+                                showCount
+                                maxLength={300}
                             />
                         </span>
                     </div>

@@ -144,7 +144,13 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
         >
             <div>
                 <Typography.Title level={5}>Alternative Name</Typography.Title>
-                <TextInput type={TextInputType.PRIMARY} wire={sName$} status={!unique ? "error" : undefined} />
+                <TextInput
+                    type={TextInputType.PRIMARY}
+                    wire={sName$}
+                    showCount
+                    maxLength={45}
+                    status={!unique ? "error" : undefined}
+                />
                 {!unique && (
                     <p className={"text-error"}>
                         An alternative with that name already exists.

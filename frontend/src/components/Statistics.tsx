@@ -4,28 +4,76 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Tooltip } from "antd";
 import AppBar from "components/AppBar";
-import { liveQuery } from "dexie";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { useAlternativeIDs, useCostIDs, useIsDirty } from "model/Model";
-import { db } from "model/db";
+import { useAllAlternatives, useAllCosts, useIsDirty } from "model/Model";
+import { firstError$, isValid, useErrors, useFirstError } from "model/Validation";
+import type { PropsWithChildren, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { from, map, sample } from "rxjs";
+import { sample } from "rxjs";
 import { guard } from "util/Operators";
 
 // Signal for when an error message is click to navigate to error location
 const [errorClick$, errorClick] = createSignal();
 
-// The first error in the database to display to the user, or undefined if there are no errors
-const [useError, error$] = bind(from(liveQuery(() => db.errors.limit(1).first())), undefined);
+const [errorHover$, onErrorHover] = createSignal<boolean>();
+const [useErrorHover] = bind(errorHover$, false);
 
-// The number of errors after the first so we can display how many total errors there are
-const [useExtraErrorCount] = bind(
-    from(liveQuery(() => db.errors.count())).pipe(map((count) => (count - 1 < 0 ? 0 : count - 1))),
-    0,
-);
+export function ErrorElements() {
+    const navigate = useNavigate();
+    const allErrors = useErrors();
+    const valid = isValid();
 
-// True if the project is valid, otherwise false
-const [isValid] = bind(error$.pipe(map((error) => error === undefined)), true);
+    const errorElements = [];
+    for (const error of allErrors) {
+        if (error.context !== undefined && error.messages.length > 0) {
+            errorElements.push(
+                <div className="flex flex-row">
+                    <p className="font-bold text-base-darker pr-8">{error.context}</p>
+                </div>,
+            );
+        }
+        const messageElements = error.messages.map((message) => (
+            // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+            <div
+                key={`${JSON.stringify(error)}${message}`}
+                onClick={() => navigate(error.url)}
+                className="flex flex-row gap-x-4"
+            >
+                <p className="flex-[7] text-ink hover:text-base-dark pb-1 cursor-pointer">{message}</p>
+                <Icon
+                    className={`${valid ? "text-success" : "text-error "} flex-1 -mr-3`}
+                    path={mdiWindowClose}
+                    size={0.8}
+                />
+            </div>
+        ));
+        errorElements.push(messageElements);
+    }
+    return errorElements;
+}
+
+function ErrorMenu({ children }: PropsWithChildren) {
+    // Navigates to page with the currently displaying error
+    const errorHover = useErrorHover();
+    const valid = isValid();
+
+    return (
+        <div
+            className={"mx-2 flex cursor-pointer flex-row gap-2 relative"}
+            onMouseEnter={() => onErrorHover(true)}
+            onMouseLeave={() => onErrorHover(false)}
+        >
+            {!valid && (
+                <div
+                    className={`absolute bottom-5 right-6 w-max rounded-md border border-base-light bg-off-white shadow-md p-5 cursor-default ${errorHover ? "" : "hidden"}`}
+                >
+                    <ErrorElements />
+                </div>
+            )}
+            {children}
+        </div>
+    );
+}
 
 /**
  * A bar that displays some overview statistics and status of the current project.
@@ -33,13 +81,16 @@ const [isValid] = bind(error$.pipe(map((error) => error === undefined)), true);
 export default function Statistics() {
     // Navigates to page with the currently displaying error
     const navigate = useNavigate();
-    useSubscribe(error$.pipe(sample(errorClick$), guard()), (error) => navigate(error.url), [navigate]);
+    useSubscribe(firstError$.pipe(sample(errorClick$), guard()), (error) => navigate(error.url), [navigate]);
 
     // Use hooks
     const valid = isValid();
-    const error = useError();
-    const extraErrorCount = useExtraErrorCount();
+    const firstError = useFirstError();
     const isDirty = useIsDirty();
+    const alternativesQuantity = useAllAlternatives().length;
+    const costs = useAllCosts();
+    const costsQuantity = costs.length;
+    const allErrors = useErrors();
 
     return (
         <AppBar
@@ -48,20 +99,18 @@ export default function Statistics() {
         >
             {/* Some general statistics about the project */}
             <div className={"flex flex-row divide-x divide-base-light"}>
-                <p className={"px-4"}>{`Alternatives ${useAlternativeIDs().length}`}</p>
-                <p className={"px-4"}>{`Costs ${useCostIDs().length}`}</p>
+                <p className={"px-4"}>{`Alternatives ${alternativesQuantity}`}</p>
+                <p className={"px-4"}>{`Costs ${costsQuantity}`}</p>
             </div>
 
             {/*
              * Displays whether the current project can be run by E3 or not.
              */}
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-            <div className={"mx-2 flex cursor-pointer flex-row gap-2"} onClick={errorClick}>
-                {/* The first error in the project */}
-                <p className={"select-none"}>{!valid && `${error?.id}: ${error?.messages[0]}`}</p>
-
-                {/* The total number of errors minus the first in the entire project */}
-                {extraErrorCount > 0 && <p className={"select-none"}>Plus {extraErrorCount} more...</p>}
+            <ErrorMenu>
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+                <p className={"select-none"} onClick={errorClick}>
+                    {!valid && `${firstError?.messages[0]}`}
+                </p>
 
                 {/* An icon denoting whether the project is valid or invalid */}
                 <Tooltip title={valid ? "Project is valid" : "Project is invalid"} placement={"topRight"}>
@@ -77,7 +126,7 @@ export default function Statistics() {
                         <Icon className={"text-base"} path={mdiContentSaveAlert} size={0.8} />
                     </Tooltip>
                 )}
-            </div>
+            </ErrorMenu>
         </AppBar>
     );
 }

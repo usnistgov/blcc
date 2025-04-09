@@ -11,6 +11,7 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import type { OptionType } from "components/SelectOrCreate";
+import { Strings } from "constants/Strings";
 import { liveQuery } from "dexie";
 import { CostModel } from "model/CostModel";
 import { isOtherCost, isOtherMonetary } from "model/Guards";
@@ -19,6 +20,7 @@ import * as O from "optics-ts";
 import { type Observable, from } from "rxjs";
 import { map } from "rxjs/operators";
 import { Var } from "util/var";
+import { z } from "zod";
 
 export namespace OtherCostModel {
     const otherOptic = O.optic<Cost>().guard(isOtherCost);
@@ -55,7 +57,11 @@ export namespace OtherCostModel {
     /**
      * The initial occurrence for the current other cost
      */
-    export const initialOccurrence = new Var(CostModel.cost, otherOptic.prop("initialOccurrence"));
+    export const initialOccurrence = new Var(
+        CostModel.cost,
+        otherOptic.prop("initialOccurrence"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
 
     const defaultUnits = [
         ...Object.values(EnergyUnit),

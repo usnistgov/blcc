@@ -6,12 +6,15 @@ import SelectOrCreate from "components/SelectOrCreate";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
+import { Model } from "model/Model";
 import { OtherCostModel } from "model/costs/OtherCostModel";
 
 export default function OtherCostFields() {
     const allTags = OtherCostModel.useAllTags();
     const isSavings = CostModel.costOrSavings.use();
     const unit = OtherCostModel.unit.use();
+    const initialOccurenceWarning =
+        OtherCostModel.initialOccurrence.use() > (Model.studyPeriod.use() ?? 0) + Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -37,6 +40,8 @@ export default function OtherCostFields() {
                     addonAfter={"years"}
                     getter={OtherCostModel.initialOccurrence.use}
                     onChange={OtherCostModel.Actions.setInitialOccurrence}
+                    error={OtherCostModel.initialOccurrence.useValidation}
+                    warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
                 <TestNumberInput
                     className={"w-full"}

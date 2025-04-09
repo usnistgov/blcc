@@ -6,12 +6,18 @@ import * as O from "optics-ts";
 import { isOMRCost } from "model/Guards";
 import { Var } from "util/var";
 import { TestNumberInput } from "components/input/TestNumberInput";
+import { z } from "zod";
+import { Model } from "model/Model";
 
 namespace OMRCostModel {
     const costOptic = O.optic<Cost>().guard(isOMRCost);
 
-    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
-    export const initialOccurrence = new Var(CostModel.cost, costOptic.prop("initialOccurrence"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"), z.number());
+    export const initialOccurrence = new Var(
+        CostModel.cost,
+        costOptic.prop("initialOccurrence"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
 
     export namespace Actions {
         export function setInitialCost(value: number | null) {
@@ -29,6 +35,8 @@ namespace OMRCostModel {
  */
 export default function OMRCostFields() {
     const isSavings = CostModel.costOrSavings.use();
+    const initialOccurenceWarning =
+        OMRCostModel.initialOccurrence.use() > (Model.studyPeriod.use() ?? 0) + Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -43,6 +51,7 @@ export default function OMRCostFields() {
                     getter={OMRCostModel.initialCost.use}
                     onChange={OMRCostModel.Actions.setInitialCost}
                     info={Strings.INITIAL_COST_INFO}
+                    error={OMRCostModel.initialCost.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -53,6 +62,8 @@ export default function OMRCostFields() {
                     getter={OMRCostModel.initialOccurrence.use}
                     onChange={OMRCostModel.Actions.setInitialOccurrence}
                     info={Strings.INITIAL_OCCURRENCE_AFTER_SERVICE}
+                    error={OMRCostModel.initialOccurrence.useValidation}
+                    warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
             </div>
             <Recurring showUnit={false} />

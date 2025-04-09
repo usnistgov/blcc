@@ -6,24 +6,26 @@ import { isReplacementCapitalCost } from "model/Guards";
 import * as O from "optics-ts";
 import { Var } from "util/var";
 import { Strings } from "../../../constants/Strings";
-import {
-    calculateNominalDiscountRate,
-    calculateNominalPercentage,
-    calculateRealDecimal,
-    calculateRealDiscountRate,
-    toDecimal,
-    toPercentage,
-} from "util/Util";
+import { calculateNominalPercentage, calculateRealDecimal } from "util/Util";
 import { Model } from "model/Model";
 import { Defaults } from "blcc-format/Defaults";
+import { z } from "zod";
 
 namespace ReplacementModel {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
 
-    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"));
-    export const initialOccurrence = new Var(CostModel.cost, costOptic.prop("initialOccurrence"));
+    export const initialCost = new Var(CostModel.cost, costOptic.prop("initialCost"), z.number());
+    export const initialOccurrence = new Var(
+        CostModel.cost,
+        costOptic.prop("initialOccurrence"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
     export const annualRateOfChange = new Var(CostModel.cost, costOptic.prop("annualRateOfChange"));
-    export const expectedLife = new Var(CostModel.cost, costOptic.prop("expectedLife"));
+    export const expectedLife = new Var(
+        CostModel.cost,
+        costOptic.prop("expectedLife"),
+        z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
+    );
 
     export namespace Actions {
         export function setInitialCost(change: number | null) {
@@ -56,6 +58,8 @@ export default function ReplacementCapitalCostFields() {
     const inflation = Model.inflationRate.use();
     const annualRateOfChange = ReplacementModel.annualRateOfChange.use();
     const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
+    const initialOccurenceWarning =
+        ReplacementModel.initialOccurrence.use() > (Model.studyPeriod.use() ?? 0) + Model.constructionPeriod.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -68,6 +72,7 @@ export default function ReplacementCapitalCostFields() {
                     subLabel={"(Base Year Dollars)"}
                     getter={ReplacementModel.initialCost.use}
                     onChange={ReplacementModel.Actions.setInitialCost}
+                    error={ReplacementModel.initialCost.useValidation}
                     info={Strings.INITIAL_COST_INFO}
                     tooltip={Strings.INITIAL_COST_TOOLTIP}
                 />
@@ -80,6 +85,8 @@ export default function ReplacementCapitalCostFields() {
                     getter={ReplacementModel.initialOccurrence.use}
                     onChange={ReplacementModel.Actions.setInitialOccurrence}
                     info={Strings.INITIAL_OCCURRENCE_AFTER_SERVICE}
+                    error={ReplacementModel.initialOccurrence.useValidation}
+                    warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -111,6 +118,7 @@ export default function ReplacementCapitalCostFields() {
                     onChange={ReplacementModel.Actions.setExpectedLife}
                     info={Strings.EXPECTED_LIFETIME_INFO}
                     tooltip={Strings.EXPECTED_LIFETIME_TOOLTIP}
+                    error={ReplacementModel.expectedLife.useValidation}
                 />
             </div>
 

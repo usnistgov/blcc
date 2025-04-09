@@ -1,7 +1,8 @@
 import { bind } from "@react-rxjs/core";
+import { message } from "antd";
 import { Defaults } from "blcc-format/Defaults";
 import {
-    Case,
+    type Case,
     DollarMethod,
     EmissionsRateType,
     GhgDataSource,
@@ -9,13 +10,16 @@ import {
     type Project,
     type EnergyCost,
     FuelType,
+    CostTypes,
+    Cost,
+    CapitalCost,
 } from "blcc-format/Format";
 import type { ZipInfoResponse } from "blcc-format/schema";
 import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
 import { Country, type State } from "constants/LOCATION";
+import { Strings } from "constants/Strings";
 import { type Collection, liveQuery } from "dexie";
 import { Effect } from "effect";
-import { ParseError } from "effect/ParseResult";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
@@ -68,12 +72,47 @@ export const [useCostIDs] = bind(costIDs$, []);
 
 export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(Defaults.PROJECT_ID).first()));
 
-export const hashAlternatives$ = from(liveQuery(() => db.alternatives.toArray()));
+export const allAlternatives$ = from(liveQuery(() => db.alternatives.toArray()));
+export const [useAllAlternatives] = bind(allAlternatives$, []);
 
-export const hashCosts$ = from(liveQuery(() => db.costs.toArray()));
+export const allCosts$ = from(liveQuery(() => db.costs.toArray()));
+export const [useAllCosts] = bind(allCosts$, []);
+
+const costsByAlternative$ = combineLatest([allCosts$, allAlternatives$]).pipe(
+    map(([costs, alternatives]) => {
+        return costs.map((cost) => {
+            const alternative = alternatives.find((alt) => alt.costs.includes(cost.id));
+            return { altId: alternative?.id, altName: alternative?.name, ...cost };
+        });
+    }),
+);
+
+export const energyCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.ENERGY)),
+);
+
+export const investmentCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.CAPITAL)),
+);
+
+export const replacementCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.REPLACEMENT_CAPITAL)),
+);
+
+export const omrCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.OMR)),
+);
+
+export const implementationContractCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.IMPLEMENTATION_CONTRACT)),
+);
+
+export const recurringContractCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.RECURRING_CONTRACT)),
+);
 
 // Creates a hash of the current project
-export const hash$ = combineLatest([hashProject$, hashAlternatives$, hashCosts$]).pipe(
+export const hash$ = combineLatest([hashProject$, allAlternatives$, allCosts$]).pipe(
     switchMap(() =>
         BlccRuntime.runPromise(
             Effect.gen(function* () {
@@ -132,7 +171,14 @@ export namespace Model {
         /**
          * The zipcode of the current project's location
          */
-        zipcode: new Var(DexieModelTest, locationOptic.guard(isUSLocation).prop("zipcode"), z.string().max(5)),
+        zipcode: new Var(
+            DexieModelTest,
+            locationOptic.guard(isUSLocation).prop("zipcode"),
+            z
+                .string()
+                .min(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR })
+                .max(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR }),
+        ),
     };
 
     /**
@@ -182,22 +228,30 @@ export namespace Model {
     /**
      * The study period of the current project.
      */
-    export const studyPeriod = new Var(DexieModelTest, O.optic<Project>().prop("studyPeriod"));
+    export const studyPeriod = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("studyPeriod"),
+        z.number().min(1, { message: "Must be at least 1" }).max(43, { message: "Must be less than 44" }),
+    );
 
     /**
      * The construction period of the current project
      */
-    export const constructionPeriod = new Var(DexieModelTest, O.optic<Project>().prop("constructionPeriod"));
+    export const constructionPeriod = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("constructionPeriod"),
+        z.number().min(0, { message: "Must be at least 0" }).max(3, "Must be less than 4"),
+    );
 
     /**
      * The purpose of the current project.
      */
-    export const purpose = new Var(DexieModelTest, O.optic<Project>().prop("purpose"));
+    export const purpose = new Var(DexieModelTest, O.optic<Project>().prop("purpose"), z.string());
 
     /**
      * The analysis type of the current project.
      */
-    export const analysisType = new Var(DexieModelTest, O.optic<Project>().prop("analysisType"));
+    export const analysisType = new Var(DexieModelTest, O.optic<Project>().prop("analysisType"), z.string());
 
     /**
      * The case of the project. Usually Reference or LowZTC
@@ -212,17 +266,29 @@ export namespace Model {
     /**
      * Inflation rate of the current project
      */
-    export const inflationRate = new Var(DexieModelTest, O.optic<Project>().prop("inflationRate"));
+    export const inflationRate = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("inflationRate"),
+        z.number().min(-0.3, { message: "Must be at least -30%" }).max(0.3, { message: "Must be less than 30%" }),
+    );
 
     /**
      * Nominal Discount Rate of the current project
      */
-    export const nominalDiscountRate = new Var(DexieModelTest, O.optic<Project>().prop("nominalDiscountRate"));
+    export const nominalDiscountRate = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("nominalDiscountRate"),
+        z.number().min(-0.3, { message: "Must be at least -30%" }).max(0.3, { message: "Must be less than 30%" }),
+    );
 
     /**
      * Real discount rate of the current project
      */
-    export const realDiscountRate = new Var(DexieModelTest, O.optic<Project>().prop("realDiscountRate"));
+    export const realDiscountRate = new Var(
+        DexieModelTest,
+        O.optic<Project>().prop("realDiscountRate"),
+        z.number().min(-0.3, { message: "Must be at least -30%" }).max(0.3, { message: "Must be less than 30%" }),
+    );
 
     // Inflation rate subscription
     /*
@@ -265,7 +331,7 @@ export namespace Model {
     /**
      * The discounting method of the current project
      */
-    export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"));
+    export const discountingMethod = new Var(DexieModelTest, O.optic<Project>().prop("discountingMethod"), z.string());
 
     /**
      * The data source for the current project.
@@ -488,7 +554,9 @@ export namespace Model {
                                 cache[cost.fuelType.valueOf()] = emissions;
                             }
 
-                            yield* dexieService.modifyCost(cost.id ?? Defaults.INVALID_ID, { emissions });
+                            yield* dexieService.modifyCost(cost.id ?? Defaults.INVALID_ID, {
+                                emissions,
+                            });
                         }
                     }),
                 ),

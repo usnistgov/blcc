@@ -34,7 +34,9 @@ function AnalysisPurpose() {
             info={Strings.ANALYSIS_PURPOSE}
             options={Object.values(Purpose)}
             getter={Model.purpose.use}
+            required
             onChange={(change) => Model.purpose.set(change)}
+            error={Model.purpose.useValidation}
         />
     );
 }
@@ -68,7 +70,7 @@ export default function GeneralInformation() {
                             Model.name.set(change === "" ? undefined : change);
                         }}
                         showCount
-                        maxLength={50}
+                        maxLength={45}
                         error={Model.name.useValidation}
                     />
 
@@ -83,20 +85,21 @@ export default function GeneralInformation() {
                             Model.analyst.set(change === "" ? undefined : change);
                         }}
                         showCount
-                        maxLength={50}
+                        maxLength={30}
                         error={Model.analyst.useValidation}
                     />
 
                     {/* Analysis Type */}
                     <TestSelect
                         className={"w-full"}
-                        label={"Analysis Type*"}
+                        label={"Analysis Type"}
                         id={"analysisType"}
                         info={Strings.ANALYSIS_TYPE}
                         required
                         placeholder={"Please select an analysis type"}
                         options={Object.values(AnalysisType)}
                         getter={Model.analysisType.use}
+                        error={Model.analysisType.useValidation}
                         onChange={(change) => {
                             Model.analysisType.set(change);
 
@@ -108,13 +111,15 @@ export default function GeneralInformation() {
                     <AnalysisPurpose />
 
                     {/* Description */}
-                    <span className={"col-span-2"}>
+                    <span className={"col-span-2 mb-3"}>
                         <TestTextArea
                             name={"description"}
                             label={"Description"}
                             className={"w-full"}
                             info={Strings.DESCRIPTION}
                             getter={Model.description.use}
+                            showCount
+                            maxLength={300}
                             onChange={(event) => Model.description.set(event.currentTarget.value)}
                         />
                     </span>
@@ -125,8 +130,12 @@ export default function GeneralInformation() {
                             label={"Study Period"}
                             name={"studyPeriod"}
                             required
+                            min={1}
+                            error={Model.studyPeriod.useValidation}
                             info={Strings.STUDY_PERIOD}
-                            onChange={(event) => Model.studyPeriod.set(event ?? 0)}
+                            onChange={(event) => {
+                                Model.studyPeriod.set(event ?? undefined);
+                            }}
                         />
                         <TestNumberInput
                             className={"w-full"}
@@ -134,6 +143,8 @@ export default function GeneralInformation() {
                             getter={Model.constructionPeriod.use}
                             label={"Construction Period"}
                             name={"constructionPeriod"}
+                            min={0}
+                            error={Model.constructionPeriod.useValidation}
                             info={Strings.CONSTRUCTION_PERIOD}
                             onChange={(event) => Model.constructionPeriod.set(event ?? 0)}
                         />
@@ -141,7 +152,6 @@ export default function GeneralInformation() {
                             className={"w-full"}
                             label={"Data Release Year"}
                             info={Strings.DATA_RELEASE_YEAR}
-                            required
                             optionGetter={Model.useReleaseYearList}
                             getter={Model.releaseYear.use}
                             onChange={(releaseYear) => Model.releaseYear.set(releaseYear)}
@@ -177,7 +187,7 @@ export default function GeneralInformation() {
                             </Radio.Group>
                         </div>
                         <TestSelect
-                            label={"Discounting Convention*"}
+                            label={"Discounting Convention"}
                             required
                             className={"w-full"}
                             info={Strings.DISCOUNTING_CONVENTION}
@@ -185,6 +195,7 @@ export default function GeneralInformation() {
                             options={Object.values(DiscountingMethod)}
                             getter={Model.discountingMethod.use}
                             onChange={(change) => Model.discountingMethod.set(change)}
+                            error={Model.discountingMethod.useValidation}
                         />
                         <DiscountRates />
                     </div>

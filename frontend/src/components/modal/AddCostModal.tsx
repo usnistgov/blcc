@@ -93,7 +93,6 @@ namespace DefaultCosts {
 
     export const CAPITAL: Props<CapitalCost> = {
         type: CostTypes.CAPITAL,
-        expectedLife: 0,
     };
 
     export const ENERGY: (fuelType: FuelType) => Props<EnergyCost> = (fuelType: FuelType) => ({
@@ -138,26 +137,22 @@ namespace DefaultCosts {
 
     export const REPLACEMENT_CAPITAL: Props<ReplacementCapitalCost> = {
         type: CostTypes.REPLACEMENT_CAPITAL,
-        initialCost: 0,
-        initialOccurrence: 0,
+        initialOccurrence: 1,
     };
 
     export const OMR: Props<OMRCost> = {
         type: CostTypes.OMR,
-        initialCost: 0,
-        initialOccurrence: 0,
+        initialOccurrence: 1,
     };
 
     export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost> = {
         type: CostTypes.IMPLEMENTATION_CONTRACT,
-        occurrence: 0,
-        cost: 0,
+        occurrence: 1,
     };
 
     export const RECURRING_CONTRACT: Props<RecurringContractCost> = {
         type: CostTypes.RECURRING_CONTRACT,
-        initialCost: 0,
-        initialOccurrence: 0,
+        initialOccurrence: 1,
         annualRateOfChange: 0,
         recurring: {
             rateOfRecurrence: 0,
@@ -169,7 +164,7 @@ namespace DefaultCosts {
         type: CostTypes.OTHER,
         tags: ["Other"], // This cost is hidden from the user and can't be removed
         costOrBenefit: CostBenefit.COST,
-        initialOccurrence: 0,
+        initialOccurrence: 1,
         valuePerUnit: 0,
         numberOfUnits: 0,
         recurring: {
@@ -180,7 +175,7 @@ namespace DefaultCosts {
 
     export const OTHER_NON_MONETARY: Props<OtherNonMonetary> = {
         type: CostTypes.OTHER_NON_MONETARY,
-        initialOccurrence: 0,
+        initialOccurrence: 1,
         numberOfUnits: 0,
     };
 }
@@ -330,7 +325,7 @@ export default function AddCostModal({ open$ }: AddCostModalProps) {
         >
             <div>
                 <Typography.Title level={5}>Name</Typography.Title>
-                <TextInput type={TextInputType.PRIMARY} wire={sName$} />
+                <TextInput type={TextInputType.PRIMARY} wire={sName$} showCount maxLength={45} />
             </div>
             <br />
             <div className="w-full">

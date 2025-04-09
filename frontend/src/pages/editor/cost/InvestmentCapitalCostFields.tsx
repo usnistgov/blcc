@@ -38,6 +38,7 @@ export default function InvestmentCapitalCostFields() {
                     subLabel={"(Base Year Dollars)"}
                     getter={CapitalCostModel.initialCost.use}
                     onChange={CapitalCostModel.Actions.setInitialCost}
+                    error={CapitalCostModel.initialCost.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -58,6 +59,7 @@ export default function InvestmentCapitalCostFields() {
                     label={"Expected Lifetime"}
                     getter={CapitalCostModel.expectedLife.use}
                     onChange={CapitalCostModel.Actions.setExpectedLife}
+                    error={CapitalCostModel.expectedLife.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}

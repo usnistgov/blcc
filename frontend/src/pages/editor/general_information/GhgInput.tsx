@@ -13,7 +13,6 @@ export default function GhgInput() {
             </Divider>
             <TestSelect
                 label={"Data Source"}
-                required
                 className={"w-full"}
                 options={[GhgDataSource.NIST_NETL]} //Object.values(GhgDataSource)
                 getter={Model.ghgDataSource.use}
@@ -27,7 +26,6 @@ export default function GhgInput() {
             />
             <TestSelect
                 label={"Emissions Rate Type"}
-                required
                 className={"w-full"}
                 optionGetter={Model.useEmissionsRateOptions}
                 getter={Model.emissionsRateType.use}

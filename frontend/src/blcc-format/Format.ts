@@ -113,7 +113,7 @@ export type Cost =
     | OtherNonMonetary;
 
 export type BaseCost = {
-    id?: ID;
+    id: ID;
     name: string;
     description?: string;
     location?: Location;
@@ -130,7 +130,7 @@ export type CapitalCost = Type<CostTypes.CAPITAL> &
         initialCost?: number;
         amountFinanced?: number;
         annualRateOfChange?: number;
-        expectedLife: number;
+        expectedLife?: number;
         costAdjustment?: number;
         phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
     };
@@ -238,14 +238,14 @@ export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
     BaseCost &
     ResidualValueCost & {
         initialOccurrence: number;
-        initialCost: number;
+        initialCost?: number;
         annualRateOfChange?: number;
         expectedLife?: number;
     };
 
 export type OMRCost = Type<CostTypes.OMR> &
     BaseCost & {
-        initialCost: number;
+        initialCost?: number;
         initialOccurrence: number;
         recurring?: Recurring;
     };
@@ -253,7 +253,7 @@ export type OMRCost = Type<CostTypes.OMR> &
 export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT> &
     BaseCost & {
         occurrence: number;
-        cost: number;
+        cost?: number;
         valueRateOfChange?: number;
     };
 
@@ -265,7 +265,7 @@ export type Recurring = {
 
 export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> &
     BaseCost & {
-        initialCost: number;
+        initialCost?: number;
         initialOccurrence: number;
         annualRateOfChange: number;
         recurring?: Recurring;
