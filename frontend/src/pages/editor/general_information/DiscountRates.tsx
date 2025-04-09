@@ -20,27 +20,31 @@ function Label({ label, info }: { label: string; info: ReactNode }): ReactNode {
 function Field({
     getter,
     error,
+    warning,
     disabled,
     ...defaultProps
-}: { getter: () => number; error: () => ZodError | undefined; disabled: boolean } & Omit<
-    InputNumberProps<number>,
-    "value"
->): ReactNode {
+}: {
+    getter: () => number;
+    error: () => ZodError | undefined;
+    warning?: string;
+    disabled: boolean;
+} & Omit<InputNumberProps<number>, "value">): ReactNode {
     const err = error?.();
+    const value = getter();
     return (
         <div className="flex flex-col">
             <InputNumber
-                value={getter()}
+                value={value}
                 disabled={disabled}
                 {...defaultProps}
-                status={!disabled && err ? "error" : undefined}
+                status={!disabled && err ? "error" : warning ? "warning" : undefined}
             />
-            {!disabled &&
+            {(!disabled &&
                 err?.issues.map((error) => (
                     <p key={error.code} style={{ color: "red" }}>
                         {error.message}
                     </p>
-                ))}
+                ))) || <p style={{ color: "#faad14" }}>{warning}</p>}
         </div>
     );
 }
@@ -59,6 +63,13 @@ export default function DiscountRates() {
     const nominalDiscountRate = rateGetter(nominalDiscountRateRef);
     const realDiscountRate = rateGetter(realDiscountRateRef);
 
+    const showMagnitudeWarning = (value: number | undefined) =>
+        value !== undefined
+            ? value < 0.1 && value > -0.1 && value !== 0
+                ? "Smaller than expected"
+                : undefined
+            : undefined;
+
     return (
         <div className={"col-span-2 grid grid-rows-2 gap-x-4 gap-y-4"}>
             {/* Labels */}
@@ -76,7 +87,8 @@ export default function DiscountRates() {
                     addonAfter={"%"}
                     controls={false}
                     placeholder=""
-                    onChange={(value) => Model.inflationRate.set(value ? toDecimal(value) : undefined)}
+                    onChange={(value) => Model.inflationRate.set(value !== null ? toDecimal(value) : undefined)}
+                    warning={showMagnitudeWarning(inflationRate)}
                     error={Model.inflationRate.useValidation}
                 />
                 <Field
@@ -86,7 +98,8 @@ export default function DiscountRates() {
                     addonAfter={"%"}
                     controls={false}
                     placeholder=""
-                    onChange={(value) => Model.nominalDiscountRate.set(value ? toDecimal(value) : undefined)}
+                    onChange={(value) => Model.nominalDiscountRate.set(value !== null ? toDecimal(value) : undefined)}
+                    warning={showMagnitudeWarning(nominalDiscountRate)}
                     error={Model.nominalDiscountRate.useValidation}
                 />
                 <Field
@@ -96,7 +109,8 @@ export default function DiscountRates() {
                     addonAfter={"%"}
                     controls={false}
                     placeholder=""
-                    onChange={(value) => Model.realDiscountRate.set(value ? toDecimal(value) : undefined)}
+                    onChange={(value) => Model.realDiscountRate.set(value !== null ? toDecimal(value) : undefined)}
+                    warning={showMagnitudeWarning(realDiscountRate)}
                     error={Model.realDiscountRate.useValidation}
                 />
             </div>
