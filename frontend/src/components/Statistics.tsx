@@ -39,7 +39,7 @@ export function ErrorElements() {
                 onClick={() => navigate(error.url)}
                 className="flex flex-row gap-x-4"
             >
-                <p className="flex-[7] text-ink hover:text-base-dark pb-1">{message}</p>
+                <p className="flex-[7] text-ink hover:text-base-dark pb-1 cursor-pointer">{message}</p>
                 <Icon
                     className={`${valid ? "text-success" : "text-error "} flex-1 -mr-3`}
                     path={mdiWindowClose}
@@ -65,7 +65,7 @@ function ErrorMenu({ children }: PropsWithChildren) {
         >
             {!valid && (
                 <div
-                    className={`absolute bottom-5 right-6 w-max rounded-md border border-base-light bg-off-white shadow-md p-5 ${errorHover ? "" : "hidden"}`}
+                    className={`absolute bottom-5 right-6 w-max rounded-md border border-base-light bg-off-white shadow-md p-5 cursor-default ${errorHover ? "" : "hidden"}`}
                 >
                     <ErrorElements />
                 </div>
@@ -106,7 +106,6 @@ export default function Statistics() {
             {/*
              * Displays whether the current project can be run by E3 or not.
              */}
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <ErrorMenu>
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <p className={"select-none"} onClick={errorClick}>
