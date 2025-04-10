@@ -492,10 +492,7 @@ export namespace Model {
                     });
                 }
                 case FuelType.COAL:
-                    return Array(studyPeriod + 1).fill(
-                        COAL_KG_CO2E_PER_MEGAJOULE *
-                            (getConvertMap(FuelType.COAL)[cost.unit]?.(cost.annualConsumption) ?? 1),
-                    );
+                    return Array(studyPeriod + 1).fill(COAL_KG_CO2E_PER_MEGAJOULE);
                 default:
                     return Array(studyPeriod + 1).fill(0);
             }

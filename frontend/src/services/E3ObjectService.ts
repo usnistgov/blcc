@@ -324,7 +324,7 @@ function energyCostToBuilder(
     if (cost.customerSector) builder.addTag(cost.customerSector);
 
     // Emissions
-    // Convert cost value to correct emissions unit. Usually MWh, but can also be MJ for coal.
+    // Convert cost value to correct emissions unit. Usually MJ, but can also be MWh for electricity.
     const convertedUnit = getConvertMap(cost.fuelType)[cost.unit]?.(cost.annualConsumption);
 
     // If unit conversion failed or we have no emissions data, return
