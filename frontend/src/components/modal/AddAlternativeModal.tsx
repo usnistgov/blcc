@@ -15,6 +15,7 @@ import {
     Subject,
     combineLatest,
     distinctUntilChanged,
+    fromEvent,
     merge,
     sample,
     switchMap,
@@ -116,6 +117,12 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
     useSubscribe(modalCancel$, cancel$);
     // Navigate to newly created alternative
     useSubscribe(newAlternativeID$, (newID) => navigate(`/editor/alternative/${newID}`), [navigate]);
+
+    useSubscribe(fromEvent(window, "keydown"), (event) => {
+        if ((event as KeyboardEvent).code === "Enter") {
+            addClick$.next();
+        }
+    });
 
     const unique = isUnique();
 
