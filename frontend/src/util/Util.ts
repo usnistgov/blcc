@@ -207,3 +207,9 @@ export function calculateRealDecimal(val: number, inflation: number, isDollarMet
     }
     return toDecimal(val);
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function omit(obj: { [x: string]: any }, keyToOmit: string) {
+    const { [keyToOmit]: omitted, ...rest } = obj;
+    return rest;
+}

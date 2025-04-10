@@ -34,7 +34,7 @@ import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostField
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
-import { cloneName } from "util/Util";
+import { cloneName, omit } from "util/Util";
 import sToggleAlt$ = CostModel.sToggleAlt$;
 import cost = CostModel.cost;
 
@@ -82,7 +82,8 @@ export function removeCost([costID, projectID]: [number, number]) {
  */
 async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        const newCost = { ...cost, name: cloneName(cost.name) } as FormatCost;
+        // Omitting the id is necessary so it doesn't try to create an object with duplicate id
+        const newCost = { ...omit(cost, "id"), name: cloneName(cost.name) } as FormatCost;
 
         // Create new clone cost
         const newID = await db.costs.add(newCost);
@@ -195,9 +196,6 @@ export default function Cost() {
                             label={"Name*"}
                             getter={CostModel.name.use}
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
-                            showCount
-                            maxLength={45}
-                            error={CostModel.name.useValidation}
                         />
                         <div className={"flex flex-col"}>
                             <Title level={5}>
@@ -211,8 +209,6 @@ export default function Cost() {
                                 className={"max-h-36 w-full"}
                                 getter={CostModel.description.use}
                                 onChange={(event) => CostModel.description.set(event.currentTarget.value)}
-                                showCount
-                                maxLength={300}
                             />
                         </span>
                         <CostSavingsSwitch />
