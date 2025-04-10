@@ -6,46 +6,50 @@ type ConvertFunction = (value: number) => number;
 type ConvertMap = { [key in Unit]?: ConvertFunction };
 
 export const getConvertMap = (fuelType: FuelType): ConvertMap => {
-    const energyConversions = {
-        [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("MWh"),
-        [EnergyUnit.THERM]: thermToMWh,
-        [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("MWh"),
-        [EnergyUnit.MJ]: (mj: number) => convert(mj, "megajoules").to("MWh"),
-        [EnergyUnit.MBTU]: mbtuToMWh,
+    const energyConversionsMj = {
+        [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("megajoules"),
+        [EnergyUnit.THERM]: (therm: number) => convert(thermToMWh(therm), "MWh").to("megajoules"),
+        [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("megajoules"),
+        [EnergyUnit.MJ]: (mj: number) => mj,
+        [EnergyUnit.MBTU]: (mbtu: number) => convert(mbtuToMWh(mbtu), "MWh").to("megajoules"),
     };
 
     switch (fuelType) {
         case FuelType.ELECTRICITY:
-            return energyConversions;
+            return {
+                [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("MWh"),
+                [EnergyUnit.THERM]: thermToMWh,
+                [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("MWh"),
+                [EnergyUnit.MJ]: (mj: number) => convert(mj, "megajoules").to("MWh"),
+                [EnergyUnit.MBTU]: mbtuToMWh,
+            };
         case FuelType.NATURAL_GAS:
             return {
-                ...energyConversions,
-                [CubicUnit.CUBIC_METERS]: naturalGasCubicMetersToMWh,
-                [CubicUnit.CUBIC_FEET]: naturalGasCubicFeetToMWh,
+                ...energyConversionsMj,
+                [CubicUnit.CUBIC_METERS]: naturalGasCubicMetersToMJ,
+                [CubicUnit.CUBIC_FEET]: naturalGasCubicFeetToMJ,
             };
         case FuelType.PROPANE:
             return {
-                ...energyConversions,
-                [LiquidUnit.LITER]: propaneLitersToMwh,
-                [LiquidUnit.K_LITER]: propaneKiloliterToMwh,
-                [LiquidUnit.GALLON]: propaneGallonToMWh,
-                [LiquidUnit.K_GALLON]: propaneThousandGallonToMWh,
-                [CubicUnit.CUBIC_FEET]: propaneCubicFeetToMWh,
-                [CubicUnit.CUBIC_METERS]: propaneCubicMetersToMWh,
+                ...energyConversionsMj,
+                [LiquidUnit.LITER]: propaneLitersToMJ,
+                [LiquidUnit.K_LITER]: propaneKiloliterToMJ,
+                [LiquidUnit.GALLON]: propaneGallonToMJ,
+                [LiquidUnit.K_GALLON]: propaneThousandGallonToMJ,
+                [CubicUnit.CUBIC_FEET]: propaneCubicFeetToMJ,
+                [CubicUnit.CUBIC_METERS]: propaneCubicMetersToMJ,
             };
         case FuelType.DISTILLATE_OIL:
         case FuelType.RESIDUAL_OIL:
             return {
-                ...energyConversions,
+                ...energyConversionsMj,
+                [LiquidUnit.LITER]: propaneLitersToMJ,
+                [LiquidUnit.K_LITER]: propaneKiloliterToMJ,
+                [LiquidUnit.GALLON]: propaneGallonToMJ,
+                [LiquidUnit.K_GALLON]: propaneThousandGallonToMJ,
             };
         case FuelType.COAL:
-            return {
-                [EnergyUnit.KWH]: (kWh: number) => convert(kWh, "kWh").to("megajoules"),
-                [EnergyUnit.THERM]: (therm: number) => convert(thermToMWh(therm), "MWh").to("megajoules"),
-                [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("megajoules"),
-                [EnergyUnit.MJ]: (mj: number) => mj,
-                [EnergyUnit.MBTU]: (mbtu: number) => convert(mbtuToMWh(mbtu), "MWh").to("megajoules"),
-            };
+            return energyConversionsMj;
         default:
             return {};
     }
@@ -58,8 +62,8 @@ export const getConvertMapgJ = (fuelType: FuelType): ConvertMap => {
         [EnergyUnit.GJ]: (gj: number) => convert(gj, "gigajoules").to("gigajoules"),
         [EnergyUnit.MJ]: (mj: number) => convert(mj, "megajoules").to("gigajoules"),
         [EnergyUnit.MBTU]: mbtuToGJ,
-    }
-}
+    };
+};
 
 const PROPANE = 9.63e7; // J/gallon
 const NATURAL_GAS = 1.09e6; // J/ft^3
@@ -82,36 +86,40 @@ function mbtuToMWh(mbtu: number) {
     return mbtu / 3412000;
 }
 
-function naturalGasCubicMetersToMWh(cubicMeters: number) {
-    return naturalGasCubicFeetToMWh(convert(cubicMeters, "cubic meters").to("cubic feet"));
+function naturalGasCubicMetersToMJ(cubicMeters: number) {
+    return naturalGasCubicFeetToMJ(convert(cubicMeters, "cubic meters").to("cubic feet"));
 }
 
-function naturalGasCubicFeetToMWh(cubicFeet: number) {
-    return convert(cubicFeet * NATURAL_GAS, "joules").to("mWh");
+function naturalGasCubicFeetToMJ(cubicFeet: number) {
+    // Approximate 1 cubic foot * natural gas constant as one 1 joule
+    return Decimal.div(cubicFeet * NATURAL_GAS, 1000).toNumber();
 }
 
-function propaneLitersToMwh(liter: number) {
-    return propaneGallonToMWh(convert(liter, "liters").to("gallons"));
+function propaneLitersToMJ(liter: number) {
+    return propaneGallonToMJ(convert(liter, "liters").to("gallons"));
 }
 
-function propaneKiloliterToMwh(kiloliter: number) {
-    return propaneLitersToMwh(kiloliter * 1000);
+function propaneKiloliterToMJ(kiloliter: number) {
+    return propaneLitersToMJ(kiloliter * 1000);
 }
 
-function propaneGallonToMWh(gallon: number) {
-    return convert(gallon * PROPANE, "joules").to("MWh");
+function propaneGallonToMJ(gallon: number) {
+    // Approximate 1 gallon * propane constant as 1 joule
+    return Decimal.div(gallon * PROPANE, 1000).toNumber();
 }
 
-function propaneThousandGallonToMWh(gallon: number) {
-    return propaneGallonToMWh(gallon * 1000);
+function propaneThousandGallonToMJ(gallon: number) {
+    return propaneGallonToMJ(gallon * 1000);
 }
 
-function propaneCubicMetersToMWh(cubicMeters: number) {
-    return convert(convert(cubicMeters, "cubic meters").to("gallons") * PROPANE, "joules").to("MWh");
+function propaneCubicMetersToMJ(cubicMeters: number) {
+    const joules = convert(cubicMeters, "cubic meters").to("gallons") * PROPANE;
+    return Decimal.div(joules, 1000).toNumber();
 }
 
-function propaneCubicFeetToMWh(cubicFeet: number) {
-    return convert(convert(cubicFeet, "cubic feet").to("gallons") * PROPANE, "joules").to("MWh");
+function propaneCubicFeetToMJ(cubicFeet: number) {
+    const joules = convert(cubicFeet, "cubic feet").to("gallons") * PROPANE;
+    return Decimal.div(joules, 1000).toNumber();
 }
 
 function thermToGJ(therm: number) {

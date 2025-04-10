@@ -1,5 +1,5 @@
 import { Divider, Switch } from "antd";
-import { EnergyUnit, FuelType, type Unit } from "blcc-format/Format";
+import { CubicUnit, EnergyUnit, FuelType, LiquidUnit, WeightUnit, type Unit } from "blcc-format/Format";
 import Info from "components/Info";
 import Location from "components/Location";
 import { Dropdown } from "components/input/Dropdown";
@@ -11,8 +11,25 @@ import { EnergyCostModel } from "model/costs/EnergyCostModel";
 import EnergyEscalationRates from "pages/editor/cost/energycostfields/EnergyEscalationRates";
 import UsageIndex from "pages/editor/cost/energycostfields/UsageIndex";
 
+function getUnits(fuelType: FuelType) {
+    switch (fuelType) {
+        case FuelType.ELECTRICITY:
+            return Object.values(EnergyUnit);
+        case FuelType.NATURAL_GAS:
+            return [...Object.values(EnergyUnit), ...Object.values(CubicUnit)];
+        case FuelType.DISTILLATE_OIL:
+        case FuelType.RESIDUAL_OIL:
+            return [...Object.values(EnergyUnit), ...Object.values(LiquidUnit)];
+        case FuelType.PROPANE:
+            return [...Object.values(EnergyUnit), ...Object.values(CubicUnit), ...Object.values(LiquidUnit)];
+        case FuelType.COAL:
+            return [...Object.values(EnergyUnit), ...Object.values(WeightUnit)];
+    }
+}
+
 export default function EnergyCostFields() {
     const isSavings = CostModel.costOrSavings.use();
+    const fuelType = EnergyCostModel.fuelType.use();
 
     return (
         <div className={"max-w-screen-lg p-6"}>
@@ -45,9 +62,10 @@ export default function EnergyCostFields() {
                         <Dropdown
                             className={"min-w-[75px]"}
                             placeholder={EnergyUnit.KWH}
-                            options={Object.values(EnergyUnit) as Unit[]}
+                            options={getUnits(fuelType) as Unit[]}
                             value$={EnergyCostModel.unit$}
                             wire={EnergyCostModel.sUnitChange$}
+                            style={{ width: 125 }}
                         />
                     }
                     controls
