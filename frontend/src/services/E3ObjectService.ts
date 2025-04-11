@@ -343,7 +343,6 @@ function energyCostToBuilder(
                 .real()
                 .type(BcnType.NON_MONETARY)
                 .initialOccurrence(initial)
-                .recur(recurrence(cost, VarRate.YEAR_BY_YEAR))
                 .quantity(1)
                 .quantityValue(1)
                 .quantityVarRate(VarRate.YEAR_BY_YEAR)
