@@ -388,7 +388,7 @@ export const downloadE3Request = (builder: RequestBuilder) =>
         );
     });
 
-export const downloadDebugInfo = (builder: RequestBuilder) =>
+export const downloadDebugInfo = (builder?: RequestBuilder) =>
     Effect.gen(function* () {
         const db = yield* DexieService;
         const project = yield* db.getProject();
@@ -400,12 +400,14 @@ export const downloadDebugInfo = (builder: RequestBuilder) =>
         const escapedProjectName = project.name?.replaceAll("/", "-") ?? "My Project";
 
         // Add E3 Request
-        zipGen.file(
-            `${escapedProjectName}-E3.json`,
-            new Blob([JSON.stringify(builder.build(), null, 2)], {
-                type: "application/json",
-            }),
-        );
+        if (builder !== undefined) {
+            zipGen.file(
+                `${escapedProjectName}-E3.json`,
+                new Blob([JSON.stringify(builder.build(), null, 2)], {
+                    type: "application/json",
+                }),
+            );
+        }
 
         // Add BLCC file
         yield* db.hashCurrent.pipe(Effect.andThen(db.setHash));
