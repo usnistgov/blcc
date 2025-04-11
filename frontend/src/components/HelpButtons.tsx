@@ -6,15 +6,15 @@ import { Strings } from "constants/Strings";
 
 export default function HelpButtons() {
     const navigate = useNavigate();
-    
+
     return (
         <ButtonBar className={"p-2"}>
-            <Link to={"/docs/Placeholder.pdf"} target="_blank">
+            <Link to={"/docs/BLCCUserGuide.pdf"} target="_blank">
                 <Button type={ButtonType.PRIMARY} icon={mdiFileDocument} tooltip={Strings.USER_GUIDE}>
                     User Guide
                 </Button>
             </Link>
-            <Link to={"/docs/Placeholder.pdf"} target="_blank">
+            <Link to={"/docs/BLCCUserGuide.pdf"} target="_blank">
                 <Button icon={mdiHelp} tooltip={Strings.FAQ}>
                     FAQ
                 </Button>

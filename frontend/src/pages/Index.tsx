@@ -44,7 +44,7 @@ export default function Index() {
                             icon={mdiLink}
                             className="py-2"
                             onClick={() => {
-                                window.location.href = "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5185-3.pdf";
+                                window.location.href = "/docs/BLCCUserGuide.pdf";
                             }}
                         >
                             Technical Manual
