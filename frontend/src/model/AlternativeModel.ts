@@ -114,7 +114,17 @@ export namespace AlternativeModel {
         );
 
         function removeAlternative([alternativeID, projectID]: [number, number]) {
-            return db.transaction("rw", db.alternatives, db.projects, async () => {
+            return db.transaction("rw", db.alternatives, db.projects, db.costs, async () => {
+                // Remove costs only associated with this alternative
+                for (const costID of (await db.alternatives.where("id").equals(alternativeID).toArray()).flatMap(
+                    (alt) => alt.costs,
+                )) {
+                    // Delete if it belongs to only one alternative
+                    if ((await db.alternatives.toArray()).filter((alt) => alt.costs.includes(costID)).length <= 1) {
+                        db.costs.where("id").equals(costID).delete();
+                    }
+                }
+
                 // Remove alternative
                 db.alternatives.where("id").equals(alternativeID).delete();
 
@@ -128,8 +138,6 @@ export namespace AlternativeModel {
                             project.alternatives.splice(index, 1);
                         }
                     });
-
-                //TODO remove costs only associated with this alternative?
             });
         }
 
