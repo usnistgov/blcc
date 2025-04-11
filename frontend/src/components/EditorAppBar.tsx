@@ -1,4 +1,4 @@
-import { mdiArrowRight, mdiContentSave, mdiFileDocumentPlus, mdiFolder } from "@mdi/js";
+import { mdiArrowRight, mdiCommentAlertOutline, mdiContentSave, mdiFileDocumentPlus, mdiFolder } from "@mdi/js";
 import AppBar from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
@@ -22,6 +22,7 @@ import { isValid, isValid$ } from "model/Validation";
 import { Alert } from "antd";
 import { createSignal } from "@react-rxjs/utils";
 import { ErrorElements } from "./Statistics";
+import { downloadDebugInfo } from "blcc-format/DownloadFile";
 
 const [invalidProjectErrorIsOpen$, openInvalidProjectError] = createSignal<boolean>();
 const [useInvalidProjectErrorIsOpen] = bind(invalidProjectErrorIsOpen$, false);
@@ -135,6 +136,19 @@ export default function EditorAppBar() {
                     tooltip={Strings.SAVE}
                 >
                     Save
+                </Button>
+                <Button
+                    type={ButtonType.PRIMARY}
+                    icon={mdiCommentAlertOutline}
+                    onClick={() => {
+                        BlccRuntime.runPromise(
+                            Effect.gen(function* () {
+                                yield* downloadDebugInfo();
+                            }),
+                        );
+                    }}
+                >
+                    Debug
                 </Button>
             </ButtonBar>
             <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white relative"}>
