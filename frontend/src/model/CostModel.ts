@@ -2,11 +2,16 @@ import { shareLatest } from "@react-rxjs/core";
 import type { Cost, ID } from "blcc-format/Format";
 import { db } from "model/db";
 import * as O from "optics-ts";
-import { Subject } from "rxjs";
-import { shareReplay, withLatestFrom } from "rxjs/operators";
+import { combineLatest, iif, of, Subject } from "rxjs";
+import { sample, shareReplay, switchMap, withLatestFrom } from "rxjs/operators";
 import { DexieOps, guard, toggle } from "util/Operators";
 import { DexieModel, Var } from "util/var";
 import { z } from "zod";
+import { confirm } from "util/Operators";
+import { CostTypes, type Cost as FormatCost } from "blcc-format/Format";
+import { AlternativeModel } from "./AlternativeModel";
+import { currentProject$ } from "./Model";
+import { cloneName, omit } from "util/Util";
 
 export namespace CostModel {
     /**
@@ -54,6 +59,86 @@ export namespace CostModel {
     export namespace Actions {
         export function load(id: ID) {
             sId$.next(id);
+        }
+
+        export const cloneClick$ = new Subject<void>();
+
+        export const clone$ = combineLatest([cost.$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
+
+        export function deleteCurrent() {
+            sRemoveCost$.next(undefined);
+        }
+
+        export function deleteByID(id: ID) {
+            sRemoveCost$.next(id);
+        }
+
+        const sRemoveCost$ = new Subject<ID | undefined>();
+        export const removeCost$ = sRemoveCost$.pipe(
+            confirm("Delete Cost?", "This action cannot be undone", { okText: "Delete", okType: "danger" }),
+            switchMap((value) => iif(() => value === undefined, CostModel.id.$, of(value as number))),
+            withLatestFrom(currentProject$),
+            switchMap(removeCost),
+        );
+
+        function removeCost([costID, projectID]: [number, number]) {
+            return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
+                // Delete cost
+                db.costs.where("id").equals(costID).delete();
+
+                // Remove cost from all associated alternatives
+                db.alternatives
+                    .filter((alternative) => alternative.costs.includes(costID))
+                    .modify((alternative) => {
+                        const index = alternative.costs.indexOf(costID);
+                        if (index > -1) {
+                            alternative.costs.splice(index, 1);
+                        }
+                    });
+
+                // Remove cost from project
+                db.projects
+                    .where("id")
+                    .equals(projectID)
+                    .modify((project) => {
+                        const index = project.costs.indexOf(costID);
+                        if (index > -1) {
+                            project.costs.splice(index, 1);
+                        }
+                    });
+            });
+        }
+
+        /**
+         * Clones the current cost, gives it a new name, and adds it to the database.
+         * @param cost The cost to clone.
+         * @param projectID The ID of the project to add the new cloned cost to.
+         */
+        async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
+            return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
+                // Omitting the id is necessary so it doesn't try to create an object with duplicate id
+                const newCost = { ...omit(cost, "id"), name: cloneName(cost.name) } as FormatCost;
+
+                // Create new clone cost
+                const newID = await db.costs.add(newCost);
+
+                // Add to current project
+                db.projects
+                    .where("id")
+                    .equals(projectID)
+                    .modify((project) => {
+                        project.costs.push(newID);
+                    });
+
+                // Add to necessary alternatives
+                db.alternatives
+                    .filter((alternative) => alternative.costs.includes(cost.id ?? 0))
+                    .modify((alternative) => {
+                        alternative.costs.push(newID);
+                    });
+
+                return newID;
+            });
         }
     }
 }
