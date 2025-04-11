@@ -3,8 +3,8 @@ import Icon from "@mdi/react";
 import type { Cost, CostTypes, FuelType } from "blcc-format/Format";
 import { useNavigate } from "react-router-dom";
 import type { Subject } from "rxjs";
-import { removeCost } from "pages/editor/Cost";
 import { Defaults } from "blcc-format/Defaults";
+import { CostModel } from "model/CostModel";
 
 type CategoryTableProps = {
     name: string;
@@ -59,8 +59,8 @@ export function SubcategoryTable({ name, costs, sAddCostModal$ }: CategoryTableP
                             </div>
 
                             <div
-                                onClick={() => removeCost([item.id ?? Defaults.INVALID_ID, Defaults.PROJECT_ID])}
-                                onKeyUp={() => removeCost([item.id ?? Defaults.INVALID_ID, Defaults.PROJECT_ID])}
+                                onClick={() => CostModel.Actions.deleteByID(item.id ?? Defaults.INVALID_ID)}
+                                onKeyUp={() => CostModel.Actions.deleteByID(item.id ?? Defaults.INVALID_ID)}
                             >
                                 <Icon
                                     className={

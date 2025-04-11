@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
+import { CostModel } from "model/CostModel";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
 import CategoryTable, { type Subcategories } from "pages/editor/alternative/CategoryTable";
 import { useMemo } from "react";
@@ -102,6 +103,7 @@ export default function Alternatives() {
 
     // Listen for regular baseline change or baseline change confirmation
     useSubscribe(merge(confirmBaselineChange$, baselineChangeNoConfirm$), AlternativeModel.sBaseline$);
+    useSubscribe(CostModel.Actions.removeCost$);
 
     const categories = [
         {

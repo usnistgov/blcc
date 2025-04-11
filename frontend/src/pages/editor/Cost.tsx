@@ -41,71 +41,6 @@ import cost = CostModel.cost;
 const { Title } = Typography;
 
 const openCostModal$ = new Subject<void>();
-const cloneClick$ = new Subject<void>();
-const removeClick$ = new Subject<void>();
-
-const remove$ = combineLatest([CostModel.id$, currentProject$]).pipe(sample(removeClick$), switchMap(removeCost));
-const clone$ = combineLatest([cost.$, currentProject$]).pipe(sample(cloneClick$), switchMap(cloneCost));
-
-export function removeCost([costID, projectID]: [number, number]) {
-    return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        // Delete cost
-        db.costs.where("id").equals(costID).delete();
-
-        // Remove cost from all associated alternatives
-        db.alternatives
-            .filter((alternative) => alternative.costs.includes(costID))
-            .modify((alternative) => {
-                const index = alternative.costs.indexOf(costID);
-                if (index > -1) {
-                    alternative.costs.splice(index, 1);
-                }
-            });
-
-        // Remove cost from project
-        db.projects
-            .where("id")
-            .equals(projectID)
-            .modify((project) => {
-                const index = project.costs.indexOf(costID);
-                if (index > -1) {
-                    project.costs.splice(index, 1);
-                }
-            });
-    });
-}
-
-/**
- * Clones the current cost, gives it a new name, and adds it to the database.
- * @param cost The cost to clone.
- * @param projectID The ID of the project to add the new cloned cost to.
- */
-async function cloneCost([cost, projectID]: [FormatCost, ID]): Promise<ID> {
-    return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        // Omitting the id is necessary so it doesn't try to create an object with duplicate id
-        const newCost = { ...omit(cost, "id"), name: cloneName(cost.name) } as FormatCost;
-
-        // Create new clone cost
-        const newID = await db.costs.add(newCost);
-
-        // Add to current project
-        db.projects
-            .where("id")
-            .equals(projectID)
-            .modify((project) => {
-                project.costs.push(newID);
-            });
-
-        // Add to necessary alternatives
-        db.alternatives
-            .filter((alternative) => alternative.costs.includes(cost.id ?? 0))
-            .modify((alternative) => {
-                alternative.costs.push(newID);
-            });
-
-        return newID;
-    });
-}
 
 export default function Cost() {
     useParamSync();
@@ -132,8 +67,14 @@ export default function Cost() {
 
     /*useDbUpdate(costSavingsChange$, costCollection$, "costSavings");*/
     //useDbUpdate(description$.pipe(defaultValue(undefined)), costCollection$, "description");
-    useSubscribe(remove$, () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }), [alternativeID]);
-    useSubscribe(clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [alternativeID]);
+    useSubscribe(
+        CostModel.Actions.removeCost$,
+        () => navigate(`/editor/alternative/${alternativeID}`, { replace: true }),
+        [alternativeID],
+    );
+    useSubscribe(CostModel.Actions.clone$, (id) => navigate(`/editor/alternative/${alternativeID}/cost/${id}`), [
+        alternativeID,
+    ]);
     //useSubscribe(combineLatest([costID$, toggleAlt$]), toggleAlternativeCost);
 
     const costType = CostModel.type.use();
@@ -171,7 +112,7 @@ export default function Cost() {
                         <Button
                             type={ButtonType.LINK}
                             icon={mdiContentCopy}
-                            onClick={() => cloneClick$.next()}
+                            onClick={() => CostModel.Actions.cloneClick$.next()}
                             tooltip={Strings.CLONE}
                         >
                             Clone
@@ -179,7 +120,7 @@ export default function Cost() {
                         <Button
                             type={ButtonType.LINKERROR}
                             icon={mdiMinus}
-                            onClick={() => removeClick$.next()}
+                            onClick={() => CostModel.Actions.deleteCurrent()}
                             tooltip={Strings.DELETE}
                         >
                             Remove
