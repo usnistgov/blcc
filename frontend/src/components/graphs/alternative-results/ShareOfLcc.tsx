@@ -1,5 +1,6 @@
 import type { Measures } from "@lrd/e3-sdk";
 import { type Chart, bb } from "billboard.js";
+import { Strings } from "constants/Strings";
 import { useLayoutEffect, useState } from "react";
 
 export const GRAPH_ID = "share-of-lcc-chart";
@@ -14,9 +15,11 @@ export default function ShareOfLcc({ measure, offscreen = false }: ShareOfLccGra
     const graphId = offscreen ? `${OFFSCREEN_GRAPH_ID_TEMPLATE}-${measure?.altId}` : GRAPH_ID;
 
     const [chart, setChart] = useState<Chart>();
+    const costsExist = measure.totalCosts !== undefined && measure.totalCosts > 0;
 
     useLayoutEffect(() => {
         if (!chart) return;
+        if (!costsExist) return;
 
         chart.unload({
             done: () =>
@@ -31,9 +34,10 @@ export default function ShareOfLcc({ measure, offscreen = false }: ShareOfLccGra
                     ],
                 }),
         });
-    }, [chart, measure]);
+    }, [chart, measure, costsExist]);
 
     useLayoutEffect(() => {
+        if (!costsExist) return;
         const chart = bb.generate({
             data: {
                 columns: [],
@@ -45,7 +49,13 @@ export default function ShareOfLcc({ measure, offscreen = false }: ShareOfLccGra
         setChart(chart);
 
         return () => chart.destroy();
-    }, [graphId]);
+    }, [graphId, costsExist]);
 
-    return <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />;
+    return (
+        <>
+            {(costsExist && (
+                <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />
+            )) || <p>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>}
+        </>
+    );
 }

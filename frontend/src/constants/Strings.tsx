@@ -310,6 +310,10 @@ export namespace Strings {
         </p>
     );
 
+    export const NO_ENERGY_DATA_AVAILABLE = "No energy data available.";
+
+    export const NO_FINANCIAL_DATA_AVAILABLE = "No financial data available.";
+
     export const NUMBER_OF_UNITS_INFO = (
         <p>
             Number of units of the impact. Other Costs provides users with the ability to include impacts that do not
