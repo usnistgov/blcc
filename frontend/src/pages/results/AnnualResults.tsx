@@ -26,7 +26,11 @@ export default function AnnualResults() {
                 </div>
                 <div>
                     <Header>NPV Cash Flows</Header>
-                    <NpvCashFlowGraph required={required} alternativeNames={alternativeNames} />
+                    <NpvCashFlowGraph
+                        required={required}
+                        alternativeNames={alternativeNames}
+                        discountedCashFlow={discountedCashFlow}
+                    />
                 </div>
             </div>
             <div className="-mb-7 -mt-3 flex flex-row">

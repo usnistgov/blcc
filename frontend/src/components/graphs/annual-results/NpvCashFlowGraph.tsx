@@ -9,9 +9,15 @@ export const OFFSCREEN_GRAPH_ID = `offscreen-${GRAPH_ID}`;
 type NpvCashflowGraphProps = {
     required: Required[];
     alternativeNames: Map<number, string>;
+    discountedCashFlow?: boolean;
     offscreen?: boolean;
 };
-export default function NpvCashFlowGraph({ required, alternativeNames, offscreen = false }: NpvCashflowGraphProps) {
+export default function NpvCashFlowGraph({
+    required,
+    alternativeNames,
+    discountedCashFlow = true,
+    offscreen = false,
+}: NpvCashflowGraphProps) {
     const graphId = offscreen ? OFFSCREEN_GRAPH_ID : GRAPH_ID;
 
     const [chart, setChart] = useState<Chart>();
@@ -20,7 +26,9 @@ export default function NpvCashFlowGraph({ required, alternativeNames, offscreen
         if (!chart) return;
 
         const values = required.map((x) => {
-            return [alternativeNames.get(x.altId) ?? "", ...x.totalCostsDiscounted];
+            return discountedCashFlow
+                ? [alternativeNames.get(x.altId) ?? "", ...x.totalCostsDiscounted]
+                : [alternativeNames.get(x.altId) ?? "", ...x.totalCostsNonDiscounted];
         });
 
         chart.unload({
