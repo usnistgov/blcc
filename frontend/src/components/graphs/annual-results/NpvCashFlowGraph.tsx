@@ -1,7 +1,8 @@
 import { type Chart, bb } from "billboard.js";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { dollarFormatter } from "util/Util";
 import type { Required } from "@lrd/e3-sdk";
+import { Strings } from "constants/Strings";
 
 const GRAPH_ID = "npv-cash-flow-chart";
 export const OFFSCREEN_GRAPH_ID = `offscreen-${GRAPH_ID}`;
@@ -21,6 +22,7 @@ export default function NpvCashFlowGraph({
     const graphId = offscreen ? OFFSCREEN_GRAPH_ID : GRAPH_ID;
 
     const [chart, setChart] = useState<Chart>();
+    const [graphIsNotEmpty, setGraphIsNotEmpty] = useState<boolean>(true);
 
     useLayoutEffect(() => {
         if (!chart) return;
@@ -31,12 +33,19 @@ export default function NpvCashFlowGraph({
                 : [alternativeNames.get(x.altId) ?? "", ...x.totalCostsNonDiscounted];
         });
 
+        setGraphIsNotEmpty(
+            values.map((column) => column.slice(1).some((val) => val !== 0)).some((hasNonZero) => hasNonZero),
+        );
+
+        if (!graphIsNotEmpty) return;
+
         chart.unload({
             done: () => chart.load({ columns: values }),
         });
     });
 
     useLayoutEffect(() => {
+        if (!graphIsNotEmpty) return;
         const chart = bb.generate({
             data: {
                 columns: [],
@@ -67,7 +76,13 @@ export default function NpvCashFlowGraph({
         setChart(chart);
 
         return () => chart.destroy();
-    }, [graphId]);
+    }, [graphId, graphIsNotEmpty]);
 
-    return <div id={graphId} className={"result-graph h-[23rem]"} />;
+    return (
+        <>
+            {(graphIsNotEmpty && <div id={graphId} className={"result-graph h-[23rem]"} />) || (
+                <p>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>
+            )}
+        </>
+    );
 }

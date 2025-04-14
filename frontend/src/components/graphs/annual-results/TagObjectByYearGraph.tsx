@@ -1,6 +1,7 @@
 import type { Optional } from "@lrd/e3-sdk";
 import type { Chart } from "billboard.js";
 import bb from "billboard.js";
+import { Strings } from "constants/Strings";
 import { ResultModel } from "model/ResultModel";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { dollarFormatter } from "util/Util";
@@ -38,18 +39,24 @@ export default function TagObjectByYearGraph({
     categorySelection,
 }: TagObjectByYearProps) {
     const [chart, setChart] = useState<Chart>();
+    const [graphIsNotEmpty, setGraphIsNotEmpty] = useState<boolean>(true);
 
     useLayoutEffect(() => {
         if (!chart) return;
 
         const columns = getColumn(selection, categorySelection, optionals, discountedCashFlow);
+        setGraphIsNotEmpty(
+            columns.map((column) => column.slice(1).some((val) => val !== 0)).some((hasNonZero) => hasNonZero),
+        );
+        if (!graphIsNotEmpty) return;
 
         chart.unload({
             done: () => chart.load({ columns: columns }),
         });
-    }, [chart, selection, optionals, discountedCashFlow, categorySelection]);
+    }, [chart, selection, optionals, discountedCashFlow, categorySelection, graphIsNotEmpty]);
 
     useEffect(() => {
+        if (!graphIsNotEmpty) return;
         const chart = bb.generate({
             data: {
                 columns: [],
@@ -86,11 +93,13 @@ export default function TagObjectByYearGraph({
         setChart(chart);
 
         return () => chart.destroy();
-    }, []);
+    }, [graphIsNotEmpty]);
 
     return (
         <>
-            <div id={GRAPH_ID} className={"h-[23rem] w-full"} />
+            {(graphIsNotEmpty && <div id={GRAPH_ID} className={"h-[23rem] w-full"} />) || (
+                <p>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>
+            )}
         </>
     );
 }
