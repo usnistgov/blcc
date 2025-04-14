@@ -9,7 +9,7 @@ export const OFFSCREEN_GRAPH_ID = `offscreen-${GRAPH_ID}`;
 type NpvCashflowGraphProps = {
     required: Required[];
     alternativeNames: Map<number, string>;
-    discountedCashFlow: boolean;
+    discountedCashFlow?: boolean;
     offscreen?: boolean;
 };
 export default function NpvCashFlowGraph({
