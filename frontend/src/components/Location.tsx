@@ -64,6 +64,7 @@ function setZipcodeHandler<T extends object>(
  * The zipcode must be a 5-digit number.
  */
 function Zipcode<T extends object>({ model }: { model: LocationModel<T> }) {
+    const state = model.state.use();
     if (model.country.use() !== Country.USA) return;
 
     return (
@@ -73,7 +74,7 @@ function Zipcode<T extends object>({ model }: { model: LocationModel<T> }) {
             info={Strings.ZIP}
             type={TextInputType.PRIMARY}
             getter={model.zipcode.use}
-            disabled={model.state.use() === State.UV}
+            disabled={state === State.UV}
             onChange={setZipcodeHandler(model)}
             maxLength={5}
             error={model.zipcode.useValidation}
