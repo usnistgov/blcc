@@ -1,6 +1,4 @@
-import { createSignal } from "@react-rxjs/utils";
 import {
-    allCosts$,
     alternatives$,
     energyCostsByAlternative$,
     hasBaseline$,
@@ -11,11 +9,11 @@ import {
     recurringContractCostsByAlternative$,
     replacementCostsByAlternative$,
 } from "./Model";
-import { combineLatest, map, mergeMap, of, switchMap, tap, type Observable } from "rxjs";
+import { combineLatest, map, mergeMap, of, switchMap, type Observable } from "rxjs";
 import type { ZodError } from "zod";
-import { AnalysisType, CostTypes, DollarMethod } from "blcc-format/Format";
-import { analysisType } from "constants/DROPDOWN";
+import { AnalysisType, DollarMethod } from "blcc-format/Format";
 import { bind } from "@react-rxjs/core";
+import { sum } from "util/Util";
 
 export type ErrorGroup = {
     url: string;
@@ -184,6 +182,9 @@ const investmentCostValidation$: Observable<ErrorGroup[]> = investmentCostsByAlt
             }
             if (cost.expectedLife === undefined) {
                 messages.push("Expected Lifetime - Required");
+            }
+            if (cost.phaseIn !== undefined && sum(cost.phaseIn) !== 1) {
+                messages.push("Phase in rates must add up to 100%");
             }
             if (messages.length > 0) {
                 errors.push({
