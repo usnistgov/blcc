@@ -137,6 +137,7 @@ export default function Cost() {
                             label={"Name*"}
                             getter={CostModel.name.use}
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
+                            error={CostModel.name.useValidation}
                         />
                         <div className={"flex flex-col"}>
                             <Title level={5}>

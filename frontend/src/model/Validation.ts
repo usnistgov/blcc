@@ -8,14 +8,17 @@ import {
     investmentCostsByAlternative$,
     Model,
     omrCostsByAlternative$,
+    otherCostsByAlternative$,
+    otherNonMonetaryCostsByAlternative$,
     recurringContractCostsByAlternative$,
     replacementCostsByAlternative$,
 } from "./Model";
 import { combineLatest, map, mergeMap, of, switchMap, tap, type Observable } from "rxjs";
 import type { ZodError } from "zod";
-import { AnalysisType, CostTypes, DollarMethod } from "blcc-format/Format";
+import { AnalysisType, CostTypes, DollarMethod, USLocation } from "blcc-format/Format";
 import { analysisType } from "constants/DROPDOWN";
 import { bind } from "@react-rxjs/core";
+import { Country } from "constants/LOCATION";
 
 export type ErrorGroup = {
     url: string;
@@ -160,6 +163,13 @@ const energyCostValidation$: Observable<ErrorGroup[]> = energyCostsByAlternative
             if (cost.customerSector === undefined) {
                 messages.push("Customer Sector - Required");
             }
+            if (
+                cost.location !== undefined &&
+                cost.location.country === Country.USA &&
+                (cost.location as USLocation).zipcode === undefined
+            ) {
+                messages.push("Zipcode - Required");
+            }
             if (messages.length > 0) {
                 errors.push({
                     url: `/editor/alternative/${cost.altId}/cost/${cost.id}`,
@@ -184,6 +194,9 @@ const investmentCostValidation$: Observable<ErrorGroup[]> = investmentCostsByAlt
             }
             if (cost.expectedLife === undefined) {
                 messages.push("Expected Lifetime - Required");
+            }
+            if (cost.expectedLife !== undefined && cost.expectedLife < 1) {
+                messages.push("Expected Lifetime - Must be at least one");
             }
             if (messages.length > 0) {
                 errors.push({
@@ -210,6 +223,12 @@ const replacementCostValidation$: Observable<ErrorGroup[]> = replacementCostsByA
             if (cost.expectedLife === undefined) {
                 messages.push("Expected Lifetime - Required");
             }
+            if (cost.expectedLife !== undefined && cost.expectedLife < 1) {
+                messages.push("Expected Lifetime - Must be at least one");
+            }
+            if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
+                messages.push("Initial Occurrence - Must be at least one");
+            }
             if (messages.length > 0) {
                 errors.push({
                     url: `/editor/alternative/${cost.altId}/cost/${cost.id}`,
@@ -231,6 +250,9 @@ const omrCostValidation$: Observable<ErrorGroup[]> = omrCostsByAlternative$.pipe
             }
             if (cost.initialCost === undefined) {
                 messages.push("Initial Cost - Required");
+            }
+            if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
+                messages.push("Initial Occurrence - Must be at least one");
             }
             if (messages.length > 0) {
                 errors.push({
@@ -276,6 +298,53 @@ const recurringContractValidation$: Observable<ErrorGroup[]> = recurringContract
             if (cost.initialCost === undefined) {
                 messages.push("Initial Cost - Required");
             }
+            if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
+                messages.push("Initial Occurrence - Must be at least one");
+            }
+            if (messages.length > 0) {
+                errors.push({
+                    url: `/editor/alternative/${cost.altId}/cost/${cost.id}`,
+                    messages,
+                    context: getContext(cost.altName, cost.name),
+                });
+            }
+            return errors;
+        }, [] as ErrorGroup[]),
+    ),
+);
+
+const otherCostValidation$: Observable<ErrorGroup[]> = otherCostsByAlternative$.pipe(
+    map((costs) =>
+        costs.reduce((errors, cost) => {
+            const messages = [];
+            if (cost.name === undefined || cost.name === "") {
+                messages.push("Name - Required");
+            }
+            if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
+                messages.push("Initial Occurrence - Must be at least one");
+            }
+            if (messages.length > 0) {
+                errors.push({
+                    url: `/editor/alternative/${cost.altId}/cost/${cost.id}`,
+                    messages,
+                    context: getContext(cost.altName, cost.name),
+                });
+            }
+            return errors;
+        }, [] as ErrorGroup[]),
+    ),
+);
+
+const otherNonMonetaryValidation$: Observable<ErrorGroup[]> = otherNonMonetaryCostsByAlternative$.pipe(
+    map((costs) =>
+        costs.reduce((errors, cost) => {
+            const messages = [];
+            if (cost.name === undefined || cost.name === "") {
+                messages.push("Name - Required");
+            }
+            if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
+                messages.push("Initial Occurrence - Must be at least one");
+            }
             if (messages.length > 0) {
                 errors.push({
                     url: `/editor/alternative/${cost.altId}/cost/${cost.id}`,
@@ -300,6 +369,8 @@ export const errors$ = combineLatest([
     omrCostValidation$,
     implementationContractValidation$,
     recurringContractValidation$,
+    otherCostValidation$,
+    otherNonMonetaryValidation$,
 ]).pipe(map((errors) => errors.flat()));
 
 export const [useErrors] = bind(errors$, []);
