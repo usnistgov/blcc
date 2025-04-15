@@ -111,6 +111,14 @@ export const recurringContractCostsByAlternative$ = costsByAlternative$.pipe(
     map((costs) => costs.filter((cost) => cost.type === CostTypes.RECURRING_CONTRACT)),
 );
 
+export const otherCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.OTHER)),
+);
+
+export const otherNonMonetaryCostsByAlternative$ = costsByAlternative$.pipe(
+    map((costs) => costs.filter((cost) => cost.type === CostTypes.OTHER_NON_MONETARY)),
+);
+
 // Creates a hash of the current project
 export const hash$ = combineLatest([hashProject$, allAlternatives$, allCosts$]).pipe(
     switchMap(() =>

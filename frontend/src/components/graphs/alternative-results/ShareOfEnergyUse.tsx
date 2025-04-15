@@ -1,6 +1,7 @@
 import type { Measures } from "@lrd/e3-sdk";
 import { bb, type Chart } from "billboard.js";
 import { FuelType } from "blcc-format/Format";
+import { Strings } from "constants/Strings";
 import { useLayoutEffect, useState } from "react";
 import { getGJByFuelType } from "util/ResultCalculations";
 
@@ -15,11 +16,13 @@ type ShareOfEnergyUseGraphProps = {
 
 export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOfEnergyUseGraphProps) {
     const graphId = offscreen ? `${OFFSCREEN_GRAPH_ID_TEMPLATE}-${measure?.altId}` : GRAPH_ID;
+    const usageExists = measure.quantitySum.Energy !== undefined && measure.quantitySum.Energy > 0;
 
     const [chart, setChart] = useState<Chart>();
 
     useLayoutEffect(() => {
         if (!chart) return;
+        if (!usageExists) return;
 
         const categories = [
             FuelType.ELECTRICITY,
@@ -33,9 +36,10 @@ export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOf
         chart.unload({
             done: () => chart.load({ columns: categories }),
         });
-    }, [chart, measure]);
+    }, [chart, measure, usageExists]);
 
     useLayoutEffect(() => {
+        if (!usageExists) return;
         const chart = bb.generate({
             data: {
                 columns: [],
@@ -47,7 +51,13 @@ export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOf
         setChart(chart);
 
         return () => chart.destroy();
-    }, [graphId]);
+    }, [graphId, usageExists]);
 
-    return <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />;
+    return (
+        <>
+            {(usageExists && (
+                <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />
+            )) || <p>{Strings.NO_ENERGY_DATA_AVAILABLE}</p>}
+        </>
+    );
 }
