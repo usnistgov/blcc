@@ -165,7 +165,7 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                     .name(`${cost.name} Phase-In year ${i}`)
                     .real()
                     .invest()
-                    .initialOccurrence(0)
+                    .initialOccurrence(i)
                     .life(cost.expectedLife ?? -1)
                     .addTag(tag, "LCC")
                     .quantity(cost.costSavings ? -1 : 1)

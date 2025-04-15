@@ -3,9 +3,9 @@ import { Divider } from "antd";
 import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
 import DataGrid, { type RenderCellProps, type RenderEditCellProps } from "react-data-grid";
-import { map } from "rxjs";
-import { withLatestFrom } from "rxjs/operators";
-import { percentFormatter, toDecimal, toPercentage } from "util/Util";
+import { distinctUntilChanged, map } from "rxjs";
+import { tap, withLatestFrom } from "rxjs/operators";
+import { percentFormatter, resize, toDecimal, toPercentage } from "util/Util";
 
 type PhaseInRateInfo = {
     year: number;
@@ -42,36 +42,29 @@ const COLUMNS = [
     },
 ];
 
-function defaultPhaseIn(constructionPeriod: number): number[] {
+function defaultPhaseIn(n: number): number[] {
     // Create default array with a size equal to the construction period
-    const array = Array(constructionPeriod).fill(0);
+    const array = Array(n).fill(0);
     // Set the first year to 100% (1.0f)
     array[0] = 1;
 
     return array;
 }
 
-function resize(array: number[], length: number) {
-    // If array is shorter than length, pad with zeros
-    if (array.length < length) {
-        return [...array, ...Array(length - array.length).fill(0)];
-    }
-
-    // If array is longer than length, truncate to length
-    return array.slice(0, length);
-}
-
 namespace PhaseInModel {
     export const phaseInOrDefault$ = CapitalCostModel.phaseIn.$.pipe(
         withLatestFrom(Model.constructionPeriod.$),
+        distinctUntilChanged(),
         map(([phaseIn, constructionPeriod]) => {
+            console.log("HERE", phaseIn, constructionPeriod);
+
             if (phaseIn === undefined) {
-                return defaultPhaseIn(constructionPeriod);
+                return defaultPhaseIn(constructionPeriod + 1);
             }
 
             // If phase in is not the correct size, create new array with correct size, and set
-            if (phaseIn.length !== constructionPeriod) {
-                const newSize = resize(phaseIn, constructionPeriod);
+            if (phaseIn.length !== constructionPeriod + 1) {
+                const newSize = resize(phaseIn, constructionPeriod + 1);
                 CapitalCostModel.Actions.setPhaseIn(newSize);
                 return newSize;
             }
@@ -81,6 +74,7 @@ namespace PhaseInModel {
     );
     export const [useColumns] = bind(
         phaseInOrDefault$.pipe(
+            tap((rate) => console.log("Rate change", rate)),
             map(
                 (rates) =>
                     rates?.map(

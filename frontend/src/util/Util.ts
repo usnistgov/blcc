@@ -213,3 +213,29 @@ export function omit(obj: { [x: string]: any }, keyToOmit: string) {
     const { [keyToOmit]: omitted, ...rest } = obj;
     return rest;
 }
+
+/**
+ * Sums an array of numbers
+ *
+ * @param nums The numbers to sum
+ */
+export function sum(nums: number[]): number {
+    return nums.reduce((a, b) => a + b, 0);
+}
+
+/**
+ * Resizes an array to a specified length. If the array is shorter than the length, it is padded with zeros.
+ * If the array is longer than the length, it is truncated to the length.
+ *
+ * @param array The array to resize.
+ * @param length The length to resize the array to.
+ */
+export function resize(array: number[], length: number) {
+    // If array is shorter than length, pad with zeros
+    if (array.length < length) {
+        return [...array, ...Array(length - array.length).fill(0)];
+    }
+
+    // If array is longer than length, truncate to length
+    return array.slice(0, length);
+}
