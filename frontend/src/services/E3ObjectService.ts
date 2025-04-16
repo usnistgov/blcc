@@ -435,7 +435,7 @@ function replacementCapitalCostToBuilder(
         .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.initialCost ?? -1);
 
-    applyRateOfChangeReplacement(builder, cost, project);
+    applyRateOfChangeNonRecurring(builder, cost, project);
 
     if (cost.residualValue)
         return [
@@ -445,7 +445,7 @@ function replacementCapitalCostToBuilder(
                 cost.initialCost ?? -1,
                 cost.residualValue,
                 studyPeriod,
-                cost.annualRateOfChange ?? 0,
+                cost.rateOfChangeValue ?? 0,
             ),
         ];
 
@@ -465,10 +465,10 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
 
     if (cost.recurring?.rateOfRecurrence && cost.recurring.rateOfRecurrence > 0) {
         builder.addTag("OMR Recurring");
-        applyRateOfChange(builder, cost);
+        applyRateOfChangeRecurring(builder, cost, project);
     } else {
         builder.addTag("OMR Non-Recurring");
-        applyRateOfChangeNonRecurringOMR(builder, cost, project);
+        applyRateOfChangeNonRecurring(builder, cost, project);
     }
 
     return [builder];
@@ -484,8 +484,9 @@ function implementationContractCostToBuilder(project: Project, cost: Implementat
         .invest()
         .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.cost ?? -1)
-        .initialOccurrence(cost.occurrence + project.constructionPeriod);
-    applyRateOfChangeNonRecurringContract(builder, cost, project);
+        .initialOccurrence(cost.initialOccurrence + project.constructionPeriod);
+
+    applyRateOfChangeNonRecurring(builder, cost, project);
     return [builder];
 }
 
@@ -501,7 +502,8 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.initialCost ?? -1);
-    applyRateOfChange(builder, cost);
+
+    applyRateOfChangeRecurring(builder, cost, project);
     return [builder];
 }
 
@@ -520,7 +522,7 @@ function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
         .quantity(cost.costSavings ? -cost.numberOfUnits : cost.numberOfUnits)
         .quantityUnit(cost.unit ?? ""); //TODO rate of change
 
-    applyRateOfChange(builder, cost);
+    applyRateOfChangeRecurring(builder, cost, project);
 
     return [builder];
 }
@@ -538,75 +540,61 @@ function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary)
         .quantityValue(1)
         .quantityUnit(cost.unit ?? "");
 
-    applyRateOfChange(builder, cost);
+    applyRateOfChangeRecurring(builder, cost, project);
 
     return [builder];
 }
 
-function applyRateOfChangeReplacement(builder: BcnBuilder, cost: ReplacementCapitalCost, project: Project) {
-    const recurBuilder = new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
-
-    if (cost.annualRateOfChange !== undefined) {
-        recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue([cost.annualRateOfChange]);
-    }
-    builder.recur(recurBuilder);
-}
-
-function applyRateOfChangeNonRecurringContract(
+function applyRateOfChangeNonRecurring(
     builder: BcnBuilder,
-    cost: ImplementationContractCost,
+    cost: ReplacementCapitalCost | ImplementationContractCost | OMRCost,
     project: Project,
 ) {
-    const recurBuilder = new RecurBuilder().interval(50);
-    recurBuilder.end(cost.occurrence + project.constructionPeriod);
+    const recurBuilder = new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
 
-    if (cost.valueRateOfChange !== undefined) {
-        recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue([cost.valueRateOfChange]);
-    }
-    builder.recur(recurBuilder);
+    applyRateOfChangeValue(builder, recurBuilder, cost);
 }
 
-function applyRateOfChangeNonRecurringOMR(builder: BcnBuilder, cost: OMRCost, project: Project) {
-    const recurBuilder = new RecurBuilder().interval(50);
-    recurBuilder.end(cost.initialOccurrence + project.constructionPeriod);
+function applyRateOfChangeRecurring(
+    builder: BcnBuilder,
+    cost: OMRCost | RecurringContractCost | OtherCost | OtherNonMonetary,
+    project: Project,
+) {
+    const recurBuilder =
+        cost.recurring !== undefined
+            ? new RecurBuilder().interval(cost.recurring.rateOfRecurrence ?? 1)
+            : new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
 
-    if (cost.recurring?.rateOfChangeValue !== undefined) {
-        recurBuilder
-            .varRate(VarRate.PERCENT_DELTA)
-            .varValue(
-                Array.isArray(cost.recurring.rateOfChangeValue)
-                    ? cost.recurring.rateOfChangeValue
-                    : [cost.recurring.rateOfChangeValue],
-            );
+    if (cost.type === CostTypes.OTHER || cost.type === CostTypes.OTHER_NON_MONETARY) {
+        applyRateOfChangeUnits(builder, cost);
     }
-    builder.recur(recurBuilder);
+
+    if (cost.type === CostTypes.OTHER || cost.type === CostTypes.RECURRING_CONTRACT || cost.type === CostTypes.OMR) {
+        applyRateOfChangeValue(builder, recurBuilder, cost);
+    }
 }
 
-function applyRateOfChange(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary | RecurringContractCost | OMRCost) {
-    if (cost.recurring?.rateOfChangeUnits)
+function applyRateOfChangeUnits(builder: BcnBuilder, cost: OtherCost | OtherNonMonetary) {
+    if (cost.rateOfChangeUnits)
         builder
             .quantityVarRate(VarRate.YEAR_BY_YEAR)
             .quantityVarValue(
-                Array.isArray(cost.recurring.rateOfChangeUnits)
-                    ? cost.recurring.rateOfChangeUnits
-                    : [cost.recurring.rateOfChangeUnits],
+                Array.isArray(cost.rateOfChangeUnits) ? cost.rateOfChangeUnits : [cost.rateOfChangeUnits],
             );
+}
 
-    if (cost.recurring) {
-        const recurBuilder = new RecurBuilder().interval(cost.recurring.rateOfRecurrence ?? 1);
-
-        if (cost.recurring.rateOfChangeValue !== undefined) {
-            recurBuilder
-                .varRate(VarRate.PERCENT_DELTA)
-                .varValue(
-                    Array.isArray(cost.recurring.rateOfChangeValue)
-                        ? cost.recurring.rateOfChangeValue
-                        : [cost.recurring.rateOfChangeValue],
-                );
-        }
-
-        builder.recur(recurBuilder);
+function applyRateOfChangeValue(
+    builder: BcnBuilder,
+    recurBuilder: RecurBuilder,
+    cost: OtherCost | RecurringContractCost | OMRCost | ImplementationContractCost | ReplacementCapitalCost,
+) {
+    if (cost.rateOfChangeValue !== undefined) {
+        recurBuilder
+            .varRate(VarRate.PERCENT_DELTA)
+            .varValue(Array.isArray(cost.rateOfChangeValue) ? cost.rateOfChangeValue : [cost.rateOfChangeValue]);
     }
+
+    builder.recur(recurBuilder);
 }
 
 function residualValueBcn(

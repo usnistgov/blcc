@@ -1,6 +1,6 @@
 import { Select, Tooltip } from "antd";
 import Title from "antd/es/typography/Title";
-import Recurring from "components/Recurring";
+import Recurring, { UnitRateOfChange } from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { OtherCostModel } from "model/costs/OtherCostModel";
@@ -49,9 +49,10 @@ export default function OtherNonMonetaryCostFields() {
                     tooltip={Strings.NUMBER_OF_UNITS_TOOLTIP}
                     info={Strings.NUMBER_OF_UNITS_INFO}
                 />
+                <UnitRateOfChange />
 
                 <span className={"col-span-2"}>
-                    <Recurring showValue={false} />
+                    <Recurring />
                 </span>
             </div>
         </div>

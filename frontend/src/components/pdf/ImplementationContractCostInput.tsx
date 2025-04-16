@@ -24,7 +24,9 @@ export default function ImplementationContractCostInput({ cost, project }: Imple
 
             <Description cost={cost} />
 
-            {cost.occurrence ? <LabeledText label="Occurrence" text={`Year - ${cost?.occurrence}`} /> : null}
+            {cost.initialOccurrence ? (
+                <LabeledText label="Occurrence" text={`Year - ${cost?.initialOccurrence}`} />
+            ) : null}
 
             <InitialOccurence cost={cost} />
 

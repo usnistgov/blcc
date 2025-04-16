@@ -24,6 +24,8 @@ interface Props {
         costAdjustment?: number;
         initialOccurrence?: number;
         annualRateOfChange?: number;
+        rateOfChangeValue?: number | number[];
+        rateOfChangeUnits?: number | number[];
         recurring?: RecurringType;
         rateOfRecurrence?: number;
         useIndex?: number | number[];
@@ -179,7 +181,7 @@ export const PhaseIn = ({ cost, year }: Props) => (
 );
 
 export const RateOfChangeValue = ({ cost, year, project }: Props & { project: Project }) => {
-    const isArray = Array.isArray(cost?.recurring?.rateOfChangeValue);
+    const isArray = Array.isArray(cost?.rateOfChangeValue);
     return (
         <View style={isArray ? { margin: 0 } : styles.key} wrap={false}>
             <Text style={styles.text}>Value Rate Of Change:&nbsp;</Text>
@@ -188,7 +190,7 @@ export const RateOfChangeValue = ({ cost, year, project }: Props & { project: Pr
                     <View style={{ margin: 2 }} />
                     <InputTable
                         header={"Value Rate of Change (%)"}
-                        inputRows={(cost?.recurring?.rateOfChangeValue as number[]).map((val) =>
+                        inputRows={(cost?.rateOfChangeValue as number[]).map((val) =>
                             project.dollarMethod === DollarMethod.CURRENT
                                 ? calculateNominalDiscountRate(val, project.inflationRate ?? Defaults.INFLATION_RATE)
                                 : val,
@@ -201,10 +203,10 @@ export const RateOfChangeValue = ({ cost, year, project }: Props & { project: Pr
                     {percentFormatter.format(
                         project?.dollarMethod === DollarMethod.CURRENT
                             ? calculateNominalDiscountRate(
-                                  cost.recurring?.rateOfChangeValue as number,
+                                  cost.rateOfChangeValue as number,
                                   project?.inflationRate ?? Defaults.INFLATION_RATE,
                               )
-                            : (cost.recurring?.rateOfChangeValue as number),
+                            : (cost.rateOfChangeValue as number),
                     )}
                 </Text>
             )}
@@ -213,7 +215,7 @@ export const RateOfChangeValue = ({ cost, year, project }: Props & { project: Pr
 };
 
 export const RateOfChangeUnits = ({ cost, year }: Props) => {
-    const isArray = Array.isArray(cost?.recurring?.rateOfChangeUnits);
+    const isArray = Array.isArray(cost?.rateOfChangeUnits);
     return (
         <View style={isArray ? { margin: 0 } : styles.key}>
             <Text style={styles.text}>Rate Of Change Units:&nbsp;</Text>
@@ -222,15 +224,12 @@ export const RateOfChangeUnits = ({ cost, year }: Props) => {
                     <View style={{ margin: 2 }} />
                     <InputTable
                         header={"Unit Rate of Change (%)"}
-                        inputRows={cost?.recurring?.rateOfChangeUnits as number[]}
+                        inputRows={cost?.rateOfChangeUnits as number[]}
                         year={year ?? -1}
                     />
                 </View>
             ) : (
-                <Text style={styles.value}>
-                    {" "}
-                    {percentFormatter.format((cost?.recurring?.rateOfChangeUnits as number) ?? 0)}
-                </Text>
+                <Text style={styles.value}> {percentFormatter.format((cost?.rateOfChangeUnits as number) ?? 0)}</Text>
             )}
         </View>
     );

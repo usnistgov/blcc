@@ -1,7 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import {
     CostName,
-    CostSavings,
     Description,
     InitialOccurence,
     RateOfChangeUnits,

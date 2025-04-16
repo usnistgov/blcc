@@ -6,7 +6,6 @@ import {
     type BaseCost,
     type CapitalCost,
     type Cost,
-    CostBenefit,
     CostTypes,
     type EnergyCost,
     EnergyUnit,
@@ -147,29 +146,28 @@ namespace DefaultCosts {
 
     export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost> = {
         type: CostTypes.IMPLEMENTATION_CONTRACT,
-        occurrence: 1,
+        initialOccurrence: 1,
     };
 
     export const RECURRING_CONTRACT: Props<RecurringContractCost> = {
         type: CostTypes.RECURRING_CONTRACT,
         initialOccurrence: 1,
-        annualRateOfChange: 0,
+        rateOfChangeValue: 0,
         recurring: {
             rateOfRecurrence: 0,
-            rateOfChangeValue: 0,
         },
     };
 
     export const OTHER: Props<OtherCost> = {
         type: CostTypes.OTHER,
         tags: ["Other"], // This cost is hidden from the user and can't be removed
-        costOrBenefit: CostBenefit.COST,
         initialOccurrence: 1,
         valuePerUnit: 0,
+        rateOfChangeValue: 0,
+        rateOfChangeUnits: 0,
         numberOfUnits: 0,
         recurring: {
             rateOfRecurrence: 0,
-            rateOfChangeValue: 0,
         },
     };
 
@@ -177,6 +175,7 @@ namespace DefaultCosts {
         type: CostTypes.OTHER_NON_MONETARY,
         initialOccurrence: 1,
         numberOfUnits: 0,
+        rateOfChangeUnits: 0,
     };
 }
 

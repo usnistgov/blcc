@@ -68,6 +68,23 @@ export function isRecurringCost(cost: Cost): cost is RecurringTypes {
     );
 }
 
+export type RateOfChangeValueTypes = ImplementationContractCost | RecurringContractCost | OtherCost | OMRCost;
+
+export function isRateOfChangeValueCost(cost: Cost): cost is RateOfChangeValueTypes {
+    return (
+        cost.type === CostTypes.OMR ||
+        cost.type === CostTypes.RECURRING_CONTRACT ||
+        cost.type === CostTypes.IMPLEMENTATION_CONTRACT ||
+        cost.type === CostTypes.OTHER
+    );
+}
+
+export type RateOfChangeUnitTypes = OtherCost | OtherNonMonetary;
+
+export function isRateOfChangeUnitCost(cost: Cost): cost is RateOfChangeUnitTypes {
+    return cost.type === CostTypes.OTHER || cost.type === CostTypes.OTHER_NON_MONETARY;
+}
+
 /**
  * Checks if the given cost is a recurring contract cost.
  *
