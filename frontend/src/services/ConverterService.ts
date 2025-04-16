@@ -345,7 +345,6 @@ function convertCost(
             } as ReplacementCapitalCost;
         case "NonRecurringCost": {
             const escalation = parseEscalation(cost.Escalation, studyPeriod) ?? 0;
-            const recurring = { rateOfRecurrence: 0 };
 
             return {
                 id,
@@ -355,7 +354,6 @@ function convertCost(
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 rateOfChangeValue: escalation,
-                recurring,
             } as OMRCost;
         }
         case "RecurringCost":
@@ -369,6 +367,7 @@ function convertCost(
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 recurring: {
                     rateOfRecurrence: 1,
+                    duration: parseDurationFromVarying(cost.Index, studyPeriod),
                 },
             } as OMRCost;
         case "CapitalComponent":
@@ -436,6 +435,7 @@ function convertCost(
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 recurring: {
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
+                    duration: parseDurationFromVarying(cost.Index, studyPeriod),
                 },
             } as RecurringContractCost;
         case "NonRecurringContractCost":
@@ -576,7 +576,7 @@ function parseVarying(intervals: any, values: any, studyPeriod: number): number 
     const portions = parsePortions(values);
     const dateDiffs: DateDiff[] = intervals.split(",").map((value: string) => parseYears(value));
 
-    const length = portions.length > studyPeriod + 1 ? portions.length : studyPeriod + 1;
+    const length = portions.length > studyPeriod ? portions.length : studyPeriod;
     const result = Array<number>(length).fill(0);
 
     // Convert value intervals into year by year percentages
@@ -623,6 +623,37 @@ function initialFromVarying(values: number | number[] | undefined): number {
     if (!Array.isArray(values) || values === undefined) return 1;
 
     return values.findIndex((value) => value !== 0) + 1;
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function parseDurationFromVarying(cost: any, studyPeriod: number): number {
+    // Array of values over the study period
+    const useIndex = parseUseIndex(cost, studyPeriod);
+
+    if (typeof useIndex === "number") {
+        if (useIndex >= 0.5) {
+            return studyPeriod;
+        }
+        return 0;
+    }
+
+    if (useIndex === undefined) {
+        return 0;
+    }
+
+    // If it's not number or undefined, it must be an array of numbers representing use indices
+    let duration = 0;
+    for (let i = 0; i < useIndex.length; i++) {
+        // Start counting when a number >= 0.5 is found
+        if (useIndex[i] >= 0.5) {
+            duration++;
+            // If this else statement is reached, either counting is stopping or it hasn't started.
+            // If duration !== 0, then counting has started and it just stopped, so we stop the loop
+        } else if (duration !== 0) {
+            break;
+        }
+    }
+    return duration;
 }
 
 //biome-ignore lint: No need to type XML format

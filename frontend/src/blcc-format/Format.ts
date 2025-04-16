@@ -260,6 +260,7 @@ export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT>
 
 export type Recurring = {
     rateOfRecurrence?: number;
+    duration?: number;
 };
 
 export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> &

@@ -52,7 +52,7 @@ export default function OtherNonMonetaryCostFields() {
                 <UnitRateOfChange />
 
                 <span className={"col-span-2"}>
-                    <Recurring />
+                    <Recurring showDuration={false} />
                 </span>
             </div>
         </div>

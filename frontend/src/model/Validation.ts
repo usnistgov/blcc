@@ -255,6 +255,9 @@ const omrCostValidation$: Observable<ErrorGroup[]> = omrCostsByAlternative$.pipe
             if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
                 messages.push("Initial Occurrence - Must be at least one");
             }
+            if (cost.recurring !== undefined && cost.recurring.duration === undefined) {
+                messages.push("Duration - Required");
+            }
             if (messages.length > 0) {
                 errors.push({
                     url: `/editor/alternative/${cost.altId}/cost/${cost.id}`,
@@ -345,6 +348,9 @@ const otherNonMonetaryValidation$: Observable<ErrorGroup[]> = otherNonMonetaryCo
             }
             if (cost.initialOccurrence !== undefined && cost.initialOccurrence < 1) {
                 messages.push("Initial Occurrence - Must be at least one");
+            }
+            if (cost.recurring !== undefined && cost.recurring.duration === undefined) {
+                messages.push("Duration - Required");
             }
             if (messages.length > 0) {
                 errors.push({

@@ -9,6 +9,7 @@ import { combineLatestWith, filter, map } from "rxjs/operators";
 import { isConstant as isConstantOp, sampleMany } from "util/Operators";
 import { calculateRealDecimal, makeArray, toDecimal } from "util/Util";
 import { Var } from "util/var";
+import { z } from "zod";
 
 export type RateChangeInfo = {
     year: number;
@@ -43,6 +44,26 @@ export namespace RecurringModel {
      * The rate of recurrence for the current recurring cost.
      */
     export const rateOfRecurrence = new Var(CostModel.cost, recurringOptic.optional().prop("rateOfRecurrence"));
+
+    export namespace Duration {
+        export const duration = new Var(CostModel.cost, recurringOptic.optional().prop("duration"), z.number());
+
+        export const [setDefaultArray$, setDefaultArray] = createSignal();
+        sampleMany(setDefaultArray$, [Model.studyPeriod.$, Model.constructionPeriod.$, duration.$]).subscribe(
+            ([studyPeriod, constructionPeriod, oldDuration]) =>
+                duration.set(oldDuration ?? (studyPeriod ?? 0) + constructionPeriod),
+        );
+
+        export namespace Actions {
+            /**
+             * Set the duration. Value is assumed to be in years.
+             * @param value The value duration is set to, in years.
+             */
+            export function setValue(value: number | null) {
+                if (value !== null) Duration.duration.set(value);
+            }
+        }
+    }
 
     export namespace Value {
         /**

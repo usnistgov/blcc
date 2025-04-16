@@ -64,7 +64,7 @@ export default function OtherCostFields() {
                 <ValueRateOfChange />
                 <UnitRateOfChange />
                 <span className={"col-span-2"}>
-                    <Recurring />
+                    <Recurring showDuration={false} />
                 </span>
             </div>
         </div>

@@ -560,9 +560,12 @@ function applyRateOfChangeRecurring(
     cost: OMRCost | RecurringContractCost | OtherCost | OtherNonMonetary,
     project: Project,
 ) {
+    const maxTimeLength = project.constructionPeriod + (project.studyPeriod ?? 50) + 1;
     const recurBuilder =
         cost.recurring !== undefined
-            ? new RecurBuilder().interval(cost.recurring.rateOfRecurrence ?? 1)
+            ? new RecurBuilder()
+                  .interval(cost.recurring.rateOfRecurrence ?? 1)
+                  .end((cost.recurring.duration ?? maxTimeLength) + cost.initialOccurrence - 1)
             : new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
 
     if (cost.type === CostTypes.OTHER || cost.type === CostTypes.OTHER_NON_MONETARY) {

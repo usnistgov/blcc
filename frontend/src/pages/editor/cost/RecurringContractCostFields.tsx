@@ -1,5 +1,5 @@
 import type { Cost } from "blcc-format/Format";
-import { RateOfRecurrenceInput, ValueRateOfChange } from "components/Recurring";
+import { DurationInput, RateOfRecurrenceInput, ValueRateOfChange } from "components/Recurring";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
 import { CostModel } from "model/CostModel";
@@ -65,6 +65,7 @@ export default function RecurringContractCostFields() {
 
                 {/* Second row */}
                 <ValueRateOfChange />
+                <DurationInput showLabel />
             </div>
         </div>
     );

@@ -154,7 +154,7 @@ namespace DefaultCosts {
         initialOccurrence: 1,
         rateOfChangeValue: 0,
         recurring: {
-            rateOfRecurrence: 0,
+            rateOfRecurrence: 1,
         },
     };
 
@@ -167,7 +167,7 @@ namespace DefaultCosts {
         rateOfChangeUnits: 0,
         numberOfUnits: 0,
         recurring: {
-            rateOfRecurrence: 0,
+            rateOfRecurrence: 1,
         },
     };
 

@@ -78,6 +78,10 @@ function createDataGridColumns(name: string) {
     ];
 }
 
+type RecurringProps = {
+    showDuration?: boolean;
+};
+
 /**
  * A component that allows the user to input recurring costs. It displays a
  * checkbox that toggles the input form, and a form that allows the user to
@@ -86,9 +90,9 @@ function createDataGridColumns(name: string) {
  *
  * @param showValue If true, will show the value rate of change input.
  */
-export default function Recurring() {
+export default function Recurring({ showDuration = true }: RecurringProps) {
     return (
-        <div className="my-4">
+        <div>
             <Title level={5}>
                 <Info text={Strings.RECURRING}>Recurring</Info>
             </Title>
@@ -101,6 +105,7 @@ export default function Recurring() {
             {RecurringModel.isRecurring() && (
                 <div className={"my-4 grid grid-cols-2 gap-x-16 gap-y-4"}>
                     <RateOfRecurrenceInput />
+                    {showDuration && <DurationInput />}
                 </div>
             )}
         </div>
@@ -120,6 +125,31 @@ export function RateOfRecurrenceInput({ showLabel = false }: RateOfRecurrenceInp
             addonAfter={"years"}
             getter={RecurringModel.rateOfRecurrence.use}
             onChange={RecurringModel.Actions.setRateOfRecurrence}
+            min={1}
+        />
+    );
+}
+
+type DurationInputProps = {
+    showLabel?: boolean;
+};
+
+export function DurationInput({ showLabel = false }: DurationInputProps) {
+    const duration = RecurringModel.Duration.duration.use();
+    const studyPeriod = Model.studyPeriod.use() ?? 0;
+
+    return (
+        <TestNumberInput
+            className={"w-full"}
+            label={showLabel ? "Duration" : undefined}
+            addonBefore={"lasts for"}
+            addonAfter={"years"}
+            getter={RecurringModel.Duration.duration.use}
+            onChange={RecurringModel.Duration.Actions.setValue}
+            error={RecurringModel.Duration.duration.useValidation}
+            warning={
+                duration !== undefined && duration > studyPeriod ? "Warning: greater than study period" : undefined
+            }
         />
     );
 }
