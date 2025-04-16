@@ -1,6 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import {
     CostName,
+    CostSavings,
     Description,
     InitialOccurence,
     RateOfChangeUnits,
@@ -13,6 +14,7 @@ import type { OtherCost, Project } from "blcc-format/Format";
 import { styles } from "./pdfStyles";
 import { dollarFormatter } from "util/Util";
 import { LabeledText } from "./components/GeneralComponents";
+import { BcnType } from "@lrd/e3-sdk";
 
 type OtherCostInputProps = {
     cost: OtherCost;
@@ -38,7 +40,7 @@ export default function OtherCostInput({ cost, year, project }: OtherCostInputPr
                 </View>
             ) : null}
 
-            {cost?.costOrBenefit ? <LabeledText label="Cost or Benefit" text={cost?.costOrBenefit} /> : null}
+            <LabeledText label="Cost or Benefit" text={cost?.costSavings ? BcnType.COST : BcnType.BENEFIT} />
 
             <InitialOccurence cost={cost} />
 

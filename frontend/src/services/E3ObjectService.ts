@@ -511,13 +511,13 @@ function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
         .real()
         .invest()
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
-        .type(cost.costOrBenefit === CostBenefit.COST ? BcnType.COST : BcnType.BENEFIT)
+        .type(cost.costSavings ? BcnType.BENEFIT : BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .addTag("Other", "LCC")
         .addTag(...(cost.tags ?? []))
         .addTag(cost.unit ?? "")
         .quantityValue(cost.valuePerUnit)
-        .quantity(cost.costOrBenefit ? -cost.numberOfUnits : cost.numberOfUnits)
+        .quantity(cost.costSavings ? -cost.numberOfUnits : cost.numberOfUnits)
         .quantityUnit(cost.unit ?? ""); //TODO rate of change
 
     applyRateOfChange(builder, cost);
