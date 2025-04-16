@@ -335,7 +335,7 @@ function convertCost(
                 description: cost.Comment ?? undefined,
                 type: CostTypes.REPLACEMENT_CAPITAL,
                 initialCost: cost.InitialCost,
-                annualRateOfChange: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
+                rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 residualValue: {
@@ -345,8 +345,7 @@ function convertCost(
             } as ReplacementCapitalCost;
         case "NonRecurringCost": {
             const escalation = parseEscalation(cost.Escalation, studyPeriod) ?? 0;
-            const recurring =
-                escalation === undefined ? undefined : { rateOfChangeValue: escalation, rateOfRecurrence: 0 };
+            const recurring = { rateOfRecurrence: 0 };
 
             return {
                 id,
@@ -355,6 +354,7 @@ function convertCost(
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
+                rateOfChangeValue: escalation,
                 recurring,
             } as OMRCost;
         }
@@ -366,8 +366,8 @@ function convertCost(
                 type: CostTypes.OMR,
                 initialCost: cost.Amount,
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
+                rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 recurring: {
-                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                     rateOfRecurrence: 1,
                 },
             } as OMRCost;
@@ -433,8 +433,8 @@ function convertCost(
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost.Amount,
                 initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod),
+                rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 recurring: {
-                    rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
                 },
             } as RecurringContractCost;
@@ -445,8 +445,8 @@ function convertCost(
                 description: cost.Comment ?? undefined,
                 type: CostTypes.IMPLEMENTATION_CONTRACT,
                 cost: cost.Amount,
-                occurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
-                valueRateOfChange: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
+                initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
+                rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
             } as ImplementationContractCost;
     }
 }

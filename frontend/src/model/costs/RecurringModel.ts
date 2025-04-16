@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import type { Cost } from "blcc-format/Format";
 import { CostModel } from "model/CostModel";
-import { isRecurringCost } from "model/Guards";
+import { isRateOfChangeUnitCost, isRateOfChangeValueCost, isRecurringCost } from "model/Guards";
 import { Model } from "model/Model";
 import * as O from "optics-ts";
 import { combineLatestWith, filter, map } from "rxjs/operators";
@@ -28,6 +28,8 @@ function toRateChangeInfo([changes, releaseYear]: [number[], number]): RateChang
 }
 
 export namespace RecurringModel {
+    const rateofChangeUnitCostOptic = O.optic<Cost>().guard(isRateOfChangeUnitCost);
+    const rateOfChangeCostOptic = O.optic<Cost>().guard(isRateOfChangeValueCost);
     const recurringOptic = O.optic<Cost>().guard(isRecurringCost).prop("recurring");
 
     export const recurring = new Var(CostModel.cost, recurringOptic);
@@ -47,7 +49,7 @@ export namespace RecurringModel {
          * The value of the rate of change of the recurring cost.
          * Either a constant value or an array of values for each year.
          */
-        export const rate = new Var(CostModel.cost, recurringOptic.optional().prop("rateOfChangeValue"));
+        export const rate = new Var(CostModel.cost, rateOfChangeCostOptic.optional().prop("rateOfChangeValue"));
 
         /**
          * Is the value of the rate of change constant.
@@ -92,7 +94,10 @@ export namespace RecurringModel {
     }
 
     export namespace Units {
-        export const rate = new Var(CostModel.cost, recurringOptic.optional().prop("rateOfChangeUnits"));
+        export const rate = new Var(
+            CostModel.cost,
+            rateofChangeUnitCostOptic.guard(isRateOfChangeUnitCost).prop("rateOfChangeUnits"),
+        );
 
         export const [isConstant] = bind(rate.$.pipe(isConstantOp()));
 
@@ -136,7 +141,7 @@ export namespace RecurringModel {
          *                   of change. This is only applicable if `recurring` is true.
          *                   If true, the constant unit rate of change is set to 0.
          */
-        export function toggleRecurring(recurring: boolean, showValue: boolean) {
+        export function toggleRecurring(recurring: boolean) {
             // If not recurring, unset the recurring state
             if (!recurring) {
                 RecurringModel.recurring.set(undefined);
@@ -144,16 +149,9 @@ export namespace RecurringModel {
             }
 
             // Otherwise, set the default recurring state
-            showValue
-                ? RecurringModel.recurring.set({
-                      rateOfRecurrence: 0,
-                      rateOfChangeValue: 0,
-                      rateOfChangeUnits: 0,
-                  })
-                : RecurringModel.recurring.set({
-                      rateOfRecurrence: 0,
-                      rateOfChangeUnits: 0,
-                  });
+            RecurringModel.recurring.set({
+                rateOfRecurrence: 0,
+            });
         }
 
         /**

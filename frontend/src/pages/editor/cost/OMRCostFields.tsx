@@ -1,5 +1,5 @@
 import type { Cost } from "blcc-format/Format";
-import Recurring from "components/Recurring";
+import Recurring, { ValueRateOfChange } from "components/Recurring";
 import { CostModel } from "model/CostModel";
 import { Strings } from "constants/Strings";
 import * as O from "optics-ts";
@@ -40,7 +40,7 @@ export default function OMRCostFields() {
 
     return (
         <div className={"max-w-screen-lg p-6"}>
-            <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+            <div className={"mb-4 grid grid-cols-2 gap-x-16 gap-y-4"}>
                 <TestNumberInput
                     className={"w-full"}
                     addonBefore={"$"}
@@ -65,8 +65,9 @@ export default function OMRCostFields() {
                     error={OMRCostModel.initialOccurrence.useValidation}
                     warning={initialOccurenceWarning ? "Warning: exceeds study period" : undefined}
                 />
+                <ValueRateOfChange />
             </div>
-            <Recurring showUnit={false} />
+            <Recurring />
         </div>
     );
 }

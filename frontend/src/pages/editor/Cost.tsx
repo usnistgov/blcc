@@ -2,7 +2,7 @@ import { mdiArrowLeft, mdiChevronRight, mdiContentCopy, mdiMinus, mdiPlus } from
 import Icon from "@mdi/react";
 import { shareLatest, useStateObservable } from "@react-rxjs/core";
 import { Typography } from "antd";
-import { CostTypes, type Cost as FormatCost, type ID } from "blcc-format/Format";
+import { CostTypes } from "blcc-format/Format";
 import AppliedCheckboxes from "components/AppliedCheckboxes";
 import { CostSavingsSwitch } from "components/CostSavingsSwitch";
 import Info from "components/Info";
@@ -19,9 +19,8 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import { CostModel } from "model/CostModel";
-import { alternatives$, currentProject$ } from "model/Model";
+import { alternatives$ } from "model/Model";
 import { EnergyCostModel } from "model/costs/EnergyCostModel";
-import { db } from "model/db";
 import ImplementationContractCostFields from "pages/editor/cost/ImplementationContractCostFields";
 import InvestmentCapitalCostFields from "pages/editor/cost/InvestmentCapitalCostFields";
 import OMRCostFields from "pages/editor/cost/OMRCostFields";
@@ -33,10 +32,8 @@ import WaterCostFields from "pages/editor/cost/WaterCostFields";
 import EnergyCostFields from "pages/editor/cost/energycostfields/EnergyCostFields";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Subject, combineLatest, map, sample, switchMap } from "rxjs";
-import { cloneName, omit } from "util/Util";
+import { Subject, combineLatest, map } from "rxjs";
 import sToggleAlt$ = CostModel.sToggleAlt$;
-import cost = CostModel.cost;
 
 const { Title } = Typography;
 

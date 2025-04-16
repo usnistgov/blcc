@@ -239,7 +239,7 @@ export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
     ResidualValueCost & {
         initialOccurrence: number;
         initialCost?: number;
-        annualRateOfChange?: number;
+        rateOfChangeValue?: number;
         expectedLife?: number;
     };
 
@@ -248,38 +248,38 @@ export type OMRCost = Type<CostTypes.OMR> &
         initialCost?: number;
         initialOccurrence: number;
         recurring?: Recurring;
+        rateOfChangeValue?: number | number[];
     };
 
 export type ImplementationContractCost = Type<CostTypes.IMPLEMENTATION_CONTRACT> &
     BaseCost & {
-        occurrence: number;
+        initialOccurrence: number;
         cost?: number;
-        valueRateOfChange?: number;
+        rateOfChangeValue?: number;
     };
 
 export type Recurring = {
     rateOfRecurrence?: number;
-    rateOfChangeValue?: number | number[];
-    rateOfChangeUnits?: number | number[];
 };
 
 export type RecurringContractCost = Type<CostTypes.RECURRING_CONTRACT> &
     BaseCost & {
         initialCost?: number;
         initialOccurrence: number;
-        annualRateOfChange: number;
+        rateOfChangeValue?: number | number[];
         recurring?: Recurring;
     };
 
 export type OtherCost = Type<CostTypes.OTHER> &
     BaseCost & {
-        costOrBenefit: CostBenefit;
         tags?: string[];
         initialOccurrence: number;
         valuePerUnit: number;
         numberOfUnits: number;
         unit?: string | Unit;
         recurring?: Recurring;
+        rateOfChangeValue?: number | number[];
+        rateOfChangeUnits?: number | number[];
     };
 
 export enum CostBenefit {
@@ -294,6 +294,7 @@ export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
         numberOfUnits: number;
         unit?: string | Unit;
         recurring?: Recurring;
+        rateOfChangeUnits?: number | number[];
     };
 
 export type Type<T> = {

@@ -13,10 +13,10 @@ import { z } from "zod";
 namespace ImplementationContractModel {
     const costOptic = O.optic<Cost>().guard(isImplementationContractCost);
 
-    export const valueRateOfChange = new Var(CostModel.cost, costOptic.prop("valueRateOfChange"));
+    export const valueRateOfChange = new Var(CostModel.cost, costOptic.prop("rateOfChangeValue"));
     export const occurrence = new Var(
         CostModel.cost,
-        costOptic.prop("occurrence"),
+        costOptic.prop("initialOccurrence"),
         z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
     );
     export const cost = new Var(CostModel.cost, costOptic.prop("cost"), z.number());

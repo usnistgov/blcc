@@ -1,7 +1,7 @@
 import { Select } from "antd";
 import Title from "antd/es/typography/Title";
 import Info from "components/Info";
-import Recurring from "components/Recurring";
+import Recurring, { UnitRateOfChange, ValueRateOfChange } from "components/Recurring";
 import SelectOrCreate from "components/SelectOrCreate";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
@@ -61,8 +61,10 @@ export default function OtherCostFields() {
                     onChange={OtherCostModel.Actions.setValuePerUnit}
                     tooltip={Strings.UNIT_VALUE_TOOLTIP}
                 />
+                <ValueRateOfChange />
+                <UnitRateOfChange />
                 <span className={"col-span-2"}>
-                    <Recurring showValue />
+                    <Recurring />
                 </span>
             </div>
         </div>

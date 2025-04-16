@@ -20,7 +20,7 @@ namespace ReplacementModel {
         costOptic.prop("initialOccurrence"),
         z.number().min(1, { message: Strings.MUST_BE_AT_LEAST_ONE }),
     );
-    export const annualRateOfChange = new Var(CostModel.cost, costOptic.prop("annualRateOfChange"));
+    export const annualRateOfChange = new Var(CostModel.cost, costOptic.prop("rateOfChangeValue"));
     export const expectedLife = new Var(
         CostModel.cost,
         costOptic.prop("expectedLife"),
