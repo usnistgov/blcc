@@ -11,7 +11,7 @@ import {
     recurringContractCostsByAlternative$,
     replacementCostsByAlternative$,
 } from "./Model";
-import { combineLatest, map, mergeMap, type Observable, of, switchMap } from "rxjs";
+import { combineLatest, combineLatestWith, map, mergeMap, type Observable, of, switchMap } from "rxjs";
 import type { ZodError } from "zod";
 import { sum } from "util/Util";
 import { bind } from "@react-rxjs/core";
@@ -75,7 +75,10 @@ const hasDiscountingMethod$: Observable<string[]> = Model.discountingMethod.$.pi
 );
 
 const zipCodeValidation$: Observable<string[]> = Model.Location.zipcode.validation$.pipe(
-    map((zodError) => getFieldValidationError("Zipcode", zodError)),
+    combineLatestWith(Model.Location.country.$),
+    map(([zodError, country]) => {
+        return country === Country.USA ? getFieldValidationError("Zipcode", zodError) : [];
+    }),
 );
 
 /* General Information - Rates Validation */
