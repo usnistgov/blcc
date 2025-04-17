@@ -556,7 +556,7 @@ function parsePhaseIn(cost: any, studyPeriod: number): number[] | undefined {
         const interval = intervals[i];
 
         for (let j = stride; j < stride + interval.value; j++) {
-            result[j] = portion / interval.value;
+            result[j + 1] = portion / interval.value;
         }
 
         stride += interval.value;
