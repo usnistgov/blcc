@@ -51,6 +51,7 @@ async fn main() -> std::io::Result<()> {
     // Get environment variable and logger
     dotenv().expect("No .env file found!");
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    log::info!("Starting BLCC backend version {}", env!("CARGO_PKG_VERSION"));
 
     // Setup database pool
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
