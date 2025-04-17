@@ -48,12 +48,16 @@ function renderEditCell({ row, column, onRowChange }: RenderEditCellProps<RateCh
             onChange={(event) =>
                 onRowChange({
                     ...row,
-                    [column.key]: calculateRealDiscountRate(
-                        toDecimal(
-                            Number.parseFloat(event.currentTarget.value === "" ? "0" : event.currentTarget.value),
-                        ),
-                        inflation,
-                    ),
+                    [column.key]: isDollarMethodCurrent
+                        ? calculateRealDiscountRate(
+                              toDecimal(
+                                  Number.parseFloat(event.currentTarget.value === "" ? "0" : event.currentTarget.value),
+                              ),
+                              inflation,
+                          )
+                        : toDecimal(
+                              Number.parseFloat(event.currentTarget.value === "" ? "0" : event.currentTarget.value),
+                          ),
                 })
             }
         />
