@@ -49,7 +49,9 @@ function renderEditCell({ row, column, onRowChange }: RenderEditCellProps<RateCh
                 onRowChange({
                     ...row,
                     [column.key]: calculateRealDiscountRate(
-                        toDecimal(Number.parseFloat(event.currentTarget.value)),
+                        toDecimal(
+                            Number.parseFloat(event.currentTarget.value === "" ? "0" : event.currentTarget.value),
+                        ),
                         inflation,
                     ),
                 })
