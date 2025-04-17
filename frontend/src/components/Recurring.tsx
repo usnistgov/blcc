@@ -104,7 +104,7 @@ export default function Recurring({ showDuration = true }: RecurringProps) {
             />
             {RecurringModel.isRecurring() && (
                 <div className={"my-4 grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    <RateOfRecurrenceInput />
+                    <RateOfRecurrenceInput showLabel={true} />
                     {showDuration && <DurationInput />}
                 </div>
             )}
@@ -130,25 +130,23 @@ export function RateOfRecurrenceInput({ showLabel = false }: RateOfRecurrenceInp
     );
 }
 
-type DurationInputProps = {
-    showLabel?: boolean;
-};
-
-export function DurationInput({ showLabel = false }: DurationInputProps) {
+export function DurationInput() {
     const duration = RecurringModel.Duration.duration.use();
-    const studyPeriod = Model.studyPeriod.use() ?? 0;
+    const servicePeriod = (Model.studyPeriod.use() ?? 0) - Model.constructionPeriod.use();
 
     return (
         <TestNumberInput
             className={"w-full"}
-            label={showLabel ? "Duration" : undefined}
+            label={"Duration"}
             addonBefore={"lasts for"}
             addonAfter={"years"}
             getter={RecurringModel.Duration.duration.use}
             onChange={RecurringModel.Duration.Actions.setValue}
             error={RecurringModel.Duration.duration.useValidation}
             warning={
-                duration !== undefined && duration > studyPeriod ? "Warning: greater than study period" : undefined
+                duration !== undefined && duration > servicePeriod
+                    ? `Warning: greater than service period (${servicePeriod} years)`
+                    : undefined
             }
         />
     );

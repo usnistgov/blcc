@@ -46,14 +46,17 @@ import z from "zod";
 
 export const currentProject$ = NEVER.pipe(startWith(Defaults.PROJECT_ID), shareReplay(1));
 
-export const sProject$ = new Subject<Project>();
+export const sProject$ = new BehaviorSubject<Project | undefined>(undefined);
 export const sProjectCollection$ = new BehaviorSubject<Collection<Project>>(
     db.projects.where("id").equals(Defaults.PROJECT_ID),
 );
 
-const DexieModelTest = new DexieModel(sProject$, sProjectCollection$);
+const DexieModelTest = new DexieModel(sProject$.pipe(guard()), sProjectCollection$);
 
-export const alternativeIDs$ = sProject$.pipe(map((p) => p.alternatives));
+export const alternativeIDs$ = sProject$.pipe(
+    guard(),
+    map((p) => p.alternatives),
+);
 export const [useAlternativeIDs] = bind(alternativeIDs$, []);
 
 export const alternatives$ = from(liveQuery(() => db.alternatives.toArray())).pipe(distinctUntilChanged());
@@ -67,7 +70,10 @@ export const baselineID$ = alternatives$.pipe(
 export const hasBaseline$ = alternatives$.pipe(map((alternatives$) => findBaselineID(alternatives$) === undefined));
 export const [useHasBaseline] = bind(hasBaseline$, false);
 
-export const costIDs$ = sProject$.pipe(map((p) => p.costs));
+export const costIDs$ = sProject$.pipe(
+    guard(),
+    map((p) => p.costs),
+);
 export const [useCostIDs] = bind(costIDs$, []);
 
 export const hashProject$ = from(liveQuery(() => db.projects.where("id").equals(Defaults.PROJECT_ID).first()));
