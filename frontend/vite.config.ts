@@ -20,4 +20,7 @@ export default defineConfig({
         //outDir: "../backend/public/dist",
     },
     plugins: [react(), svgr(), tsconfigPaths()],
+    define: {
+        __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    },
 });
