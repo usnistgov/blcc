@@ -92,6 +92,11 @@ export default function EnergyCostFields() {
                     label={"Rebate"}
                     getter={EnergyCostModel.rebate.use}
                     onChange={EnergyCostModel.Actions.setRebate}
+                    warning={
+                        (EnergyCostModel.rebate.use() ?? 0) < 0
+                            ? "Double check input: negative value provided."
+                            : undefined
+                    }
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -100,6 +105,11 @@ export default function EnergyCostFields() {
                     label={"Demand Charge"}
                     getter={EnergyCostModel.demandCharge.use}
                     onChange={EnergyCostModel.Actions.setDemandCharge}
+                    warning={
+                        (EnergyCostModel.demandCharge.use() ?? 0) < 0
+                            ? "Double check input: negative value provided."
+                            : undefined
+                    }
                 />
 
                 <EnergyCostLocation />
