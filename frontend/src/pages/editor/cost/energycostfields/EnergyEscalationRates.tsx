@@ -162,7 +162,9 @@ function ConstantEscalationInput() {
                 className={"w-full"}
                 getter={EscalationRateModel.useConstantEscalationRatePercentage}
                 onBlur={(event) =>
-                    EscalationRateModel.Actions.setConstant(Number.parseFloat(event.currentTarget.value))
+                    EscalationRateModel.Actions.setConstant(
+                        Number.parseFloat(event.currentTarget.value === "" ? "0" : event.currentTarget.value) ?? 0,
+                    )
                 }
                 addonAfter={"%"}
             />
