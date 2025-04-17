@@ -132,7 +132,7 @@ function costToBuilders(
     emissions: readonly number[] | undefined,
 ): BcnBuilder[] {
     return Match.type<Cost>().pipe(
-        Match.when({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, studyPeriod)),
+        Match.when({ type: CostTypes.CAPITAL }, (cost) => capitalCostToBuilder(cost, project, studyPeriod)),
         Match.when({ type: CostTypes.ENERGY }, (cost) => energyCostToBuilder(project, cost, emissions)),
         Match.when({ type: CostTypes.WATER }, (cost) => waterCostToBuilder(cost, project)),
         Match.when({ type: CostTypes.REPLACEMENT_CAPITAL }, (cost) =>
@@ -149,7 +149,7 @@ function costToBuilders(
     )(cost);
 }
 
-function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilder[] {
+function capitalCostToBuilder(cost: CapitalCost, project: Project, studyPeriod: number): BcnBuilder[] {
     const tag = "Initial Investment";
     const result = [];
 
@@ -163,7 +163,6 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                     .type(BcnType.COST)
                     .subType(BcnSubType.DIRECT)
                     .name(`${cost.name} Phase-In year ${i}`)
-                    .real()
                     .invest()
                     .initialOccurrence(i)
                     .life(cost.expectedLife ?? -1)
@@ -179,7 +178,6 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 .type(BcnType.COST)
                 .subType(BcnSubType.DIRECT)
                 .name(cost.name)
-                .real()
                 .invest()
                 .initialOccurrence(0)
                 .life(cost.expectedLife ?? -1)
@@ -197,7 +195,12 @@ function capitalCostToBuilder(cost: CapitalCost, studyPeriod: number): BcnBuilde
                 (cost.initialCost ?? 0) + (cost.amountFinanced ?? 0),
                 cost.residualValue,
                 studyPeriod,
-                cost.annualRateOfChange ?? 0,
+                project.dollarMethod === DollarMethod.CURRENT
+                    ? calculateNominalDiscountRate(
+                          cost.annualRateOfChange ?? 0,
+                          project.inflationRate ?? Defaults.INFLATION_RATE,
+                      )
+                    : (cost.annualRateOfChange ?? 0),
             ),
         );
 
@@ -274,7 +277,6 @@ function energyCostToBuilder(
     const builder = new BcnBuilder()
         .name(cost.name)
         .addTag("Energy", cost.fuelType, cost.unit, "LCC")
-        .real()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .initialOccurrence(initial)
@@ -290,7 +292,6 @@ function energyCostToBuilder(
             new BcnBuilder()
                 .name(`${cost.name} Demand Charge`)
                 .addTag("Demand Charge", "LCC")
-                .real()
                 .type(BcnType.COST)
                 .subType(BcnSubType.DIRECT)
                 .initialOccurrence(initial)
@@ -305,7 +306,6 @@ function energyCostToBuilder(
             new BcnBuilder()
                 .name(`${cost.name} Rebate`)
                 .addTag("Rebate", "LCC")
-                .real()
                 .type(BcnType.BENEFIT)
                 .recur(energyCostRecurrence(project, cost))
                 .subType(BcnSubType.DIRECT)
@@ -340,7 +340,6 @@ function energyCostToBuilder(
             new BcnBuilder()
                 .name(`${cost.name} Emissions`)
                 .addTag("Emissions", `${cost.fuelType} Emissions`, "kg CO2e")
-                .real()
                 .type(BcnType.NON_MONETARY)
                 .initialOccurrence(initial)
                 .quantity(1)
@@ -372,7 +371,6 @@ function waterCostToBuilder(cost: WaterCost, project: Project): BcnBuilder[] {
                 .type(BcnType.COST)
                 .name(cost.name)
                 .addTag(cost.unit, "LCC", "Usage", "Water")
-                .real()
                 .invest()
                 .recur(recurBuilder)
                 .initialOccurrence(project.constructionPeriod + 1)
@@ -396,7 +394,6 @@ function waterCostToBuilder(cost: WaterCost, project: Project): BcnBuilder[] {
                 .type(BcnType.COST)
                 .name(cost.name)
                 .addTag(cost.unit, "LCC", "Disposal", "Water")
-                .real()
                 .invest()
                 .recur(recurBuilder)
                 .initialOccurrence(project.constructionPeriod + 1)
@@ -425,7 +422,6 @@ function replacementCapitalCostToBuilder(
 ): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
-        .real()
         .invest()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
@@ -445,7 +441,12 @@ function replacementCapitalCostToBuilder(
                 cost.initialCost ?? -1,
                 cost.residualValue,
                 studyPeriod,
-                cost.rateOfChangeValue ?? 0,
+                project.dollarMethod === DollarMethod.CURRENT
+                    ? calculateNominalDiscountRate(
+                          cost.rateOfChangeValue ?? 0,
+                          project.inflationRate ?? Defaults.INFLATION_RATE,
+                      )
+                    : (cost.rateOfChangeValue ?? 0),
             ),
         ];
 
@@ -459,7 +460,6 @@ function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
-        .real()
         .quantityValue(cost.initialCost ?? -1)
         .quantity(cost.costSavings ? -1 : 1);
 
@@ -480,7 +480,6 @@ function implementationContractCostToBuilder(project: Project, cost: Implementat
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .addTag("Implementation Contract Cost", "LCC")
-        .real()
         .invest()
         .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.cost ?? -1)
@@ -496,7 +495,6 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .addTag("Recurring Contract Cost", "LCC")
-        .real()
         .invest()
         .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
@@ -510,7 +508,6 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
 function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
-        .real()
         .invest()
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .type(cost.costSavings ? BcnType.BENEFIT : BcnType.COST)
@@ -552,7 +549,7 @@ function applyRateOfChangeNonRecurring(
 ) {
     const recurBuilder = new RecurBuilder().interval(50).end(cost.initialOccurrence + project.constructionPeriod + 1);
 
-    applyRateOfChangeValue(builder, recurBuilder, cost);
+    applyRateOfChangeValue(builder, recurBuilder, cost, project);
 }
 
 function applyRateOfChangeRecurring(
@@ -573,7 +570,7 @@ function applyRateOfChangeRecurring(
     }
 
     if (cost.type === CostTypes.OTHER || cost.type === CostTypes.RECURRING_CONTRACT || cost.type === CostTypes.OMR) {
-        applyRateOfChangeValue(builder, recurBuilder, cost);
+        applyRateOfChangeValue(builder, recurBuilder, cost, project);
     }
 }
 
@@ -590,11 +587,18 @@ function applyRateOfChangeValue(
     builder: BcnBuilder,
     recurBuilder: RecurBuilder,
     cost: OtherCost | RecurringContractCost | OMRCost | ImplementationContractCost | ReplacementCapitalCost,
+    project: Project,
 ) {
     if (cost.rateOfChangeValue !== undefined) {
-        recurBuilder
-            .varRate(VarRate.PERCENT_DELTA)
-            .varValue(Array.isArray(cost.rateOfChangeValue) ? cost.rateOfChangeValue : [cost.rateOfChangeValue]);
+        const rateOfChangeArray = Array.isArray(cost.rateOfChangeValue)
+            ? cost.rateOfChangeValue
+            : [cost.rateOfChangeValue];
+        const e3Rates = rateOfChangeArray.map((rate) =>
+            project.dollarMethod === DollarMethod.CURRENT
+                ? calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE)
+                : rate,
+        );
+        recurBuilder.varRate(VarRate.PERCENT_DELTA).varValue(e3Rates);
     }
 
     builder.recur(recurBuilder);
@@ -614,7 +618,6 @@ function residualValueBcn(
         .subType(BcnSubType.DIRECT)
         .addTag(...tags)
         .addTag("LCC", "Residual Value")
-        .real()
         .initialOccurrence(studyPeriod)
         .quantity(1)
         .quantityValue(
