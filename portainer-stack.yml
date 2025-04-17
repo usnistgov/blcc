@@ -29,7 +29,6 @@ services:
 
   postgres:
     image: "docker.nist.gov:4567/eldst/blcc/db:${BLCC_DB_TAG}"
-    restart: always
     hostname: postgres
     environment:
       POSTGRES_USER: admin

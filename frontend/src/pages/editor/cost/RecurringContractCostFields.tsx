@@ -65,7 +65,7 @@ export default function RecurringContractCostFields() {
 
                 {/* Second row */}
                 <ValueRateOfChange />
-                <DurationInput showLabel />
+                <DurationInput />
             </div>
         </div>
     );
