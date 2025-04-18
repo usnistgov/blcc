@@ -77,6 +77,7 @@ export type Alternative = {
     name: string;
     description?: string;
     baseline?: boolean;
+    ERCIPBaseCase?: boolean;
     costs: ID[];
 };
 

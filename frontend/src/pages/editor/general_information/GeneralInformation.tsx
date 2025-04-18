@@ -1,6 +1,7 @@
+import { createSignal } from "@react-rxjs/utils";
 import { Divider, Radio } from "antd";
 import Title from "antd/es/typography/Title";
-import { AnalysisType, DiscountingMethod, DollarMethod, Purpose } from "blcc-format/Format";
+import { AnalysisType, Cost, CostTypes, DiscountingMethod, DollarMethod, Purpose } from "blcc-format/Format";
 import Info from "components/Info";
 import Location from "components/Location";
 import { TestInput } from "components/input/TestInput";
@@ -11,10 +12,96 @@ import UpdateGeneralOptionsModal from "components/modal/UpdateGeneralOptionsModa
 import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { Model } from "model/Model";
+import { currentProject$, ercipBaseCase$, Model } from "model/Model";
+import { db } from "model/db";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
 import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
 import GhgInput from "pages/editor/general_information/GhgInput";
+import { map, tap, withLatestFrom } from "rxjs";
+
+const [createBaseCase$, createBaseCase] = createSignal<void>();
+const [deleteBaseCase$, deleteBaseCase] = createSignal<void>();
+
+/**
+ * Creates a new alternative in the DB and returns the new ID.
+ * @param projectID the ID of the project to create the alternative for.
+ * @param name the name of the new alternative.
+ */
+function createERCIPBaseAlternativeInDB(projectID: number): Promise<number> {
+    return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
+        // Add new alternative and get its ID
+        const newAltID = await db.alternatives.add({
+            name: "Base Cost",
+            costs: [],
+            ERCIPBaseCase: true,
+            baseline: true,
+        });
+
+        // Add alternative ID to current project
+        await db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                project.alternatives.push(newAltID);
+            });
+
+        const newCost = {
+            name: "Base Case - Cost",
+            type: CostTypes.CAPITAL,
+            initialCost: 0,
+            expectedLife: 99,
+        } as Cost;
+
+        // Add new cost to DB and get new ID
+        const newID = await db.costs.add(newCost);
+
+        // Add new cost ID to project
+        await db.projects
+            .where("id")
+            .equals(projectID ?? 1)
+            .modify((project) => {
+                project.costs.push(newID);
+            });
+
+        // Add new cost ID to alternatives
+        await db.alternatives
+            .where("id")
+            .equals(newAltID)
+            .modify((alt) => {
+                alt.costs.push(newID);
+            });
+
+        return newAltID;
+    });
+}
+
+function removeERCIPBaseAlternative([projectID, alternativeID]: [number, number]) {
+    return db.transaction("rw", db.alternatives, db.projects, db.costs, async () => {
+        // Remove costs only associated with this alternative
+        for (const costID of (await db.alternatives.where("id").equals(alternativeID).toArray()).flatMap(
+            (alt) => alt.costs,
+        )) {
+            // Delete if it belongs to only one alternative
+            if ((await db.alternatives.toArray()).filter((alt) => alt.costs.includes(costID)).length <= 1) {
+                db.costs.where("id").equals(costID).delete();
+            }
+        }
+
+        // Remove alternative
+        db.alternatives.where("id").equals(alternativeID).delete();
+
+        // Remove alternative ID from project
+        db.projects
+            .where("id")
+            .equals(projectID)
+            .modify((project) => {
+                const index = project.alternatives.indexOf(alternativeID);
+                if (index > -1) {
+                    project.alternatives.splice(index, 1);
+                }
+            });
+    });
+}
 
 /**
  * Returns a dropdown for selecting the analysis purpose if the analysis type is OMB Non-Energy,
@@ -43,6 +130,22 @@ function AnalysisPurpose() {
 
 export default function GeneralInformation() {
     useSubscribe(Model.updateAnalysisType$);
+
+    useSubscribe(
+        createBaseCase$.pipe(
+            withLatestFrom(currentProject$),
+            map((click, projectId) => projectId),
+        ),
+        createERCIPBaseAlternativeInDB,
+    );
+
+    useSubscribe(
+        deleteBaseCase$.pipe(
+            withLatestFrom(currentProject$, ercipBaseCase$),
+            map(([click, projectId, ercipBaseCase]) => [projectId, ercipBaseCase?.id] as [number, number]),
+        ),
+        removeERCIPBaseAlternative,
+    );
 
     return (
         <motion.div
@@ -103,6 +206,8 @@ export default function GeneralInformation() {
                         onChange={(change) => {
                             Model.analysisType.set(change);
 
+                            if (change !== AnalysisType.MILCON_ECIP) deleteBaseCase();
+                            if (change === AnalysisType.MILCON_ECIP) createBaseCase();
                             if (change !== AnalysisType.OMB_NON_ENERGY) Model.purpose.set(undefined);
                         }}
                     />

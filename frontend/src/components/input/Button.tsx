@@ -10,6 +10,7 @@ export enum ButtonType {
     ERROR = " bg-error hover:bg-error-light active:bg-error-dark text-base-lightest ",
     SUCCESS = " bg-success hover:bg-success-light active:bg-success-dark text-base-lightest ",
     DISABLED = " bg-base-lighter text-base-light ",
+    DISABLED_DARK = " bg-primary  text-primary-light ",
     LINK = " link text-primary hover:text-primary-light active:text-primary-dark text-base-lightest ",
     LINKERROR = " link text-error hover:text-error-light active:text-error-dark text-base-lightest ",
 }
@@ -19,6 +20,7 @@ export type ButtonProps = {
     type?: ButtonType;
     icon?: string;
     disabled?: boolean;
+    disabledDark?: boolean;
     iconSide?: "left" | "right";
     wire?: Subject<void>;
     tooltip?: ReactNode;
@@ -31,6 +33,7 @@ export function Button({
     type = ButtonType.PRIMARY,
     icon,
     disabled = false,
+    disabledDark = false,
     iconSide = "left",
     wire,
     tooltip,
@@ -41,7 +44,7 @@ export function Button({
         <Tooltip title={tooltip}>
             <button
                 type={"button"}
-                className={`${className ? className : ""} ${disabled ? ButtonType.DISABLED : type} rounded px-2 py-1`}
+                className={`${className ? className : ""} ${disabled ? (disabledDark ? ButtonType.DISABLED_DARK : ButtonType.DISABLED) : type} rounded px-2 py-1`}
                 disabled={disabled}
                 onClick={
                     wire

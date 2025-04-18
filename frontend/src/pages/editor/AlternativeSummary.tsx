@@ -13,12 +13,12 @@ import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
-import { alternatives$ } from "model/Model";
+import { alternatives$, ercipBaseCase$ } from "model/Model";
 import { db } from "model/db";
 import { Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { confirm, countProperty } from "util/Operators";
 
 const { Title } = Typography;
@@ -138,20 +138,22 @@ export function createAlternativeCard(alternative: Alternative) {
         id: alternative.id,
         component: function AltCard() {
             const navigate = useNavigate();
-            useSubscribe(cardClick$, () => navigate(`/editor/alternative/${alternative.id}`));
+            useSubscribe(cardClick$.pipe(withLatestFrom(ercipBaseCase$)), ([_, baseCase]) => {
+                if (baseCase?.id !== alternative.id) navigate(`/editor/alternative/${alternative.id}`);
+            });
 
             return (
                 <div
-                    className={
-                        "mb-5 flex w-3/4 max-w-6xl cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
-                    }
+                    className={`mb-5 flex w-3/4 max-w-6xl ${alternative.ERCIPBaseCase ? "cursor-default" : "cursor-pointer"} flex-col rounded border border-base-lighter p-5 shadow-lg ${alternative.ERCIPBaseCase ? " bg-base-lighter text-base-light" : ""}`}
                     onClick={click}
                     onKeyDown={click}
                 >
                     <div className={"flex flex-row flex-nowrap justify-between gap-1"}>
                         <div className={"flex flex-row gap-2"}>
                             {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
-                            <Title level={4}>{alternative.name}</Title>
+                            <Title level={4} className={alternative.ERCIPBaseCase ? "!text-base-light" : ""}>
+                                {alternative.name}
+                            </Title>
                         </div>
                         <div className={"flex flex-row gap-2"}>
                             {!alternative.baseline && (
@@ -170,6 +172,7 @@ export function createAlternativeCard(alternative: Alternative) {
                                 type={ButtonType.LINK}
                                 icon={mdiContentCopy}
                                 tooltip={Strings.CLONE}
+                                disabled={alternative.ERCIPBaseCase}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (alternative.id !== undefined) AlternativeModel.Actions.clone(alternative.id);
@@ -181,6 +184,7 @@ export function createAlternativeCard(alternative: Alternative) {
                                 type={ButtonType.LINKERROR}
                                 icon={mdiDelete}
                                 tooltip={Strings.DELETE}
+                                disabled={alternative.ERCIPBaseCase}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (alternative.id !== undefined)
