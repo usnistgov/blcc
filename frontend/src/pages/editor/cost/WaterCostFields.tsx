@@ -152,10 +152,14 @@ namespace WaterEscalationModel {
         export function toggleConstant(toggle: boolean) {
             if (toggle) {
                 // Is Constant
-                escalation.set(0);
+                const rates = escalation.current();
+                escalation.set((rates as number[])[0] ?? 0);
             } else {
                 // Not Constant
-                escalation.set([]);
+                const studyPeriod = Model.studyPeriod.current() ?? 0;
+                const constructionPeriod = Model.constructionPeriod.current();
+                const rate = escalation.current();
+                escalation.set(makeArray(studyPeriod + constructionPeriod, rate as number));
             }
         }
 

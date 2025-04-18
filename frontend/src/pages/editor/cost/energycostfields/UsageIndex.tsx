@@ -86,7 +86,8 @@ export default function UsageIndex({ title }: UsageIndexProps) {
             // Set to default constant
             sIsConstant$.pipe(
                 isTrue(),
-                map(() => 1.0),
+                withLatestFrom(UsageIndexModel.useIndex$),
+                map(([_, oldUseIndex]) => (oldUseIndex as number[])[0] ?? 1.0),
             ),
 
             // Fetch and set to default escalation rates
