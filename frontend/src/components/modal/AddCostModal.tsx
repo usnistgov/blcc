@@ -143,6 +143,7 @@ namespace DefaultCosts {
     export const OMR: (project: Project) => Props<OMRCost> = (project: Project) => ({
         type: CostTypes.OMR,
         initialOccurrence: 1,
+        rateOfChangeValue: 0,
         recurring: {
             rateOfRecurrence: 1,
             duration: project.studyPeriod === undefined ? undefined : project.studyPeriod - project.constructionPeriod,
@@ -151,6 +152,7 @@ namespace DefaultCosts {
 
     export const IMPLEMENTATION_CONTRACT: Props<ImplementationContractCost> = {
         type: CostTypes.IMPLEMENTATION_CONTRACT,
+        rateOfChangeValue: 0,
         initialOccurrence: 1,
     };
 
