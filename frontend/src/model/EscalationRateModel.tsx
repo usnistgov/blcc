@@ -273,7 +273,8 @@ export namespace EscalationRateModel {
         export function toggleConstant(toggle: boolean) {
             if (toggle) {
                 // Is constant
-                escalation.set(DEFAULT_CONSTANT_ESCALATION_RATE);
+                const rates = escalation.current();
+                escalation.set((rates as number[])[0] ?? DEFAULT_CONSTANT_ESCALATION_RATE);
                 customEscalation.set(false);
             } else {
                 // Not constant

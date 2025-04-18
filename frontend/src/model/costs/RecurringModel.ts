@@ -147,7 +147,8 @@ export namespace RecurringModel {
             }
 
             export function toggle(isConstant: boolean) {
-                if (isConstant) Units.rate.set(0);
+                const rates = rate.current();
+                if (isConstant) Units.rate.set((rates as number[])[0] ?? 0);
                 else Units.setDefaultArray();
             }
         }
