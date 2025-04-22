@@ -165,6 +165,7 @@ export function createAlternativeCard(alternative: Alternative) {
                                         e.stopPropagation();
                                         if (alternative.id !== undefined) confirmBaselineChange$.next(alternative.id);
                                     }}
+                                    tooltip={Strings.SET_BASELINE_TOOLTIP}
                                     disabled={analysisType === AnalysisType.MILCON_ECIP}
                                     disabledTheme="light"
                                 >
@@ -174,7 +175,7 @@ export function createAlternativeCard(alternative: Alternative) {
                             <Button
                                 type={ButtonType.LINK}
                                 icon={mdiContentCopy}
-                                tooltip={Strings.CLONE}
+                                tooltip={Strings.CLONE_ALTERNATIVE_TOOLTIP}
                                 disabled={alternative.ERCIPBaseCase}
                                 onClick={(e) => {
                                     e.stopPropagation();

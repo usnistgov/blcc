@@ -51,7 +51,7 @@ export default function AlternativeSubHeader() {
                         <Button
                             type={ButtonType.LINK}
                             onClick={() => AlternativeModel.Actions.cloneCurrent()}
-                            tooltip={Strings.CLONE}
+                            tooltip={Strings.CLONE_ALTERNATIVE_TOOLTIP}
                             icon={mdiContentCopy}
                         >
                             Clone
