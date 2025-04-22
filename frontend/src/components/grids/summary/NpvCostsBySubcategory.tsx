@@ -63,7 +63,6 @@ const [useRows] = bind(
 
 export default function NpvCostsBySubcategory() {
     const rows = useRows();
-    console.log(rows);
 
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>
