@@ -96,6 +96,14 @@ export namespace Strings {
 
     export const CLONE = <p>Clone the selected alternative or cost</p>;
 
+    export const CLONE_ALTERNATIVE_TOOLTIP = (
+        <p>
+            Cloning an alternative creates a new alternative using all the same information. The costs are linked to the
+            alternative being cloned by default. For costs that the user wants to be different than the cloned
+            alternative, the user must create new costs or modify the costs to not be associated with both alternatives.
+        </p>
+    );
+
     export const CONSTRUCTION_PERIOD = (
         <p>
             The Construction Period (or Planning/Construction/Installation Period) is the timeframe it takes for the
@@ -367,6 +375,14 @@ export namespace Strings {
     );
 
     export const SAVE = <p>Save Current BLCC file</p>;
+
+    export const SET_BASELINE_TOOLTIP = (
+        <p>
+            Set as Baseline will define the Alternative selected as the Baseline Alternative. A Baseline Alternative is
+            required for completing an economic analysis in BLCC. The Baseline will be the base case of the comparative
+            analysis.
+        </p>
+    );
 
     export const SOCIAL_COST_GHG = (
         <p>
