@@ -1,10 +1,11 @@
 import { mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import Title from "antd/es/typography/Title";
-import { type Cost, CostTypes, type EnergyCost, FuelType } from "blcc-format/Format";
+import { AnalysisType, type Cost, CostTypes, type EnergyCost, type ERCIPCost, FuelType } from "blcc-format/Format";
 import Info from "components/Info";
 import { Button, ButtonType } from "components/input/Button";
 import Switch from "components/input/Switch";
+import { TestNumberInput } from "components/input/TestNumberInput";
 import { TextArea } from "components/input/TextArea";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import AddCostModal from "components/modal/AddCostModal";
@@ -14,12 +15,18 @@ import { useSubscribe } from "hooks/UseSubscribe";
 import useParamSync from "hooks/useParamSync";
 import { AlternativeModel } from "model/AlternativeModel";
 import { CostModel } from "model/CostModel";
+import { Model } from "model/Model";
 import AlternativeSubHeader from "pages/editor/alternative/AlternativeSubHeader";
 import CategoryTable, { type Subcategories } from "pages/editor/alternative/CategoryTable";
 import { useMemo } from "react";
 import { Subject, merge } from "rxjs";
-import { filter, map, withLatestFrom } from "rxjs/operators";
+import { filter, map, tap, withLatestFrom } from "rxjs/operators";
 import { confirm } from "util/Operators";
+import { bind } from "@react-rxjs/core";
+import { db } from "model/db";
+import { Divider } from "antd";
+
+const [useERCIPCost] = bind(AlternativeModel.ercipCost$.pipe(map((costs) => costs[0] as ERCIPCost)));
 
 function group<T extends string>(costs: Cost[], keys: T[], extractor: (cost: Cost) => T): Subcategories<T> {
     const result = {};
@@ -66,8 +73,101 @@ const otherCategories$ = AlternativeModel.otherCosts$.pipe(
     map((costs) => group(costs, [CostTypes.OTHER, CostTypes.OTHER_NON_MONETARY], (cost) => cost.type)),
 );
 
+function ERCIPFields() {
+    const ercipCost = useERCIPCost();
+    const inputClasses = "w-full mb-4 flex-1";
+
+    return (
+        <div className="flex flex-col flex-1">
+            <Title className="self-center" level={3}>
+                Investment
+            </Title>
+            <div className="flex-1 pl-10 2xl:flex 2xl:flex-row justify-center">
+                <div className="2xl:flex 2xl:flex-col 2xl:w-full gap-y-4 justify-between">
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"A - Construction Cost"}
+                        getter={() => ercipCost?.constructionCost}
+                        onChange={(value) => db.costs.put({ ...ercipCost, constructionCost: value ?? 0 }, ercipCost.id)}
+                    />
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"B - SIOH"}
+                        getter={() => ercipCost?.SIOH}
+                        onChange={(value) => db.costs.put({ ...ercipCost, SIOH: value ?? 0 }, ercipCost.id)}
+                    />
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"C - Design Cost"}
+                        getter={() => ercipCost?.designCost}
+                        onChange={(value) => db.costs.put({ ...ercipCost, designCost: value ?? 0 }, ercipCost.id)}
+                    />
+                    <TestNumberInput
+                        className={`${inputClasses} !text-black`}
+                        addonBefore={"$"}
+                        controls
+                        label={"D - Total Cost (A + B + C)"}
+                        getter={() => ercipCost?.constructionCost + ercipCost?.SIOH + ercipCost?.designCost}
+                        readOnly
+                    />
+                </div>
+                <div className="2xl:mx-16 2xl:border-l" />
+                <Divider className="sm:2xl:hidden" />
+                <div className="2xl:flex 2xl:flex-col 2xl:w-full gap-y-4 justify-between">
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"E - Salvage Value of Existing Equipment"}
+                        getter={() => ercipCost?.salvageValue}
+                        onChange={(value) => db.costs.put({ ...ercipCost, salvageValue: value ?? 0 }, ercipCost.id)}
+                    />
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"R - Public Utility Company Rebate"}
+                        getter={() => ercipCost?.publicUtilityRebate}
+                        onChange={(value) =>
+                            db.costs.put({ ...ercipCost, publicUtilityRebate: value ?? 0 }, ercipCost.id)
+                        }
+                    />
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"G - Cybersecurity (Assess and Authorize)"}
+                        getter={() => ercipCost?.cybersecurity}
+                        onChange={(value) => db.costs.put({ ...ercipCost, cybersecurity: value ?? 0 }, ercipCost.id)}
+                    />
+                    <TestNumberInput
+                        className={inputClasses}
+                        addonBefore={"$"}
+                        controls
+                        label={"Total Investment (D - E - F - G)"}
+                        getter={() =>
+                            ercipCost?.constructionCost +
+                            ercipCost?.SIOH +
+                            ercipCost?.designCost -
+                            (ercipCost?.salvageValue + ercipCost?.publicUtilityRebate + ercipCost?.cybersecurity)
+                        }
+                        readOnly
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function Alternatives() {
     useParamSync();
+    const analysisType = Model.analysisType.use();
 
     // Set up streams
     const [confirmBaselineChange$, sBaselineChange$, baselineChangeNoConfirm$, openCostModal$] = useMemo(() => {
@@ -146,8 +246,8 @@ export default function Alternatives() {
             <AlternativeSubHeader />
 
             <div className={"flex h-full flex-col overflow-y-auto p-6"}>
-                <div className={"max-w-screen-lg"}>
-                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                <div className={"flex flex-row"}>
+                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4 flex-1"}>
                         <TextInput
                             className={"w-full"}
                             type={TextInputType.PRIMARY}
@@ -157,12 +257,16 @@ export default function Alternatives() {
                             showCount
                             maxLength={45}
                         />
-                        <span className={"w-1/2"}>
+                        <span className={"2xl:w-1/2 w-full"}>
                             <Title level={5}>
                                 <Info text={Strings.BASELINE_ALTERNATIVE}>Baseline Alternative</Info>
                             </Title>
                             <p>Only one alternative can be the baseline.</p>
-                            <Switch value$={AlternativeModel.isBaseline$} wire={sBaselineChange$} />
+                            <Switch
+                                value$={AlternativeModel.isBaseline$}
+                                wire={sBaselineChange$}
+                                disabled={analysisType === AnalysisType.MILCON_ECIP}
+                            />
                         </span>
 
                         <span className={"col-span-2"}>
@@ -176,6 +280,7 @@ export default function Alternatives() {
                             />
                         </span>
                     </div>
+                    {analysisType === AnalysisType.MILCON_ECIP && <ERCIPFields />}
                 </div>
 
                 <br />

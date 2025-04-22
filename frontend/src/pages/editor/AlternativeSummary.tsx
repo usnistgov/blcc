@@ -2,8 +2,8 @@ import { mdiAlphaBBox, mdiContentCopy, mdiDelete, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Typography } from "antd";
-import type { Alternative, Cost, EnergyCost, ID } from "blcc-format/Format";
+import { Alert, Typography } from "antd";
+import { AnalysisType, type Alternative, type Cost, type EnergyCost, type ID } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
@@ -13,12 +13,12 @@ import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
-import { alternatives$ } from "model/Model";
+import { alternatives$, ercipBaseCase$, Model } from "model/Model";
 import { db } from "model/db";
 import { Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, of, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, withLatestFrom } from "rxjs/operators";
 import { confirm, countProperty } from "util/Operators";
 
 const { Title } = Typography;
@@ -82,6 +82,7 @@ export default function AlternativeSummary() {
 }
 
 export function createAlternativeCard(alternative: Alternative) {
+    const analysisType = Model.analysisType.current();
     const altCosts$ = of(alternative).pipe(
         switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
     );
@@ -138,20 +139,22 @@ export function createAlternativeCard(alternative: Alternative) {
         id: alternative.id,
         component: function AltCard() {
             const navigate = useNavigate();
-            useSubscribe(cardClick$, () => navigate(`/editor/alternative/${alternative.id}`));
+            useSubscribe(cardClick$.pipe(withLatestFrom(ercipBaseCase$)), ([_, baseCase]) => {
+                if (baseCase?.id !== alternative.id) navigate(`/editor/alternative/${alternative.id}`);
+            });
 
             return (
                 <div
-                    className={
-                        "mb-5 flex w-3/4 max-w-6xl cursor-pointer flex-col rounded border border-base-lighter p-5 shadow-lg"
-                    }
+                    className={`mb-5 flex w-3/4 max-w-6xl ${alternative.ERCIPBaseCase ? "cursor-default" : "cursor-pointer"} flex-col rounded border border-base-lighter p-5 shadow-lg ${alternative.ERCIPBaseCase ? " bg-base-lighter text-base-light" : ""}`}
                     onClick={click}
                     onKeyDown={click}
                 >
                     <div className={"flex flex-row flex-nowrap justify-between gap-1"}>
                         <div className={"flex flex-row gap-2"}>
                             {alternative.baseline && <Icon path={mdiAlphaBBox} size={1.2} />}
-                            <Title level={4}>{alternative.name}</Title>
+                            <Title level={4} className={alternative.ERCIPBaseCase ? "!text-base-light" : ""}>
+                                {alternative.name}
+                            </Title>
                         </div>
                         <div className={"flex flex-row gap-2"}>
                             {!alternative.baseline && (
@@ -162,6 +165,8 @@ export function createAlternativeCard(alternative: Alternative) {
                                         e.stopPropagation();
                                         if (alternative.id !== undefined) confirmBaselineChange$.next(alternative.id);
                                     }}
+                                    disabled={analysisType === AnalysisType.MILCON_ECIP}
+                                    disabledTheme="light"
                                 >
                                     Set as Baseline
                                 </Button>
@@ -170,6 +175,7 @@ export function createAlternativeCard(alternative: Alternative) {
                                 type={ButtonType.LINK}
                                 icon={mdiContentCopy}
                                 tooltip={Strings.CLONE}
+                                disabled={alternative.ERCIPBaseCase}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (alternative.id !== undefined) AlternativeModel.Actions.clone(alternative.id);
@@ -181,6 +187,7 @@ export function createAlternativeCard(alternative: Alternative) {
                                 type={ButtonType.LINKERROR}
                                 icon={mdiDelete}
                                 tooltip={Strings.DELETE}
+                                disabled={alternative.ERCIPBaseCase}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (alternative.id !== undefined)

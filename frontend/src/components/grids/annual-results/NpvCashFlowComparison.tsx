@@ -32,16 +32,16 @@ const [useColumns] = bind(
     alternatives$.pipe(
         map((values) => {
             const cols = values.map(
-                (alternative, i) =>
+                (alternative) =>
                     ({
                         name: alternative?.name,
-                        key: i.toString(),
+                        key: alternative?.id?.toString() ?? 0,
                         editable: false,
                         renderHeaderCell: ({ column }: { column: Column<NpvCashflowComparisonRow> }) => (
                             <p className={"text-right"}>{column.name}</p>
                         ),
                         renderCell: ({ row }: { row: { [x: string]: number | bigint } }) => (
-                            <p className={"text-right"}>{dollarFormatter.format(row[i.toString()])}</p>
+                            <p className={"text-right"}>{dollarFormatter.format(row[alternative?.id ?? 0])}</p>
                         ),
                         headerCellClass: "bg-primary text-white",
                         cellClass: "text-ink",
@@ -71,9 +71,10 @@ const [useColumns] = bind(
 
 const [useRows] = bind(
     ResultModel.required$.pipe(
-        map((required) => (required.length > 0 ? createNpvCashflowComparisonRow(required) : [])),
+        map((required) =>
+            required.length > 0 ? createNpvCashflowComparisonRow(required) : ([] as NpvCashflowComparisonRow[]),
+        ),
     ),
-    [],
 );
 
 const [useSummary] = bind(

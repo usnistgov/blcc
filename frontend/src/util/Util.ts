@@ -41,6 +41,19 @@ export function getOptionalTag<T = number>(
     }, {});
 }
 
+export function getOptionalTagByAltId<T = number>(
+    measures: Measures[],
+    tag: string,
+    map: ((value: number) => T) | undefined = undefined,
+): { [key: string]: T } {
+    return measures.reduce((acc, next, i) => {
+        const value = next.totalTagFlows[tag];
+        // @ts-ignore
+        acc[next.altId] = map === undefined ? value : map(next.totalTagFlows[tag]);
+        return acc;
+    }, {});
+}
+
 export function getQuantitySumTag<T = number>(
     measures: Measures[],
     tag: string,

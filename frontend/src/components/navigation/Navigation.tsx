@@ -9,7 +9,12 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 /*
  *  Component representing the navigation button for an alternative
  */
-function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: string }) {
+function AltButton({
+    altID,
+    name,
+    icon,
+    baseCase,
+}: { altID: number; name: string; icon?: string; baseCase?: boolean }) {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -21,6 +26,8 @@ function AltButton({ altID, name, icon }: { altID: number; name: string; icon?: 
             )} overflow-hidden text-ellipsis text-nowrap text-left`}
             type={ButtonType.PRIMARY}
             icon={icon}
+            disabled={baseCase}
+            disabledTheme={"dark"}
             onClick={() => {
                 AlternativeModel.sID$.next(altID);
 
@@ -94,14 +101,17 @@ function AlternativeList() {
                 {alternatives.length <= 0 ? (
                     <p className={"text-base-light"}>No Alternatives</p>
                 ) : (
-                    alternatives.map((alt) => (
-                        <AltButton
-                            key={alt.id}
-                            altID={alt.id ?? 0}
-                            name={alt.name}
-                            icon={alt.baseline ? mdiAlphaBBox : undefined}
-                        />
-                    ))
+                    alternatives
+                        .sort((alt1, alt2) => (alt1.ERCIPBaseCase ? -1 : 1))
+                        .map((alt) => (
+                            <AltButton
+                                key={alt.id}
+                                altID={alt.id ?? 0}
+                                name={alt.name}
+                                baseCase={alt.ERCIPBaseCase}
+                                icon={alt.baseline ? mdiAlphaBBox : undefined}
+                            />
+                        ))
                 )}
             </div>
         </div>

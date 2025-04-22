@@ -20,8 +20,9 @@ function gotoLastAlternative(navigate: NavigateFunction): () => Promise<void> {
     return async () => {
         // Navigate to last alternative after deletion of current one
         const lastAlternative = await db.alternatives.reverse().first();
-        if (lastAlternative !== undefined) navigate(`/editor/alternative/${lastAlternative.id}`);
-        else navigate("/editor/alternative");
+
+        if (lastAlternative?.ERCIPBaseCase || lastAlternative === undefined) navigate("/editor/alternative/");
+        else navigate(`/editor/alternative/${lastAlternative.id}`);
     };
 }
 

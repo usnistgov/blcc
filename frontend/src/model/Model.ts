@@ -125,6 +125,10 @@ export const otherNonMonetaryCostsByAlternative$ = costsByAlternative$.pipe(
     map((costs) => costs.filter((cost) => cost.type === CostTypes.OTHER_NON_MONETARY)),
 );
 
+export const ercipCosts$ = allCosts$.pipe(map((costs) => costs.filter((cost) => cost.type === CostTypes.ERCIP)));
+
+export const ercipBaseCase$ = alternatives$.pipe(map((alts) => alts.find((alt) => alt.ERCIPBaseCase)));
+
 // Creates a hash of the current project
 export const hash$ = combineLatest([hashProject$, allAlternatives$, allCosts$]).pipe(
     switchMap(() =>

@@ -136,6 +136,11 @@ export function isOtherCost(cost: Cost) {
     return type === CostTypes.OTHER || type === CostTypes.OTHER_NON_MONETARY;
 }
 
+// Returns true if the given cost is an 'other' cost or one of its subcategories.
+export function isErcipCost(cost: Cost) {
+    return cost.type === CostTypes.ERCIP;
+}
+
 export function isOtherMonetary(cost: Cost) {
     return cost.type === CostTypes.OTHER;
 }

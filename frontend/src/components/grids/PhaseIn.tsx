@@ -56,8 +56,6 @@ namespace PhaseInModel {
         withLatestFrom(Model.constructionPeriod.$),
         distinctUntilChanged(),
         map(([phaseIn, constructionPeriod]) => {
-            console.log("HERE", phaseIn, constructionPeriod);
-
             if (phaseIn === undefined) {
                 return defaultPhaseIn(constructionPeriod + 1);
             }

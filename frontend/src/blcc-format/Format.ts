@@ -77,6 +77,7 @@ export type Alternative = {
     name: string;
     description?: string;
     baseline?: boolean;
+    ERCIPBaseCase?: boolean;
     costs: ID[];
 };
 
@@ -90,6 +91,7 @@ export enum CostTypes {
     RECURRING_CONTRACT = "Recurring Contract",
     OTHER = "Other Monetary",
     OTHER_NON_MONETARY = "Other Non-Monetary",
+    ERCIP = "ERCIP",
 }
 
 export type UseIndex = {
@@ -110,7 +112,8 @@ export type Cost =
     | ImplementationContractCost
     | RecurringContractCost
     | OtherCost
-    | OtherNonMonetary;
+    | OtherNonMonetary
+    | ERCIPCost;
 
 export type BaseCost = {
     id: ID;
@@ -296,6 +299,16 @@ export type OtherNonMonetary = Type<CostTypes.OTHER_NON_MONETARY> &
         unit?: string | Unit;
         recurring?: Recurring;
         rateOfChangeUnits?: number | number[];
+    };
+
+export type ERCIPCost = Type<CostTypes.ERCIP> &
+    BaseCost & {
+        constructionCost: number;
+        SIOH: number;
+        designCost: number;
+        salvageValue: number;
+        publicUtilityRebate: number;
+        cybersecurity: number;
     };
 
 export type Type<T> = {
