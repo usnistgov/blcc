@@ -27,7 +27,7 @@ function AltButton({
             type={ButtonType.PRIMARY}
             icon={icon}
             disabled={baseCase}
-            disabledDark={true}
+            disabledTheme={"dark"}
             onClick={() => {
                 AlternativeModel.sID$.next(altID);
 

@@ -164,6 +164,7 @@ export default function Cost() {
                         Match.when(CostTypes.RECURRING_CONTRACT, () => <RecurringContractCostFields />),
                         Match.when(CostTypes.OTHER, () => <OtherCostFields />),
                         Match.when(CostTypes.OTHER_NON_MONETARY, () => <OtherNonMonetaryCostFields />),
+                        Match.when(CostTypes.ERCIP, () => <></>),
                         Match.exhaustive,
                     )}
                 </div>

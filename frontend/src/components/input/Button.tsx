@@ -11,6 +11,7 @@ export enum ButtonType {
     SUCCESS = " bg-success hover:bg-success-light active:bg-success-dark text-base-lightest ",
     DISABLED = " bg-base-lighter text-base-light ",
     DISABLED_DARK = " bg-primary  text-primary-light ",
+    DISABLED_LIGHT = " text-base-light ",
     LINK = " link text-primary hover:text-primary-light active:text-primary-dark text-base-lightest ",
     LINKERROR = " link text-error hover:text-error-light active:text-error-dark text-base-lightest ",
 }
@@ -20,7 +21,7 @@ export type ButtonProps = {
     type?: ButtonType;
     icon?: string;
     disabled?: boolean;
-    disabledDark?: boolean;
+    disabledTheme?: "light" | "dark" | undefined;
     iconSide?: "left" | "right";
     wire?: Subject<void>;
     tooltip?: ReactNode;
@@ -33,18 +34,30 @@ export function Button({
     type = ButtonType.PRIMARY,
     icon,
     disabled = false,
-    disabledDark = false,
+    disabledTheme,
     iconSide = "left",
     wire,
     tooltip,
     iconSize = 0.8,
     ...buttonProps
 }: PropsWithChildren<ButtonProps>) {
+    let theme = undefined;
+    switch (disabledTheme) {
+        case "light":
+            theme = ButtonType.DISABLED_LIGHT;
+            break;
+        case "dark":
+            theme = ButtonType.DISABLED_DARK;
+            break;
+        default:
+            theme = ButtonType.DISABLED;
+    }
+
     return (
         <Tooltip title={tooltip}>
             <button
                 type={"button"}
-                className={`${className ? className : ""} ${disabled ? (disabledDark ? ButtonType.DISABLED_DARK : ButtonType.DISABLED) : type} rounded px-2 py-1`}
+                className={`${className ? className : ""} ${disabled ? theme : type} rounded px-2 py-1`}
                 disabled={disabled}
                 onClick={
                     wire

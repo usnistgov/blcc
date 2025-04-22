@@ -15,12 +15,12 @@ import {
 import {
     type CapitalCost,
     type Cost,
-    CostBenefit,
     CostTypes,
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
     type EnergyCost,
+    type ERCIPCost,
     FuelType,
     type ImplementationContractCost,
     LiquidUnit,
@@ -145,6 +145,7 @@ function costToBuilders(
         Match.when({ type: CostTypes.RECURRING_CONTRACT }, (cost) => recurringContractCostToBuilder(project, cost)),
         Match.when({ type: CostTypes.OTHER }, (cost) => otherCostToBuilder(project, cost)),
         Match.when({ type: CostTypes.OTHER_NON_MONETARY }, (cost) => otherNonMonetaryCostToBuilder(project, cost)),
+        Match.when({ type: CostTypes.ERCIP }, (cost) => ercipCostToBuilder(cost, studyPeriod)),
         Match.exhaustive,
     )(cost);
 }
@@ -203,6 +204,36 @@ function capitalCostToBuilder(cost: CapitalCost, project: Project, studyPeriod: 
                     : (cost.annualRateOfChange ?? 0),
             ),
         );
+
+    return result;
+}
+
+function ercipCostToBuilder(cost: ERCIPCost, studyPeriod: number): BcnBuilder[] {
+    const tag = "Initial Investment";
+    const result: BcnBuilder[] = [];
+
+    // Default BCN
+    const addCost = (itemCost: number, name: string, isCost: boolean) =>
+        result.push(
+            new BcnBuilder()
+                .type(BcnType.COST)
+                .subType(BcnSubType.DIRECT)
+                .name(`${tag} - ${name}`)
+                .real()
+                .invest()
+                .initialOccurrence(0)
+                .life(studyPeriod)
+                .addTag(tag, "LCC")
+                .quantity(isCost ? 1 : -1)
+                .quantityValue(itemCost ?? 0),
+        );
+
+    addCost(cost.constructionCost, "Construction Cost", true);
+    addCost(cost.SIOH, "SIOH", true);
+    addCost(cost.designCost, "Design Cost", true);
+    addCost(cost.salvageValue, "Salvage Value", false);
+    addCost(cost.publicUtilityRebate, "Public Utility Company Rebate", false);
+    addCost(cost.cybersecurity, "Cybersecurity", false);
 
     return result;
 }

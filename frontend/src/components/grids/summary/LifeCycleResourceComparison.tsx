@@ -62,7 +62,7 @@ export default function LifeCycleResourceComparison() {
     const rows = useRows();
 
     return (
-        <div className={"w-full overflow-hidden rounded border shadow-lg"}>
+        <div className={"w-full overflow-hidden rounded border shadow-lg mb-5"}>
             <DataGrid
                 className={"h-fit"}
                 rows={rows}

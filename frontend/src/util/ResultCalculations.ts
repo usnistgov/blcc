@@ -79,6 +79,7 @@ export type CategorySubcategoryRow = {
 };
 
 export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryRow[] {
+    console.log(getOptionalTag(measures, "Initial Investment"));
     return [
         { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
         { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },

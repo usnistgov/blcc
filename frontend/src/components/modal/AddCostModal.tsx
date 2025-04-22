@@ -10,6 +10,7 @@ import {
     CostTypes,
     type EnergyCost,
     EnergyUnit,
+    type ERCIPCost,
     FuelType,
     type ID,
     type ImplementationContractCost,
@@ -212,6 +213,16 @@ namespace DefaultCosts {
         costSavings: project !== undefined && project.analysisType === AnalysisType.MILCON_ECIP,
         rateOfChangeUnits: 0,
     });
+
+    export const ERCIP: Props<ERCIPCost> = {
+        type: CostTypes.ERCIP,
+        constructionCost: 0,
+        SIOH: 0,
+        designCost: 0,
+        salvageValue: 0,
+        publicUtilityRebate: 0,
+        cybersecurity: 0,
+    };
 }
 
 /**
@@ -232,6 +243,7 @@ function createCostInDB([project, name, type, alts]: [
         const newCost = {
             name,
             ...Match.value(type).pipe(
+                Match.when(CostTypes.ERCIP, () => DefaultCosts.ERCIP),
                 Match.when(CostTypes.CAPITAL, () => DefaultCosts.CAPITAL(project)),
                 Match.when(CostTypes.WATER, () => DefaultCosts.WATER(project)),
                 Match.when(CostTypes.REPLACEMENT_CAPITAL, () => DefaultCosts.REPLACEMENT_CAPITAL(project)),

@@ -2,10 +2,11 @@ import { mdiClose, mdiPlus } from "@mdi/js";
 import { bind, shareLatest } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Modal, Typography } from "antd";
+import { AnalysisType, CostTypes, type ERCIPCost } from "blcc-format/Format";
 import { Button, ButtonType } from "components/input/Button";
 import TextInput, { TextInputType } from "components/input/TextInput";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { alternatives$, currentProject$ } from "model/Model";
+import { alternatives$, currentProject$, Model } from "model/Model";
 import { db } from "model/db";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,42 @@ function createAlternativeInDB([projectID, name]: [number, string]): Promise<num
             .equals(projectID)
             .modify((project) => {
                 project.alternatives.push(newID);
+            });
+
+        return newID;
+    });
+}
+
+function createErcipCost(projectID: number, altId: number) {
+    return db.transaction("rw", db.costs, db.projects, db.alternatives, async () => {
+        const newCost = {
+            name: "ERCIP",
+            type: CostTypes.ERCIP,
+            constructionCost: 0,
+            SIOH: 0,
+            designCost: 0,
+            salvageValue: 0,
+            publicUtilityRebate: 0,
+            cybersecurity: 0,
+        } as ERCIPCost;
+
+        // Add new cost to DB and get new ID
+        const newID = await db.costs.add(newCost);
+
+        // Add new cost ID to project
+        await db.projects
+            .where("id")
+            .equals(projectID ?? 1)
+            .modify((project) => {
+                project.costs.push(newID);
+            });
+
+        // Add new cost ID to alternatives
+        await db.alternatives
+            .where("id")
+            .equals(altId ?? 1)
+            .modify((alt) => {
+                alt.costs.push(newID);
             });
 
         return newID;
@@ -116,7 +153,14 @@ export default function AddAlternativeModal({ open$, cancel$ }: AddAlternativeMo
     // Output cancel signal
     useSubscribe(modalCancel$, cancel$);
     // Navigate to newly created alternative
-    useSubscribe(newAlternativeID$, (newID) => navigate(`/editor/alternative/${newID}`), [navigate]);
+    useSubscribe(
+        newAlternativeID$.pipe(withLatestFrom(currentProject$, Model.analysisType.$)),
+        ([newID, projectId, analysisType]) => {
+            if (analysisType === AnalysisType.MILCON_ECIP) createErcipCost(projectId, newID);
+            navigate(`/editor/alternative/${newID}`);
+        },
+        [navigate],
+    );
 
     useSubscribe(fromEvent(window, "keydown"), (event) => {
         if ((event as KeyboardEvent).code === "Enter") {

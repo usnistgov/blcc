@@ -2,8 +2,8 @@ import { mdiAlphaBBox, mdiContentCopy, mdiDelete, mdiPlus } from "@mdi/js";
 import Icon from "@mdi/react";
 import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
-import { Typography } from "antd";
-import type { Alternative, Cost, EnergyCost, ID } from "blcc-format/Format";
+import { Alert, Typography } from "antd";
+import { AnalysisType, type Alternative, type Cost, type EnergyCost, type ID } from "blcc-format/Format";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
-import { alternatives$, ercipBaseCase$ } from "model/Model";
+import { alternatives$, ercipBaseCase$, Model } from "model/Model";
 import { db } from "model/db";
 import { Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -82,6 +82,7 @@ export default function AlternativeSummary() {
 }
 
 export function createAlternativeCard(alternative: Alternative) {
+    const analysisType = Model.analysisType.current();
     const altCosts$ = of(alternative).pipe(
         switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
     );
@@ -164,6 +165,8 @@ export function createAlternativeCard(alternative: Alternative) {
                                         e.stopPropagation();
                                         if (alternative.id !== undefined) confirmBaselineChange$.next(alternative.id);
                                     }}
+                                    disabled={analysisType === AnalysisType.MILCON_ECIP}
+                                    disabledTheme="light"
                                 >
                                     Set as Baseline
                                 </Button>

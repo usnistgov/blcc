@@ -2,11 +2,12 @@ import { bind, state } from "@react-rxjs/core";
 import type { Alternative, ID } from "blcc-format/Format";
 import { liveQuery } from "dexie";
 import { Match } from "effect";
-import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
+import { useSubscribe } from "hooks/UseSubscribe";
+import { isCapitalCost, isContractCost, isEnergyCost, isErcipCost, isOtherCost, isWaterCost } from "model/Guards";
 import { alternatives$, currentProject$ } from "model/Model";
 import { db } from "model/db";
 import { BehaviorSubject, type Observable, Subject, distinctUntilChanged, iif, merge, of, switchMap } from "rxjs";
-import { map, shareReplay, withLatestFrom } from "rxjs/operators";
+import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
 import { arrayFilter, confirm, defaultValue, guard } from "util/Operators";
 import { cloneName } from "util/Util";
 
@@ -62,6 +63,8 @@ export namespace AlternativeModel {
      * The other costs of the current alternative.
      */
     export const otherCosts$ = state(altCosts$.pipe(arrayFilter(isOtherCost)), []);
+
+    export const ercipCost$ = state(altCosts$.pipe(arrayFilter(isErcipCost)), []);
 
     export const sName$ = new Subject<string | undefined>();
     const newName$ = sName$.pipe(defaultValue("Unnamed Alternative"));

@@ -1,7 +1,15 @@
 import { createSignal } from "@react-rxjs/utils";
 import { Divider, Radio } from "antd";
 import Title from "antd/es/typography/Title";
-import { AnalysisType, Cost, CostTypes, DiscountingMethod, DollarMethod, Purpose } from "blcc-format/Format";
+import {
+    AnalysisType,
+    type Cost,
+    CostTypes,
+    DiscountingMethod,
+    DollarMethod,
+    type ERCIPCost,
+    Purpose,
+} from "blcc-format/Format";
 import Info from "components/Info";
 import Location from "components/Location";
 import { TestInput } from "components/input/TestInput";
@@ -12,7 +20,7 @@ import UpdateGeneralOptionsModal from "components/modal/UpdateGeneralOptionsModa
 import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
-import { currentProject$, ercipBaseCase$, Model } from "model/Model";
+import { currentProject$, ercipBaseCase$, ercipCosts$, Model, sProject$ } from "model/Model";
 import { db } from "model/db";
 import DiscountRates from "pages/editor/general_information/DiscountRates";
 import { EiaProjectScenarioSelect } from "pages/editor/general_information/EiaProjectScenarioSelect";
@@ -20,16 +28,16 @@ import GhgInput from "pages/editor/general_information/GhgInput";
 import { map, tap, withLatestFrom } from "rxjs";
 
 const [createBaseCase$, createBaseCase] = createSignal<void>();
-const [deleteBaseCase$, deleteBaseCase] = createSignal<void>();
+const [ercipTurnedOff, turnOffERCIP] = createSignal<void>();
 
 /**
  * Creates a new alternative in the DB and returns the new ID.
  * @param projectID the ID of the project to create the alternative for.
  * @param name the name of the new alternative.
  */
-function createERCIPBaseAlternativeInDB(projectID: number): Promise<number> {
+function turnOnERCIP(projectID: number): Promise<number> {
     return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
-        // Add new alternative and get its ID
+        // Add base case alternative and get its ID
         const newAltID = await db.alternatives.add({
             name: "Base Cost",
             costs: [],
@@ -45,31 +53,43 @@ function createERCIPBaseAlternativeInDB(projectID: number): Promise<number> {
                 project.alternatives.push(newAltID);
             });
 
-        const newCost = {
-            name: "Base Case - Cost",
-            type: CostTypes.CAPITAL,
-            initialCost: 0,
-            expectedLife: 99,
-        } as Cost;
+        // Add a new ERCIP cost for every alternative
+        for (const alt of await db.alternatives.toArray()) {
+            const newCost = {
+                name: "ERCIP",
+                type: CostTypes.ERCIP,
+                constructionCost: 0,
+                SIOH: 0,
+                designCost: 0,
+                salvageValue: 0,
+                publicUtilityRebate: 0,
+                cybersecurity: 0,
+            } as ERCIPCost;
 
-        // Add new cost to DB and get new ID
-        const newID = await db.costs.add(newCost);
+            // Add new cost to DB and get new ID
+            const baseCaseCostID = await db.costs.add(newCost);
 
-        // Add new cost ID to project
-        await db.projects
-            .where("id")
-            .equals(projectID ?? 1)
-            .modify((project) => {
-                project.costs.push(newID);
-            });
+            // Add new cost ID to project
+            await db.projects
+                .where("id")
+                .equals(projectID ?? 1)
+                .modify((project) => {
+                    project.costs.push(baseCaseCostID);
+                });
 
-        // Add new cost ID to alternatives
-        await db.alternatives
-            .where("id")
-            .equals(newAltID)
-            .modify((alt) => {
-                alt.costs.push(newID);
-            });
+            // Add new cost ID to alternatives
+            await db.alternatives
+                .where("id")
+                .equals(alt.id ?? 0)
+                .modify((alt) => {
+                    alt.costs.push(baseCaseCostID);
+                });
+
+            // Disable base case for non-base case
+            if (alt.name !== "Base Cost" && alt.baseline === true) {
+                db.alternatives.put({ ...alt, baseline: false });
+            }
+        }
 
         return newAltID;
     });
@@ -100,6 +120,36 @@ function removeERCIPBaseAlternative([projectID, alternativeID]: [number, number]
                     project.alternatives.splice(index, 1);
                 }
             });
+    });
+}
+
+function removeERCIPCosts([projectID, costs]: [number, ERCIPCost[]]) {
+    return db.transaction("rw", db.costs, db.alternatives, db.projects, async () => {
+        // Delete cost
+        for (const costID of costs.map((cost) => cost.id)) {
+            db.costs.where("id").equals(costID).delete();
+
+            // Remove cost from all associated alternatives
+            db.alternatives
+                .filter((alternative) => alternative.costs.includes(costID))
+                .modify((alternative) => {
+                    const index = alternative.costs.indexOf(costID);
+                    if (index > -1) {
+                        alternative.costs.splice(index, 1);
+                    }
+                });
+
+            // Remove cost from project
+            db.projects
+                .where("id")
+                .equals(projectID)
+                .modify((project) => {
+                    const index = project.costs.indexOf(costID);
+                    if (index > -1) {
+                        project.costs.splice(index, 1);
+                    }
+                });
+        }
     });
 }
 
@@ -136,15 +186,23 @@ export default function GeneralInformation() {
             withLatestFrom(currentProject$),
             map((click, projectId) => projectId),
         ),
-        createERCIPBaseAlternativeInDB,
+        turnOnERCIP,
     );
 
     useSubscribe(
-        deleteBaseCase$.pipe(
+        ercipTurnedOff.pipe(
             withLatestFrom(currentProject$, ercipBaseCase$),
             map(([click, projectId, ercipBaseCase]) => [projectId, ercipBaseCase?.id] as [number, number]),
         ),
         removeERCIPBaseAlternative,
+    );
+
+    useSubscribe(
+        ercipTurnedOff.pipe(
+            withLatestFrom(currentProject$, ercipCosts$),
+            map(([, projectId, ercipCosts]) => [projectId, ercipCosts] as [number, ERCIPCost[]]),
+        ),
+        removeERCIPCosts,
     );
 
     return (
@@ -206,8 +264,9 @@ export default function GeneralInformation() {
                         onChange={(change) => {
                             Model.analysisType.set(change);
 
-                            if (change !== AnalysisType.MILCON_ECIP) deleteBaseCase();
+                            if (change !== AnalysisType.MILCON_ECIP) turnOffERCIP();
                             if (change === AnalysisType.MILCON_ECIP) createBaseCase();
+
                             if (change !== AnalysisType.OMB_NON_ENERGY) Model.purpose.set(undefined);
                         }}
                     />
