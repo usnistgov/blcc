@@ -75,7 +75,7 @@ const otherCategories$ = AlternativeModel.otherCosts$.pipe(
 
 function ERCIPFields() {
     const ercipCost = useERCIPCost();
-    const inputClasses = "w-3/4 mb-4 flex-1";
+    const inputClasses = "w-full mb-4 flex-1";
 
     return (
         <div className="flex flex-col flex-1">
@@ -117,7 +117,7 @@ function ERCIPFields() {
                         readOnly
                     />
                 </div>
-                <div className="2xl:w-14 2xl:border-l" />
+                <div className="2xl:mx-16 2xl:border-l" />
                 <Divider className="sm:2xl:hidden" />
                 <div className="2xl:flex 2xl:flex-col 2xl:w-full gap-y-4 justify-between">
                     <TestNumberInput

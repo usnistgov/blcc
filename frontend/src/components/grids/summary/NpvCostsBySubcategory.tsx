@@ -19,10 +19,12 @@ const [useColumns] = bind(
                 (alternative, i) =>
                     ({
                         name: alternative.name,
-                        key: i.toString(),
+                        key: alternative?.id?.toString(),
                         minWidth: 75,
                         renderCell: ({ row }: { row: CategorySubcategoryRow }) => (
-                            <p className={"text-right"}>{dollarFormatter.format(row[i.toString()] ?? 0)}</p>
+                            <p className={"text-right"}>
+                                {dollarFormatter.format(row[alternative?.id?.toString() ?? 0] ?? 0)}
+                            </p>
                         ),
                         ...cellClasses,
                     }) as Column<CategorySubcategoryRow>,
@@ -61,6 +63,7 @@ const [useRows] = bind(
 
 export default function NpvCostsBySubcategory() {
     const rows = useRows();
+    console.log(rows);
 
     return (
         <div className={"w-full overflow-hidden rounded border shadow-lg"}>

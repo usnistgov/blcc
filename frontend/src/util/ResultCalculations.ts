@@ -1,6 +1,6 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
 import { EnergyUnit, FuelType, type ID } from "blcc-format/Format";
-import { getOptionalTag, getQuantitySumTag } from "util/Util";
+import { getOptionalTag, getOptionalTagByAltId, getQuantitySumTag } from "util/Util";
 import { getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 import { parseUnit } from "services/ConverterService";
 
@@ -79,29 +79,28 @@ export type CategorySubcategoryRow = {
 };
 
 export function createNpvCategoryRow(measures: Measures[]): CategorySubcategoryRow[] {
-    console.log(getOptionalTag(measures, "Initial Investment"));
     return [
-        { category: "Energy", subcategory: "Consumption", ...getOptionalTag(measures, "Energy") },
-        { subcategory: "Demand", ...getOptionalTag(measures, "Demand Charge") },
-        { subcategory: "Rebates", ...getOptionalTag(measures, "Rebate") },
-        { category: "Water", subcategory: "Usage", ...getOptionalTag(measures, "Usage") },
-        { subcategory: "Disposal", ...getOptionalTag(measures, "Disposal") },
+        { category: "Energy", subcategory: "Consumption", ...getOptionalTagByAltId(measures, "Energy") },
+        { subcategory: "Demand", ...getOptionalTagByAltId(measures, "Demand Charge") },
+        { subcategory: "Rebates", ...getOptionalTagByAltId(measures, "Rebate") },
+        { category: "Water", subcategory: "Usage", ...getOptionalTagByAltId(measures, "Usage") },
+        { subcategory: "Disposal", ...getOptionalTagByAltId(measures, "Disposal") },
         {
             category: "Capital Components",
             subcategory: "Investment",
-            ...getOptionalTag(measures, "Initial Investment"),
+            ...getOptionalTagByAltId(measures, "Initial Investment"),
         },
-        { subcategory: "OMR", ...getOptionalTag(measures, "OMR") },
-        { subcategory: "Replacement", ...getOptionalTag(measures, "Replacement Capital") },
-        { subcategory: "Residual Value", ...getOptionalTag(measures, "Residual Value") },
+        { subcategory: "OMR", ...getOptionalTagByAltId(measures, "OMR") },
+        { subcategory: "Replacement", ...getOptionalTagByAltId(measures, "Replacement Capital") },
+        { subcategory: "Residual Value", ...getOptionalTagByAltId(measures, "Residual Value") },
         {
             category: "Contract",
             subcategory: "Non-Recurring",
-            ...getOptionalTag(measures, "Implementation Contract Cost"),
+            ...getOptionalTagByAltId(measures, "Implementation Contract Cost"),
         },
-        { subcategory: "Recurring", ...getOptionalTag(measures, "Recurring Contract Cost") },
-        { category: "Other", subcategory: "Monetary", ...getOptionalTag(measures, "Other") },
-        { category: "Total LCC", ...getOptionalTag(measures, "LCC") },
+        { subcategory: "Recurring", ...getOptionalTagByAltId(measures, "Recurring Contract Cost") },
+        { category: "Other", subcategory: "Monetary", ...getOptionalTagByAltId(measures, "Other") },
+        { category: "Total LCC", ...getOptionalTagByAltId(measures, "LCC") },
     ] as CategorySubcategoryRow[]; //FIXME maybe there is a better way to type this
 }
 
@@ -264,8 +263,8 @@ export function createNpvCashflowComparisonRow(allRequired: Required[]): NpvCash
                 key: i,
                 year: i,
                 ...allRequired.reduce(
-                    (acc, required, j) => {
-                        acc[j.toString()] = required.totalCostsDiscounted[i];
+                    (acc, required) => {
+                        acc[required.altId.toString()] = required.totalCostsDiscounted[i];
                         return acc;
                     },
                     {} as { [key: string]: number },
