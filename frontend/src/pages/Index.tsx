@@ -12,6 +12,7 @@ import analysisUrl from "images/analysis.svg";
 import clickUrl from "images/click.svg";
 import lockUrl from "images/lock.svg";
 import bookUrl from "images/book.svg";
+import Nbsp from "util/Nbsp";
 
 /**
  * Top level index page that shows information about BLCC and a button to open the editor.
@@ -19,6 +20,8 @@ import bookUrl from "images/book.svg";
  */
 export default function Index() {
     const navigate = useNavigate();
+    const version = __APP_VERSION__;
+
     return (
         <div className={"flex w-full justify-center bg-base-darker xl:py-10"}>
             <div
@@ -190,15 +193,20 @@ export default function Index() {
                             </div>
                         </div>
                         <div className={"bg-primary-dark p-10 text-center text-white text-xs"}>
-                            This software was developed at the National Institute of Standards and Technology by
-                            employees of the Federal Government in the course of their official duties. Pursuant to
-                            title 17 Section 105 of the United States Code this software is not subject to copyright
-                            protection and is in the public domain. It is an experimental system. NIST assumes no
-                            responsibility whatsoever for its use by other parties, and makes no guarantees, expressed
-                            or implied, about its quality, reliability, or any other characteristic. We would appreciate
-                            acknowledgement if the software is used. This software can be redistributed and/or modified
-                            freely provided that any derivative works bear some notice that they are derived from it,
-                            and any modified versions bear some notice that they have been modified.
+                            <p>
+                                This software was developed at the National Institute of Standards and Technology by
+                                employees of the Federal Government in the course of their official duties. Pursuant to
+                                title 17 Section 105 of the United States Code this software is not subject to copyright
+                                protection and is in the public domain. It is an experimental system. NIST assumes no
+                                responsibility whatsoever for its use by other parties, and makes no guarantees,
+                                expressed or implied, about its quality, reliability, or any other characteristic. We
+                                would appreciate acknowledgement if the software is used. This software can be
+                                redistributed and/or modified freely provided that any derivative works bear some notice
+                                that they are derived from it, and any modified versions bear some notice that they have
+                                been modified.
+                            </p>
+                            <Nbsp />
+                            <p>Version {version}</p>
                         </div>
                     </div>
                 </NistHeaderFooter>
