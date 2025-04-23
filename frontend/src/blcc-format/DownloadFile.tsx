@@ -392,6 +392,7 @@ export const downloadDebugInfo = (builder?: RequestBuilder) =>
     Effect.gen(function* () {
         const db = yield* DexieService;
         const project = yield* db.getProject();
+        const version = __APP_VERSION__;
 
         if (project === undefined) return;
 
@@ -415,7 +416,7 @@ export const downloadDebugInfo = (builder?: RequestBuilder) =>
         zipGen.file(`${escapedProjectName}.blcc`, blob);
 
         // Add metadata
-        const metadata = `Screen resolution:\n    Height: ${window.screen.availHeight}\n    Width: ${window.screen.availWidth}\nBrowser size:\n    Height: ${window.innerHeight}\n    Width: ${window.innerWidth}\nBrowser version: ${window.navigator.userAgent}`;
+        const metadata = `App version: ${version}\n    Screen resolution:\n    Height: ${window.screen.availHeight}\n    Width: ${window.screen.availWidth}\nBrowser size:\n    Height: ${window.innerHeight}\n    Width: ${window.innerWidth}\nBrowser version: ${window.navigator.userAgent}`;
         zipGen.file(`${escapedProjectName}-metadata.txt`, metadata);
 
         // Download zip
