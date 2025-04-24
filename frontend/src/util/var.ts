@@ -1,10 +1,11 @@
 import { type StateObservable, bind } from "@react-rxjs/core";
-import { Match } from "effect";
+import { type Effect, Match } from "effect";
 import * as O from "optics-ts";
-import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap, BehaviorSubject } from "rxjs";
+import { type Observable, Subject, distinctUntilChanged, map, scan, switchMap, BehaviorSubject, zip } from "rxjs";
 import { shareReplay, startWith, tap, withLatestFrom } from "rxjs/operators";
-import type { ZodError, ZodType } from "zod";
+import { ZodError, type ZodType } from "zod";
 import type { Collection } from "dexie";
+import { BlccRuntime } from "util/runtime";
 
 export class DexieModel<T extends object> {
     private sModify$: Subject<(t: T) => T> = new Subject<(t: T) => T>();
@@ -62,6 +63,8 @@ export class Var<A extends object, B> {
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         optic: O.Lens<A, any, B> | O.Prism<A, any, B>,
         schema: ZodType | undefined = undefined,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        validationEffects: ((b: B) => Effect.Effect<ZodError | undefined, never, any>)[] = [],
     ) {
         const get = getter(optic);
 
@@ -83,15 +86,32 @@ export class Var<A extends object, B> {
         this.$ = stream$;
         this.schema = schema;
         const [useValidation, validation$] = bind(
-            stream$.pipe(
-                map((value) => {
-                    try {
-                        schema?.parse(value);
-                        return undefined;
-                    } catch (e) {
-                        return e as ZodError;
-                    }
-                }),
+            zip(
+                stream$.pipe(
+                    map((value) => {
+                        try {
+                            schema?.parse(value);
+                            return undefined;
+                        } catch (e) {
+                            return e as ZodError;
+                        }
+                    }),
+                ),
+                stream$.pipe(
+                    switchMap(async (value) => {
+                        if (value === undefined) return undefined;
+
+                        for (const func of validationEffects) {
+                            const result = await func(value).pipe(BlccRuntime.runPromise);
+                            console.log(result);
+
+                            if (result !== undefined) return result;
+                        }
+                    }),
+                ),
+            ).pipe(
+                map(([a, b]) => new ZodError([...(a?.issues ?? []), ...(b?.issues ?? [])])),
+                map((errors) => (errors.issues.length === 0 ? undefined : errors)),
             ),
         );
         this.useValidation = useValidation;

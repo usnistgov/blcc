@@ -3,12 +3,8 @@ import { TestSelect } from "components/input/TestSelect";
 import { TextInputType } from "components/input/TextInput";
 import { Country, State } from "constants/LOCATION";
 import { Strings } from "constants/Strings";
-import { Effect } from "effect";
 import type { LocationModel } from "model/Model";
 import type React from "react";
-import { useEffect } from "react";
-import { BlccApiService } from "services/BlccApiService";
-import { BlccRuntime } from "util/runtime";
 
 /**
  * Returns a form component for entering the state or province of a location.
@@ -81,27 +77,7 @@ function Zipcode<T extends object>({ model }: { model: LocationModel<T> }) {
             disabled={state === State.UV}
             onChange={setZipcodeHandler(model)}
             maxLength={5}
-            error={async () => {
-                const zip = model.zipcode.current();
-                if (zip?.length === 5) {
-                    const promise = Effect.gen(function* () {
-                        const apiService = yield* BlccApiService;
-                        const result = yield* apiService.fetchZipInfo(Number.parseInt(zip));
-                        if (result.length === 0) {
-                            return { message: "Invalid zip code" };
-                        }
-                        return undefined;
-                    }).pipe(
-                        Effect.catchAll(() => {
-                            return Effect.succeed({ message: "Invalid zip code" });
-                        }),
-                        BlccRuntime.runPromise,
-                    );
-                    const output = await promise;
-                    return output;
-                }
-                return model.zipcode.useValidation();
-            }}
+            error={model.zipcode.useValidation}
         />
     );
 }
