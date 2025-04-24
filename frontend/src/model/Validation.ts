@@ -1,7 +1,7 @@
 import {
     alternatives$,
     energyCostsByAlternative$,
-    hasBaseline$,
+    hasNoBaseline$,
     implementationContractCostsByAlternative$,
     investmentCostsByAlternative$,
     Model,
@@ -128,8 +128,8 @@ const moreThanTwoAlternatives$: Observable<string[]> = alternatives$.pipe(
     map((arr) => (arr.length < 2 ? ["Need more than one alternative"] : [])),
 );
 
-const hasBaselineValidation$: Observable<string[]> = hasBaseline$.pipe(
-    map((hasBaseline) => (hasBaseline ? ["Must have a baseline alternative"] : [])),
+const hasBaselineValidation$: Observable<string[]> = hasNoBaseline$.pipe(
+    map((hasNoBaseline) => (hasNoBaseline ? ["Must have a baseline alternative"] : [])),
 );
 
 const projectErrors$: Observable<ErrorGroup[]> = combineLatest([moreThanTwoAlternatives$, hasBaselineValidation$]).pipe(

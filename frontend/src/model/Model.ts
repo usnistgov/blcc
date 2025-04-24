@@ -67,8 +67,8 @@ export const baselineID$ = alternatives$.pipe(
     guard(),
 );
 
-export const hasBaseline$ = alternatives$.pipe(map((alternatives$) => findBaselineID(alternatives$) === undefined));
-export const [useHasBaseline] = bind(hasBaseline$, false);
+export const hasNoBaseline$ = alternatives$.pipe(map((alternatives$) => findBaselineID(alternatives$) === undefined));
+export const [useHasNoBaseline] = bind(hasNoBaseline$, false);
 
 export const costIDs$ = sProject$.pipe(
     guard(),
