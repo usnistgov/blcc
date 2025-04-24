@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { useSubscribe } from "hooks/UseSubscribe";
 import { AlternativeModel } from "model/AlternativeModel";
 import { isCapitalCost, isContractCost, isEnergyCost, isOtherCost, isWaterCost } from "model/Guards";
-import { alternatives$, ercipBaseCase$, Model } from "model/Model";
+import { alternatives$, ercipBaseCase$, Model, useAlternatives, useHasNoBaseline } from "model/Model";
 import { db } from "model/db";
 import { Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,21 @@ export default function AlternativeSummary() {
     const navigate = useNavigate();
 
     const cards = useCards();
+
+    const moreThanTwoAlternatives = useAlternatives().length > 1;
+    const baselineDoesNotExist = useHasNoBaseline();
+    let errorDescription = undefined;
+    if (!moreThanTwoAlternatives) {
+        errorDescription = <p>Need more than one alternative.</p>;
+    }
+    if (baselineDoesNotExist) {
+        errorDescription = (
+            <>
+                {errorDescription}
+                <p>Need to set a baseline alternative.</p>
+            </>
+        );
+    }
 
     const [changeBaseline$] = useMemo(() => {
         const changeBaseline$ = confirmBaselineChange$.pipe(
@@ -67,6 +82,8 @@ export default function AlternativeSummary() {
             </SubHeader>
 
             <div className={"flex h-full w-full flex-col items-center overflow-y-auto"}>
+                <br />
+                {errorDescription && <Alert message="Error:" description={errorDescription} type="error" closable />}
                 <br />
                 {(cards.length !== 0 && cards.map((card) => <card.component key={card.id} />)) || (
                     <div className={"w-full p-8 text-center text-base-dark"}>

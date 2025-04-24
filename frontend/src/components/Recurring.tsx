@@ -132,6 +132,7 @@ export function RateOfRecurrenceInput({ showLabel = false }: RateOfRecurrenceInp
             getter={RecurringModel.rateOfRecurrence.use}
             onChange={RecurringModel.Actions.setRateOfRecurrence}
             min={1}
+            precision={0}
         />
     );
 }

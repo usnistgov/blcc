@@ -1,5 +1,4 @@
 import { bind } from "@react-rxjs/core";
-import { message } from "antd";
 import { Defaults } from "blcc-format/Defaults";
 import {
     type Case,
@@ -11,8 +10,6 @@ import {
     type EnergyCost,
     FuelType,
     CostTypes,
-    Cost,
-    CapitalCost,
 } from "blcc-format/Format";
 import type { ZipInfoResponse } from "blcc-format/schema";
 import { showUpdateGeneralOptionsModal } from "components/modal/UpdateGeneralOptionsModal";
@@ -23,26 +20,15 @@ import { Effect } from "effect";
 import { isNonUSLocation, isUSLocation } from "model/Guards";
 import { DexieService, db } from "model/db";
 import * as O from "optics-ts";
-import {
-    BehaviorSubject,
-    NEVER,
-    Subject,
-    combineLatest,
-    distinctUntilChanged,
-    from,
-    map,
-    merge,
-    sample,
-    switchMap,
-} from "rxjs";
+import { BehaviorSubject, NEVER, combineLatest, distinctUntilChanged, from, map, merge, sample, switchMap } from "rxjs";
 import { filter, shareReplay, startWith, withLatestFrom } from "rxjs/operators";
-import { BlccApiService, FetchError } from "services/BlccApiService";
+import { BlccApiService } from "services/BlccApiService";
 import { guard } from "util/Operators";
-import { COAL_KG_CO2E_PER_MEGAJOULE, getConvertMap } from "util/UnitConversion";
+import { COAL_KG_CO2E_PER_MEGAJOULE } from "util/UnitConversion";
 import { calculateNominalDiscountRate, calculateRealDiscountRate, findBaselineID } from "util/Util";
 import { BlccRuntime } from "util/runtime";
 import { DexieModel, Var } from "util/var";
-import z from "zod";
+import z, { ZodError } from "zod";
 
 export const currentProject$ = NEVER.pipe(startWith(Defaults.PROJECT_ID), shareReplay(1));
 
@@ -67,8 +53,8 @@ export const baselineID$ = alternatives$.pipe(
     guard(),
 );
 
-export const hasBaseline$ = alternatives$.pipe(map((alternatives$) => findBaselineID(alternatives$) === undefined));
-export const [useHasBaseline] = bind(hasBaseline$, false);
+export const hasNoBaseline$ = alternatives$.pipe(map((alternatives$) => findBaselineID(alternatives$) === undefined));
+export const [useHasNoBaseline] = bind(hasNoBaseline$, false);
 
 export const costIDs$ = sProject$.pipe(
     guard(),
@@ -192,10 +178,23 @@ export namespace Model {
         zipcode: new Var(
             DexieModelTest,
             locationOptic.guard(isUSLocation).prop("zipcode"),
-            z
-                .string()
-                .min(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR })
-                .max(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR }),
+            z.string().max(5, { message: Strings.ZIPCODE_FIVE_DIGITS_ERROR }),
+            [
+                (zipcode) =>
+                    Effect.gen(function* () {
+                        if (zipcode === undefined) return undefined;
+
+                        const api = yield* BlccApiService;
+                        const response = yield* api.fetchZipInfo(Number.parseInt(zipcode));
+                        if (response.length > 0) return undefined;
+
+                        return new ZodError([{ code: "custom", path: [""], message: "Invalid zipcode" }]);
+                    }).pipe(
+                        Effect.catchAll(() =>
+                            Effect.succeed(new ZodError([{ code: "custom", path: [""], message: "Invalid zipcode" }])),
+                        ),
+                    ),
+            ],
         ),
     };
 

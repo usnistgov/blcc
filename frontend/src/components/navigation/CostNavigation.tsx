@@ -1,12 +1,22 @@
-import { mdiCurrencyUsd, mdiFileSign, mdiFormatListBulletedType, mdiLightningBolt, mdiWater } from "@mdi/js";
+import {
+    mdiChevronDown,
+    mdiChevronUp,
+    mdiCurrencyUsd,
+    mdiFileSign,
+    mdiFormatListBulletedType,
+    mdiLightningBolt,
+    mdiWater,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import { type StateObservable, useStateObservable } from "@react-rxjs/core";
+import { createSignal } from "@react-rxjs/utils";
 import type { Cost } from "blcc-format/Format";
 import { Button, ButtonType } from "components/input/Button";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useActiveLink } from "hooks/UseActiveLink";
 import { AlternativeModel } from "model/AlternativeModel";
 import { CostModel } from "model/CostModel";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type MenuItem = {
@@ -67,18 +77,42 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
 
 function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: MenuItem }) {
     const costs = useStateObservable(costs$);
+    const [open, setOpen] = useState(true);
 
     return (
         <>
-            <span className={"flex select-none flex-row place-items-center px-2 py-1"}>
+            <span className={"flex select-none flex-row place-items-center px-2 py-1 font-bold text-[1.04rem]"}>
                 <Icon className={"mr-1 min-w-[24px]"} path={item.icon} size={0.8} />
                 {item.title}
+                {(costs.length > 0 && open && (
+                    <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
+                        <Icon path={mdiChevronUp} size={0.8} />
+                    </button>
+                )) || (
+                    <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
+                        <Icon path={mdiChevronDown} size={0.8} />
+                    </button>
+                )}
             </span>
-            <div className={"flex flex-col gap-2 pl-8"}>
-                {costs.map((cost) => (
-                    <CostButton key={cost.id} costID={cost.id ?? 0} name={cost.name} />
-                ))}
-            </div>
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        className={"flex flex-col gap-2 pl-8"}
+                        initial="collapsed"
+                        animate="open"
+                        exit="collapsed"
+                        variants={{
+                            open: { opacity: 1, height: "auto" },
+                            collapsed: { opacity: 0, height: 0 },
+                        }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                        {costs.map((cost) => (
+                            <CostButton key={cost.id} costID={cost.id ?? 0} name={cost.name} />
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 }

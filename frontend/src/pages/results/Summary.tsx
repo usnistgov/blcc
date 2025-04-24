@@ -3,11 +3,11 @@ import LifeCycleResourceComparison from "components/grids/summary/LifeCycleResou
 import LifecycleResultsComparison from "components/grids/summary/LifeCycleResultsComparison";
 import LifecycleResultsToBaseline from "components/grids/summary/LifeCycleResultsToBaseline";
 import NpvCostsBySubcategory from "components/grids/summary/NpvCostsBySubcategory";
-import { useHasBaseline } from "../../model/Model";
+import { useHasNoBaseline } from "../../model/Model";
 import { Alert } from "antd";
 
 export default function Summary() {
-    const hasBaseline = useHasBaseline();
+    const hasBaseline = useHasNoBaseline();
 
     return (
         <div className="flex h-full w-full flex-col overflow-y-auto pt-6 pb-48">
