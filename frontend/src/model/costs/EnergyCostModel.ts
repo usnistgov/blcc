@@ -137,12 +137,12 @@ export namespace EnergyCostModel {
     /**
      * Cost per unit
      */
-    export const costPerUnit = new Var(CostModel.cost, energyCostOptic.prop("costPerUnit"));
+    export const costPerUnit = new Var(CostModel.cost, energyCostOptic.prop("costPerUnit"), z.number());
 
     /**
      * Annual consumption
      */
-    export const annualConsumption = new Var(CostModel.cost, energyCostOptic.prop("annualConsumption"));
+    export const annualConsumption = new Var(CostModel.cost, energyCostOptic.prop("annualConsumption"), z.number());
 
     /**
      * Rebate
