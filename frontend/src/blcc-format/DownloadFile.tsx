@@ -157,7 +157,7 @@ export const downloadPdf = Effect.gen(function* () {
 });
 
 const getGraphSource = (graph: HTMLElement) =>
-    Effect.promise(() => html2canvas(graph).then((canvas) => canvas.toDataURL("image/png")));
+    Effect.promise(() => html2canvas(graph, { height: 850 }).then((canvas) => canvas.toDataURL("image/png")));
 
 const createPdfBlob = (element: React.ReactElement<DocumentProps>) =>
     Effect.tryPromise({

@@ -57,7 +57,7 @@ export default function ShareOfEnergyUse({ measure, offscreen = false }: ShareOf
         <>
             {(usageExists && (
                 <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />
-            )) || <p>{Strings.NO_ENERGY_DATA_AVAILABLE}</p>}
+            )) || <p className={OFFSCREEN_GRAPH_CLASS}>{Strings.NO_ENERGY_DATA_AVAILABLE}</p>}
         </>
     );
 }

@@ -81,7 +81,7 @@ export default function NpvCashFlowGraph({
     return (
         <>
             {(graphIsNotEmpty && <div id={graphId} className={"result-graph h-[23rem]"} />) || (
-                <p>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>
+                <p id={graphId}>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>
             )}
         </>
     );

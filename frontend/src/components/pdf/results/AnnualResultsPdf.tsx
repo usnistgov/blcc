@@ -81,7 +81,7 @@ export default function AnnualResultsPdf({
                     <Image key={annualCashFlows} src={annualCashFlows} />
                 </View>
                 {altNames?.map((name, index) => (
-                    <View key={name} wrap={false}>
+                    <View key={name}>
                         <Text style={styles.heading}>Annual Results for Alternative: {name}</Text>
                         <CashFlowCostType columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
                         <View wrap={false}>
