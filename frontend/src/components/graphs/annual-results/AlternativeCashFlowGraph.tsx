@@ -111,7 +111,7 @@ export default function AlternativeCashFlowGraph({
         <>
             {(graphIsNotEmpty && (
                 <div id={graphId} className={`h-[23rem]${offscreen ? ` ${OFFSCREEN_GRAPH_CLASS}` : ""}`} />
-            )) || <p>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>}
+            )) || <p className={OFFSCREEN_GRAPH_CLASS}>{Strings.NO_FINANCIAL_DATA_AVAILABLE}</p>}
         </>
     );
 }
