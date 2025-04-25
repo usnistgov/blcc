@@ -77,6 +77,7 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
 
 function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: MenuItem }) {
     const costs = useStateObservable(costs$);
+    console.log(costs);
     const [open, setOpen] = useState(true);
 
     return (
@@ -88,11 +89,12 @@ function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: 
                     <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
                         <Icon path={mdiChevronUp} size={0.8} />
                     </button>
-                )) || (
-                    <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
-                        <Icon path={mdiChevronDown} size={0.8} />
-                    </button>
-                )}
+                )) ||
+                    (costs.length > 0 && (
+                        <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
+                            <Icon path={mdiChevronDown} size={0.8} />
+                        </button>
+                    ))}
             </span>
             <AnimatePresence>
                 {open && (
