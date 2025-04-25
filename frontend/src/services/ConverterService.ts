@@ -401,8 +401,8 @@ function convertCost(
                 customerSector: cost.RateSchedule as CustomerSector,
                 location:
                     studyLocation.state === parseLocation(cost.State).state ? undefined : parseLocation(cost.State),
-                costPerUnit: cost.UnitCost as number,
-                annualConsumption: cost.YearlyUsage as number,
+                costPerUnit: cost.UnitCost ?? (0 as number),
+                annualConsumption: cost.YearlyUsage ?? (0 as number),
                 unit: parseUnit(cost.Units),
                 demandCharge: cost.DemandCharge as number,
                 rebate: cost.UtilityRebate as number,

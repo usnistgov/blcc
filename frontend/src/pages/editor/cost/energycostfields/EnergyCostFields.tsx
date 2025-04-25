@@ -73,6 +73,7 @@ export default function EnergyCostFields() {
                     formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     getter={EnergyCostModel.annualConsumption.use}
                     onChange={EnergyCostModel.Actions.setAnnualConsumption}
+                    error={EnergyCostModel.annualConsumption.useValidation}
                 />
                 <TestNumberInput
                     className={"w-full"}
@@ -83,6 +84,7 @@ export default function EnergyCostFields() {
                     label={isSavings ? "Cost Savings per Unit" : "Cost per Unit"}
                     getter={EnergyCostModel.costPerUnit.use}
                     onChange={EnergyCostModel.Actions.setCostPerUnit}
+                    error={EnergyCostModel.costPerUnit.useValidation}
                 />
 
                 <TestNumberInput
