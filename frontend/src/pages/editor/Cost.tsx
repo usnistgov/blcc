@@ -134,6 +134,11 @@ export default function Cost() {
                             label={"Name*"}
                             getter={CostModel.name.use}
                             onChange={(event) => CostModel.name.set(event.currentTarget.value)}
+                            onBlur={(event) => {
+                                if (event.currentTarget.value === "") {
+                                    CostModel.name.set("Unnamed Cost");
+                                }
+                            }}
                             error={CostModel.name.useValidation}
                         />
                         <div className={"flex flex-col"}>

@@ -25,6 +25,7 @@ function StateOrProvince<T extends object>({ model }: { model: LocationModel<T> 
                     model.zipcode.set(undefined);
                 }
             }}
+            showSearch
         />
     ) : (
         <TestInput
@@ -127,6 +128,7 @@ export default function Location<T extends object>({ model }: { model: LocationM
                 options={Object.values(Country)}
                 getter={model.country.use}
                 onChange={setCountryHandler(model)}
+                showSearch
             />
             <TestInput
                 name={"city"}
