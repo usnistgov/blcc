@@ -274,7 +274,11 @@ export namespace EscalationRateModel {
             if (toggle) {
                 // Is constant
                 const rates = escalation.current();
-                escalation.set((rates as number[])[0] ?? DEFAULT_CONSTANT_ESCALATION_RATE);
+                if (rates !== undefined) {
+                    escalation.set((rates as number[])[0]);
+                } else {
+                    escalation.set(DEFAULT_CONSTANT_ESCALATION_RATE);
+                }
                 customEscalation.set(false);
             } else {
                 // Not constant
@@ -283,8 +287,7 @@ export namespace EscalationRateModel {
                     customEscalation.set(false);
                     escalation.set(undefined);
                 } else {
-                    const projectLength =
-                        (Model.constructionPeriod.current() ?? 0) + (Model.studyPeriod.current() ?? 0) + 1;
+                    const projectLength = Model.studyPeriod.current() ?? 0;
                     customEscalation.set(true);
                     escalation.set(makeArray(projectLength, val));
                 }

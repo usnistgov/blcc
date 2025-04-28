@@ -103,7 +103,6 @@ export class Var<A extends object, B> {
 
                         for (const func of validationEffects) {
                             const result = await func(value).pipe(BlccRuntime.runPromise);
-                            console.log(result);
 
                             if (result !== undefined) return result;
                         }

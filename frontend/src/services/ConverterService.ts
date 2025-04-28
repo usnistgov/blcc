@@ -13,6 +13,7 @@ import {
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
+    ERCIPCost,
     EmissionsRateType,
     type EnergyCost,
     EnergyUnit,
@@ -35,6 +36,7 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
+import { analysisType } from "constants/DROPDOWN";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
 import { Effect } from "effect";
 import { getDefaultReleaseYear } from "effect/DefaultProject";
@@ -106,12 +108,15 @@ function parse(obj: any, releaseYear: number): ConverterResult {
     const calculatedInflationRate: number = project.InflationRate ? project.InflationRate : Defaults.INFLATION_RATE;
     const calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
 
+    const analysisType = convertAnalysisType(project.AnalysisType);
+
     const [parsedAlternatives, parsedCosts] = parseAlternativesAndHashCosts(
         alternatives,
         studyPeriod,
         studyLocation,
         dollarMethod,
         calculatedInflationRate,
+        analysisType,
     );
 
     return [
@@ -121,7 +126,7 @@ function parse(obj: any, releaseYear: number): ConverterResult {
             name: project.Name,
             description: project.Comment,
             analyst: project.Analyst,
-            analysisType: convertAnalysisType(project.AnalysisType),
+            analysisType: analysisType,
             purpose: convertAnalysisPurpose(project.AnalysisPurpose),
             dollarMethod: dollarMethod,
             studyPeriod,
@@ -237,6 +242,53 @@ function extractCosts(alternative: any, name: CostComponent) {
     });
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: No need to type the XML format
+function extractERCIPCost(capitalComponent: any, projectType: AnalysisType) {
+    if (projectType !== AnalysisType.MILCON_ECIP) {
+        return [];
+    }
+    return [
+        {
+            type: "ERCIP",
+            constructionCost: capitalComponent.ConstructionCost,
+            SIOH: capitalComponent.SIOH,
+            designCost: capitalComponent.DesignCost,
+            salvageValue: capitalComponent.SalvageValue,
+            publicUtilityRebate: capitalComponent.UtilityRebate,
+        },
+    ];
+}
+
+function getBaseAlternative(altID: number, costID: number, projectType: AnalysisType, costCache: Map<string, Cost>) {
+    if (projectType !== AnalysisType.MILCON_ECIP) {
+        return [];
+    }
+    const baseCost: ERCIPCost = {
+        type: CostTypes.ERCIP,
+        id: costID,
+        constructionCost: 0,
+        name: "Base Cost",
+        SIOH: 0,
+        designCost: 0,
+        cybersecurity: 0,
+        publicUtilityRebate: 0,
+        salvageValue: 0,
+    };
+
+    const hash = objectHash(baseCost);
+    costCache.set(hash, baseCost);
+
+    return [
+        {
+            ERCIPBaseCase: true,
+            baseline: true,
+            id: altID,
+            costs: [costID],
+            name: "Base Cost",
+        },
+    ];
+}
+
 type CostComponent =
     | "CapitalComponent"
     | "EnergyUsage"
@@ -245,7 +297,8 @@ type CostComponent =
     | "NonRecurringContractCost"
     | "CapitalReplacement"
     | "RecurringCost"
-    | "NonRecurringCost";
+    | "NonRecurringCost"
+    | "ERCIP";
 
 function parseAlternativesAndHashCosts(
     // biome-ignore lint: No need to type XML format
@@ -254,11 +307,13 @@ function parseAlternativesAndHashCosts(
     studyLocation: USLocation,
     dollarMethod: DollarMethod,
     inflation: number,
+    projectType: AnalysisType,
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
     let costID: ID = 1;
+    let altID = 1;
 
-    const newAlternatives = alternatives.map((alternative, altID) => {
+    const newAlternatives = alternatives.map((alternative) => {
         const capitalComponents = extractCosts(alternative, "CapitalComponent");
 
         const costs = [
@@ -277,6 +332,7 @@ function parseAlternativesAndHashCosts(
                     ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
                     ...extractCosts(capitalComponent, "RecurringCost").map(rename),
                     ...extractCosts(capitalComponent, "NonRecurringCost").map(rename),
+                    ...extractERCIPCost(capitalComponent, projectType),
                 ];
             }),
             ...extractCosts(alternative, "EnergyUsage"),
@@ -296,7 +352,7 @@ function parseAlternativesAndHashCosts(
         }
 
         return {
-            id: altID + 1,
+            id: ++altID,
             name: alternative.Name,
             description: alternative.Comment,
             costs: costs
@@ -306,7 +362,9 @@ function parseAlternativesAndHashCosts(
         } as Alternative;
     });
 
-    return [newAlternatives, [...costCache.values()]];
+    const baseAlt = getBaseAlternative(++altID, costID, projectType, costCache);
+
+    return [[...baseAlt, ...newAlternatives], [...costCache.values()]];
 }
 
 function renameSubComponent(name: string) {
@@ -448,6 +506,18 @@ function convertCost(
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
             } as ImplementationContractCost;
+        case "ERCIP":
+            return {
+                id,
+                type: CostTypes.ERCIP,
+                name: "ERCIP",
+                constructionCost: cost.constructionCost ?? 0,
+                SIOH: cost.SIOH ?? 0,
+                designCost: cost.designCost ?? 0,
+                salvageValue: cost.salvageValue ?? 0,
+                publicUtilityRebate: cost.publicUtilityRebate ?? 0,
+                cybersecurity: 0,
+            };
     }
 }
 

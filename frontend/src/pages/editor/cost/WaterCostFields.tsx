@@ -159,7 +159,7 @@ namespace WaterEscalationModel {
                 const studyPeriod = Model.studyPeriod.current() ?? 0;
                 const constructionPeriod = Model.constructionPeriod.current();
                 const rate = escalation.current();
-                escalation.set(makeArray(studyPeriod + constructionPeriod, rate as number));
+                escalation.set(makeArray(studyPeriod, rate as number));
             }
         }
 

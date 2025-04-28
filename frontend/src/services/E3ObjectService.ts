@@ -388,7 +388,7 @@ function recurrence(cost: EnergyCost | WaterCost, varRate: VarRate): RecurBuilde
     const builder = new RecurBuilder().interval(1);
 
     if (cost.escalation)
-        builder.varRate(varRate).varValue(Array.isArray(cost.escalation) ? cost.escalation : [cost.escalation]);
+        builder.varRate(varRate).varValue(Array.isArray(cost.escalation) ? [0, ...cost.escalation] : [cost.escalation]);
 
     return builder;
 }
