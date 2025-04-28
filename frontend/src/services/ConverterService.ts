@@ -243,15 +243,50 @@ function extractCosts(alternative: any, name: CostComponent) {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: No need to type the XML format
-function extractERCIPCost(capitalComponent: any) {
-    return {
-        type: "ERCIP",
-        constructionCost: capitalComponent.ConstructionCost,
-        SIOH: capitalComponent.SIOH,
-        designCost: capitalComponent.DesignCost,
-        salvageValue: capitalComponent.SalvageValue,
-        publicUtilityRebate: capitalComponent.UtilityRebate,
+function extractERCIPCost(capitalComponent: any, projectType: AnalysisType) {
+    if (projectType !== AnalysisType.MILCON_ECIP) {
+        return [];
+    }
+    return [
+        {
+            type: "ERCIP",
+            constructionCost: capitalComponent.ConstructionCost,
+            SIOH: capitalComponent.SIOH,
+            designCost: capitalComponent.DesignCost,
+            salvageValue: capitalComponent.SalvageValue,
+            publicUtilityRebate: capitalComponent.UtilityRebate,
+        },
+    ];
+}
+
+function getBaseAlternative(altID: number, costID: number, projectType: AnalysisType, costCache: Map<string, Cost>) {
+    if (projectType !== AnalysisType.MILCON_ECIP) {
+        return [];
+    }
+    const baseCost: ERCIPCost = {
+        type: CostTypes.ERCIP,
+        id: costID,
+        constructionCost: 0,
+        name: "Base Cost",
+        SIOH: 0,
+        designCost: 0,
+        cybersecurity: 0,
+        publicUtilityRebate: 0,
+        salvageValue: 0,
     };
+
+    const hash = objectHash(baseCost);
+    costCache.set(hash, baseCost);
+
+    return [
+        {
+            ERCIPBaseCase: true,
+            baseline: true,
+            id: altID,
+            costs: [costID],
+            name: "Base Cost",
+        },
+    ];
 }
 
 type CostComponent =
@@ -293,17 +328,11 @@ function parseAlternativesAndHashCosts(
                 //biome-ignore lint: No need to type the XML format
                 const rename = renameSubComponent((capitalComponent as any).Name);
 
-                // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-                let ERCIPCost: any[] = [];
-                if (projectType === AnalysisType.MILCON_ECIP) {
-                    ERCIPCost = [extractERCIPCost(capitalComponent)];
-                }
-
                 return [
                     ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
                     ...extractCosts(capitalComponent, "RecurringCost").map(rename),
                     ...extractCosts(capitalComponent, "NonRecurringCost").map(rename),
-                    ...ERCIPCost,
+                    ...extractERCIPCost(capitalComponent, projectType),
                 ];
             }),
             ...extractCosts(alternative, "EnergyUsage"),
@@ -333,33 +362,7 @@ function parseAlternativesAndHashCosts(
         } as Alternative;
     });
 
-    let baseAlt: Alternative[] = [];
-    if (projectType === AnalysisType.MILCON_ECIP) {
-        const baseCost: ERCIPCost = {
-            type: CostTypes.ERCIP,
-            id: costID,
-            constructionCost: 0,
-            name: "Base Cost",
-            SIOH: 0,
-            designCost: 0,
-            cybersecurity: 0,
-            publicUtilityRebate: 0,
-            salvageValue: 0,
-        };
-
-        const hash = objectHash(baseCost);
-        costCache.set(hash, baseCost);
-
-        baseAlt = [
-            {
-                ERCIPBaseCase: true,
-                baseline: true,
-                id: ++altID,
-                costs: [costID],
-                name: "Base Cost",
-            },
-        ];
-    }
+    const baseAlt = getBaseAlternative(++altID, costID, projectType, costCache);
 
     return [[...baseAlt, ...newAlternatives], [...costCache.values()]];
 }
