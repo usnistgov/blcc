@@ -77,7 +77,6 @@ function CostButton({ costID, name }: { costID: number; name: string }) {
 
 function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: MenuItem }) {
     const costs = useStateObservable(costs$);
-    console.log(costs);
     const [open, setOpen] = useState(true);
 
     return (
