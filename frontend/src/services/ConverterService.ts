@@ -13,6 +13,7 @@ import {
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
+    ERCIPCost,
     EmissionsRateType,
     type EnergyCost,
     EnergyUnit,
@@ -106,12 +107,15 @@ function parse(obj: any, releaseYear: number): ConverterResult {
     const calculatedInflationRate: number = project.InflationRate ? project.InflationRate : Defaults.INFLATION_RATE;
     const calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
 
+    const analysisType = convertAnalysisType(project.AnalysisType);
+
     const [parsedAlternatives, parsedCosts] = parseAlternativesAndHashCosts(
         alternatives,
         studyPeriod,
         studyLocation,
         dollarMethod,
         calculatedInflationRate,
+        analysisType,
     );
 
     return [
@@ -121,7 +125,7 @@ function parse(obj: any, releaseYear: number): ConverterResult {
             name: project.Name,
             description: project.Comment,
             analyst: project.Analyst,
-            analysisType: convertAnalysisType(project.AnalysisType),
+            analysisType: analysisType,
             purpose: convertAnalysisPurpose(project.AnalysisPurpose),
             dollarMethod: dollarMethod,
             studyPeriod,
@@ -237,6 +241,18 @@ function extractCosts(alternative: any, name: CostComponent) {
     });
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: No need to type the XML format
+function extractERCIPCost(capitalComponent: any) {
+    return {
+        type: "ERCIP",
+        constructionCost: capitalComponent.ConstructionCost,
+        SIOH: capitalComponent.SIOH,
+        designCost: capitalComponent.DesignCost,
+        salvageValue: capitalComponent.SalvageValue,
+        publicUtilityRebate: capitalComponent.UtilityRebate,
+    };
+}
+
 type CostComponent =
     | "CapitalComponent"
     | "EnergyUsage"
@@ -245,7 +261,8 @@ type CostComponent =
     | "NonRecurringContractCost"
     | "CapitalReplacement"
     | "RecurringCost"
-    | "NonRecurringCost";
+    | "NonRecurringCost"
+    | "ERCIP";
 
 function parseAlternativesAndHashCosts(
     // biome-ignore lint: No need to type XML format
@@ -254,6 +271,7 @@ function parseAlternativesAndHashCosts(
     studyLocation: USLocation,
     dollarMethod: DollarMethod,
     inflation: number,
+    projectType: AnalysisType,
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
     let costID: ID = 1;
@@ -273,10 +291,17 @@ function parseAlternativesAndHashCosts(
                 //biome-ignore lint: No need to type the XML format
                 const rename = renameSubComponent((capitalComponent as any).Name);
 
+                // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+                let ERCIPCost: any[] = [];
+                if (projectType === AnalysisType.MILCON_ECIP) {
+                    ERCIPCost = [extractERCIPCost(capitalComponent)];
+                }
+
                 return [
                     ...extractCosts(capitalComponent, "CapitalReplacement").map(rename),
                     ...extractCosts(capitalComponent, "RecurringCost").map(rename),
                     ...extractCosts(capitalComponent, "NonRecurringCost").map(rename),
+                    ...ERCIPCost,
                 ];
             }),
             ...extractCosts(alternative, "EnergyUsage"),
@@ -448,6 +473,18 @@ function convertCost(
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
             } as ImplementationContractCost;
+        case "ERCIP":
+            return {
+                id,
+                type: CostTypes.ERCIP,
+                name: "ERCIP",
+                constructionCost: cost.constructionCost ?? 0,
+                SIOH: cost.SIOH ?? 0,
+                designCost: cost.designCost ?? 0,
+                salvageValue: cost.salvageValue ?? 0,
+                publicUtilityRebate: cost.publicUtilityRebate ?? 0,
+                cybersecurity: 0,
+            };
     }
 }
 
