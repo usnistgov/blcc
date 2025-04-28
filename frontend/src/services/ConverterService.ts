@@ -36,6 +36,7 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
+import { analysisType } from "constants/DROPDOWN";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
 import { Effect } from "effect";
 import { getDefaultReleaseYear } from "effect/DefaultProject";
@@ -275,8 +276,9 @@ function parseAlternativesAndHashCosts(
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
     let costID: ID = 1;
+    let altID = 1;
 
-    const newAlternatives = alternatives.map((alternative, altID) => {
+    const newAlternatives = alternatives.map((alternative) => {
         const capitalComponents = extractCosts(alternative, "CapitalComponent");
 
         const costs = [
@@ -321,7 +323,7 @@ function parseAlternativesAndHashCosts(
         }
 
         return {
-            id: altID + 1,
+            id: ++altID,
             name: alternative.Name,
             description: alternative.Comment,
             costs: costs
@@ -331,7 +333,35 @@ function parseAlternativesAndHashCosts(
         } as Alternative;
     });
 
-    return [newAlternatives, [...costCache.values()]];
+    let baseAlt: Alternative[] = [];
+    if (projectType === AnalysisType.MILCON_ECIP) {
+        const baseCost: ERCIPCost = {
+            type: CostTypes.ERCIP,
+            id: costID,
+            constructionCost: 0,
+            name: "Base Cost",
+            SIOH: 0,
+            designCost: 0,
+            cybersecurity: 0,
+            publicUtilityRebate: 0,
+            salvageValue: 0,
+        };
+
+        const hash = objectHash(baseCost);
+        costCache.set(hash, baseCost);
+
+        baseAlt = [
+            {
+                ERCIPBaseCase: true,
+                baseline: true,
+                id: ++altID,
+                costs: [costID],
+                name: "Base Cost",
+            },
+        ];
+    }
+
+    return [[...baseAlt, ...newAlternatives], [...costCache.values()]];
 }
 
 function renameSubComponent(name: string) {
