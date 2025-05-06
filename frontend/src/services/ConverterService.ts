@@ -13,7 +13,7 @@ import {
     DiscountingMethod,
     DollarMethod,
     DollarOrPercent,
-    ERCIPCost,
+    type ERCIPCost,
     EmissionsRateType,
     type EnergyCost,
     EnergyUnit,
@@ -114,8 +114,6 @@ function parse(obj: any, releaseYear: number): ConverterResult {
         alternatives,
         studyPeriod,
         studyLocation,
-        dollarMethod,
-        calculatedInflationRate,
         analysisType,
     );
 
@@ -305,8 +303,6 @@ function parseAlternativesAndHashCosts(
     alternatives: any[],
     studyPeriod: number,
     studyLocation: USLocation,
-    dollarMethod: DollarMethod,
-    inflation: number,
     projectType: AnalysisType,
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
@@ -343,7 +339,7 @@ function parseAlternativesAndHashCosts(
 
         for (const cost of costs) {
             const hash = objectHash(cost);
-            const parsedCost = convertCost(cost, studyPeriod, studyLocation, dollarMethod, costID, inflation);
+            const parsedCost = convertCost(cost, studyPeriod, studyLocation, costID, projectType);
 
             if (!costCache.has(hash)) {
                 costCache.set(hash, parsedCost);
@@ -380,9 +376,8 @@ function convertCost(
     cost: any,
     studyPeriod: number,
     studyLocation: USLocation,
-    dollarMethod: DollarMethod,
     id: ID,
-    inflation: number,
+    projectType: AnalysisType,
 ): Cost {
     const type: CostComponent = cost.type;
     switch (type) {
@@ -400,6 +395,7 @@ function convertCost(
                     approach: DollarOrPercent.PERCENT,
                     value: cost.ResaleValueFactor ?? 0,
                 },
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as ReplacementCapitalCost;
         case "NonRecurringCost": {
             const escalation = parseEscalation(cost.Escalation, studyPeriod) ?? 0;
@@ -412,6 +408,7 @@ function convertCost(
                 initialCost: cost.Amount ?? 0,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 rateOfChangeValue: escalation,
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as OMRCost;
         }
         case "RecurringCost":
@@ -427,6 +424,7 @@ function convertCost(
                     rateOfRecurrence: 1,
                     duration: parseDurationFromVarying(cost.Index, studyPeriod),
                 },
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as OMRCost;
         case "CapitalComponent":
             return {
@@ -467,6 +465,7 @@ function convertCost(
                 customEscalation: escalation !== undefined,
                 escalation,
                 useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as EnergyCost;
         }
         case "WaterUsage":
@@ -481,6 +480,7 @@ function convertCost(
                 escalation: parseEscalation(cost.UsageEscalation, studyPeriod),
                 useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
                 disposalIndex: parseUseIndex(cost.DisposalIndex, studyPeriod),
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as WaterCost;
         case "RecurringContractCost":
             return {
@@ -495,6 +495,7 @@ function convertCost(
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
                     duration: parseDurationFromVarying(cost.Index, studyPeriod),
                 },
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as RecurringContractCost;
         case "NonRecurringContractCost":
             return {
@@ -505,6 +506,7 @@ function convertCost(
                 cost: cost.Amount ?? 0,
                 initialOccurrence: (parseYears(cost.Start) as { type: "Year"; value: number }).value,
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
+                costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as ImplementationContractCost;
         case "ERCIP":
             return {
