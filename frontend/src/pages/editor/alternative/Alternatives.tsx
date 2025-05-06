@@ -80,8 +80,9 @@ function ERCIPFields() {
     return (
         <div className="flex flex-col flex-1">
             <Title className="self-center" level={3}>
-                Investment
+                <Info text={Strings.ERCIP_INVESTMENT}>Investment</Info>
             </Title>
+            <Divider className="mt-1" />
             <div className="flex-1 pl-10 2xl:flex 2xl:flex-row justify-center">
                 <div className="2xl:flex 2xl:flex-col 2xl:w-full gap-y-4 justify-between">
                     <TestNumberInput
@@ -246,8 +247,10 @@ export default function Alternatives() {
             <AlternativeSubHeader />
 
             <div className={"flex h-full flex-col overflow-y-auto p-6"}>
-                <div className={"flex flex-row"}>
-                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4 flex-1"}>
+                <div className={analysisType === AnalysisType.MILCON_ECIP ? "flex flex-row" : ""}>
+                    <div
+                        className={`grid grid-cols-2 gap-x-16 gap-y-4 ${analysisType === AnalysisType.MILCON_ECIP ? "flex-1" : "w-1/2"}`}
+                    >
                         <TextInput
                             className={"w-full"}
                             type={TextInputType.PRIMARY}
