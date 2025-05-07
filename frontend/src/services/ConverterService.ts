@@ -36,13 +36,12 @@ import {
     WeightUnit,
 } from "blcc-format/Format";
 import { Version } from "blcc-format/Verison";
-import { analysisType } from "constants/DROPDOWN";
 import { Country, stateToAbbreviation } from "constants/LOCATION";
 import { Effect } from "effect";
 import { getDefaultReleaseYear } from "effect/DefaultProject";
 import objectHash from "object-hash";
 import { XmlParserService } from "services/XmlParserService";
-import { calculateNominalDiscountRate } from "util/Util";
+import { calculateNominalDiscountRate, makeArray } from "util/Util";
 
 /**
  * Regex for parsing the years, months, days from XML format.
@@ -109,12 +108,14 @@ function parse(obj: any, releaseYear: number): ConverterResult {
     const calculatedNominalDR: number = calculateNominalDiscountRate(calculatedRealDR, calculatedInflationRate);
 
     const analysisType = convertAnalysisType(project.AnalysisType);
+    const constructionPeriod = (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value;
 
     const [parsedAlternatives, parsedCosts] = parseAlternativesAndHashCosts(
         alternatives,
         studyPeriod,
         studyLocation,
         analysisType,
+        constructionPeriod,
     );
 
     return [
@@ -129,7 +130,7 @@ function parse(obj: any, releaseYear: number): ConverterResult {
             dollarMethod: dollarMethod,
             studyPeriod,
             case: Case.REF,
-            constructionPeriod: (parseYears(project.PCPeriod) as { type: "Year"; value: number }).value,
+            constructionPeriod: constructionPeriod,
             discountingMethod: convertDiscountMethod(project.DiscountingMethod),
             realDiscountRate: calculatedRealDR,
             nominalDiscountRate: calculatedNominalDR,
@@ -304,6 +305,7 @@ function parseAlternativesAndHashCosts(
     studyPeriod: number,
     studyLocation: USLocation,
     projectType: AnalysisType,
+    constructionPeriod: number,
 ): [Alternative[], Cost[]] {
     const costCache = new Map<string, Cost>();
     let costID: ID = 1;
@@ -339,7 +341,7 @@ function parseAlternativesAndHashCosts(
 
         for (const cost of costs) {
             const hash = objectHash(cost);
-            const parsedCost = convertCost(cost, studyPeriod, studyLocation, costID, projectType);
+            const parsedCost = convertCost(cost, studyPeriod, studyLocation, costID, projectType, constructionPeriod);
 
             if (!costCache.has(hash)) {
                 costCache.set(hash, parsedCost);
@@ -378,6 +380,7 @@ function convertCost(
     studyLocation: USLocation,
     id: ID,
     projectType: AnalysisType,
+    constructionPeriod: number,
 ): Cost {
     const type: CostComponent = cost.type;
     switch (type) {
@@ -418,11 +421,11 @@ function convertCost(
                 description: cost.Comment ?? undefined,
                 type: CostTypes.OMR,
                 initialCost: cost.Amount ?? 0,
-                initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
+                initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod, constructionPeriod), // (parseYears(cost["Start"]) as { type: "Year"; value: number }).value,
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 recurring: {
                     rateOfRecurrence: 1,
-                    duration: parseDurationFromVarying(cost.Index, studyPeriod),
+                    duration: parseDurationFromVarying(cost.Index, studyPeriod, constructionPeriod),
                 },
                 costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as OMRCost;
@@ -464,7 +467,7 @@ function convertCost(
                 rebate: cost.UtilityRebate as number,
                 customEscalation: escalation !== undefined,
                 escalation,
-                useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
+                useIndex: parseUseIndex(cost.UsageIndex, studyPeriod, constructionPeriod),
                 costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as EnergyCost;
         }
@@ -478,8 +481,8 @@ function convertCost(
                 usage: parseSeasonalUsage(cost, "Usage"),
                 disposal: parseSeasonalUsage(cost, "Disposal"),
                 escalation: parseEscalation(cost.UsageEscalation, studyPeriod),
-                useIndex: parseUseIndex(cost.UsageIndex, studyPeriod),
-                disposalIndex: parseUseIndex(cost.DisposalIndex, studyPeriod),
+                useIndex: parseUseIndex(cost.UsageIndex, studyPeriod, constructionPeriod),
+                disposalIndex: parseUseIndex(cost.DisposalIndex, studyPeriod, constructionPeriod),
                 costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as WaterCost;
         case "RecurringContractCost":
@@ -489,11 +492,11 @@ function convertCost(
                 description: cost.Comment ?? undefined,
                 type: CostTypes.RECURRING_CONTRACT,
                 initialCost: cost.Amount ?? 0,
-                initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod),
+                initialOccurrence: initialFromUseIndex(cost.Index, studyPeriod, constructionPeriod),
                 rateOfChangeValue: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 recurring: {
                     rateOfRecurrence: (parseYears(cost.Interval) as { type: "Year"; value: number }).value,
-                    duration: parseDurationFromVarying(cost.Index, studyPeriod),
+                    duration: parseDurationFromVarying(cost.Index, studyPeriod, constructionPeriod),
                 },
                 costSavings: projectType === AnalysisType.MILCON_ECIP,
             } as RecurringContractCost;
@@ -681,14 +684,21 @@ function parseVarying(intervals: any, values: any, studyPeriod: number): number 
 }
 
 //biome-ignore lint: No need to type XML format
-function parseUseIndex(cost: any, studyPeriod: number): number | number[] | undefined {
+function parseUseIndex(cost: any, studyPeriod: number, constructionPeriod: number): number | number[] | undefined {
     const useIndex = cost.UsageIndex;
-    return parseVarying(useIndex.Intervals, useIndex.Values, studyPeriod);
+    const varying = parseVarying(useIndex.Intervals, useIndex.Values, studyPeriod);
+    if (!Array.isArray(varying) || constructionPeriod === 0) {
+        return varying;
+    }
+    // Put empty construction period at the beginning because use index starts after construction period
+    // (Study period includes construction period)
+    varying.splice(-constructionPeriod);
+    return [...makeArray(constructionPeriod, 0), ...varying];
 }
 
 //biome-ignore lint: No need to type XML format
-function initialFromUseIndex(cost: any, studyPeriod: number): number {
-    return initialFromVarying(parseUseIndex(cost, studyPeriod));
+function initialFromUseIndex(cost: any, studyPeriod: number, constructionPeriod: number): number {
+    return initialFromVarying(parseUseIndex(cost, studyPeriod, constructionPeriod));
 }
 
 function initialFromVarying(values: number | number[] | undefined): number {
@@ -698,13 +708,13 @@ function initialFromVarying(values: number | number[] | undefined): number {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-function parseDurationFromVarying(cost: any, studyPeriod: number): number {
+function parseDurationFromVarying(cost: any, studyPeriod: number, constructionPeriod: number): number {
     // Array of values over the study period
-    const useIndex = parseUseIndex(cost, studyPeriod);
+    const useIndex = parseUseIndex(cost, studyPeriod, constructionPeriod);
 
     if (typeof useIndex === "number") {
         if (useIndex >= 0.5) {
-            return studyPeriod;
+            return studyPeriod - constructionPeriod;
         }
         return 0;
     }
