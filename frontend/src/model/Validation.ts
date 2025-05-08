@@ -1,6 +1,7 @@
 import {
     alternatives$,
     energyCostsByAlternative$,
+    ercipCostsByAlternative$,
     hasNoBaseline$,
     implementationContractCostsByAlternative$,
     investmentCostsByAlternative$,
@@ -367,6 +368,34 @@ const otherNonMonetaryValidation$: Observable<ErrorGroup[]> = otherNonMonetaryCo
     ),
 );
 
+const ercipCostValidation$: Observable<ErrorGroup[]> = ercipCostsByAlternative$.pipe(
+    map((costs) =>
+        costs.reduce((errors, cost) => {
+            const messages: string[] = [];
+            // biome-ignore lint/suspicious/noExplicitAny: checking types
+            const addFieldRequiredError = (name: string, field: any) => {
+                if (field === undefined || field === "") {
+                    messages.push(`${name} - Required`);
+                }
+            };
+            addFieldRequiredError("Construction Cost", cost.constructionCost);
+            addFieldRequiredError("SIOH", cost.SIOH);
+            addFieldRequiredError("Design Cost", cost.designCost);
+            addFieldRequiredError("Salvage Value of Existing Equipment", cost.salvageValue);
+            addFieldRequiredError("Public Utility Company Rebate", cost.publicUtilityRebate);
+            addFieldRequiredError("Cybersecurity", cost.cybersecurity);
+            if (messages.length > 0) {
+                errors.push({
+                    url: `/editor/alternative/${cost.altId}`,
+                    messages,
+                    context: cost.altName,
+                });
+            }
+            return errors;
+        }, [] as ErrorGroup[]),
+    ),
+);
+
 /* ------------ ERROR STREAM ------------ */
 
 export const errors$ = combineLatest([
@@ -381,6 +410,7 @@ export const errors$ = combineLatest([
     recurringContractValidation$,
     otherCostValidation$,
     otherNonMonetaryValidation$,
+    ercipCostValidation$,
 ]).pipe(map((errors) => errors.flat()));
 
 export const [useErrors] = bind(errors$, []);

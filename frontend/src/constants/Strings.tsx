@@ -245,6 +245,14 @@ export namespace Strings {
 
     export const ENERGY_COSTS = <p>Energy-related costs</p>;
 
+    export const ERCIP_INVESTMENT = (
+        <p>
+            ERCIP projects require the specific investment cost categorization below. Total Cost and Total Investment
+            are automatically calculated from the use inputs. For additional details on ERCIP projects, see the BLCC
+            User Guide.
+        </p>
+    );
+
     export const ESCALATION_RATES = (
         <p>
             Escalation rates account for projected cost changes and are defaulted based on the fuel type, customer type,

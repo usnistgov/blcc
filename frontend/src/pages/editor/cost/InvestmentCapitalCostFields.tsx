@@ -56,7 +56,7 @@ export default function InvestmentCapitalCostFields() {
                     info={Strings.EXPECTED_LIFETIME_INFO}
                     addonAfter={"years"}
                     controls
-                    label={"Expected Lifetime"}
+                    label={"Expected Lifetime*"}
                     getter={CapitalCostModel.expectedLife.use}
                     onChange={CapitalCostModel.Actions.setExpectedLife}
                     error={CapitalCostModel.expectedLife.useValidation}

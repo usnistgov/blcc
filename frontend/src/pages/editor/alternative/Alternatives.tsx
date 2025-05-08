@@ -80,15 +80,16 @@ function ERCIPFields() {
     return (
         <div className="flex flex-col flex-1">
             <Title className="self-center" level={3}>
-                Investment
+                <Info text={Strings.ERCIP_INVESTMENT}>Investment</Info>
             </Title>
-            <div className="flex-1 pl-10 2xl:flex 2xl:flex-row justify-center">
-                <div className="2xl:flex 2xl:flex-col 2xl:w-full gap-y-4 justify-between">
+            <Divider className="mt-1" />
+            <div className="flex-1 justify-center pl-10 2xl:flex 2xl:flex-row">
+                <div className="justify-between gap-y-4 2xl:flex 2xl:w-full 2xl:flex-col">
                     <TestNumberInput
                         className={inputClasses}
                         addonBefore={"$"}
                         controls
-                        label={"A - Construction Cost"}
+                        label={"A - Construction Cost*"}
                         getter={() => ercipCost?.constructionCost}
                         onChange={(value) => db.costs.put({ ...ercipCost, constructionCost: value ?? 0 }, ercipCost.id)}
                     />
@@ -96,7 +97,7 @@ function ERCIPFields() {
                         className={inputClasses}
                         addonBefore={"$"}
                         controls
-                        label={"B - SIOH"}
+                        label={"B - SIOH*"}
                         getter={() => ercipCost?.SIOH}
                         onChange={(value) => db.costs.put({ ...ercipCost, SIOH: value ?? 0 }, ercipCost.id)}
                     />
@@ -104,7 +105,7 @@ function ERCIPFields() {
                         className={inputClasses}
                         addonBefore={"$"}
                         controls
-                        label={"C - Design Cost"}
+                        label={"C - Design Cost*"}
                         getter={() => ercipCost?.designCost}
                         onChange={(value) => db.costs.put({ ...ercipCost, designCost: value ?? 0 }, ercipCost.id)}
                     />
@@ -119,12 +120,12 @@ function ERCIPFields() {
                 </div>
                 <div className="2xl:mx-16 2xl:border-l" />
                 <Divider className="sm:2xl:hidden" />
-                <div className="2xl:flex 2xl:flex-col 2xl:w-full gap-y-4 justify-between">
+                <div className="justify-between gap-y-4 2xl:flex 2xl:w-full 2xl:flex-col">
                     <TestNumberInput
                         className={inputClasses}
                         addonBefore={"$"}
                         controls
-                        label={"E - Salvage Value of Existing Equipment"}
+                        label={"E - Salvage Value of Existing Equipment*"}
                         getter={() => ercipCost?.salvageValue}
                         onChange={(value) => db.costs.put({ ...ercipCost, salvageValue: value ?? 0 }, ercipCost.id)}
                     />
@@ -132,7 +133,7 @@ function ERCIPFields() {
                         className={inputClasses}
                         addonBefore={"$"}
                         controls
-                        label={"R - Public Utility Company Rebate"}
+                        label={"R - Public Utility Company Rebate*"}
                         getter={() => ercipCost?.publicUtilityRebate}
                         onChange={(value) =>
                             db.costs.put({ ...ercipCost, publicUtilityRebate: value ?? 0 }, ercipCost.id)
@@ -142,7 +143,7 @@ function ERCIPFields() {
                         className={inputClasses}
                         addonBefore={"$"}
                         controls
-                        label={"G - Cybersecurity (Assess and Authorize)"}
+                        label={"G - Cybersecurity (Assess and Authorize)*"}
                         getter={() => ercipCost?.cybersecurity}
                         onChange={(value) => db.costs.put({ ...ercipCost, cybersecurity: value ?? 0 }, ercipCost.id)}
                     />
@@ -246,8 +247,10 @@ export default function Alternatives() {
             <AlternativeSubHeader />
 
             <div className={"flex h-full flex-col overflow-y-auto p-6"}>
-                <div className={"flex flex-row"}>
-                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4 flex-1"}>
+                <div className={analysisType === AnalysisType.MILCON_ECIP ? "flex flex-row" : ""}>
+                    <div
+                        className={`grid grid-cols-2 gap-x-16 gap-y-4 ${analysisType === AnalysisType.MILCON_ECIP ? "flex-1" : "w-1/2"}`}
+                    >
                         <TextInput
                             className={"w-full"}
                             type={TextInputType.PRIMARY}

@@ -65,7 +65,7 @@ function ErrorMenu({ children }: PropsWithChildren) {
         >
             {!valid && (
                 <div
-                    className={`absolute bottom-5 right-6 w-max rounded-md border border-base-light bg-off-white shadow-md p-5 cursor-default ${errorHover ? "" : "hidden"}`}
+                    className={`absolute bottom-5 right-6 w-max rounded-t-md border border-base-light bg-off-white shadow-md p-5 cursor-default ${errorHover ? "" : "hidden"}`}
                 >
                     <ErrorElements />
                 </div>

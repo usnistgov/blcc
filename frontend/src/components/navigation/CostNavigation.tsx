@@ -81,16 +81,16 @@ function CostButtons({ costs$, item }: { costs$: StateObservable<Cost[]>; item: 
 
     return (
         <>
-            <span className={"flex select-none flex-row place-items-center px-2 py-1 font-bold text-[1.04rem]"}>
+            <span className={"flex select-none flex-row place-items-center px-2 py-1 font-bold text-[1.04rem] w-60"}>
                 <Icon className={"mr-1 min-w-[24px]"} path={item.icon} size={0.8} />
                 {item.title}
                 {(costs.length > 0 && open && (
-                    <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
+                    <button type="button" className={"ml-auto"} onClick={() => setOpen(!open)}>
                         <Icon path={mdiChevronUp} size={0.8} />
                     </button>
                 )) ||
                     (costs.length > 0 && (
-                        <button type="button" className={"order-2 ml-auto"} onClick={() => setOpen(!open)}>
+                        <button type="button" className={"ml-auto"} onClick={() => setOpen(!open)}>
                             <Icon path={mdiChevronDown} size={0.8} />
                         </button>
                     ))}
