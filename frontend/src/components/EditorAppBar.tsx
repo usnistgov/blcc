@@ -189,7 +189,7 @@ export default function EditorAppBar() {
 
 function Name() {
     return (
-        <p className={"text-base-lightest"} id={"project-name"}>
+        <p className={"font-bold text-base-lightest"} id={"project-name"}>
             {Model.name.use() || "Untitled Project"}
         </p>
     );
