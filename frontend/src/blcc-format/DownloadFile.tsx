@@ -91,9 +91,9 @@ export const downloadPdf = Effect.gen(function* () {
     };
 
     const annual: Annual = {
-        alternativeNpvCashflows: project.alternatives.map((id) =>
-            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true),
-        ),
+        alternativeNpvCashflows: project.alternatives
+            .sort((a, b) => a - b)
+            .map((id) => createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true)),
         npvCashflowComparison: [...createNpvCashflowComparisonRow(required)],
         npvCashflowComparisonSummary: getSummaryRow(),
     };

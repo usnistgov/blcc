@@ -4,6 +4,7 @@ import { styles } from "../pdfStyles";
 import { type GridCol, Title } from "../components/GeneralComponents";
 import { CashFlowCostType, NPVComparisonTable } from "./AnnualResultsTables";
 import { dollarFormatter } from "util/Util";
+import type { Alternative } from "blcc-format/Format";
 
 const costTypeColumns = [
     { name: ["", "Year"], key: "year" },
@@ -47,22 +48,22 @@ const costTypeColumns = [
 ];
 
 type AnnualResultsPdfProps = {
-    altNames: string[];
+    alternatives: Alternative[];
     annual: Annual;
     annualCashFlows: string;
     cashFlowBySubtype: string[];
 };
 
 export default function AnnualResultsPdf({
-    altNames,
+    alternatives,
     annual,
     annualCashFlows,
     cashFlowBySubtype,
 }: AnnualResultsPdfProps) {
     const npvComparisonColumns: GridCol[] = [
         { name: "Year", key: "year" },
-        ...altNames.map((altName, i) => {
-            return { name: altName, key: `${i}`, formatter: dollarFormatter };
+        ...alternatives.map((alt, i) => {
+            return { name: alt.name, key: `${alt.id}`, formatter: dollarFormatter };
         }),
     ];
     annual.npvCashflowComparisonSummary.year = "Total";
@@ -80,16 +81,18 @@ export default function AnnualResultsPdf({
                     <Text style={styles.heading}>NPV Cash Flows</Text>
                     <Image key={annualCashFlows} src={annualCashFlows} />
                 </View>
-                {altNames?.map((name, index) => (
-                    <View key={name}>
-                        <Text style={styles.heading}>Annual Results for Alternative: {name}</Text>
-                        <CashFlowCostType columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
-                        <View wrap={false}>
-                            <Text style={styles.subHeading}>Cash Flows by Subtype</Text>
-                            <Image key={cashFlowBySubtype[index]} src={cashFlowBySubtype[index]} />
+                {alternatives
+                    .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+                    ?.map((alt, index) => (
+                        <View key={alt.name}>
+                            <Text style={styles.heading}>Annual Results for Alternative: {alt.name}</Text>
+                            <CashFlowCostType columns={costTypeColumns} rows={annual.alternativeNpvCashflows[index]} />
+                            <View wrap={false}>
+                                <Text style={styles.subHeading}>Cash Flows by Subtype</Text>
+                                <Image key={cashFlowBySubtype[index]} src={cashFlowBySubtype[index]} />
+                            </View>
                         </View>
-                    </View>
-                ))}
+                    ))}
             </View>
         </View>
     );

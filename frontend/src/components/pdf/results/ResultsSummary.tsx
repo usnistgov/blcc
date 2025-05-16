@@ -5,6 +5,7 @@ import { Checkmark, SmallText, Title } from "../components/GeneralComponents";
 import { LCCBaselineTable, LCCResourceTable, LCCResultsTable, NPVSubTable } from "./ResultsSummaryTables";
 import { dollarFormatter, numberFormatter, percentFormatter, wholeNumberFormatter } from "util/Util";
 import type { LccBaselineRow, LccComparisonRow, LCCResourceRow } from "util/ResultCalculations";
+import type { Alternative } from "blcc-format/Format";
 
 const lifeCycleComparisonColumns = [
     { name: "Alternative", key: "name" },
@@ -46,11 +47,11 @@ const lifeCycleBaselineColumns = [
 ];
 
 type ResultSummaryProps = {
-    altNames: string[];
+    alternatives: Alternative[];
     summary: Summary;
 };
 
-export default function ResultsSummary({ altNames, summary }: ResultSummaryProps) {
+export default function ResultsSummary({ alternatives, summary }: ResultSummaryProps) {
     return (
         <>
             <View style={styles.section}>
@@ -63,10 +64,10 @@ export default function ResultsSummary({ altNames, summary }: ResultSummaryProps
                     columns={[
                         { key: "category", name: "Cost Type" },
                         { key: "subcategory", name: "" },
-                        ...altNames.map((altName, i) => {
+                        ...alternatives.map((alt, i) => {
                             return {
-                                key: `${i}`,
-                                name: [altName],
+                                key: `${alt.id}`,
+                                name: [alt.name],
                                 formatter: dollarFormatter,
                             };
                         }),
@@ -77,10 +78,10 @@ export default function ResultsSummary({ altNames, summary }: ResultSummaryProps
                     columns={[
                         { key: "category", name: "Resource Type" },
                         { key: "subcategory", name: "" },
-                        ...altNames.map((altName, i) => {
+                        ...alternatives.map((alt, i) => {
                             return {
                                 key: `${i}`,
-                                name: [altName],
+                                name: [alt.name],
                                 renderCell: (row: LCCResourceRow, col: { key: string; name: string }) => (
                                     <SmallText
                                         text={`${wholeNumberFormatter.format(row[col.key] ?? 0)} ${row.units}`}
