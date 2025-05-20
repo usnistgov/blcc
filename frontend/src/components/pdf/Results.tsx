@@ -9,7 +9,6 @@ import AlternativeResultsPdf from "./results/AlternativeResultsPdf";
 import ERCIPPdf from "./results/ERCIPPdf";
 
 type ResultsProps = {
-    project: Project;
     alternatives: Alternative[];
     summary: Summary;
     annual: Annual;
