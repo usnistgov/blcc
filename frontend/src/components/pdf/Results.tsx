@@ -6,7 +6,6 @@ import { Title } from "./components/GeneralComponents";
 import AnnualResultsPdf from "./results/AnnualResultsPdf";
 import ResultsSummary from "./results/ResultsSummary";
 import AlternativeResultsPdf from "./results/AlternativeResultsPdf";
-import ERCIPPdf from "./results/ERCIPPdf";
 
 type ResultsProps = {
     alternatives: Alternative[];
