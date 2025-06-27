@@ -400,10 +400,10 @@ struct ReleaseYearRequest {
 async fn post_check_release_year_exists(request: Json<ReleaseYearRequest>, data: Data<AppData>) -> impl Responder {
     let mut db = data.pool.get().expect("Failed to get a connection");
 
-    use crate::schema::region_case_ba::dsl::*;
-    use crate::schema::region_case_ba::*;
+    use crate::schema::energy_prices::dsl::*;
+    use crate::schema::energy_prices::*;
 
-    let query: QueryResult<i32> = region_case_ba
+    let query: QueryResult<i32> = energy_prices 
         .filter(release_year.eq(request.year))
         .select(release_year)
         .first(&mut db);
@@ -427,10 +427,10 @@ type RegionCaseResult = QueryResult<Vec<(i32, Option<i32>, Option<i32>)>>;
 async fn get_release_years(data: Data<AppData>) -> impl Responder {
     let mut db = data.pool.get().expect("Failed to get a connection");
 
-    use crate::schema::region_case_ba::dsl::*;
-    use crate::schema::region_case_ba::*;
+    use crate::schema::energy_prices::dsl::*;
+    use crate::schema::energy_prices::*;
 
-    let query: RegionCaseResult = region_case_ba
+    let query: RegionCaseResult = energy_prices
         .group_by(release_year)
         .select((release_year, max(year), min(year)))
         .load(&mut db);

@@ -1,0 +1,1801 @@
+release_year,year,division,sector,case,region,propane,distillate_fuel_oil,residual_fuel_oil,natural_gas,electricity,coal
+2025,2024,East North Central,Commercial,REF,Midwest,17.543947,22.133821,6.875613,7.574775,36.310246,
+2025,2025,East North Central,Commercial,REF,Midwest,17.530003,20.95649,8.029397,6.879991,35.64669,
+2025,2026,East North Central,Commercial,REF,Midwest,18.306999,19.730082,8.511486,7.025198,34.084766,
+2025,2027,East North Central,Commercial,REF,Midwest,18.130379,19.231709,9.573421,7.162347,32.309307,
+2025,2028,East North Central,Commercial,REF,Midwest,18.243702,18.943537,10.519809,7.437314,32.159248,
+2025,2029,East North Central,Commercial,REF,Midwest,18.535748,18.681383,11.545022,7.796461,32.60033,
+2025,2030,East North Central,Commercial,REF,Midwest,18.95253,18.447943,12.628589,8.138316,32.953526,
+2025,2031,East North Central,Commercial,REF,Midwest,19.345015,18.51618,12.549569,8.283791,33.764305,
+2025,2032,East North Central,Commercial,REF,Midwest,20.114452,18.443151,12.367037,8.636756,33.494892,
+2025,2033,East North Central,Commercial,REF,Midwest,21.024469,18.758629,12.800994,8.967434,34.138382,
+2025,2034,East North Central,Commercial,REF,Midwest,21.624041,18.892052,12.799841,9.15018,33.884632,
+2025,2035,East North Central,Commercial,REF,Midwest,21.90909,19.111769,13.004584,9.23825,33.350986,
+2025,2036,East North Central,Commercial,REF,Midwest,21.996201,19.198982,13.24304,9.232751,32.370583,
+2025,2037,East North Central,Commercial,REF,Midwest,22.016518,19.378942,13.405793,9.171231,32.281666,
+2025,2038,East North Central,Commercial,REF,Midwest,21.96987,19.491692,13.415963,9.084813,31.834116,
+2025,2039,East North Central,Commercial,REF,Midwest,21.946194,19.623911,13.458285,9.028602,31.179483,
+2025,2040,East North Central,Commercial,REF,Midwest,22.037886,19.84231,13.52164,9.020835,30.771843,
+2025,2041,East North Central,Commercial,REF,Midwest,22.210703,20.086462,13.555829,9.111294,30.687033,
+2025,2042,East North Central,Commercial,REF,Midwest,22.331072,20.197596,13.736842,9.174656,30.70059,
+2025,2043,East North Central,Commercial,REF,Midwest,22.700924,20.514933,13.734542,9.236122,30.598146,
+2025,2044,East North Central,Commercial,REF,Midwest,22.88658,20.71187,13.308995,9.264338,30.504477,
+2025,2045,East North Central,Commercial,REF,Midwest,23.05905,20.779369,13.377777,9.323726,30.652508,
+2025,2046,East North Central,Commercial,REF,Midwest,23.265156,21.029921,13.6418,9.399702,30.814041,
+2025,2047,East North Central,Commercial,REF,Midwest,23.693972,21.546459,14.119814,9.400828,30.680281,
+2025,2048,East North Central,Commercial,REF,Midwest,23.848341,21.553814,14.13711,9.362249,30.908018,
+2025,2049,East North Central,Commercial,REF,Midwest,23.954945,21.551989,14.207442,9.335614,31.110662,
+2025,2050,East North Central,Commercial,REF,Midwest,24.014618,21.662426,14.521511,9.295831,31.156733,
+2025,2051,East North Central,Commercial,REF,Midwest,24.2019835,21.82055225,14.74143875,9.26986325,31.242406,
+2025,2052,East North Central,Commercial,REF,Midwest,24.389349,21.9786785,14.9613665,9.2438955,31.328079,
+2025,2053,East North Central,Commercial,REF,Midwest,24.5767145,22.13680475,15.18129425,9.21792775,31.413752,
+2025,2054,East North Central,Commercial,REF,Midwest,24.76408,22.294931,15.401222,9.19196,31.499425,
+2025,2055,East North Central,Commercial,REF,Midwest,24.9514455,22.45305725,15.62114975,9.16599225,31.585098,
+2025,2056,East North Central,Commercial,REF,Midwest,25.138811,22.6111835,15.8410775,9.1400245,31.670771,
+2025,2057,East North Central,Commercial,REF,Midwest,25.3261765,22.76930975,16.06100525,9.11405675,31.756444,
+2025,2058,East North Central,Commercial,REF,Midwest,25.513542,22.927436,16.280933,9.088089,31.842117,
+2025,2059,East North Central,Commercial,REF,Midwest,25.7009075,23.08556225,16.50086075,9.06212125,31.92779,
+2025,2060,East North Central,Commercial,REF,Midwest,25.888273,23.2436885,16.7207885,9.0361535,32.013463,
+2025,2061,East North Central,Commercial,REF,Midwest,26.0756385,23.40181475,16.94071625,9.01018575,32.099136,
+2025,2062,East North Central,Commercial,REF,Midwest,26.263004,23.559941,17.160644,8.984218,32.184809,
+2025,2063,East North Central,Commercial,REF,Midwest,26.4503695,23.71806725,17.38057175,8.95825025,32.270482,
+2025,2064,East North Central,Commercial,REF,Midwest,26.637735,23.8761935,17.6004995,8.9322825,32.356155,
+2025,2065,East North Central,Commercial,REF,Midwest,26.8251005,24.03431975,17.82042725,8.90631475,32.441828,
+2025,2066,East North Central,Commercial,REF,Midwest,27.012466,24.192446,18.040355,8.880347,32.527501,
+2025,2067,East North Central,Commercial,REF,Midwest,27.1998315,24.35057225,18.26028275,8.85437925,32.613174,
+2025,2068,East North Central,Commercial,REF,Midwest,27.387197,24.5086985,18.4802105,8.8284115,32.698847,
+2025,2024,East North Central,Industrial,REF,Midwest,12.660267,22.6283,6.804973,3.75461,25.842646,2.721485
+2025,2025,East North Central,Industrial,REF,Midwest,12.598665,21.30969,7.982304,4.502936,25.58725,2.637675
+2025,2026,East North Central,Industrial,REF,Midwest,13.394816,20.016998,8.473811,4.379534,23.829334,2.613688
+2025,2027,East North Central,Industrial,REF,Midwest,13.209965,19.457123,9.545165,4.253024,22.471786,2.590743
+2025,2028,East North Central,Industrial,REF,Midwest,13.321319,19.114395,10.500972,4.292352,22.290323,2.551494
+2025,2029,East North Central,Industrial,REF,Midwest,13.630307,18.797421,11.535602,4.395638,22.63192,2.5739
+2025,2030,East North Central,Industrial,REF,Midwest,14.077855,18.505417,12.628589,4.509226,22.964695,2.5694
+2025,2031,East North Central,Industrial,REF,Midwest,14.506038,18.57341,12.549569,4.631536,23.573744,2.561905
+2025,2032,East North Central,Industrial,REF,Midwest,15.351458,18.505236,12.367037,5.034337,23.704052,2.56253
+2025,2033,East North Central,Industrial,REF,Midwest,16.374956,18.824289,12.800994,5.343722,24.444172,2.561408
+2025,2034,East North Central,Industrial,REF,Midwest,17.06802,18.960901,12.799841,5.50411,24.284431,2.566897
+2025,2035,East North Central,Industrial,REF,Midwest,17.404821,19.193111,13.004584,5.566411,23.927513,2.491567
+2025,2036,East North Central,Industrial,REF,Midwest,17.510601,19.289322,13.24304,5.547252,23.213749,2.483772
+2025,2037,East North Central,Industrial,REF,Midwest,17.535862,19.474491,13.405793,5.458942,23.037228,2.484607
+2025,2038,East North Central,Industrial,REF,Midwest,17.482494,19.578453,13.415963,5.342625,22.612715,2.492795
+2025,2039,East North Central,Industrial,REF,Midwest,17.454222,19.716785,13.458285,5.265223,22.061783,2.468614
+2025,2040,East North Central,Industrial,REF,Midwest,17.558428,19.942255,13.52164,5.2556,21.722862,2.464491
+2025,2041,East North Central,Industrial,REF,Midwest,17.757956,20.182632,13.555829,5.327809,21.662123,2.479119
+2025,2042,East North Central,Industrial,REF,Midwest,17.899094,20.296595,13.736842,5.375464,21.655405,2.48257
+2025,2043,East North Central,Industrial,REF,Midwest,18.329903,20.613682,13.734542,5.413403,21.529804,2.486631
+2025,2044,East North Central,Industrial,REF,Midwest,18.551895,20.814573,13.308995,5.424839,21.478556,2.487825
+2025,2045,East North Central,Industrial,REF,Midwest,18.757282,20.880833,13.377777,5.454472,21.628496,2.490712
+2025,2046,East North Central,Industrial,REF,Midwest,19.002394,21.132401,13.6418,5.508835,21.749199,2.494877
+2025,2047,East North Central,Industrial,REF,Midwest,19.512751,21.649006,14.119814,5.482512,21.671282,2.495255
+2025,2048,East North Central,Industrial,REF,Midwest,19.70311,21.655993,14.13711,5.431362,21.84551,2.495392
+2025,2049,East North Central,Industrial,REF,Midwest,19.833578,21.645664,14.207442,5.374894,21.991604,2.496866
+2025,2050,East North Central,Industrial,REF,Midwest,19.906801,21.759747,14.521511,5.316769,22.005581,2.498476
+2025,2051,East North Central,Industrial,REF,Midwest,20.13290275,21.9165835,14.74143875,5.2687525,22.0696765,2.49937575
+2025,2052,East North Central,Industrial,REF,Midwest,20.3590045,22.07342,14.9613665,5.220736,22.133772,2.5002755
+2025,2053,East North Central,Industrial,REF,Midwest,20.58510625,22.2302565,15.18129425,5.1727195,22.1978675,2.50117525
+2025,2054,East North Central,Industrial,REF,Midwest,20.811208,22.387093,15.401222,5.124703,22.261963,2.502075
+2025,2055,East North Central,Industrial,REF,Midwest,21.03730975,22.5439295,15.62114975,5.0766865,22.3260585,2.50297475
+2025,2056,East North Central,Industrial,REF,Midwest,21.2634115,22.700766,15.8410775,5.02867,22.390154,2.5038745
+2025,2057,East North Central,Industrial,REF,Midwest,21.48951325,22.8576025,16.06100525,4.9806535,22.4542495,2.50477425
+2025,2058,East North Central,Industrial,REF,Midwest,21.715615,23.014439,16.280933,4.932637,22.518345,2.505674
+2025,2059,East North Central,Industrial,REF,Midwest,21.94171675,23.1712755,16.50086075,4.8846205,22.5824405,2.50657375
+2025,2060,East North Central,Industrial,REF,Midwest,22.1678185,23.328112,16.7207885,4.836604,22.646536,2.5074735
+2025,2061,East North Central,Industrial,REF,Midwest,22.39392025,23.4849485,16.94071625,4.7885875,22.7106315,2.50837325
+2025,2062,East North Central,Industrial,REF,Midwest,22.620022,23.641785,17.160644,4.740571,22.774727,2.509273
+2025,2063,East North Central,Industrial,REF,Midwest,22.84612375,23.7986215,17.38057175,4.6925545,22.8388225,2.51017275
+2025,2064,East North Central,Industrial,REF,Midwest,23.0722255,23.955458,17.6004995,4.644538,22.902918,2.5110725
+2025,2065,East North Central,Industrial,REF,Midwest,23.29832725,24.1122945,17.82042725,4.5965215,22.9670135,2.51197225
+2025,2066,East North Central,Industrial,REF,Midwest,23.524429,24.269131,18.040355,4.548505,23.031109,2.512872
+2025,2067,East North Central,Industrial,REF,Midwest,23.75053075,24.4259675,18.26028275,4.5004885,23.0952045,2.51377175
+2025,2068,East North Central,Industrial,REF,Midwest,23.9766325,24.582804,18.4802105,4.452472,23.1593,2.5146715
+2025,2024,East North Central,Residential,REF,Midwest,23.87751,18.083803,,10.980869,44.155857,
+2025,2025,East North Central,Residential,REF,Midwest,23.165659,17.094847,,10.365529,43.979702,
+2025,2026,East North Central,Residential,REF,Midwest,23.28866,16.614082,,9.894895,41.726357,
+2025,2027,East North Central,Residential,REF,Midwest,23.109751,16.832008,,9.417684,39.824482,
+2025,2028,East North Central,Residential,REF,Midwest,23.111382,17.217566,,9.11986,39.516167,
+2025,2029,East North Central,Residential,REF,Midwest,23.307007,17.630796,,8.955529,39.905224,
+2025,2030,East North Central,Residential,REF,Midwest,23.674316,18.095661,,8.774266,40.29303,
+2025,2031,East North Central,Residential,REF,Midwest,24.103064,18.165384,,8.966028,41.004642,
+2025,2032,East North Central,Residential,REF,Midwest,24.840355,18.062603,,9.408212,40.991959,
+2025,2033,East North Central,Residential,REF,Midwest,25.799601,18.356153,,9.826777,41.763206,
+2025,2034,East North Central,Residential,REF,Midwest,26.648125,18.470036,,10.095132,41.590443,
+2025,2035,East North Central,Residential,REF,Midwest,27.251638,18.613148,,10.246875,41.132874,
+2025,2036,East North Central,Residential,REF,Midwest,27.614155,18.645241,,10.289935,40.252769,
+2025,2037,East North Central,Residential,REF,Midwest,27.817923,18.79328,,10.26493,40.021725,
+2025,2038,East North Central,Residential,REF,Midwest,27.891586,18.959871,,10.206549,39.475777,
+2025,2039,East North Central,Residential,REF,Midwest,27.918118,19.054626,,10.178264,38.775932,
+2025,2040,East North Central,Residential,REF,Midwest,27.999611,19.229673,,10.20202,38.35881,
+2025,2041,East North Central,Residential,REF,Midwest,28.155333,19.496994,,10.334171,38.265118,
+2025,2042,East North Central,Residential,REF,Midwest,28.302731,19.590784,,10.44273,38.29155,
+2025,2043,East North Central,Residential,REF,Midwest,28.635216,19.909626,,10.551353,38.190517,
+2025,2044,East North Central,Residential,REF,Midwest,28.902626,20.082355,,10.622165,38.138973,
+2025,2045,East North Central,Residential,REF,Midwest,29.149612,20.157452,,10.722143,38.324471,
+2025,2046,East North Central,Residential,REF,Midwest,29.412109,20.401773,,10.837388,38.538383,
+2025,2047,East North Central,Residential,REF,Midwest,29.839613,20.917892,,10.875264,38.521633,
+2025,2048,East North Central,Residential,REF,Midwest,30.129482,20.927477,,10.86744,38.86578,
+2025,2049,East North Central,Residential,REF,Midwest,30.344881,20.97781,,10.86849,39.188408,
+2025,2050,East North Central,Residential,REF,Midwest,30.490574,21.065891,,10.853658,39.351166,
+2025,2051,East North Central,Residential,REF,Midwest,30.76019025,21.2319205,,10.8577255,39.55436175,
+2025,2052,East North Central,Residential,REF,Midwest,31.0298065,21.39795,,10.861793,39.7575575,
+2025,2053,East North Central,Residential,REF,Midwest,31.29942275,21.5639795,,10.8658605,39.96075325,
+2025,2054,East North Central,Residential,REF,Midwest,31.569039,21.730009,,10.869928,40.163949,
+2025,2055,East North Central,Residential,REF,Midwest,31.83865525,21.8960385,,10.8739955,40.36714475,
+2025,2056,East North Central,Residential,REF,Midwest,32.1082715,22.062068,,10.878063,40.5703405,
+2025,2057,East North Central,Residential,REF,Midwest,32.37788775,22.2280975,,10.8821305,40.77353625,
+2025,2058,East North Central,Residential,REF,Midwest,32.647504,22.394127,,10.886198,40.976732,
+2025,2059,East North Central,Residential,REF,Midwest,32.91712025,22.5601565,,10.8902655,41.17992775,
+2025,2060,East North Central,Residential,REF,Midwest,33.1867365,22.726186,,10.894333,41.3831235,
+2025,2061,East North Central,Residential,REF,Midwest,33.45635275,22.8922155,,10.8984005,41.58631925,
+2025,2062,East North Central,Residential,REF,Midwest,33.725969,23.058245,,10.902468,41.789515,
+2025,2063,East North Central,Residential,REF,Midwest,33.99558525,23.2242745,,10.9065355,41.99271075,
+2025,2064,East North Central,Residential,REF,Midwest,34.2652015,23.390304,,10.910603,42.1959065,
+2025,2065,East North Central,Residential,REF,Midwest,34.53481775,23.5563335,,10.9146705,42.39910225,
+2025,2066,East North Central,Residential,REF,Midwest,34.804434,23.722363,,10.918738,42.602298,
+2025,2067,East North Central,Residential,REF,Midwest,35.07405025,23.8883925,,10.9228055,42.80549375,
+2025,2068,East North Central,Residential,REF,Midwest,35.3436665,24.054422,,10.926873,43.0086895,
+2025,2024,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2025,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2026,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2027,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2028,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2029,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2030,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2031,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2032,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2033,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2034,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2035,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2036,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2037,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2038,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2039,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2040,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2041,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2042,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2043,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2044,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2045,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2046,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2047,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2048,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2049,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2050,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2051,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2052,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2053,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2054,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2055,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2056,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2057,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2058,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2059,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2060,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2061,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2062,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2063,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2064,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2065,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2066,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2067,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2068,East North Central,Transportation,REF,Midwest,,,,,,
+2025,2024,West North Central,Commercial,REF,Midwest,16.756634,22.251554,6.82852,8.53379,31.837734,
+2025,2025,West North Central,Commercial,REF,Midwest,16.743315,21.050676,7.982304,7.618894,31.082312,
+2025,2026,West North Central,Commercial,REF,Midwest,17.485441,19.808228,8.472762,7.833368,30.077526,
+2025,2027,West North Central,Commercial,REF,Midwest,17.316746,19.310469,9.48174,8.015241,29.466785,
+2025,2028,West North Central,Commercial,REF,Midwest,17.424984,18.9881,10.459613,8.368244,29.507288,
+2025,2029,West North Central,Commercial,REF,Midwest,17.703924,18.704489,11.48952,8.800743,29.742258,
+2025,2030,West North Central,Commercial,REF,Midwest,18.102005,18.46483,12.593457,9.228018,30.140974,
+2025,2031,West North Central,Commercial,REF,Midwest,18.476875,18.52812,12.549569,9.403435,30.700201,
+2025,2032,West North Central,Commercial,REF,Midwest,19.211782,18.453482,12.367037,9.79454,31.043566,
+2025,2033,West North Central,Commercial,REF,Midwest,20.080961,18.800123,12.800994,10.164213,31.394053,
+2025,2034,West North Central,Commercial,REF,Midwest,20.653624,18.940041,12.799841,10.388101,31.027502,
+2025,2035,West North Central,Commercial,REF,Midwest,20.925882,19.17063,13.004584,10.495938,30.318846,
+2025,2036,West North Central,Commercial,REF,Midwest,21.009085,19.255764,13.215516,10.505175,29.865301,
+2025,2037,West North Central,Commercial,REF,Midwest,21.028488,19.44072,13.285049,10.462001,29.529646,
+2025,2038,West North Central,Commercial,REF,Midwest,20.983934,19.552599,13.415963,10.401489,29.194273,
+2025,2039,West North Central,Commercial,REF,Midwest,20.961323,19.682467,13.458285,10.365348,29.15859,
+2025,2040,West North Central,Commercial,REF,Midwest,21.048901,19.904547,13.52164,10.390519,29.134657,
+2025,2041,West North Central,Commercial,REF,Midwest,21.213963,20.150663,13.552189,10.519258,29.210976,
+2025,2042,West North Central,Commercial,REF,Midwest,21.328926,20.258163,13.734555,10.614766,29.140635,
+2025,2043,West North Central,Commercial,REF,Midwest,21.68218,20.572336,13.734191,10.710772,29.00246,
+2025,2044,West North Central,Commercial,REF,Midwest,21.859507,20.776022,13.308995,10.76166,28.843163,
+2025,2045,West North Central,Commercial,REF,Midwest,22.024235,20.843515,13.377777,10.85355,29.195845,
+2025,2046,West North Central,Commercial,REF,Midwest,22.221096,21.094265,13.6418,10.975332,29.506271,
+2025,2047,West North Central,Commercial,REF,Midwest,22.630665,21.610807,14.119814,11.001831,29.514696,
+2025,2048,West North Central,Commercial,REF,Midwest,22.778105,21.618164,14.13711,10.972607,29.488974,
+2025,2049,West North Central,Commercial,REF,Midwest,22.879927,21.616344,14.207442,10.962486,29.464367,
+2025,2050,West North Central,Commercial,REF,Midwest,22.936926,21.726788,14.521511,10.945208,29.403238,
+2025,2051,West North Central,Commercial,REF,Midwest,23.1158835,21.88491875,14.74143875,10.937677,29.37747975,
+2025,2052,West North Central,Commercial,REF,Midwest,23.294841,22.0430495,14.9613665,10.930146,29.3517215,
+2025,2053,West North Central,Commercial,REF,Midwest,23.4737985,22.20118025,15.18129425,10.922615,29.32596325,
+2025,2054,West North Central,Commercial,REF,Midwest,23.652756,22.359311,15.401222,10.915084,29.300205,
+2025,2055,West North Central,Commercial,REF,Midwest,23.8317135,22.51744175,15.62114975,10.907553,29.27444675,
+2025,2056,West North Central,Commercial,REF,Midwest,24.010671,22.6755725,15.8410775,10.900022,29.2486885,
+2025,2057,West North Central,Commercial,REF,Midwest,24.1896285,22.83370325,16.06100525,10.892491,29.22293025,
+2025,2058,West North Central,Commercial,REF,Midwest,24.368586,22.991834,16.280933,10.88496,29.197172,
+2025,2059,West North Central,Commercial,REF,Midwest,24.5475435,23.14996475,16.50086075,10.877429,29.17141375,
+2025,2060,West North Central,Commercial,REF,Midwest,24.726501,23.3080955,16.7207885,10.869898,29.1456555,
+2025,2061,West North Central,Commercial,REF,Midwest,24.9054585,23.46622625,16.94071625,10.862367,29.11989725,
+2025,2062,West North Central,Commercial,REF,Midwest,25.084416,23.624357,17.160644,10.854836,29.094139,
+2025,2063,West North Central,Commercial,REF,Midwest,25.2633735,23.78248775,17.38057175,10.847305,29.06838075,
+2025,2064,West North Central,Commercial,REF,Midwest,25.442331,23.9406185,17.6004995,10.839774,29.0426225,
+2025,2065,West North Central,Commercial,REF,Midwest,25.6212885,24.09874925,17.82042725,10.832243,29.01686425,
+2025,2066,West North Central,Commercial,REF,Midwest,25.800246,24.25688,18.040355,10.824712,28.991106,
+2025,2067,West North Central,Commercial,REF,Midwest,25.9792035,24.41501075,18.26028275,10.817181,28.96534775,
+2025,2068,West North Central,Commercial,REF,Midwest,26.158161,24.5731415,18.4802105,10.80965,28.9395895,
+2025,2024,West North Central,Industrial,REF,Midwest,12.660267,22.769581,6.82852,3.033659,23.813116,3.927764
+2025,2025,West North Central,Industrial,REF,Midwest,12.598665,21.427425,7.982304,3.786235,23.548668,4.090774
+2025,2026,West North Central,Industrial,REF,Midwest,13.394816,20.112398,8.472762,3.732171,22.385313,4.132485
+2025,2027,West North Central,Industrial,REF,Midwest,13.209965,19.549454,9.48174,3.605308,22.029079,4.112862
+2025,2028,West North Central,Industrial,REF,Midwest,13.321319,19.163246,10.459613,3.68818,22.008801,4.094738
+2025,2029,West North Central,Industrial,REF,Midwest,13.630307,18.818207,11.48952,3.815892,22.192471,4.050445
+2025,2030,West North Central,Industrial,REF,Midwest,14.077855,18.515114,12.593457,3.975543,22.71394,4.013761
+2025,2031,West North Central,Industrial,REF,Midwest,14.506038,18.577333,12.549569,4.118014,23.296814,3.95224
+2025,2032,West North Central,Industrial,REF,Midwest,15.351458,18.50823,12.367037,4.569036,23.874269,3.904578
+2025,2033,West North Central,Industrial,REF,Midwest,16.374956,18.8631,12.800994,4.90954,24.214245,3.886454
+2025,2034,West North Central,Industrial,REF,Midwest,17.06802,19.006327,12.799841,5.095767,23.945286,3.872741
+2025,2035,West North Central,Industrial,REF,Midwest,17.404821,19.251089,13.004584,5.162632,23.426222,3.863417
+2025,2036,West North Central,Industrial,REF,Midwest,17.510601,19.344877,13.215516,5.138429,23.2076,3.875388
+2025,2037,West North Central,Industrial,REF,Midwest,17.535862,19.537107,13.285049,5.052448,23.03651,3.888196
+2025,2038,West North Central,Industrial,REF,Midwest,17.482494,19.640499,13.415963,4.954655,22.879848,3.88852
+2025,2039,West North Central,Industrial,REF,Midwest,17.454222,19.777264,13.458285,4.88526,23.014637,3.893249
+2025,2040,West North Central,Industrial,REF,Midwest,17.558428,20.005188,13.52164,4.910944,22.979013,3.88786
+2025,2041,West North Central,Industrial,REF,Midwest,17.757956,20.246874,13.552189,5.023375,23.218616,3.885061
+2025,2042,West North Central,Industrial,REF,Midwest,17.899094,20.358418,13.734555,5.101038,23.253593,3.880091
+2025,2043,West North Central,Industrial,REF,Midwest,18.329903,20.673401,13.734191,5.168559,23.218424,3.889167
+2025,2044,West North Central,Industrial,REF,Midwest,18.551895,20.878784,13.308995,5.195311,23.096596,3.896535
+2025,2045,West North Central,Industrial,REF,Midwest,18.757282,20.945042,13.377777,5.243546,23.596094,3.901025
+2025,2046,West North Central,Industrial,REF,Midwest,19.002394,21.196743,13.6418,5.334824,23.787802,3.920856
+2025,2047,West North Central,Industrial,REF,Midwest,19.512751,21.713354,14.119814,5.334181,23.718872,3.928966
+2025,2048,West North Central,Industrial,REF,Midwest,19.70311,21.720346,14.13711,5.283559,23.616241,3.930158
+2025,2049,West North Central,Industrial,REF,Midwest,19.833578,21.710018,14.207442,5.226614,23.549009,3.92664
+2025,2050,West North Central,Industrial,REF,Midwest,19.906801,21.824106,14.521511,5.18334,23.466259,3.934758
+2025,2051,West North Central,Industrial,REF,Midwest,20.13290275,21.98094675,14.74143875,5.145469,23.38587325,3.9382335
+2025,2052,West North Central,Industrial,REF,Midwest,20.3590045,22.1377875,14.9613665,5.107598,23.3054875,3.941709
+2025,2053,West North Central,Industrial,REF,Midwest,20.58510625,22.29462825,15.18129425,5.069727,23.22510175,3.9451845
+2025,2054,West North Central,Industrial,REF,Midwest,20.811208,22.451469,15.401222,5.031856,23.144716,3.94866
+2025,2055,West North Central,Industrial,REF,Midwest,21.03730975,22.60830975,15.62114975,4.993985,23.06433025,3.9521355
+2025,2056,West North Central,Industrial,REF,Midwest,21.2634115,22.7651505,15.8410775,4.956114,22.9839445,3.955611
+2025,2057,West North Central,Industrial,REF,Midwest,21.48951325,22.92199125,16.06100525,4.918243,22.90355875,3.9590865
+2025,2058,West North Central,Industrial,REF,Midwest,21.715615,23.078832,16.280933,4.880372,22.823173,3.962562
+2025,2059,West North Central,Industrial,REF,Midwest,21.94171675,23.23567275,16.50086075,4.842501,22.74278725,3.9660375
+2025,2060,West North Central,Industrial,REF,Midwest,22.1678185,23.3925135,16.7207885,4.80463,22.6624015,3.969513
+2025,2061,West North Central,Industrial,REF,Midwest,22.39392025,23.54935425,16.94071625,4.766759,22.58201575,3.9729885
+2025,2062,West North Central,Industrial,REF,Midwest,22.620022,23.706195,17.160644,4.728888,22.50163,3.976464
+2025,2063,West North Central,Industrial,REF,Midwest,22.84612375,23.86303575,17.38057175,4.691017,22.42124425,3.9799395
+2025,2064,West North Central,Industrial,REF,Midwest,23.0722255,24.0198765,17.6004995,4.653146,22.3408585,3.983415
+2025,2065,West North Central,Industrial,REF,Midwest,23.29832725,24.17671725,17.82042725,4.615275,22.26047275,3.9868905
+2025,2066,West North Central,Industrial,REF,Midwest,23.524429,24.333558,18.040355,4.577404,22.180087,3.990366
+2025,2067,West North Central,Industrial,REF,Midwest,23.75053075,24.49039875,18.26028275,4.539533,22.09970125,3.9938415
+2025,2068,West North Central,Industrial,REF,Midwest,23.9766325,24.6472395,18.4802105,4.501662,22.0193155,3.997317
+2025,2024,West North Central,Residential,REF,Midwest,21.723749,18.17799,,11.887391,39.824276,
+2025,2025,West North Central,Residential,REF,Midwest,21.076105,17.165485,,10.705163,39.632092,
+2025,2026,West North Central,Residential,REF,Midwest,21.188017,16.683104,,10.392469,38.113693,
+2025,2027,West North Central,Residential,REF,Midwest,21.025244,16.900059,,10.081708,37.349327,
+2025,2028,West North Central,Residential,REF,Midwest,21.026726,17.284164,,9.997046,37.247818,
+2025,2029,West North Central,Residential,REF,Midwest,21.204706,17.692266,,10.031419,37.501976,
+2025,2030,West North Central,Residential,REF,Midwest,21.538883,18.156616,,10.06149,37.982441,
+2025,2031,West North Central,Residential,REF,Midwest,21.928957,18.226458,,10.272675,38.590801,
+2025,2032,West North Central,Residential,REF,Midwest,22.599745,18.117899,,10.721124,39.148067,
+2025,2033,West North Central,Residential,REF,Midwest,23.472466,18.414104,,11.14135,39.664368,
+2025,2034,West North Central,Residential,REF,Midwest,24.244453,18.533718,,11.410982,39.336597,
+2025,2035,West North Central,Residential,REF,Midwest,24.793531,18.677443,,11.543092,38.628563,
+2025,2036,West North Central,Residential,REF,Midwest,25.123344,18.709541,,11.562326,38.165668,
+2025,2037,West North Central,Residential,REF,Midwest,25.308733,18.849874,,11.517194,37.755306,
+2025,2038,West North Central,Residential,REF,Midwest,25.375755,19.013817,,11.449682,37.374969,
+2025,2039,West North Central,Residential,REF,Midwest,25.399895,19.101398,,11.405572,37.298405,
+2025,2040,West North Central,Residential,REF,Midwest,25.474035,19.287642,,11.428456,37.228027,
+2025,2041,West North Central,Residential,REF,Midwest,25.615709,19.56094,,11.564518,37.246273,
+2025,2042,West North Central,Residential,REF,Midwest,25.749815,19.64365,,11.672827,37.187061,
+2025,2043,West North Central,Residential,REF,Midwest,26.052307,19.952854,,11.781962,37.015697,
+2025,2044,West North Central,Residential,REF,Midwest,26.295599,20.146128,,11.842051,36.867733,
+2025,2045,West North Central,Residential,REF,Midwest,26.520306,20.221199,,11.941847,37.341248,
+2025,2046,West North Central,Residential,REF,Midwest,26.759123,20.466118,,12.071699,37.714043,
+2025,2047,West North Central,Residential,REF,Midwest,27.148066,20.982241,,12.103604,37.803814,
+2025,2048,West North Central,Residential,REF,Midwest,27.411791,20.991831,,12.072334,37.865494,
+2025,2049,West North Central,Residential,REF,Midwest,27.607761,21.042168,,12.055649,37.929901,
+2025,2050,West North Central,Residential,REF,Midwest,27.740313,21.130253,,12.030967,37.976425,
+2025,2051,West North Central,Residential,REF,Midwest,27.9856105,21.29628675,,12.020784,38.0420205,
+2025,2052,West North Central,Residential,REF,Midwest,28.230908,21.4623205,,12.010601,38.107616,
+2025,2053,West North Central,Residential,REF,Midwest,28.4762055,21.62835425,,12.000418,38.1732115,
+2025,2054,West North Central,Residential,REF,Midwest,28.721503,21.794388,,11.990235,38.238807,
+2025,2055,West North Central,Residential,REF,Midwest,28.9668005,21.96042175,,11.980052,38.3044025,
+2025,2056,West North Central,Residential,REF,Midwest,29.212098,22.1264555,,11.969869,38.369998,
+2025,2057,West North Central,Residential,REF,Midwest,29.4573955,22.29248925,,11.959686,38.4355935,
+2025,2058,West North Central,Residential,REF,Midwest,29.702693,22.458523,,11.949503,38.501189,
+2025,2059,West North Central,Residential,REF,Midwest,29.9479905,22.62455675,,11.93932,38.5667845,
+2025,2060,West North Central,Residential,REF,Midwest,30.193288,22.7905905,,11.929137,38.63238,
+2025,2061,West North Central,Residential,REF,Midwest,30.4385855,22.95662425,,11.918954,38.6979755,
+2025,2062,West North Central,Residential,REF,Midwest,30.683883,23.122658,,11.908771,38.763571,
+2025,2063,West North Central,Residential,REF,Midwest,30.9291805,23.28869175,,11.898588,38.8291665,
+2025,2064,West North Central,Residential,REF,Midwest,31.174478,23.4547255,,11.888405,38.894762,
+2025,2065,West North Central,Residential,REF,Midwest,31.4197755,23.62075925,,11.878222,38.9603575,
+2025,2066,West North Central,Residential,REF,Midwest,31.665073,23.786793,,11.868039,39.025953,
+2025,2067,West North Central,Residential,REF,Midwest,31.9103705,23.95282675,,11.857856,39.0915485,
+2025,2068,West North Central,Residential,REF,Midwest,32.155668,24.1188605,,11.847673,39.157144,
+2025,2024,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2025,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2026,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2027,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2028,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2029,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2030,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2031,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2032,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2033,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2034,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2035,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2036,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2037,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2038,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2039,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2040,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2041,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2042,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2043,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2044,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2045,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2046,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2047,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2048,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2049,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2050,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2051,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2052,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2053,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2054,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2055,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2056,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2057,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2058,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2059,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2060,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2061,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2062,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2063,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2064,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2065,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2066,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2067,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2068,West North Central,Transportation,REF,Midwest,,,,,,
+2025,2024,Middle Atlantic,Commercial,REF,Northeast,20.498758,26.584133,6.428227,9.374413,47.080269,
+2025,2025,Middle Atlantic,Commercial,REF,Northeast,20.482466,25.00651,7.370092,8.024385,47.588936,
+2025,2026,Middle Atlantic,Commercial,REF,Northeast,21.390322,23.778408,7.679275,8.181846,46.800434,
+2025,2027,Middle Atlantic,Commercial,REF,Northeast,21.183956,23.306377,8.632977,7.62704,42.910164,
+2025,2028,Middle Atlantic,Commercial,REF,Northeast,21.316364,23.008345,9.648192,7.184141,43.483845,
+2025,2029,Middle Atlantic,Commercial,REF,Northeast,21.657598,22.745012,10.715442,6.994889,43.451679,
+2025,2030,Middle Atlantic,Commercial,REF,Northeast,22.144577,22.527744,11.856722,6.818205,43.903915,
+2025,2031,Middle Atlantic,Commercial,REF,Northeast,22.603167,22.589956,11.932703,6.865638,44.855247,
+2025,2032,Middle Atlantic,Commercial,REF,Northeast,23.502195,22.50881,11.912587,7.136027,44.601849,
+2025,2033,Middle Atlantic,Commercial,REF,Northeast,24.565479,22.827477,12.158492,7.419676,45.72588,
+2025,2034,Middle Atlantic,Commercial,REF,Northeast,25.266031,22.964973,12.27927,7.519209,45.697052,
+2025,2035,Middle Atlantic,Commercial,REF,Northeast,25.599091,23.180681,12.427025,7.535764,45.767876,
+2025,2036,Middle Atlantic,Commercial,REF,Northeast,25.700872,23.264942,12.482098,7.472989,45.249405,
+2025,2037,Middle Atlantic,Commercial,REF,Northeast,25.724613,23.440367,12.548313,7.350019,45.502739,
+2025,2038,Middle Atlantic,Commercial,REF,Northeast,25.670105,23.551025,12.680571,7.164068,45.264549,
+2025,2039,Middle Atlantic,Commercial,REF,Northeast,25.642443,23.687368,12.721551,6.99543,44.426991,
+2025,2040,Middle Atlantic,Commercial,REF,Northeast,25.74958,23.901337,12.784905,6.898263,44.133942,
+2025,2041,Middle Atlantic,Commercial,REF,Northeast,25.951506,24.151854,12.815453,6.909221,44.395111,
+2025,2042,Middle Atlantic,Commercial,REF,Northeast,26.092142,24.25996,13.058011,6.93316,44.813446,
+2025,2043,Middle Atlantic,Commercial,REF,Northeast,26.52429,24.571869,13.040857,6.951982,44.952393,
+2025,2044,Middle Atlantic,Commercial,REF,Northeast,26.741215,24.780708,12.883493,6.92512,45.090965,
+2025,2045,Middle Atlantic,Commercial,REF,Northeast,26.942732,24.849207,12.952275,6.902289,45.115547,
+2025,2046,Middle Atlantic,Commercial,REF,Northeast,27.183554,25.100748,13.216298,6.907024,45.345314,
+2025,2047,Middle Atlantic,Commercial,REF,Northeast,27.684589,25.623121,13.694312,6.852088,45.424877,
+2025,2048,Middle Atlantic,Commercial,REF,Northeast,27.864956,25.630482,13.711607,6.753859,45.61631,
+2025,2049,Middle Atlantic,Commercial,REF,Northeast,27.989517,25.628672,13.781941,6.645173,45.720161,
+2025,2050,Middle Atlantic,Commercial,REF,Northeast,28.059244,25.739124,14.096008,6.494148,45.599121,
+2025,2051,Middle Atlantic,Commercial,REF,Northeast,28.2781665,25.898718,14.3159355,6.390929,45.66257275,
+2025,2052,Middle Atlantic,Commercial,REF,Northeast,28.497089,26.058312,14.535863,6.28771,45.7260245,
+2025,2053,Middle Atlantic,Commercial,REF,Northeast,28.7160115,26.217906,14.7557905,6.184491,45.78947625,
+2025,2054,Middle Atlantic,Commercial,REF,Northeast,28.934934,26.3775,14.975718,6.081272,45.852928,
+2025,2055,Middle Atlantic,Commercial,REF,Northeast,29.1538565,26.537094,15.1956455,5.978053,45.91637975,
+2025,2056,Middle Atlantic,Commercial,REF,Northeast,29.372779,26.696688,15.415573,5.874834,45.9798315,
+2025,2057,Middle Atlantic,Commercial,REF,Northeast,29.5917015,26.856282,15.6355005,5.771615,46.04328325,
+2025,2058,Middle Atlantic,Commercial,REF,Northeast,29.810624,27.015876,15.855428,5.668396,46.106735,
+2025,2059,Middle Atlantic,Commercial,REF,Northeast,30.0295465,27.17547,16.0753555,5.565177,46.17018675,
+2025,2060,Middle Atlantic,Commercial,REF,Northeast,30.248469,27.335064,16.295283,5.461958,46.2336385,
+2025,2061,Middle Atlantic,Commercial,REF,Northeast,30.4673915,27.494658,16.5152105,5.358739,46.29709025,
+2025,2062,Middle Atlantic,Commercial,REF,Northeast,30.686314,27.654252,16.735138,5.25552,46.360542,
+2025,2063,Middle Atlantic,Commercial,REF,Northeast,30.9052365,27.813846,16.9550655,5.152301,46.42399375,
+2025,2064,Middle Atlantic,Commercial,REF,Northeast,31.124159,27.97344,17.174993,5.049082,46.4874455,
+2025,2065,Middle Atlantic,Commercial,REF,Northeast,31.3430815,28.133034,17.3949205,4.945863,46.55089725,
+2025,2066,Middle Atlantic,Commercial,REF,Northeast,31.562004,28.292628,17.614848,4.842644,46.614349,
+2025,2067,Middle Atlantic,Commercial,REF,Northeast,31.7809265,28.452222,17.8347755,4.739425,46.67780075,
+2025,2068,Middle Atlantic,Commercial,REF,Northeast,31.999849,28.611816,18.054703,4.636206,46.7412525,
+2025,2024,Middle Atlantic,Industrial,REF,Northeast,12.660267,26.89024,6.428227,4.363891,32.110043,3.621933
+2025,2025,Middle Atlantic,Industrial,REF,Northeast,12.598665,25.289068,7.370092,5.059124,31.936619,3.593124
+2025,2026,Middle Atlantic,Industrial,REF,Northeast,13.394816,24.033585,7.679275,5.097277,30.624403,3.584051
+2025,2027,Middle Atlantic,Industrial,REF,Northeast,13.209965,23.537754,8.632977,4.886247,27.209547,3.559813
+2025,2028,Middle Atlantic,Industrial,REF,Northeast,13.321319,23.217726,9.648192,4.779188,27.754316,3.515694
+2025,2029,Middle Atlantic,Industrial,REF,Northeast,13.630307,22.936163,10.715442,4.81275,27.655893,3.52812
+2025,2030,Middle Atlantic,Industrial,REF,Northeast,14.077855,22.697952,11.856722,4.883296,27.75588,3.513902
+2025,2031,Middle Atlantic,Industrial,REF,Northeast,14.506038,22.759459,11.932703,4.983721,28.625935,3.496598
+2025,2032,Middle Atlantic,Industrial,REF,Northeast,15.351458,22.682013,11.912587,5.288973,28.847328,3.486779
+2025,2033,Middle Atlantic,Industrial,REF,Northeast,16.374956,23.003445,12.158492,5.56677,29.901144,3.477913
+2025,2034,Middle Atlantic,Industrial,REF,Northeast,17.06802,23.142401,12.27927,5.694034,29.914972,3.477844
+2025,2035,Middle Atlantic,Industrial,REF,Northeast,17.404821,23.371948,12.427025,5.732934,29.679026,3.39874
+2025,2036,Middle Atlantic,Industrial,REF,Northeast,17.510601,23.466192,12.482098,5.721838,29.102226,3.395578
+2025,2037,Middle Atlantic,Industrial,REF,Northeast,17.535862,23.648344,12.548313,5.649112,29.414484,3.401255
+2025,2038,Middle Atlantic,Industrial,REF,Northeast,17.482494,23.750923,12.680571,5.512681,29.070538,3.412134
+2025,2039,Middle Atlantic,Industrial,REF,Northeast,17.454222,23.892004,12.721551,5.391942,28.498507,3.388505
+2025,2040,Middle Atlantic,Industrial,REF,Northeast,17.558428,24.114527,12.784905,5.342104,28.270811,3.383268
+2025,2041,Middle Atlantic,Industrial,REF,Northeast,17.757956,24.359146,12.815453,5.370131,28.459215,3.397492
+2025,2042,Middle Atlantic,Industrial,REF,Northeast,17.899094,24.471096,13.058011,5.414526,28.832121,3.399539
+2025,2043,Middle Atlantic,Industrial,REF,Northeast,18.329903,24.784575,13.040857,5.44219,29.002071,3.407092
+2025,2044,Middle Atlantic,Industrial,REF,Northeast,18.551895,24.993393,12.883493,5.448581,29.083813,3.410108
+2025,2045,Middle Atlantic,Industrial,REF,Northeast,18.757282,25.060322,12.952275,5.440032,29.185179,3.414572
+2025,2046,Middle Atlantic,Industrial,REF,Northeast,19.002394,25.312553,13.216298,5.454456,29.358273,3.425311
+2025,2047,Middle Atlantic,Industrial,REF,Northeast,19.512751,25.833052,13.694312,5.421944,29.356594,3.428719
+2025,2048,Middle Atlantic,Industrial,REF,Northeast,19.70311,25.840052,13.711607,5.37177,29.39439,3.430114
+2025,2049,Middle Atlantic,Industrial,REF,Northeast,19.833578,25.829733,13.781941,5.313197,29.481514,3.431442
+2025,2050,Middle Atlantic,Industrial,REF,Northeast,19.906801,25.94383,14.096008,5.236766,29.404171,3.436971
+2025,2051,Middle Atlantic,Industrial,REF,Northeast,20.13290275,26.10164925,14.3159355,5.1823435,29.4156455,3.439886
+2025,2052,Middle Atlantic,Industrial,REF,Northeast,20.3590045,26.2594685,14.535863,5.127921,29.42712,3.442801
+2025,2053,Middle Atlantic,Industrial,REF,Northeast,20.58510625,26.41728775,14.7557905,5.0734985,29.4385945,3.445716
+2025,2054,Middle Atlantic,Industrial,REF,Northeast,20.811208,26.575107,14.975718,5.019076,29.450069,3.448631
+2025,2055,Middle Atlantic,Industrial,REF,Northeast,21.03730975,26.73292625,15.1956455,4.9646535,29.4615435,3.451546
+2025,2056,Middle Atlantic,Industrial,REF,Northeast,21.2634115,26.8907455,15.415573,4.910231,29.473018,3.454461
+2025,2057,Middle Atlantic,Industrial,REF,Northeast,21.48951325,27.04856475,15.6355005,4.8558085,29.4844925,3.457376
+2025,2058,Middle Atlantic,Industrial,REF,Northeast,21.715615,27.206384,15.855428,4.801386,29.495967,3.460291
+2025,2059,Middle Atlantic,Industrial,REF,Northeast,21.94171675,27.36420325,16.0753555,4.7469635,29.5074415,3.463206
+2025,2060,Middle Atlantic,Industrial,REF,Northeast,22.1678185,27.5220225,16.295283,4.692541,29.518916,3.466121
+2025,2061,Middle Atlantic,Industrial,REF,Northeast,22.39392025,27.67984175,16.5152105,4.6381185,29.5303905,3.469036
+2025,2062,Middle Atlantic,Industrial,REF,Northeast,22.620022,27.837661,16.735138,4.583696,29.541865,3.471951
+2025,2063,Middle Atlantic,Industrial,REF,Northeast,22.84612375,27.99548025,16.9550655,4.5292735,29.5533395,3.474866
+2025,2064,Middle Atlantic,Industrial,REF,Northeast,23.0722255,28.1532995,17.174993,4.474851,29.564814,3.477781
+2025,2065,Middle Atlantic,Industrial,REF,Northeast,23.29832725,28.31111875,17.3949205,4.4204285,29.5762885,3.480696
+2025,2066,Middle Atlantic,Industrial,REF,Northeast,23.524429,28.468938,17.614848,4.366006,29.587763,3.483611
+2025,2067,Middle Atlantic,Industrial,REF,Northeast,23.75053075,28.62675725,17.8347755,4.3115835,29.5992375,3.486526
+2025,2068,Middle Atlantic,Industrial,REF,Northeast,23.9766325,28.7845765,18.054703,4.257161,29.610712,3.489441
+2025,2024,Middle Atlantic,Residential,REF,Northeast,30.870586,27.125706,,14.056606,54.39415,
+2025,2025,Middle Atlantic,Residential,REF,Northeast,29.950256,25.571629,,12.801765,55.009056,
+2025,2026,Middle Atlantic,Residential,REF,Northeast,30.109283,25.561474,,12.82558,54.168022,
+2025,2027,Middle Atlantic,Residential,REF,Northeast,29.877975,26.31745,,12.097433,50.384495,
+2025,2028,Middle Atlantic,Residential,REF,Northeast,29.880085,27.255156,,11.490913,50.972439,
+2025,2029,Middle Atlantic,Residential,REF,Northeast,30.133001,28.23773,,11.171974,51.115635,
+2025,2030,Middle Atlantic,Residential,REF,Northeast,30.607885,29.258757,,10.860188,51.399776,
+2025,2031,Middle Atlantic,Residential,REF,Northeast,31.162203,29.318027,,10.966702,52.416798,
+2025,2032,Middle Atlantic,Residential,REF,Northeast,32.115425,29.247459,,11.288853,52.331997,
+2025,2033,Middle Atlantic,Residential,REF,Northeast,33.35561,29.573727,,11.6093,53.449921,
+2025,2034,Middle Atlantic,Residential,REF,Northeast,34.452641,29.715185,,11.747712,53.554882,
+2025,2035,Middle Atlantic,Residential,REF,Northeast,35.23291,29.971369,,11.807123,53.534912,
+2025,2036,Middle Atlantic,Residential,REF,Northeast,35.701595,30.085419,,11.791286,53.054661,
+2025,2037,Middle Atlantic,Residential,REF,Northeast,35.965042,30.280376,,11.717292,53.529766,
+2025,2038,Middle Atlantic,Residential,REF,Northeast,36.06028,30.366663,,11.582447,53.344223,
+2025,2039,Middle Atlantic,Residential,REF,Northeast,36.094582,30.516884,,11.465436,52.712418,
+2025,2040,Middle Atlantic,Residential,REF,Northeast,36.19994,30.756027,,11.418004,52.565945,
+2025,2041,Middle Atlantic,Residential,REF,Northeast,36.401272,30.988205,,11.474555,52.927761,
+2025,2042,Middle Atlantic,Residential,REF,Northeast,36.591843,31.107391,,11.539687,53.490673,
+2025,2043,Middle Atlantic,Residential,REF,Northeast,37.021698,31.423267,,11.597363,53.842098,
+2025,2044,Middle Atlantic,Residential,REF,Northeast,37.367428,31.631886,,11.611089,54.165585,
+2025,2045,Middle Atlantic,Residential,REF,Northeast,37.686749,31.6954,,11.627784,54.460297,
+2025,2046,Middle Atlantic,Residential,REF,Northeast,38.026123,31.948858,,11.670712,54.930534,
+2025,2047,Middle Atlantic,Residential,REF,Northeast,38.578827,32.465118,,11.655787,55.259121,
+2025,2048,Middle Atlantic,Residential,REF,Northeast,38.953598,32.471046,,11.598216,55.641872,
+2025,2049,Middle Atlantic,Residential,REF,Northeast,39.232075,32.443787,,11.53285,55.991524,
+2025,2050,Middle Atlantic,Residential,REF,Northeast,39.420444,32.565289,,11.427097,56.208511,
+2025,2051,Middle Atlantic,Residential,REF,Northeast,39.76902425,32.71939675,,11.36619325,56.52800525,
+2025,2052,Middle Atlantic,Residential,REF,Northeast,40.1176045,32.8735045,,11.3052895,56.8474995,
+2025,2053,Middle Atlantic,Residential,REF,Northeast,40.46618475,33.02761225,,11.24438575,57.16699375,
+2025,2054,Middle Atlantic,Residential,REF,Northeast,40.814765,33.18172,,11.183482,57.486488,
+2025,2055,Middle Atlantic,Residential,REF,Northeast,41.16334525,33.33582775,,11.12257825,57.80598225,
+2025,2056,Middle Atlantic,Residential,REF,Northeast,41.5119255,33.4899355,,11.0616745,58.1254765,
+2025,2057,Middle Atlantic,Residential,REF,Northeast,41.86050575,33.64404325,,11.00077075,58.44497075,
+2025,2058,Middle Atlantic,Residential,REF,Northeast,42.209086,33.798151,,10.939867,58.764465,
+2025,2059,Middle Atlantic,Residential,REF,Northeast,42.55766625,33.95225875,,10.87896325,59.08395925,
+2025,2060,Middle Atlantic,Residential,REF,Northeast,42.9062465,34.1063665,,10.8180595,59.4034535,
+2025,2061,Middle Atlantic,Residential,REF,Northeast,43.25482675,34.26047425,,10.75715575,59.72294775,
+2025,2062,Middle Atlantic,Residential,REF,Northeast,43.603407,34.414582,,10.696252,60.042442,
+2025,2063,Middle Atlantic,Residential,REF,Northeast,43.95198725,34.56868975,,10.63534825,60.36193625,
+2025,2064,Middle Atlantic,Residential,REF,Northeast,44.3005675,34.7227975,,10.5744445,60.6814305,
+2025,2065,Middle Atlantic,Residential,REF,Northeast,44.64914775,34.87690525,,10.51354075,61.00092475,
+2025,2066,Middle Atlantic,Residential,REF,Northeast,44.997728,35.031013,,10.452637,61.320419,
+2025,2067,Middle Atlantic,Residential,REF,Northeast,45.34630825,35.18512075,,10.39173325,61.63991325,
+2025,2068,Middle Atlantic,Residential,REF,Northeast,45.6948885,35.3392285,,10.3308295,61.9594075,
+2025,2024,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2025,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2026,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2027,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2028,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2029,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2030,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2031,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2032,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2033,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2034,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2035,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2036,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2037,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2038,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2039,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2040,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2041,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2042,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2043,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2044,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2045,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2046,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2047,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2048,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2049,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2050,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2051,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2052,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2053,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2054,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2055,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2056,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2057,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2058,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2059,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2060,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2061,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2062,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2063,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2064,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2065,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2066,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2067,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2068,Middle Atlantic,Transportation,REF,Northeast,,,,,,
+2025,2024,New England,Commercial,REF,Northeast,19.421682,29.456821,6.852067,11.793885,64.328186,
+2025,2025,New England,Commercial,REF,Northeast,19.406244,27.667278,7.793931,10.70533,65.867317,
+2025,2026,New England,Commercial,REF,Northeast,20.266401,26.427256,8.159624,10.912415,61.325584,
+2025,2027,New England,Commercial,REF,Northeast,20.070875,25.943233,9.16984,11.086936,53.242798,
+2025,2028,New England,Commercial,REF,Northeast,20.196329,25.633209,10.241568,11.341443,52.348579,
+2025,2029,New England,Commercial,REF,Northeast,20.519632,25.357885,11.365328,11.651603,51.480133,
+2025,2030,New England,Commercial,REF,Northeast,20.981026,25.128626,12.563121,11.967159,51.710495,
+2025,2031,New England,Commercial,REF,Northeast,21.415518,25.190838,12.639102,12.058257,51.571655,
+2025,2032,New England,Commercial,REF,Northeast,22.267309,25.109692,12.618986,12.210402,52.915382,
+2025,2033,New England,Commercial,REF,Northeast,23.274727,25.428358,12.864891,12.360904,55.90868,
+2025,2034,New England,Commercial,REF,Northeast,23.938469,25.565855,12.985669,12.464205,55.953281,
+2025,2035,New England,Commercial,REF,Northeast,24.254025,25.781561,13.133424,12.528219,55.945866,
+2025,2036,New England,Commercial,REF,Northeast,24.35046,25.86582,13.188496,12.570414,55.597343,
+2025,2037,New England,Commercial,REF,Northeast,24.37295,26.041243,13.254712,12.565705,55.914284,
+2025,2038,New England,Commercial,REF,Northeast,24.321308,26.151901,13.38697,12.552698,55.670837,
+2025,2039,New England,Commercial,REF,Northeast,24.295103,26.288242,13.42795,12.535559,55.382725,
+2025,2040,New England,Commercial,REF,Northeast,24.396608,26.502207,13.491304,12.552967,55.141964,
+2025,2041,New England,Commercial,REF,Northeast,24.587921,26.752726,13.521852,12.602972,55.397179,
+2025,2042,New England,Commercial,REF,Northeast,24.721172,26.860828,13.764409,12.653656,55.759968,
+2025,2043,New England,Commercial,REF,Northeast,25.130611,27.172739,13.747254,12.70548,55.72879,
+2025,2044,New England,Commercial,REF,Northeast,25.336138,27.381577,13.589892,12.722704,55.730606,
+2025,2045,New England,Commercial,REF,Northeast,25.527069,27.450077,13.658674,12.742734,55.920517,
+2025,2046,New England,Commercial,REF,Northeast,25.755238,27.701614,13.922696,12.776849,56.400524,
+2025,2047,New England,Commercial,REF,Northeast,26.229944,28.223989,14.400711,12.805285,56.762787,
+2025,2048,New England,Commercial,REF,Northeast,26.400835,28.23135,14.418006,12.807466,56.948673,
+2025,2049,New England,Commercial,REF,Northeast,26.51885,28.229538,14.48834,12.826891,57.118782,
+2025,2050,New England,Commercial,REF,Northeast,26.584915,28.339991,14.802407,12.816265,57.308521,
+2025,2051,New England,Commercial,REF,Northeast,26.79233425,28.49958525,15.02233475,12.826119,57.53552025,
+2025,2052,New England,Commercial,REF,Northeast,26.9997535,28.6591795,15.2422625,12.835973,57.7625195,
+2025,2053,New England,Commercial,REF,Northeast,27.20717275,28.81877375,15.46219025,12.845827,57.98951875,
+2025,2054,New England,Commercial,REF,Northeast,27.414592,28.978368,15.682118,12.855681,58.216518,
+2025,2055,New England,Commercial,REF,Northeast,27.62201125,29.13796225,15.90204575,12.865535,58.44351725,
+2025,2056,New England,Commercial,REF,Northeast,27.8294305,29.2975565,16.1219735,12.875389,58.6705165,
+2025,2057,New England,Commercial,REF,Northeast,28.03684975,29.45715075,16.34190125,12.885243,58.89751575,
+2025,2058,New England,Commercial,REF,Northeast,28.244269,29.616745,16.561829,12.895097,59.124515,
+2025,2059,New England,Commercial,REF,Northeast,28.45168825,29.77633925,16.78175675,12.904951,59.35151425,
+2025,2060,New England,Commercial,REF,Northeast,28.6591075,29.9359335,17.0016845,12.914805,59.5785135,
+2025,2061,New England,Commercial,REF,Northeast,28.86652675,30.09552775,17.22161225,12.924659,59.80551275,
+2025,2062,New England,Commercial,REF,Northeast,29.073946,30.255122,17.44154,12.934513,60.032512,
+2025,2063,New England,Commercial,REF,Northeast,29.28136525,30.41471625,17.66146775,12.944367,60.25951125,
+2025,2064,New England,Commercial,REF,Northeast,29.4887845,30.5743105,17.8813955,12.954221,60.4865105,
+2025,2065,New England,Commercial,REF,Northeast,29.69620375,30.73390475,18.10132325,12.964075,60.71350975,
+2025,2066,New England,Commercial,REF,Northeast,29.903623,30.893499,18.321251,12.973929,60.940509,
+2025,2067,New England,Commercial,REF,Northeast,30.11104225,31.05309325,18.54117875,12.983783,61.16750825,
+2025,2068,New England,Commercial,REF,Northeast,30.3184615,31.2126875,18.7611065,12.993637,61.3945075,
+2025,2024,New England,Industrial,REF,Northeast,12.660267,28.303038,6.804973,6.562865,54.87878,3.621933
+2025,2025,New England,Industrial,REF,Northeast,12.598665,26.654772,7.770384,7.004212,56.323589,3.593124
+2025,2026,New England,Industrial,REF,Northeast,13.394816,25.425039,8.140786,7.204581,50.565334,3.584051
+2025,2027,New England,Industrial,REF,Northeast,13.209965,24.954891,9.155713,6.660932,42.322594,3.559813
+2025,2028,New England,Industrial,REF,Northeast,13.321319,24.660547,10.232147,6.287023,41.373718,3.515694
+2025,2029,New England,Industrial,REF,Northeast,13.630307,24.404669,11.36062,6.219739,40.695282,3.52812
+2025,2030,New England,Industrial,REF,Northeast,14.077855,24.192144,12.563121,6.028875,40.700134,3.513902
+2025,2031,New England,Industrial,REF,Northeast,14.506038,24.253649,12.639102,6.223629,40.535767,3.496598
+2025,2032,New England,Industrial,REF,Northeast,15.351458,24.176205,12.618986,6.505938,41.681911,3.486779
+2025,2033,New England,Industrial,REF,Northeast,16.374956,24.497631,12.864891,6.892951,43.877419,3.477913
+2025,2034,New England,Industrial,REF,Northeast,17.06802,24.636591,12.985669,7.020211,43.923618,3.477844
+2025,2035,New England,Industrial,REF,Northeast,17.404821,24.866138,13.133424,7.056079,43.883495,3.39874
+2025,2036,New England,Industrial,REF,Northeast,17.510601,24.960379,13.188496,7.104377,43.646561,3.395578
+2025,2037,New England,Industrial,REF,Northeast,17.535862,25.14253,13.254712,6.969979,43.715813,3.401255
+2025,2038,New England,Industrial,REF,Northeast,17.482494,25.245104,13.38697,6.869704,43.398891,3.412134
+2025,2039,New England,Industrial,REF,Northeast,17.454222,25.386185,13.42795,6.709058,43.17028,3.388505
+2025,2040,New England,Industrial,REF,Northeast,17.558428,25.608709,13.491304,6.683003,42.915203,3.383268
+2025,2041,New England,Industrial,REF,Northeast,17.757956,25.853325,13.521852,6.837638,43.105293,3.397492
+2025,2042,New England,Industrial,REF,Northeast,17.899094,25.965277,13.764409,6.908305,43.431602,3.399539
+2025,2043,New England,Industrial,REF,Northeast,18.329903,26.278755,13.747254,6.997946,43.477097,3.407092
+2025,2044,New England,Industrial,REF,Northeast,18.551895,26.487572,13.589892,6.806603,43.496708,3.410108
+2025,2045,New England,Industrial,REF,Northeast,18.757282,26.554502,13.658674,6.760964,43.721939,3.414572
+2025,2046,New England,Industrial,REF,Northeast,19.002394,26.80673,13.922696,6.745528,44.212044,3.425311
+2025,2047,New England,Industrial,REF,Northeast,19.512751,27.327227,14.400711,6.78084,44.54261,3.428719
+2025,2048,New England,Industrial,REF,Northeast,19.70311,27.334227,14.418006,6.639472,44.703308,3.430114
+2025,2049,New England,Industrial,REF,Northeast,19.833578,27.323906,14.48834,6.792033,44.805088,3.431442
+2025,2050,New England,Industrial,REF,Northeast,19.906801,27.438004,14.802407,6.719886,44.952465,3.436971
+2025,2051,New England,Industrial,REF,Northeast,20.13290275,27.5958225,15.02233475,6.7134755,45.13757025,3.439886
+2025,2052,New England,Industrial,REF,Northeast,20.3590045,27.753641,15.2422625,6.707065,45.3226755,3.442801
+2025,2053,New England,Industrial,REF,Northeast,20.58510625,27.9114595,15.46219025,6.7006545,45.50778075,3.445716
+2025,2054,New England,Industrial,REF,Northeast,20.811208,28.069278,15.682118,6.694244,45.692886,3.448631
+2025,2055,New England,Industrial,REF,Northeast,21.03730975,28.2270965,15.90204575,6.6878335,45.87799125,3.451546
+2025,2056,New England,Industrial,REF,Northeast,21.2634115,28.384915,16.1219735,6.681423,46.0630965,3.454461
+2025,2057,New England,Industrial,REF,Northeast,21.48951325,28.5427335,16.34190125,6.6750125,46.24820175,3.457376
+2025,2058,New England,Industrial,REF,Northeast,21.715615,28.700552,16.561829,6.668602,46.433307,3.460291
+2025,2059,New England,Industrial,REF,Northeast,21.94171675,28.8583705,16.78175675,6.6621915,46.61841225,3.463206
+2025,2060,New England,Industrial,REF,Northeast,22.1678185,29.016189,17.0016845,6.655781,46.8035175,3.466121
+2025,2061,New England,Industrial,REF,Northeast,22.39392025,29.1740075,17.22161225,6.6493705,46.98862275,3.469036
+2025,2062,New England,Industrial,REF,Northeast,22.620022,29.331826,17.44154,6.64296,47.173728,3.471951
+2025,2063,New England,Industrial,REF,Northeast,22.84612375,29.4896445,17.66146775,6.6365495,47.35883325,3.474866
+2025,2064,New England,Industrial,REF,Northeast,23.0722255,29.647463,17.8813955,6.630139,47.5439385,3.477781
+2025,2065,New England,Industrial,REF,Northeast,23.29832725,29.8052815,18.10132325,6.6237285,47.72904375,3.480696
+2025,2066,New England,Industrial,REF,Northeast,23.524429,29.9631,18.321251,6.617318,47.914149,3.483611
+2025,2067,New England,Industrial,REF,Northeast,23.75053075,30.1209185,18.54117875,6.6109075,48.09925425,3.486526
+2025,2068,New England,Industrial,REF,Northeast,23.9766325,30.278737,18.7611065,6.604497,48.2843595,3.489441
+2025,2024,New England,Residential,REF,Northeast,31.163076,25.97192,,18.777613,73.454803,
+2025,2025,New England,Residential,REF,Northeast,30.234024,24.535578,,17.551153,75.568092,
+2025,2026,New England,Residential,REF,Northeast,30.39456,24.489952,,17.227358,70.066666,
+2025,2027,New England,Residential,REF,Northeast,30.161058,25.210394,,16.820618,61.776489,
+2025,2028,New England,Residential,REF,Northeast,30.163185,26.112558,,16.498426,60.900608,
+2025,2029,New England,Residential,REF,Northeast,30.418499,27.059599,,16.222837,60.18243,
+2025,2030,New England,Residential,REF,Northeast,30.897886,28.045088,,15.950492,60.28809,
+2025,2031,New England,Residential,REF,Northeast,31.457453,28.104355,,15.988708,60.165257,
+2025,2032,New England,Residential,REF,Northeast,32.419704,28.033789,,16.084709,61.366169,
+2025,2033,New England,Residential,REF,Northeast,33.671642,28.360052,,16.19458,63.80769,
+2025,2034,New England,Residential,REF,Northeast,34.779064,28.501511,,16.254168,63.844917,
+2025,2035,New England,Residential,REF,Northeast,35.56673,28.757696,,16.279247,63.769218,
+2025,2036,New England,Residential,REF,Northeast,36.039856,28.871744,,16.283876,63.466061,
+2025,2037,New England,Residential,REF,Northeast,36.305798,29.066702,,16.243937,63.558502,
+2025,2038,New England,Residential,REF,Northeast,36.401939,29.152985,,16.197388,63.179832,
+2025,2039,New England,Residential,REF,Northeast,36.436565,29.303204,,16.14723,62.875862,
+2025,2040,New England,Residential,REF,Northeast,36.542923,29.542347,,16.130243,62.578423,
+2025,2041,New England,Residential,REF,Northeast,36.746159,29.774521,,16.143913,62.780273,
+2025,2042,New England,Residential,REF,Northeast,36.938534,29.893707,,16.15727,63.144684,
+2025,2043,New England,Residential,REF,Northeast,37.372471,30.209585,,16.1712,63.517681,
+2025,2044,New England,Residential,REF,Northeast,37.72147,30.418203,,16.152096,63.754128,
+2025,2045,New England,Residential,REF,Northeast,38.043816,30.481718,,16.137041,64.202591,
+2025,2046,New England,Residential,REF,Northeast,38.386406,30.735172,,16.136597,64.951126,
+2025,2047,New England,Residential,REF,Northeast,38.944347,31.251432,,16.131094,65.582756,
+2025,2048,New England,Residential,REF,Northeast,39.322666,31.257362,,16.100727,65.99688,
+2025,2049,New England,Residential,REF,Northeast,39.603786,31.230101,,16.088835,66.390297,
+2025,2050,New England,Residential,REF,Northeast,39.793938,31.351603,,16.049294,66.911972,
+2025,2051,New England,Residential,REF,Northeast,40.145821,31.50571075,,16.02746825,67.4021835,
+2025,2052,New England,Residential,REF,Northeast,40.497704,31.6598185,,16.0056425,67.892395,
+2025,2053,New England,Residential,REF,Northeast,40.849587,31.81392625,,15.98381675,68.3826065,
+2025,2054,New England,Residential,REF,Northeast,41.20147,31.968034,,15.961991,68.872818,
+2025,2055,New England,Residential,REF,Northeast,41.553353,32.12214175,,15.94016525,69.3630295,
+2025,2056,New England,Residential,REF,Northeast,41.905236,32.2762495,,15.9183395,69.853241,
+2025,2057,New England,Residential,REF,Northeast,42.257119,32.43035725,,15.89651375,70.3434525,
+2025,2058,New England,Residential,REF,Northeast,42.609002,32.584465,,15.874688,70.833664,
+2025,2059,New England,Residential,REF,Northeast,42.960885,32.73857275,,15.85286225,71.3238755,
+2025,2060,New England,Residential,REF,Northeast,43.312768,32.8926805,,15.8310365,71.814087,
+2025,2061,New England,Residential,REF,Northeast,43.664651,33.04678825,,15.80921075,72.3042985,
+2025,2062,New England,Residential,REF,Northeast,44.016534,33.200896,,15.787385,72.79451,
+2025,2063,New England,Residential,REF,Northeast,44.368417,33.35500375,,15.76555925,73.2847215,
+2025,2064,New England,Residential,REF,Northeast,44.7203,33.5091115,,15.7437335,73.774933,
+2025,2065,New England,Residential,REF,Northeast,45.072183,33.66321925,,15.72190775,74.2651445,
+2025,2066,New England,Residential,REF,Northeast,45.424066,33.817327,,15.700082,74.755356,
+2025,2067,New England,Residential,REF,Northeast,45.775949,33.97143475,,15.67825625,75.2455675,
+2025,2068,New England,Residential,REF,Northeast,46.127832,34.1255425,,15.6564305,75.735779,
+2025,2024,New England,Transportation,REF,Northeast,,,,,,
+2025,2025,New England,Transportation,REF,Northeast,,,,,,
+2025,2026,New England,Transportation,REF,Northeast,,,,,,
+2025,2027,New England,Transportation,REF,Northeast,,,,,,
+2025,2028,New England,Transportation,REF,Northeast,,,,,,
+2025,2029,New England,Transportation,REF,Northeast,,,,,,
+2025,2030,New England,Transportation,REF,Northeast,,,,,,
+2025,2031,New England,Transportation,REF,Northeast,,,,,,
+2025,2032,New England,Transportation,REF,Northeast,,,,,,
+2025,2033,New England,Transportation,REF,Northeast,,,,,,
+2025,2034,New England,Transportation,REF,Northeast,,,,,,
+2025,2035,New England,Transportation,REF,Northeast,,,,,,
+2025,2036,New England,Transportation,REF,Northeast,,,,,,
+2025,2037,New England,Transportation,REF,Northeast,,,,,,
+2025,2038,New England,Transportation,REF,Northeast,,,,,,
+2025,2039,New England,Transportation,REF,Northeast,,,,,,
+2025,2040,New England,Transportation,REF,Northeast,,,,,,
+2025,2041,New England,Transportation,REF,Northeast,,,,,,
+2025,2042,New England,Transportation,REF,Northeast,,,,,,
+2025,2043,New England,Transportation,REF,Northeast,,,,,,
+2025,2044,New England,Transportation,REF,Northeast,,,,,,
+2025,2045,New England,Transportation,REF,Northeast,,,,,,
+2025,2046,New England,Transportation,REF,Northeast,,,,,,
+2025,2047,New England,Transportation,REF,Northeast,,,,,,
+2025,2048,New England,Transportation,REF,Northeast,,,,,,
+2025,2049,New England,Transportation,REF,Northeast,,,,,,
+2025,2050,New England,Transportation,REF,Northeast,,,,,,
+2025,2051,New England,Transportation,REF,Northeast,,,,,,
+2025,2052,New England,Transportation,REF,Northeast,,,,,,
+2025,2053,New England,Transportation,REF,Northeast,,,,,,
+2025,2054,New England,Transportation,REF,Northeast,,,,,,
+2025,2055,New England,Transportation,REF,Northeast,,,,,,
+2025,2056,New England,Transportation,REF,Northeast,,,,,,
+2025,2057,New England,Transportation,REF,Northeast,,,,,,
+2025,2058,New England,Transportation,REF,Northeast,,,,,,
+2025,2059,New England,Transportation,REF,Northeast,,,,,,
+2025,2060,New England,Transportation,REF,Northeast,,,,,,
+2025,2061,New England,Transportation,REF,Northeast,,,,,,
+2025,2062,New England,Transportation,REF,Northeast,,,,,,
+2025,2063,New England,Transportation,REF,Northeast,,,,,,
+2025,2064,New England,Transportation,REF,Northeast,,,,,,
+2025,2065,New England,Transportation,REF,Northeast,,,,,,
+2025,2066,New England,Transportation,REF,Northeast,,,,,,
+2025,2067,New England,Transportation,REF,Northeast,,,,,,
+2025,2068,New England,Transportation,REF,Northeast,,,,,,
+2025,2024,East South Central,Commercial,REF,South,18.750654,25.665813,8.07649,9.705585,35.565716,
+2025,2025,East South Central,Commercial,REF,South,18.73575,24.229471,9.112541,8.881863,34.545517,
+2025,2026,East South Central,Commercial,REF,South,19.566189,23.033653,9.710351,9.129854,30.677927,
+2025,2027,East South Central,Commercial,REF,South,19.37742,22.603287,10.952681,9.400754,29.774153,
+2025,2028,East South Central,Commercial,REF,South,19.498539,22.325594,12.256523,9.823645,29.261732,
+2025,2029,East South Central,Commercial,REF,South,19.810671,22.099522,13.6124,10.321222,29.667322,
+2025,2030,East South Central,Commercial,REF,South,20.256123,21.914999,15.042306,10.802444,29.892078,
+2025,2031,East South Central,Commercial,REF,South,20.675604,21.9776,15.118288,10.954544,29.991547,
+2025,2032,East South Central,Commercial,REF,South,21.497965,21.91062,15.098171,11.27237,30.899754,
+2025,2033,East South Central,Commercial,REF,South,22.470573,22.257271,15.344075,11.597163,31.667381,
+2025,2034,East South Central,Commercial,REF,South,23.111383,22.397192,15.464854,11.797288,31.709799,
+2025,2035,East South Central,Commercial,REF,South,23.416037,22.627806,15.612608,11.900555,32.219978,
+2025,2036,East South Central,Commercial,REF,South,23.50914,22.71328,15.667681,11.925004,33.257095,
+2025,2037,East South Central,Commercial,REF,South,23.530855,22.897894,15.733897,11.894713,32.926392,
+2025,2038,East South Central,Commercial,REF,South,23.480999,23.009785,15.866155,11.828437,32.64695,
+2025,2039,East South Central,Commercial,REF,South,23.455694,23.139658,15.907134,11.774909,32.218769,
+2025,2040,East South Central,Commercial,REF,South,23.553694,23.361744,15.970489,11.762242,32.250202,
+2025,2041,East South Central,Commercial,REF,South,23.7384,23.607866,16.001038,11.823355,32.1698,
+2025,2042,East South Central,Commercial,REF,South,23.867046,23.715372,16.243595,11.883231,32.184132,
+2025,2043,East South Central,Commercial,REF,South,24.262341,24.029554,16.22644,11.97497,32.71957,
+2025,2044,East South Central,Commercial,REF,South,24.460764,24.233578,16.069077,12.035476,33.342789,
+2025,2045,East South Central,Commercial,REF,South,24.645098,24.301651,16.137857,12.110599,33.816612,
+2025,2046,East South Central,Commercial,REF,South,24.865379,24.552864,16.401882,12.200897,34.550251,
+2025,2047,East South Central,Commercial,REF,South,25.323689,25.087454,16.879896,12.194639,35.338631,
+2025,2048,East South Central,Commercial,REF,South,25.488676,25.089769,16.897192,12.136621,35.120289,
+2025,2049,East South Central,Commercial,REF,South,25.602612,25.082819,16.967525,12.073546,34.887894,
+2025,2050,East South Central,Commercial,REF,South,25.666393,25.198969,17.281593,12.002474,34.884651,
+2025,2051,East South Central,Commercial,REF,South,25.8666465,25.36049525,17.50152075,11.95286825,34.968251,
+2025,2052,East South Central,Commercial,REF,South,26.0669,25.5220215,17.7214485,11.9032625,35.051851,
+2025,2053,East South Central,Commercial,REF,South,26.2671535,25.68354775,17.94137625,11.85365675,35.135451,
+2025,2054,East South Central,Commercial,REF,South,26.467407,25.845074,18.161304,11.804051,35.219051,
+2025,2055,East South Central,Commercial,REF,South,26.6676605,26.00660025,18.38123175,11.75444525,35.302651,
+2025,2056,East South Central,Commercial,REF,South,26.867914,26.1681265,18.6011595,11.7048395,35.386251,
+2025,2057,East South Central,Commercial,REF,South,27.0681675,26.32965275,18.82108725,11.65523375,35.469851,
+2025,2058,East South Central,Commercial,REF,South,27.268421,26.491179,19.041015,11.605628,35.553451,
+2025,2059,East South Central,Commercial,REF,South,27.4686745,26.65270525,19.26094275,11.55602225,35.637051,
+2025,2060,East South Central,Commercial,REF,South,27.668928,26.8142315,19.4808705,11.5064165,35.720651,
+2025,2061,East South Central,Commercial,REF,South,27.8691815,26.97575775,19.70079825,11.45681075,35.804251,
+2025,2062,East South Central,Commercial,REF,South,28.069435,27.137284,19.920726,11.407205,35.887851,
+2025,2063,East South Central,Commercial,REF,South,28.2696885,27.29881025,20.14065375,11.35759925,35.971451,
+2025,2064,East South Central,Commercial,REF,South,28.469942,27.4603365,20.3605815,11.3079935,36.055051,
+2025,2065,East South Central,Commercial,REF,South,28.6701955,27.62186275,20.58050925,11.25838775,36.138651,
+2025,2066,East South Central,Commercial,REF,South,28.870449,27.783389,20.800437,11.208782,36.222251,
+2025,2067,East South Central,Commercial,REF,South,29.0707025,27.94491525,21.02036475,11.15917625,36.305851,
+2025,2068,East South Central,Commercial,REF,South,29.270956,28.1064415,21.2402925,11.1095705,36.389451,
+2025,2024,East South Central,Industrial,REF,South,12.660267,27.125706,8.14713,3.217661,21.177027,2.655141
+2025,2025,East South Central,Industrial,REF,South,12.598665,25.548082,9.112541,3.925196,20.671856,2.681523
+2025,2026,East South Central,Industrial,REF,South,13.394816,24.29261,9.710351,3.778682,18.092007,2.693666
+2025,2027,East South Central,Industrial,REF,South,13.209965,23.811136,10.952681,3.651542,17.489227,2.671468
+2025,2028,East South Central,Industrial,REF,South,13.321319,23.483774,12.256523,3.729228,17.182539,2.654239
+2025,2029,East South Central,Industrial,REF,South,13.630307,23.210636,13.6124,3.863354,17.494959,2.637488
+2025,2030,East South Central,Industrial,REF,South,14.077855,22.976652,15.042306,4.014864,17.703625,2.620386
+2025,2031,East South Central,Industrial,REF,South,14.506038,23.038073,15.118288,4.140684,17.901751,2.574106
+2025,2032,East South Central,Industrial,REF,South,15.351458,22.977873,15.098171,4.537251,18.518337,2.542406
+2025,2033,East South Central,Industrial,REF,South,16.374956,23.33275,15.344075,4.879987,19.146225,2.541544
+2025,2034,East South Central,Industrial,REF,South,17.06802,23.475985,15.464854,5.075873,19.312977,2.520434
+2025,2035,East South Central,Industrial,REF,South,17.404821,23.720766,15.612608,5.15511,19.793949,2.515846
+2025,2036,East South Central,Industrial,REF,South,17.510601,23.814783,15.667681,5.14656,20.358599,2.515186
+2025,2037,East South Central,Industrial,REF,South,17.535862,24.006792,15.733897,5.077326,20.124702,2.517649
+2025,2038,East South Central,Industrial,REF,South,17.482494,24.110186,15.866155,4.980567,19.925385,2.515664
+2025,2039,East South Central,Industrial,REF,South,17.454222,24.246958,15.907134,4.891274,19.657179,2.510854
+2025,2040,East South Central,Industrial,REF,South,17.558428,24.474892,15.970489,4.875062,19.666077,2.505934
+2025,2041,East South Central,Industrial,REF,South,17.757956,24.716579,16.001038,4.921239,19.658604,2.507527
+2025,2042,East South Central,Industrial,REF,South,17.899094,24.828133,16.243595,4.970708,19.755392,2.506538
+2025,2043,East South Central,Industrial,REF,South,18.329903,25.14312,16.22644,5.072557,20.175819,2.509158
+2025,2044,East South Central,Industrial,REF,South,18.551895,25.348734,16.069077,5.129655,20.608723,2.513099
+2025,2045,East South Central,Industrial,REF,South,18.757282,25.415377,16.137857,5.173763,20.878641,2.515496
+2025,2046,East South Central,Industrial,REF,South,19.002394,25.667391,16.401882,5.2382,21.410597,2.521423
+2025,2047,East South Central,Industrial,REF,South,19.512751,26.196022,16.879896,5.21407,21.851952,2.522883
+2025,2048,East South Central,Industrial,REF,South,19.70311,26.199661,16.897192,5.118282,21.712616,2.521523
+2025,2049,East South Central,Industrial,REF,South,19.833578,26.185917,16.967525,4.972836,21.568228,2.519123
+2025,2050,East South Central,Industrial,REF,South,19.906801,26.30381,17.281593,4.838508,21.536434,2.518734
+2025,2051,East South Central,Industrial,REF,South,20.13290275,26.46291475,17.50152075,4.738585,21.56789325,2.51806175
+2025,2052,East South Central,Industrial,REF,South,20.3590045,26.6220195,17.7214485,4.638662,21.5993525,2.5173895
+2025,2053,East South Central,Industrial,REF,South,20.58510625,26.78112425,17.94137625,4.538739,21.63081175,2.51671725
+2025,2054,East South Central,Industrial,REF,South,20.811208,26.940229,18.161304,4.438816,21.662271,2.516045
+2025,2055,East South Central,Industrial,REF,South,21.03730975,27.09933375,18.38123175,4.338893,21.69373025,2.51537275
+2025,2056,East South Central,Industrial,REF,South,21.2634115,27.2584385,18.6011595,4.23897,21.7251895,2.5147005
+2025,2057,East South Central,Industrial,REF,South,21.48951325,27.41754325,18.82108725,4.139047,21.75664875,2.51402825
+2025,2058,East South Central,Industrial,REF,South,21.715615,27.576648,19.041015,4.039124,21.788108,2.513356
+2025,2059,East South Central,Industrial,REF,South,21.94171675,27.73575275,19.26094275,3.939201,21.81956725,2.51268375
+2025,2060,East South Central,Industrial,REF,South,22.1678185,27.8948575,19.4808705,3.839278,21.8510265,2.5120115
+2025,2061,East South Central,Industrial,REF,South,22.39392025,28.05396225,19.70079825,3.739355,21.88248575,2.51133925
+2025,2062,East South Central,Industrial,REF,South,22.620022,28.213067,19.920726,3.639432,21.913945,2.510667
+2025,2063,East South Central,Industrial,REF,South,22.84612375,28.37217175,20.14065375,3.539509,21.94540425,2.50999475
+2025,2064,East South Central,Industrial,REF,South,23.0722255,28.5312765,20.3605815,3.439586,21.9768635,2.5093225
+2025,2065,East South Central,Industrial,REF,South,23.29832725,28.69038125,20.58050925,3.339663,22.00832275,2.50865025
+2025,2066,East South Central,Industrial,REF,South,23.524429,28.849486,20.800437,3.23974,22.039782,2.507978
+2025,2067,East South Central,Industrial,REF,South,23.75053075,29.00859075,21.02036475,3.139817,22.07124125,2.50730575
+2025,2068,East South Central,Industrial,REF,South,23.9766325,29.1676955,21.2402925,3.039894,22.1027005,2.5066335
+2025,2024,East South Central,Residential,REF,South,28.137171,26.113201,,12.715515,37.368908,
+2025,2025,East South Central,Residential,REF,South,27.298328,24.488483,,11.971382,37.43293,
+2025,2026,East South Central,Residential,REF,South,27.443277,24.385038,,12.282008,34.298683,
+2025,2027,East South Central,Residential,REF,South,27.232449,24.994659,,12.65969,33.144733,
+2025,2028,East South Central,Residential,REF,South,27.234367,25.748156,,13.219729,32.563278,
+2025,2029,East South Central,Residential,REF,South,27.464893,26.537283,,13.912266,32.775425,
+2025,2030,East South Central,Residential,REF,South,27.897734,27.382662,,14.601679,32.897175,
+2025,2031,East South Central,Residential,REF,South,28.402966,27.452511,,14.910735,32.974232,
+2025,2032,East South Central,Residential,REF,South,29.271788,27.34396,,15.373949,33.549667,
+2025,2033,East South Central,Residential,REF,South,30.402157,27.640173,,15.812324,34.141674,
+2025,2034,East South Central,Residential,REF,South,31.402054,27.759796,,16.125044,34.164761,
+2025,2035,East South Central,Residential,REF,South,32.113232,27.903576,,16.327539,34.471474,
+2025,2036,East South Central,Residential,REF,South,32.540421,27.936682,,16.443068,35.047348,
+2025,2037,East South Central,Residential,REF,South,32.78054,28.075974,,16.497049,34.671021,
+2025,2038,East South Central,Residential,REF,South,32.867348,28.239923,,16.50947,34.292122,
+2025,2039,East South Central,Residential,REF,South,32.898613,28.327511,,16.531752,33.793411,
+2025,2040,East South Central,Residential,REF,South,32.99464,28.513762,,16.595648,33.687283,
+2025,2041,East South Central,Residential,REF,South,33.178143,28.787064,,16.736532,33.551304,
+2025,2042,East South Central,Residential,REF,South,33.351837,28.869781,,16.877659,33.478031,
+2025,2043,East South Central,Residential,REF,South,33.743641,29.178991,,17.050665,33.825249,
+2025,2044,East South Central,Residential,REF,South,34.05875,29.373291,,17.191759,34.241142,
+2025,2045,East South Central,Residential,REF,South,34.3498,29.450111,,17.345692,34.539059,
+2025,2046,East South Central,Residential,REF,South,34.659122,29.696444,,17.512705,35.087833,
+2025,2047,East South Central,Residential,REF,South,35.162891,30.267534,,17.580727,35.589386,
+2025,2048,East South Central,Residential,REF,South,35.504478,30.261749,,17.590933,35.483994,
+2025,2049,East South Central,Residential,REF,South,35.758301,30.296442,,17.593285,35.396751,
+2025,2050,East South Central,Residential,REF,South,35.929985,30.401915,,17.585018,35.433472,
+2025,2051,East South Central,Residential,REF,South,36.24770075,30.57828275,,17.60309625,35.51988175,
+2025,2052,East South Central,Residential,REF,South,36.5654165,30.7546505,,17.6211745,35.6062915,
+2025,2053,East South Central,Residential,REF,South,36.88313225,30.93101825,,17.63925275,35.69270125,
+2025,2054,East South Central,Residential,REF,South,37.200848,31.107386,,17.657331,35.779111,
+2025,2055,East South Central,Residential,REF,South,37.51856375,31.28375375,,17.67540925,35.86552075,
+2025,2056,East South Central,Residential,REF,South,37.8362795,31.4601215,,17.6934875,35.9519305,
+2025,2057,East South Central,Residential,REF,South,38.15399525,31.63648925,,17.71156575,36.03834025,
+2025,2058,East South Central,Residential,REF,South,38.471711,31.812857,,17.729644,36.12475,
+2025,2059,East South Central,Residential,REF,South,38.78942675,31.98922475,,17.74772225,36.21115975,
+2025,2060,East South Central,Residential,REF,South,39.1071425,32.1655925,,17.7658005,36.2975695,
+2025,2061,East South Central,Residential,REF,South,39.42485825,32.34196025,,17.78387875,36.38397925,
+2025,2062,East South Central,Residential,REF,South,39.742574,32.518328,,17.801957,36.470389,
+2025,2063,East South Central,Residential,REF,South,40.06028975,32.69469575,,17.82003525,36.55679875,
+2025,2064,East South Central,Residential,REF,South,40.3780055,32.8710635,,17.8381135,36.6432085,
+2025,2065,East South Central,Residential,REF,South,40.69572125,33.04743125,,17.85619175,36.72961825,
+2025,2066,East South Central,Residential,REF,South,41.013437,33.223799,,17.87427,36.816028,
+2025,2067,East South Central,Residential,REF,South,41.33115275,33.40016675,,17.89234825,36.90243775,
+2025,2068,East South Central,Residential,REF,South,41.6488685,33.5765345,,17.9104265,36.9888475,
+2025,2024,East South Central,Transportation,REF,South,,,,,,
+2025,2025,East South Central,Transportation,REF,South,,,,,,
+2025,2026,East South Central,Transportation,REF,South,,,,,,
+2025,2027,East South Central,Transportation,REF,South,,,,,,
+2025,2028,East South Central,Transportation,REF,South,,,,,,
+2025,2029,East South Central,Transportation,REF,South,,,,,,
+2025,2030,East South Central,Transportation,REF,South,,,,,,
+2025,2031,East South Central,Transportation,REF,South,,,,,,
+2025,2032,East South Central,Transportation,REF,South,,,,,,
+2025,2033,East South Central,Transportation,REF,South,,,,,,
+2025,2034,East South Central,Transportation,REF,South,,,,,,
+2025,2035,East South Central,Transportation,REF,South,,,,,,
+2025,2036,East South Central,Transportation,REF,South,,,,,,
+2025,2037,East South Central,Transportation,REF,South,,,,,,
+2025,2038,East South Central,Transportation,REF,South,,,,,,
+2025,2039,East South Central,Transportation,REF,South,,,,,,
+2025,2040,East South Central,Transportation,REF,South,,,,,,
+2025,2041,East South Central,Transportation,REF,South,,,,,,
+2025,2042,East South Central,Transportation,REF,South,,,,,,
+2025,2043,East South Central,Transportation,REF,South,,,,,,
+2025,2044,East South Central,Transportation,REF,South,,,,,,
+2025,2045,East South Central,Transportation,REF,South,,,,,,
+2025,2046,East South Central,Transportation,REF,South,,,,,,
+2025,2047,East South Central,Transportation,REF,South,,,,,,
+2025,2048,East South Central,Transportation,REF,South,,,,,,
+2025,2049,East South Central,Transportation,REF,South,,,,,,
+2025,2050,East South Central,Transportation,REF,South,,,,,,
+2025,2051,East South Central,Transportation,REF,South,,,,,,
+2025,2052,East South Central,Transportation,REF,South,,,,,,
+2025,2053,East South Central,Transportation,REF,South,,,,,,
+2025,2054,East South Central,Transportation,REF,South,,,,,,
+2025,2055,East South Central,Transportation,REF,South,,,,,,
+2025,2056,East South Central,Transportation,REF,South,,,,,,
+2025,2057,East South Central,Transportation,REF,South,,,,,,
+2025,2058,East South Central,Transportation,REF,South,,,,,,
+2025,2059,East South Central,Transportation,REF,South,,,,,,
+2025,2060,East South Central,Transportation,REF,South,,,,,,
+2025,2061,East South Central,Transportation,REF,South,,,,,,
+2025,2062,East South Central,Transportation,REF,South,,,,,,
+2025,2063,East South Central,Transportation,REF,South,,,,,,
+2025,2064,East South Central,Transportation,REF,South,,,,,,
+2025,2065,East South Central,Transportation,REF,South,,,,,,
+2025,2066,East South Central,Transportation,REF,South,,,,,,
+2025,2067,East South Central,Transportation,REF,South,,,,,,
+2025,2068,East South Central,Transportation,REF,South,,,,,,
+2025,2024,South Atlantic,Commercial,REF,South,19.766727,26.113201,7.770384,9.719809,32.452374,
+2025,2025,South Atlantic,Commercial,REF,South,19.751019,24.653311,8.735796,9.029831,31.117365,
+2025,2026,South Atlantic,Commercial,REF,South,20.626455,23.479496,9.252188,9.199631,29.663254,
+2025,2027,South Atlantic,Commercial,REF,South,20.427458,23.06179,10.413102,9.360533,28.392326,
+2025,2028,South Atlantic,Commercial,REF,South,20.55514,22.818077,11.635527,9.613292,28.440256,
+2025,2029,South Atlantic,Commercial,REF,South,20.884186,22.609068,12.909987,9.974539,28.601414,
+2025,2030,South Atlantic,Commercial,REF,South,21.353777,22.446121,14.258477,10.319382,28.660458,
+2025,2031,South Atlantic,Commercial,REF,South,21.795988,22.508322,14.334459,10.452588,28.958055,
+2025,2032,South Atlantic,Commercial,REF,South,22.662912,22.427166,14.314342,10.770156,29.252172,
+2025,2033,South Atlantic,Commercial,REF,South,23.688223,22.745823,14.560246,11.065937,30.096109,
+2025,2034,South Atlantic,Commercial,REF,South,24.36376,22.883307,14.681026,11.251308,30.669098,
+2025,2035,South Atlantic,Commercial,REF,South,24.684925,23.099001,14.82878,11.353968,30.997173,
+2025,2036,South Atlantic,Commercial,REF,South,24.783072,23.183249,14.883852,11.398161,30.890091,
+2025,2037,South Atlantic,Commercial,REF,South,24.805964,23.358667,14.950069,11.375693,30.884064,
+2025,2038,South Atlantic,Commercial,REF,South,24.753403,23.469318,15.082325,11.321965,30.590117,
+2025,2039,South Atlantic,Commercial,REF,South,24.72673,23.605652,15.123306,11.286255,30.270702,
+2025,2040,South Atlantic,Commercial,REF,South,24.830038,23.819611,15.18666,11.289073,30.267458,
+2025,2041,South Atlantic,Commercial,REF,South,25.024754,24.07012,15.217209,11.351314,30.526943,
+2025,2042,South Atlantic,Commercial,REF,South,25.160368,24.178215,15.459766,11.417753,30.894573,
+2025,2043,South Atlantic,Commercial,REF,South,25.577082,24.490116,15.442612,11.498828,31.275917,
+2025,2044,South Atlantic,Commercial,REF,South,25.786261,24.698946,15.285248,11.558607,31.790236,
+2025,2045,South Atlantic,Commercial,REF,South,25.980581,24.767437,15.35403,11.61762,32.246349,
+2025,2046,South Atlantic,Commercial,REF,South,26.212805,25.018969,15.618053,11.688798,32.614937,
+2025,2047,South Atlantic,Commercial,REF,South,26.695946,25.541332,16.096067,11.698244,32.786636,
+2025,2048,South Atlantic,Commercial,REF,South,26.869875,25.548687,16.113363,11.682724,32.807171,
+2025,2049,South Atlantic,Commercial,REF,South,26.989986,25.546865,16.183697,11.654883,32.715061,
+2025,2050,South Atlantic,Commercial,REF,South,27.057222,25.657309,16.497765,11.623294,32.53817,
+2025,2051,South Atlantic,Commercial,REF,South,27.26832625,25.816894,16.717693,11.606918,32.51897825,
+2025,2052,South Atlantic,Commercial,REF,South,27.4794305,25.976479,16.937621,11.590542,32.4997865,
+2025,2053,South Atlantic,Commercial,REF,South,27.69053475,26.136064,17.157549,11.574166,32.48059475,
+2025,2054,South Atlantic,Commercial,REF,South,27.901639,26.295649,17.377477,11.55779,32.461403,
+2025,2055,South Atlantic,Commercial,REF,South,28.11274325,26.455234,17.597405,11.541414,32.44221125,
+2025,2056,South Atlantic,Commercial,REF,South,28.3238475,26.614819,17.817333,11.525038,32.4230195,
+2025,2057,South Atlantic,Commercial,REF,South,28.53495175,26.774404,18.037261,11.508662,32.40382775,
+2025,2058,South Atlantic,Commercial,REF,South,28.746056,26.933989,18.257189,11.492286,32.384636,
+2025,2059,South Atlantic,Commercial,REF,South,28.95716025,27.093574,18.477117,11.47591,32.36544425,
+2025,2060,South Atlantic,Commercial,REF,South,29.1682645,27.253159,18.697045,11.459534,32.3462525,
+2025,2061,South Atlantic,Commercial,REF,South,29.37936875,27.412744,18.916973,11.443158,32.32706075,
+2025,2062,South Atlantic,Commercial,REF,South,29.590473,27.572329,19.136901,11.426782,32.307869,
+2025,2063,South Atlantic,Commercial,REF,South,29.80157725,27.731914,19.356829,11.410406,32.28867725,
+2025,2064,South Atlantic,Commercial,REF,South,30.0126815,27.891499,19.576757,11.39403,32.2694855,
+2025,2065,South Atlantic,Commercial,REF,South,30.22378575,28.051084,19.796685,11.377654,32.25029375,
+2025,2066,South Atlantic,Commercial,REF,South,30.43489,28.210669,20.016613,11.361278,32.231102,
+2025,2067,South Atlantic,Commercial,REF,South,30.64599425,28.370254,20.236541,11.344902,32.21191025,
+2025,2068,South Atlantic,Commercial,REF,South,30.8570985,28.529839,20.456469,11.328526,32.1927185,
+2025,2024,South Atlantic,Industrial,REF,South,12.660267,28.185305,7.746838,3.860845,23.744745,4.106896
+2025,2025,South Atlantic,Industrial,REF,South,12.598665,26.560587,8.71225,4.462957,22.81152,3.809107
+2025,2026,South Atlantic,Industrial,REF,South,13.394816,25.326422,9.233351,4.320892,21.137403,3.440615
+2025,2027,South Atlantic,Industrial,REF,South,13.209965,24.851946,10.398974,4.208745,20.099468,3.422303
+2025,2028,South Atlantic,Industrial,REF,South,13.321319,24.553278,11.626108,4.193007,19.830399,3.387256
+2025,2029,South Atlantic,Industrial,REF,South,13.630307,24.293074,12.905277,4.326454,19.989264,3.400207
+2025,2030,South Atlantic,Industrial,REF,South,14.077855,24.076221,14.258477,4.415485,20.06283,3.390653
+2025,2031,South Atlantic,Industrial,REF,South,14.506038,24.137716,14.334459,4.518102,20.306705,3.641752
+2025,2032,South Atlantic,Industrial,REF,South,15.351458,24.060257,14.314342,4.907649,20.700319,3.378279
+2025,2033,South Atlantic,Industrial,REF,South,16.374956,24.381678,14.560246,5.224223,21.473455,3.372844
+2025,2034,South Atlantic,Industrial,REF,South,17.06802,24.520622,14.681026,5.391581,21.949791,3.368088
+2025,2035,South Atlantic,Industrial,REF,South,17.404821,24.75016,14.82878,5.453931,22.419123,3.309342
+2025,2036,South Atlantic,Industrial,REF,South,17.510601,24.844395,14.883852,5.44991,22.435043,3.308099
+2025,2037,South Atlantic,Industrial,REF,South,17.535862,25.026535,14.950069,5.371406,22.327539,3.310133
+2025,2038,South Atlantic,Industrial,REF,South,17.482494,25.129103,15.082325,5.261879,22.065025,3.393752
+2025,2039,South Atlantic,Industrial,REF,South,17.454222,25.27018,15.123306,5.175178,21.80691,3.300186
+2025,2040,South Atlantic,Industrial,REF,South,17.558428,25.492693,15.18666,5.143146,21.783731,3.296465
+2025,2041,South Atlantic,Industrial,REF,South,17.757956,25.737301,15.217209,5.177905,21.928158,3.307262
+2025,2042,South Atlantic,Industrial,REF,South,17.899094,25.849243,15.459766,5.21693,22.264832,3.309229
+2025,2043,South Atlantic,Industrial,REF,South,18.329903,26.162712,15.442612,5.286972,22.673134,3.314382
+2025,2044,South Atlantic,Industrial,REF,South,18.551895,26.371525,15.285248,5.320385,23.161825,3.316204
+2025,2045,South Atlantic,Industrial,REF,South,18.757282,26.438442,15.35403,5.340912,23.521357,3.314779
+2025,2046,South Atlantic,Industrial,REF,South,19.002394,26.690666,15.618053,5.38408,23.905594,3.322413
+2025,2047,South Atlantic,Industrial,REF,South,19.512751,27.211153,16.096067,5.349521,23.876867,3.321162
+2025,2048,South Atlantic,Industrial,REF,South,19.70311,27.218143,16.113363,5.27724,23.814575,3.322184
+2025,2049,South Atlantic,Industrial,REF,South,19.833578,27.207813,16.183697,5.170199,23.735458,3.323217
+2025,2050,South Atlantic,Industrial,REF,South,19.906801,27.321905,16.497765,5.066057,23.576797,3.330929
+2025,2051,South Atlantic,Industrial,REF,South,20.13290275,27.47971475,16.717693,4.98655125,23.49459775,3.333058
+2025,2052,South Atlantic,Industrial,REF,South,20.3590045,27.6375245,16.937621,4.9070455,23.4123985,3.335187
+2025,2053,South Atlantic,Industrial,REF,South,20.58510625,27.79533425,17.157549,4.82753975,23.33019925,3.337316
+2025,2054,South Atlantic,Industrial,REF,South,20.811208,27.953144,17.377477,4.748034,23.248,3.339445
+2025,2055,South Atlantic,Industrial,REF,South,21.03730975,28.11095375,17.597405,4.66852825,23.16580075,3.341574
+2025,2056,South Atlantic,Industrial,REF,South,21.2634115,28.2687635,17.817333,4.5890225,23.0836015,3.343703
+2025,2057,South Atlantic,Industrial,REF,South,21.48951325,28.42657325,18.037261,4.50951675,23.00140225,3.345832
+2025,2058,South Atlantic,Industrial,REF,South,21.715615,28.584383,18.257189,4.430011,22.919203,3.347961
+2025,2059,South Atlantic,Industrial,REF,South,21.94171675,28.74219275,18.477117,4.35050525,22.83700375,3.35009
+2025,2060,South Atlantic,Industrial,REF,South,22.1678185,28.9000025,18.697045,4.2709995,22.7548045,3.352219
+2025,2061,South Atlantic,Industrial,REF,South,22.39392025,29.05781225,18.916973,4.19149375,22.67260525,3.354348
+2025,2062,South Atlantic,Industrial,REF,South,22.620022,29.215622,19.136901,4.111988,22.590406,3.356477
+2025,2063,South Atlantic,Industrial,REF,South,22.84612375,29.37343175,19.356829,4.03248225,22.50820675,3.358606
+2025,2064,South Atlantic,Industrial,REF,South,23.0722255,29.5312415,19.576757,3.9529765,22.4260075,3.360735
+2025,2065,South Atlantic,Industrial,REF,South,23.29832725,29.68905125,19.796685,3.87347075,22.34380825,3.362864
+2025,2066,South Atlantic,Industrial,REF,South,23.524429,29.846861,20.016613,3.793965,22.261609,3.364993
+2025,2067,South Atlantic,Industrial,REF,South,23.75053075,30.00467075,20.236541,3.71445925,22.17940975,3.367122
+2025,2068,South Atlantic,Industrial,REF,South,23.9766325,30.1624805,20.456469,3.6349535,22.0972105,3.369251
+2025,2024,South Atlantic,Residential,REF,South,29.541107,26.984426,,16.565115,42.033058,
+2025,2025,South Atlantic,Residential,REF,South,28.660408,25.21843,,15.479903,41.458714,
+2025,2026,South Atlantic,Residential,REF,South,28.81259,25.116524,,15.580879,39.76902,
+2025,2027,South Atlantic,Residential,REF,South,28.591242,25.751637,,15.68787,38.133938,
+2025,2028,South Atlantic,Residential,REF,South,28.593262,26.55131,,15.888335,37.897297,
+2025,2029,South Atlantic,Residential,REF,South,28.835283,27.365593,,16.201496,38.055172,
+2025,2030,South Atlantic,Residential,REF,South,29.289717,28.240391,,16.494678,38.098789,
+2025,2031,South Atlantic,Residential,REF,South,29.820164,28.306267,,16.697298,38.285954,
+2025,2032,South Atlantic,Residential,REF,South,30.732336,28.205404,,17.081543,38.517792,
+2025,2033,South Atlantic,Residential,REF,South,31.919107,28.509304,,17.434557,39.300545,
+2025,2034,South Atlantic,Residential,REF,South,32.968895,28.638981,,17.674229,39.911209,
+2025,2035,South Atlantic,Residential,REF,South,33.715557,28.780983,,17.825792,40.284199,
+2025,2036,South Atlantic,Residential,REF,South,34.164062,28.812128,,17.912161,40.133026,
+2025,2037,South Atlantic,Residential,REF,South,34.416164,28.951719,,17.929644,39.93087,
+2025,2038,South Atlantic,Residential,REF,South,34.507301,29.105339,,17.912317,39.522499,
+2025,2039,South Atlantic,Residential,REF,South,34.540123,29.21644,,17.910229,39.065449,
+2025,2040,South Atlantic,Residential,REF,South,34.640945,29.384853,,17.942923,38.927498,
+2025,2041,South Atlantic,Residential,REF,South,34.833603,29.666687,,18.035465,39.07143,
+2025,2042,South Atlantic,Residential,REF,South,35.015965,29.75429,,18.129215,39.413525,
+2025,2043,South Atlantic,Residential,REF,South,35.427311,30.057783,,18.237947,39.777218,
+2025,2044,South Atlantic,Residential,REF,South,35.758148,30.266706,,18.323254,40.276371,
+2025,2045,South Atlantic,Residential,REF,South,36.063721,30.343515,,18.40502,40.77224,
+2025,2046,South Atlantic,Residential,REF,South,36.388481,30.591366,,18.50017,41.166874,
+2025,2047,South Atlantic,Residential,REF,South,36.917381,31.123663,,18.529827,41.336315,
+2025,2048,South Atlantic,Residential,REF,South,37.276009,31.132917,,18.534748,41.373257,
+2025,2049,South Atlantic,Residential,REF,South,37.542503,31.176348,,18.524336,41.33849,
+2025,2050,South Atlantic,Residential,REF,South,37.722755,31.267416,,18.509304,41.184166,
+2025,2051,South Atlantic,Residential,REF,South,38.0563235,31.4364285,,18.5115875,41.188489,
+2025,2052,South Atlantic,Residential,REF,South,38.389892,31.605441,,18.513871,41.192812,
+2025,2053,South Atlantic,Residential,REF,South,38.7234605,31.7744535,,18.5161545,41.197135,
+2025,2054,South Atlantic,Residential,REF,South,39.057029,31.943466,,18.518438,41.201458,
+2025,2055,South Atlantic,Residential,REF,South,39.3905975,32.1124785,,18.5207215,41.205781,
+2025,2056,South Atlantic,Residential,REF,South,39.724166,32.281491,,18.523005,41.210104,
+2025,2057,South Atlantic,Residential,REF,South,40.0577345,32.4505035,,18.5252885,41.214427,
+2025,2058,South Atlantic,Residential,REF,South,40.391303,32.619516,,18.527572,41.21875,
+2025,2059,South Atlantic,Residential,REF,South,40.7248715,32.7885285,,18.5298555,41.223073,
+2025,2060,South Atlantic,Residential,REF,South,41.05844,32.957541,,18.532139,41.227396,
+2025,2061,South Atlantic,Residential,REF,South,41.3920085,33.1265535,,18.5344225,41.231719,
+2025,2062,South Atlantic,Residential,REF,South,41.725577,33.295566,,18.536706,41.236042,
+2025,2063,South Atlantic,Residential,REF,South,42.0591455,33.4645785,,18.5389895,41.240365,
+2025,2064,South Atlantic,Residential,REF,South,42.392714,33.633591,,18.541273,41.244688,
+2025,2065,South Atlantic,Residential,REF,South,42.7262825,33.8026035,,18.5435565,41.249011,
+2025,2066,South Atlantic,Residential,REF,South,43.059851,33.971616,,18.54584,41.253334,
+2025,2067,South Atlantic,Residential,REF,South,43.3934195,34.1406285,,18.5481235,41.257657,
+2025,2068,South Atlantic,Residential,REF,South,43.726988,34.309641,,18.550407,41.26198,
+2025,2024,South Atlantic,Transportation,REF,South,,,,,,
+2025,2025,South Atlantic,Transportation,REF,South,,,,,,
+2025,2026,South Atlantic,Transportation,REF,South,,,,,,
+2025,2027,South Atlantic,Transportation,REF,South,,,,,,
+2025,2028,South Atlantic,Transportation,REF,South,,,,,,
+2025,2029,South Atlantic,Transportation,REF,South,,,,,,
+2025,2030,South Atlantic,Transportation,REF,South,,,,,,
+2025,2031,South Atlantic,Transportation,REF,South,,,,,,
+2025,2032,South Atlantic,Transportation,REF,South,,,,,,
+2025,2033,South Atlantic,Transportation,REF,South,,,,,,
+2025,2034,South Atlantic,Transportation,REF,South,,,,,,
+2025,2035,South Atlantic,Transportation,REF,South,,,,,,
+2025,2036,South Atlantic,Transportation,REF,South,,,,,,
+2025,2037,South Atlantic,Transportation,REF,South,,,,,,
+2025,2038,South Atlantic,Transportation,REF,South,,,,,,
+2025,2039,South Atlantic,Transportation,REF,South,,,,,,
+2025,2040,South Atlantic,Transportation,REF,South,,,,,,
+2025,2041,South Atlantic,Transportation,REF,South,,,,,,
+2025,2042,South Atlantic,Transportation,REF,South,,,,,,
+2025,2043,South Atlantic,Transportation,REF,South,,,,,,
+2025,2044,South Atlantic,Transportation,REF,South,,,,,,
+2025,2045,South Atlantic,Transportation,REF,South,,,,,,
+2025,2046,South Atlantic,Transportation,REF,South,,,,,,
+2025,2047,South Atlantic,Transportation,REF,South,,,,,,
+2025,2048,South Atlantic,Transportation,REF,South,,,,,,
+2025,2049,South Atlantic,Transportation,REF,South,,,,,,
+2025,2050,South Atlantic,Transportation,REF,South,,,,,,
+2025,2051,South Atlantic,Transportation,REF,South,,,,,,
+2025,2052,South Atlantic,Transportation,REF,South,,,,,,
+2025,2053,South Atlantic,Transportation,REF,South,,,,,,
+2025,2054,South Atlantic,Transportation,REF,South,,,,,,
+2025,2055,South Atlantic,Transportation,REF,South,,,,,,
+2025,2056,South Atlantic,Transportation,REF,South,,,,,,
+2025,2057,South Atlantic,Transportation,REF,South,,,,,,
+2025,2058,South Atlantic,Transportation,REF,South,,,,,,
+2025,2059,South Atlantic,Transportation,REF,South,,,,,,
+2025,2060,South Atlantic,Transportation,REF,South,,,,,,
+2025,2061,South Atlantic,Transportation,REF,South,,,,,,
+2025,2062,South Atlantic,Transportation,REF,South,,,,,,
+2025,2063,South Atlantic,Transportation,REF,South,,,,,,
+2025,2064,South Atlantic,Transportation,REF,South,,,,,,
+2025,2065,South Atlantic,Transportation,REF,South,,,,,,
+2025,2066,South Atlantic,Transportation,REF,South,,,,,,
+2025,2067,South Atlantic,Transportation,REF,South,,,,,,
+2025,2068,South Atlantic,Transportation,REF,South,,,,,,
+2025,2024,West South Central,Commercial,REF,South,18.662962,25.077148,8.641609,9.101585,28.362438,
+2025,2025,West South Central,Commercial,REF,South,18.648129,23.687901,9.630568,7.949604,27.448511,
+2025,2026,West South Central,Commercial,REF,South,19.474682,22.459095,10.2503,7.794608,26.417082,
+2025,2027,West South Central,Commercial,REF,South,19.286797,22.033745,11.546017,7.656694,25.135403,
+2025,2028,West South Central,Commercial,REF,South,19.407347,21.761072,12.903243,7.721124,25.18832,
+2025,2029,West South Central,Commercial,REF,South,19.718021,21.540016,14.312507,7.845537,26.204565,
+2025,2030,West South Central,Commercial,REF,South,20.161388,21.36051,15.795797,7.946346,26.801989,
+2025,2031,West South Central,Commercial,REF,South,20.578907,21.4231,15.871779,8.095616,27.838625,
+2025,2032,West South Central,Commercial,REF,South,21.397423,21.358217,15.857576,8.476933,28.035326,
+2025,2033,West South Central,Commercial,REF,South,22.365482,21.736475,16.129026,8.856993,28.877214,
+2025,2034,West South Central,Commercial,REF,South,23.003296,21.875004,16.249807,9.099605,29.034042,
+2025,2035,West South Central,Commercial,REF,South,23.306526,22.120415,16.39756,9.201159,28.461735,
+2025,2036,West South Central,Commercial,REF,South,23.399195,22.236076,16.452633,9.203892,27.371567,
+2025,2037,West South Central,Commercial,REF,South,23.420809,22.419262,16.51885,9.160357,25.9723,
+2025,2038,West South Central,Commercial,REF,South,23.371183,22.560665,16.651106,9.093669,25.863461,
+2025,2039,West South Central,Commercial,REF,South,23.345999,22.701365,16.692087,9.039755,25.766125,
+2025,2040,West South Central,Commercial,REF,South,23.443539,22.912987,16.75544,9.043947,25.984667,
+2025,2041,West South Central,Commercial,REF,South,23.627382,23.145966,16.78599,9.135312,26.225372,
+2025,2042,West South Central,Commercial,REF,South,23.755424,23.244953,17.028547,9.220806,26.484777,
+2025,2043,West South Central,Commercial,REF,South,24.148869,23.593933,17.011393,9.334356,26.601269,
+2025,2044,West South Central,Commercial,REF,South,24.346367,23.795223,16.854029,9.396402,26.694294,
+2025,2045,West South Central,Commercial,REF,South,24.529839,23.860453,16.92281,9.469183,27.113438,
+2025,2046,West South Central,Commercial,REF,South,24.749092,24.112448,17.186834,9.558076,27.782072,
+2025,2047,West South Central,Commercial,REF,South,25.205257,24.645885,17.664848,9.585057,28.309956,
+2025,2048,West South Central,Commercial,REF,South,25.369473,24.652456,17.682144,9.559446,28.688217,
+2025,2049,West South Central,Commercial,REF,South,25.482874,24.645203,17.752478,9.539315,28.72883,
+2025,2050,West South Central,Commercial,REF,South,25.546358,24.75458,18.066545,9.514373,27.938189,
+2025,2051,West South Central,Commercial,REF,South,25.7456745,24.915113,18.28647275,9.50344725,27.97721825,
+2025,2052,West South Central,Commercial,REF,South,25.944991,25.075646,18.5064005,9.4925215,28.0162475,
+2025,2053,West South Central,Commercial,REF,South,26.1443075,25.236179,18.72632825,9.48159575,28.05527675,
+2025,2054,West South Central,Commercial,REF,South,26.343624,25.396712,18.946256,9.47067,28.094306,
+2025,2055,West South Central,Commercial,REF,South,26.5429405,25.557245,19.16618375,9.45974425,28.13333525,
+2025,2056,West South Central,Commercial,REF,South,26.742257,25.717778,19.3861115,9.4488185,28.1723645,
+2025,2057,West South Central,Commercial,REF,South,26.9415735,25.878311,19.60603925,9.43789275,28.21139375,
+2025,2058,West South Central,Commercial,REF,South,27.14089,26.038844,19.825967,9.426967,28.250423,
+2025,2059,West South Central,Commercial,REF,South,27.3402065,26.199377,20.04589475,9.41604125,28.28945225,
+2025,2060,West South Central,Commercial,REF,South,27.539523,26.35991,20.2658225,9.4051155,28.3284815,
+2025,2061,West South Central,Commercial,REF,South,27.7388395,26.520443,20.48575025,9.39418975,28.36751075,
+2025,2062,West South Central,Commercial,REF,South,27.938156,26.680976,20.705678,9.383264,28.40654,
+2025,2063,West South Central,Commercial,REF,South,28.1374725,26.841509,20.92560575,9.37233825,28.44556925,
+2025,2064,West South Central,Commercial,REF,South,28.336789,27.002042,21.1455335,9.3614125,28.4845985,
+2025,2065,West South Central,Commercial,REF,South,28.5361055,27.162575,21.36546125,9.35048675000001,28.52362775,
+2025,2066,West South Central,Commercial,REF,South,28.735422,27.323108,21.585389,9.33956100000001,28.562657,
+2025,2067,West South Central,Commercial,REF,South,28.9347385,27.483641,21.80531675,9.32863525000001,28.60168625,
+2025,2068,West South Central,Commercial,REF,South,29.134055,27.644174,22.0252445,9.31770950000001,28.6407155,
+2025,2024,West South Central,Industrial,REF,South,12.660267,26.67832,8.618063,2.623133,20.999384,3.552389
+2025,2025,West South Central,Industrial,REF,South,12.598665,25.171335,9.60702,3.310654,20.879665,3.540716
+2025,2026,West South Central,Industrial,REF,South,13.394816,23.911917,10.231462,3.177439,19.688538,3.541809
+2025,2027,West South Central,Industrial,REF,South,13.209965,23.451748,11.531888,3.065794,18.68774,3.540632
+2025,2028,West South Central,Industrial,REF,South,13.321319,23.145689,12.893826,3.175264,18.746695,3.530372
+2025,2029,West South Central,Industrial,REF,South,13.630307,22.893856,14.307797,3.339083,19.532635,3.539924
+2025,2030,West South Central,Industrial,REF,South,14.077855,22.681177,15.795797,3.523401,20.073948,3.539518
+2025,2031,West South Central,Industrial,REF,South,14.506038,22.742584,15.871779,3.664398,20.870287,3.561136
+2025,2032,West South Central,Industrial,REF,South,15.351458,22.683777,15.857576,4.124923,21.335491,3.561296
+2025,2033,West South Central,Industrial,REF,South,16.374956,23.059704,16.129026,4.510546,22.180008,3.56229
+2025,2034,West South Central,Industrial,REF,South,17.06802,23.202007,16.249807,4.740643,22.393074,3.540704
+2025,2035,West South Central,Industrial,REF,South,17.404821,23.46405,16.39756,4.828864,22.01856,3.541149
+2025,2036,West South Central,Industrial,REF,South,17.510601,23.585505,16.452633,4.823071,21.000391,3.547971
+2025,2037,West South Central,Industrial,REF,South,17.535862,23.773378,16.51885,4.766537,19.828714,3.541496
+2025,2038,West South Central,Industrial,REF,South,17.482494,23.905262,16.651106,4.69787,19.718264,3.563662
+2025,2039,West South Central,Industrial,REF,South,17.454222,24.052832,16.692087,4.635487,19.708693,3.541571
+2025,2040,West South Central,Industrial,REF,South,17.558428,24.274471,16.75544,4.66026,20.019833,3.54184
+2025,2041,West South Central,Industrial,REF,South,17.757956,24.503244,16.78599,4.749173,20.264591,3.542158
+2025,2042,West South Central,Industrial,REF,South,17.899094,24.604212,17.028547,4.841208,20.485424,3.543184
+2025,2043,West South Central,Industrial,REF,South,18.329903,24.954679,17.011393,4.972417,20.57357,3.542875
+2025,2044,West South Central,Industrial,REF,South,18.551895,25.158466,16.854029,5.051071,20.654871,3.542025
+2025,2045,West South Central,Industrial,REF,South,18.757282,25.223217,16.92281,5.108173,21.097567,3.523719
+2025,2046,West South Central,Industrial,REF,South,19.002394,25.475744,17.186834,5.191161,21.674784,3.525317
+2025,2047,West South Central,Industrial,REF,South,19.512751,26.003609,17.664848,5.230269,22.099331,3.5116
+2025,2048,West South Central,Industrial,REF,South,19.70311,26.010075,17.682144,5.219568,22.493944,3.512127
+2025,2049,West South Central,Industrial,REF,South,19.833578,25.996126,17.752478,5.186138,22.579176,3.512204
+2025,2050,West South Central,Industrial,REF,South,19.906801,26.109505,18.066545,5.163089,22.024185,3.528422
+2025,2051,West South Central,Industrial,REF,South,20.13290275,26.26794525,18.28647275,5.156071,22.11153525,3.52919825
+2025,2052,West South Central,Industrial,REF,South,20.3590045,26.4263855,18.5064005,5.149053,22.1988855,3.5299745
+2025,2053,West South Central,Industrial,REF,South,20.58510625,26.58482575,18.72632825,5.142035,22.28623575,3.53075075
+2025,2054,West South Central,Industrial,REF,South,20.811208,26.743266,18.946256,5.135017,22.373586,3.531527
+2025,2055,West South Central,Industrial,REF,South,21.03730975,26.90170625,19.16618375,5.127999,22.46093625,3.53230325
+2025,2056,West South Central,Industrial,REF,South,21.2634115,27.0601465,19.3861115,5.120981,22.5482865,3.5330795
+2025,2057,West South Central,Industrial,REF,South,21.48951325,27.21858675,19.60603925,5.113963,22.63563675,3.53385575
+2025,2058,West South Central,Industrial,REF,South,21.715615,27.377027,19.825967,5.106945,22.722987,3.534632
+2025,2059,West South Central,Industrial,REF,South,21.94171675,27.53546725,20.04589475,5.099927,22.81033725,3.53540825
+2025,2060,West South Central,Industrial,REF,South,22.1678185,27.6939075,20.2658225,5.092909,22.8976875,3.5361845
+2025,2061,West South Central,Industrial,REF,South,22.39392025,27.85234775,20.48575025,5.085891,22.98503775,3.53696075
+2025,2062,West South Central,Industrial,REF,South,22.620022,28.010788,20.705678,5.078873,23.072388,3.537737
+2025,2063,West South Central,Industrial,REF,South,22.84612375,28.16922825,20.92560575,5.071855,23.15973825,3.53851325
+2025,2064,West South Central,Industrial,REF,South,23.0722255,28.3276685,21.1455335,5.064837,23.2470885,3.5392895
+2025,2065,West South Central,Industrial,REF,South,23.29832725,28.48610875,21.36546125,5.057819,23.33443875,3.54006575
+2025,2066,West South Central,Industrial,REF,South,23.524429,28.644549,21.585389,5.050801,23.421789,3.540842
+2025,2067,West South Central,Industrial,REF,South,23.75053075,28.80298925,21.80531675,5.043783,23.50913925,3.54161825
+2025,2068,West South Central,Industrial,REF,South,23.9766325,28.9614295,22.0252445,5.036765,23.5964895,3.5423945
+2025,2024,West South Central,Residential,REF,South,27.613356,24.276566,,15.683137,35.791008,
+2025,2025,West South Central,Residential,REF,South,26.790127,22.91086,,13.779415,35.314526,
+2025,2026,West South Central,Residential,REF,South,26.932375,22.716599,,13.51294,34.377216,
+2025,2027,West South Central,Residential,REF,South,26.725475,23.351582,,13.264086,32.901417,
+2025,2028,West South Central,Residential,REF,South,26.727358,24.130436,,13.204353,32.837975,
+2025,2029,West South Central,Residential,REF,South,26.953592,24.944929,,13.20864,33.833206,
+2025,2030,West South Central,Residential,REF,South,27.37837,25.815668,,13.182049,34.451931,
+2025,2031,West South Central,Residential,REF,South,27.874199,25.885504,,13.380514,35.503174,
+2025,2032,West South Central,Residential,REF,South,28.726847,25.783375,,13.800924,35.722054,
+2025,2033,West South Central,Residential,REF,South,29.836172,26.175917,,14.211548,36.663021,
+2025,2034,West South Central,Residential,REF,South,30.817455,26.29133,,14.486333,36.910789,
+2025,2035,West South Central,Residential,REF,South,31.515396,26.434765,,14.627093,36.347466,
+2025,2036,West South Central,Residential,REF,South,31.934631,26.514914,,14.674026,35.339218,
+2025,2037,West South Central,Residential,REF,South,32.17028,26.669384,,14.676198,34.004444,
+2025,2038,West South Central,Residential,REF,South,32.25547,26.869158,,14.655686,33.82983,
+2025,2039,West South Central,Residential,REF,South,32.286152,26.967722,,14.643891,33.639576,
+2025,2040,West South Central,Residential,REF,South,32.380394,27.117947,,14.68856,33.799896,
+2025,2041,West South Central,Residential,REF,South,32.560482,27.376699,,14.814723,34.093113,
+2025,2042,West South Central,Residential,REF,South,32.730942,27.463556,,14.931256,34.29427,
+2025,2043,West South Central,Residential,REF,South,33.115448,27.8034,,15.069655,34.395763,
+2025,2044,West South Central,Residential,REF,South,33.424698,27.989384,,15.158837,34.456291,
+2025,2045,West South Central,Residential,REF,South,33.710323,28.057577,,15.258969,34.847958,
+2025,2046,West South Central,Residential,REF,South,34.013889,28.306288,,15.373193,35.561901,
+2025,2047,West South Central,Residential,REF,South,34.508278,28.873899,,15.429047,36.165878,
+2025,2048,West South Central,Residential,REF,South,34.843506,28.881098,,15.434687,36.590862,
+2025,2049,West South Central,Residential,REF,South,35.092602,28.91489,,15.445008,36.685047,
+2025,2050,West South Central,Residential,REF,South,35.261093,28.999744,,15.452594,35.923531,
+2025,2051,West South Central,Residential,REF,South,35.572894,29.173108,,15.47244425,36.0139385,
+2025,2052,West South Central,Residential,REF,South,35.884695,29.346472,,15.4922945,36.104346,
+2025,2053,West South Central,Residential,REF,South,36.196496,29.519836,,15.51214475,36.1947535,
+2025,2054,West South Central,Residential,REF,South,36.508297,29.6932,,15.531995,36.285161,
+2025,2055,West South Central,Residential,REF,South,36.820098,29.866564,,15.55184525,36.3755685,
+2025,2056,West South Central,Residential,REF,South,37.131899,30.039928,,15.5716955,36.465976,
+2025,2057,West South Central,Residential,REF,South,37.4437,30.213292,,15.59154575,36.5563835,
+2025,2058,West South Central,Residential,REF,South,37.755501,30.386656,,15.611396,36.646791,
+2025,2059,West South Central,Residential,REF,South,38.067302,30.56002,,15.63124625,36.7371985,
+2025,2060,West South Central,Residential,REF,South,38.379103,30.733384,,15.6510965,36.827606,
+2025,2061,West South Central,Residential,REF,South,38.690904,30.906748,,15.67094675,36.9180135,
+2025,2062,West South Central,Residential,REF,South,39.002705,31.080112,,15.690797,37.008421,
+2025,2063,West South Central,Residential,REF,South,39.314506,31.253476,,15.71064725,37.0988285,
+2025,2064,West South Central,Residential,REF,South,39.626307,31.42684,,15.7304975,37.189236,
+2025,2065,West South Central,Residential,REF,South,39.938108,31.600204,,15.75034775,37.2796435,
+2025,2066,West South Central,Residential,REF,South,40.249909,31.773568,,15.770198,37.370051,
+2025,2067,West South Central,Residential,REF,South,40.56171,31.946932,,15.79004825,37.4604585,
+2025,2068,West South Central,Residential,REF,South,40.873511,32.120296,,15.8098985,37.550866,
+2025,2024,West South Central,Transportation,REF,South,,,,,,
+2025,2025,West South Central,Transportation,REF,South,,,,,,
+2025,2026,West South Central,Transportation,REF,South,,,,,,
+2025,2027,West South Central,Transportation,REF,South,,,,,,
+2025,2028,West South Central,Transportation,REF,South,,,,,,
+2025,2029,West South Central,Transportation,REF,South,,,,,,
+2025,2030,West South Central,Transportation,REF,South,,,,,,
+2025,2031,West South Central,Transportation,REF,South,,,,,,
+2025,2032,West South Central,Transportation,REF,South,,,,,,
+2025,2033,West South Central,Transportation,REF,South,,,,,,
+2025,2034,West South Central,Transportation,REF,South,,,,,,
+2025,2035,West South Central,Transportation,REF,South,,,,,,
+2025,2036,West South Central,Transportation,REF,South,,,,,,
+2025,2037,West South Central,Transportation,REF,South,,,,,,
+2025,2038,West South Central,Transportation,REF,South,,,,,,
+2025,2039,West South Central,Transportation,REF,South,,,,,,
+2025,2040,West South Central,Transportation,REF,South,,,,,,
+2025,2041,West South Central,Transportation,REF,South,,,,,,
+2025,2042,West South Central,Transportation,REF,South,,,,,,
+2025,2043,West South Central,Transportation,REF,South,,,,,,
+2025,2044,West South Central,Transportation,REF,South,,,,,,
+2025,2045,West South Central,Transportation,REF,South,,,,,,
+2025,2046,West South Central,Transportation,REF,South,,,,,,
+2025,2047,West South Central,Transportation,REF,South,,,,,,
+2025,2048,West South Central,Transportation,REF,South,,,,,,
+2025,2049,West South Central,Transportation,REF,South,,,,,,
+2025,2050,West South Central,Transportation,REF,South,,,,,,
+2025,2051,West South Central,Transportation,REF,South,,,,,,
+2025,2052,West South Central,Transportation,REF,South,,,,,,
+2025,2053,West South Central,Transportation,REF,South,,,,,,
+2025,2054,West South Central,Transportation,REF,South,,,,,,
+2025,2055,West South Central,Transportation,REF,South,,,,,,
+2025,2056,West South Central,Transportation,REF,South,,,,,,
+2025,2057,West South Central,Transportation,REF,South,,,,,,
+2025,2058,West South Central,Transportation,REF,South,,,,,,
+2025,2059,West South Central,Transportation,REF,South,,,,,,
+2025,2060,West South Central,Transportation,REF,South,,,,,,
+2025,2061,West South Central,Transportation,REF,South,,,,,,
+2025,2062,West South Central,Transportation,REF,South,,,,,,
+2025,2063,West South Central,Transportation,REF,South,,,,,,
+2025,2064,West South Central,Transportation,REF,South,,,,,,
+2025,2065,West South Central,Transportation,REF,South,,,,,,
+2025,2066,West South Central,Transportation,REF,South,,,,,,
+2025,2067,West South Central,Transportation,REF,South,,,,,,
+2025,2068,West South Central,Transportation,REF,South,,,,,,
+2025,2024,United States,Commercial,REF,United States,19.086813,26.207932,6.746078,9.555858,38.550022,
+2025,2025,United States,Commercial,REF,United States,19.064276,24.707527,7.471698,8.524258,37.645496,
+2025,2026,United States,Commercial,REF,United States,19.897297,23.478752,7.797836,8.577137,35.165619,
+2025,2027,United States,Commercial,REF,United States,19.697956,23.001217,8.795227,8.509656,33.067909,
+2025,2028,United States,Commercial,REF,United States,19.812666,22.700747,9.873684,8.57863,32.97377,
+2025,2029,United States,Commercial,REF,United States,20.127541,22.445738,10.959284,8.755885,33.306805,
+2025,2030,United States,Commercial,REF,United States,20.577377,22.231155,12.118327,8.922956,33.638638,
+2025,2031,United States,Commercial,REF,United States,21.000961,22.276726,12.189228,9.05584,34.223286,
+2025,2032,United States,Commercial,REF,United States,21.832232,22.165222,12.164602,9.392515,34.468494,
+2025,2033,United States,Commercial,REF,United States,22.815495,22.475937,12.407361,9.708882,35.199299,
+2025,2034,United States,Commercial,REF,United States,23.462996,22.60573,12.523532,9.888903,35.267879,
+2025,2035,United States,Commercial,REF,United States,23.770376,22.826515,12.666889,9.969264,35.171318,
+2025,2036,United States,Commercial,REF,United States,23.863741,22.913818,12.717807,9.956417,34.795868,
+2025,2037,United States,Commercial,REF,United States,23.88493,23.086813,12.780116,9.892463,34.536736,
+2025,2038,United States,Commercial,REF,United States,23.83375,23.196493,12.908691,9.806275,34.283005,
+2025,2039,United States,Commercial,REF,United States,23.807461,23.329102,12.946187,9.738659,33.913559,
+2025,2040,United States,Commercial,REF,United States,23.905949,23.540705,13.006226,9.72958,33.820892,
+2025,2041,United States,Commercial,REF,United States,24.092184,23.780121,13.0336,9.811004,33.95908,
+2025,2042,United States,Commercial,REF,United States,24.221724,23.882248,13.273115,9.880094,34.166912,
+2025,2043,United States,Commercial,REF,United States,24.621031,24.201738,13.25303,9.951901,34.355415,
+2025,2044,United States,Commercial,REF,United States,24.821198,24.402853,13.092832,9.98243,34.56263,
+2025,2045,United States,Commercial,REF,United States,25.007116,24.466581,13.158867,10.031799,34.851761,
+2025,2046,United States,Commercial,REF,United States,25.229414,24.714531,13.420218,10.101231,35.20248,
+2025,2047,United States,Commercial,REF,United States,25.692492,25.23634,13.895623,10.103064,35.366673,
+2025,2048,United States,Commercial,REF,United States,25.858862,25.239878,13.910372,10.060933,35.440506,
+2025,2049,United States,Commercial,REF,United States,25.973612,25.232798,13.978215,10.025811,35.484558,
+2025,2050,United States,Commercial,REF,United States,26.037634,25.339909,14.289846,9.975012,35.383961,
+2025,2051,United States,Commercial,REF,United States,26.239689,25.4962535,14.507253,9.94345725,35.42933125,
+2025,2052,United States,Commercial,REF,United States,26.441744,25.652598,14.72466,9.9119025,35.4747015,
+2025,2053,United States,Commercial,REF,United States,26.643799,25.8089425,14.942067,9.88034775,35.52007175,
+2025,2054,United States,Commercial,REF,United States,26.845854,25.965287,15.159474,9.848793,35.565442,
+2025,2055,United States,Commercial,REF,United States,27.047909,26.1216315,15.376881,9.81723825,35.61081225,
+2025,2056,United States,Commercial,REF,United States,27.249964,26.277976,15.594288,9.7856835,35.6561825,
+2025,2057,United States,Commercial,REF,United States,27.452019,26.4343205,15.811695,9.75412875,35.70155275,
+2025,2058,United States,Commercial,REF,United States,27.654074,26.590665,16.029102,9.722574,35.746923,
+2025,2059,United States,Commercial,REF,United States,27.856129,26.7470095,16.246509,9.69101925,35.79229325,
+2025,2060,United States,Commercial,REF,United States,28.058184,26.903354,16.463916,9.6594645,35.8376635,
+2025,2061,United States,Commercial,REF,United States,28.260239,27.0596985,16.681323,9.62790975,35.88303375,
+2025,2062,United States,Commercial,REF,United States,28.462294,27.216043,16.89873,9.596355,35.928404,
+2025,2063,United States,Commercial,REF,United States,28.664349,27.3723875,17.116137,9.56480025,35.97377425,
+2025,2064,United States,Commercial,REF,United States,28.866404,27.528732,17.333544,9.5332455,36.0191445,
+2025,2065,United States,Commercial,REF,United States,29.068459,27.6850765,17.550951,9.50169075,36.06451475,
+2025,2066,United States,Commercial,REF,United States,29.270514,27.841421,17.768358,9.470136,36.109885,
+2025,2067,United States,Commercial,REF,United States,29.472569,27.9977655,17.985765,9.43858125,36.15525525,
+2025,2068,United States,Commercial,REF,United States,29.674624,28.15411,18.203172,9.4070265,36.2006255,
+2025,2024,United States,Industrial,REF,United States,12.660267,26.091753,7.834691,3.333467,26.488319,3.572102
+2025,2025,United States,Industrial,REF,United States,12.598665,24.600836,8.84762,4.020641,26.031977,3.608104
+2025,2026,United States,Industrial,REF,United States,13.394816,23.33955,9.390942,3.907812,23.634401,3.618796
+2025,2027,United States,Industrial,REF,United States,13.209964,22.831499,10.593079,3.779889,22.181162,3.598891
+2025,2028,United States,Industrial,REF,United States,13.321319,22.504192,11.839056,3.849171,22.018906,3.574431
+2025,2029,United States,Industrial,REF,United States,13.630308,22.2185,13.159025,3.992725,22.357971,3.555436
+2025,2030,United States,Industrial,REF,United States,14.077855,21.966013,14.55712,4.156615,22.690479,3.531123
+2025,2031,United States,Industrial,REF,United States,14.506037,22.014561,14.657073,4.298256,23.216715,3.517393
+2025,2032,United States,Industrial,REF,United States,15.351456,21.89607,14.64855,4.740815,23.637266,3.466499
+2025,2033,United States,Industrial,REF,United States,16.374956,22.225964,14.954052,5.090212,24.291416,3.454955
+2025,2034,United States,Industrial,REF,United States,17.06802,22.364891,15.084881,5.288044,24.350134,3.444161
+2025,2035,United States,Industrial,REF,United States,17.404821,22.610737,15.25926,5.363245,24.249228,3.418119
+2025,2036,United States,Industrial,REF,United States,17.510601,22.717157,15.344483,5.341443,23.870886,3.422974
+2025,2037,United States,Industrial,REF,United States,17.535862,22.900896,15.429115,5.264361,23.539894,3.429805
+2025,2038,United States,Industrial,REF,United States,17.482494,23.006941,15.560703,5.176689,23.332941,3.440761
+2025,2039,United States,Industrial,REF,United States,17.454224,23.147232,15.609332,5.105669,23.122946,3.428275
+2025,2040,United States,Industrial,REF,United States,17.558428,23.371901,15.683044,5.1209,23.103556,3.42368
+2025,2041,United States,Industrial,REF,United States,17.757957,23.608351,15.729799,5.210641,23.223795,3.426426
+2025,2042,United States,Industrial,REF,United States,17.899094,23.714985,15.959808,5.28907,23.384014,3.424813
+2025,2043,United States,Industrial,REF,United States,18.329903,24.046558,15.961357,5.384544,23.520306,3.431278
+2025,2044,United States,Industrial,REF,United States,18.551893,24.251648,15.792641,5.432625,23.67198,3.436086
+2025,2045,United States,Industrial,REF,United States,18.757284,24.316898,15.834302,5.475052,23.960728,3.438771
+2025,2046,United States,Industrial,REF,United States,19.00239,24.569601,16.088297,5.545083,24.279131,3.451914
+2025,2047,United States,Industrial,REF,United States,19.512751,25.093359,16.559723,5.554482,24.410036,3.456279
+2025,2048,United States,Industrial,REF,United States,19.703114,25.098475,16.583357,5.514772,24.496143,3.45744
+2025,2049,United States,Industrial,REF,United States,19.833578,25.087074,16.650951,5.463179,24.562738,3.45646
+2025,2050,United States,Industrial,REF,United States,19.906797,25.201595,16.957069,5.416576,24.452234,3.463032
+2025,2051,United States,Industrial,REF,United States,20.13289875,25.3595935,17.174262,5.38444925,24.49550975,3.4658115
+2025,2052,United States,Industrial,REF,United States,20.3590005,25.517592,17.391455,5.3523225,24.5387855,3.468591
+2025,2053,United States,Industrial,REF,United States,20.58510225,25.6755905,17.608648,5.32019575,24.58206125,3.4713705
+2025,2054,United States,Industrial,REF,United States,20.811204,25.833589,17.825841,5.288069,24.625337,3.47415
+2025,2055,United States,Industrial,REF,United States,21.03730575,25.9915875,18.043034,5.25594225,24.66861275,3.4769295
+2025,2056,United States,Industrial,REF,United States,21.2634075,26.149586,18.260227,5.2238155,24.7118885,3.479709
+2025,2057,United States,Industrial,REF,United States,21.48950925,26.3075845,18.47742,5.19168875,24.75516425,3.4824885
+2025,2058,United States,Industrial,REF,United States,21.715611,26.465583,18.694613,5.159562,24.79844,3.485268
+2025,2059,United States,Industrial,REF,United States,21.94171275,26.6235815,18.911806,5.12743525,24.84171575,3.4880475
+2025,2060,United States,Industrial,REF,United States,22.1678145,26.78158,19.128999,5.0953085,24.8849915,3.490827
+2025,2061,United States,Industrial,REF,United States,22.39391625,26.9395785,19.346192,5.06318175,24.92826725,3.4936065
+2025,2062,United States,Industrial,REF,United States,22.620018,27.097577,19.563385,5.031055,24.971543,3.496386
+2025,2063,United States,Industrial,REF,United States,22.84611975,27.2555755,19.780578,4.99892825,25.01481875,3.4991655
+2025,2064,United States,Industrial,REF,United States,23.0722215,27.413574,19.997771,4.9668015,25.0580945,3.501945
+2025,2065,United States,Industrial,REF,United States,23.29832325,27.5715725,20.214964,4.93467475,25.10137025,3.5047245
+2025,2066,United States,Industrial,REF,United States,23.524425,27.729571,20.432157,4.902548,25.144646,3.507504
+2025,2067,United States,Industrial,REF,United States,23.75052675,27.8875695,20.64935,4.87042125,25.18792175,3.5102835
+2025,2068,United States,Industrial,REF,United States,23.9766285,28.045568,20.866543,4.8382945,25.2311975,3.513063
+2025,2024,United States,Residential,REF,United States,26.593998,26.158379,,13.932205,45.550621,
+2025,2025,United States,Residential,REF,United States,25.684998,24.617764,,12.756772,45.130497,
+2025,2026,United States,Residential,REF,United States,25.82601,24.553404,,12.486651,42.619473,
+2025,2027,United States,Residential,REF,United States,25.632851,25.249252,,12.068769,40.433372,
+2025,2028,United States,Residential,REF,United States,25.640326,26.125404,,11.811832,40.20145,
+2025,2029,United States,Residential,REF,United States,25.862583,27.042562,,11.697856,40.564919,
+2025,2030,United States,Residential,REF,United States,26.275898,28.001945,,11.575757,40.904922,
+2025,2031,United States,Residential,REF,United States,26.758438,28.059954,,11.760992,41.486778,
+2025,2032,United States,Residential,REF,United States,27.583117,27.980045,,12.173224,41.811607,
+2025,2033,United States,Residential,REF,United States,28.655109,28.300606,,12.554825,42.609776,
+2025,2034,United States,Residential,REF,United States,29.605331,28.43927,,12.794587,42.796478,
+2025,2035,United States,Residential,REF,United States,30.284702,28.679495,,12.921897,42.747395,
+2025,2036,United States,Residential,REF,United States,30.697491,28.78126,,12.942942,42.400219,
+2025,2037,United States,Residential,REF,United States,30.93395,28.968477,,12.906667,42.109417,
+2025,2038,United States,Residential,REF,United States,31.026094,29.069633,,12.847396,41.83773,
+2025,2039,United States,Residential,REF,United States,31.065742,29.213812,,12.808285,41.473362,
+2025,2040,United States,Residential,REF,United States,31.166298,29.443375,,12.831397,41.39101,
+2025,2041,United States,Residential,REF,United States,31.348818,29.683302,,12.951427,41.540905,
+2025,2042,United States,Residential,REF,United States,31.522015,29.799143,,13.056877,41.774536,
+2025,2043,United States,Residential,REF,United States,31.900532,30.116989,,13.16198,42.008839,
+2025,2044,United States,Residential,REF,United States,32.206543,30.325054,,13.222458,42.274502,
+2025,2045,United States,Residential,REF,United States,32.490009,30.391951,,13.30266,42.652081,
+2025,2046,United States,Residential,REF,United States,32.7901,30.645956,,13.402704,43.100368,
+2025,2047,United States,Residential,REF,United States,33.274712,31.167374,,13.433078,43.383957,
+2025,2048,United States,Residential,REF,United States,33.606663,31.175676,,13.414794,43.589256,
+2025,2049,United States,Residential,REF,United States,33.856499,31.161663,,13.404645,43.7598,
+2025,2050,United States,Residential,REF,United States,34.029144,31.279493,,13.378824,43.748291,
+2025,2051,United States,Residential,REF,United States,34.338905,31.43787725,,13.372854,43.91027175,
+2025,2052,United States,Residential,REF,United States,34.648666,31.5962615,,13.366884,44.0722525,
+2025,2053,United States,Residential,REF,United States,34.958427,31.75464575,,13.360914,44.23423325,
+2025,2054,United States,Residential,REF,United States,35.268188,31.91303,,13.354944,44.396214,
+2025,2055,United States,Residential,REF,United States,35.577949,32.07141425,,13.348974,44.55819475,
+2025,2056,United States,Residential,REF,United States,35.88771,32.2297985,,13.343004,44.7201755,
+2025,2057,United States,Residential,REF,United States,36.197471,32.38818275,,13.337034,44.88215625,
+2025,2058,United States,Residential,REF,United States,36.507232,32.546567,,13.331064,45.044137,
+2025,2059,United States,Residential,REF,United States,36.816993,32.70495125,,13.325094,45.20611775,
+2025,2060,United States,Residential,REF,United States,37.126754,32.8633355,,13.319124,45.3680985,
+2025,2061,United States,Residential,REF,United States,37.436515,33.02171975,,13.313154,45.53007925,
+2025,2062,United States,Residential,REF,United States,37.746276,33.180104,,13.307184,45.69206,
+2025,2063,United States,Residential,REF,United States,38.056037,33.33848825,,13.301214,45.85404075,
+2025,2064,United States,Residential,REF,United States,38.365798,33.4968725,,13.295244,46.0160215,
+2025,2065,United States,Residential,REF,United States,38.675559,33.65525675,,13.289274,46.17800225,
+2025,2066,United States,Residential,REF,United States,38.98532,33.813641,,13.283304,46.339983,
+2025,2067,United States,Residential,REF,United States,39.295081,33.97202525,,13.277334,46.50196375,
+2025,2068,United States,Residential,REF,United States,39.604842,34.1304095,,13.271364,46.6639445,
+2025,2024,United States,Transportation,REF,United States,,,,,,
+2025,2025,United States,Transportation,REF,United States,,,,,,
+2025,2026,United States,Transportation,REF,United States,,,,,,
+2025,2027,United States,Transportation,REF,United States,,,,,,
+2025,2028,United States,Transportation,REF,United States,,,,,,
+2025,2029,United States,Transportation,REF,United States,,,,,,
+2025,2030,United States,Transportation,REF,United States,,,,,,
+2025,2031,United States,Transportation,REF,United States,,,,,,
+2025,2032,United States,Transportation,REF,United States,,,,,,
+2025,2033,United States,Transportation,REF,United States,,,,,,
+2025,2034,United States,Transportation,REF,United States,,,,,,
+2025,2035,United States,Transportation,REF,United States,,,,,,
+2025,2036,United States,Transportation,REF,United States,,,,,,
+2025,2037,United States,Transportation,REF,United States,,,,,,
+2025,2038,United States,Transportation,REF,United States,,,,,,
+2025,2039,United States,Transportation,REF,United States,,,,,,
+2025,2040,United States,Transportation,REF,United States,,,,,,
+2025,2041,United States,Transportation,REF,United States,,,,,,
+2025,2042,United States,Transportation,REF,United States,,,,,,
+2025,2043,United States,Transportation,REF,United States,,,,,,
+2025,2044,United States,Transportation,REF,United States,,,,,,
+2025,2045,United States,Transportation,REF,United States,,,,,,
+2025,2046,United States,Transportation,REF,United States,,,,,,
+2025,2047,United States,Transportation,REF,United States,,,,,,
+2025,2048,United States,Transportation,REF,United States,,,,,,
+2025,2049,United States,Transportation,REF,United States,,,,,,
+2025,2050,United States,Transportation,REF,United States,,,,,,
+2025,2051,United States,Transportation,REF,United States,,,,,,
+2025,2052,United States,Transportation,REF,United States,,,,,,
+2025,2053,United States,Transportation,REF,United States,,,,,,
+2025,2054,United States,Transportation,REF,United States,,,,,,
+2025,2055,United States,Transportation,REF,United States,,,,,,
+2025,2056,United States,Transportation,REF,United States,,,,,,
+2025,2057,United States,Transportation,REF,United States,,,,,,
+2025,2058,United States,Transportation,REF,United States,,,,,,
+2025,2059,United States,Transportation,REF,United States,,,,,,
+2025,2060,United States,Transportation,REF,United States,,,,,,
+2025,2061,United States,Transportation,REF,United States,,,,,,
+2025,2062,United States,Transportation,REF,United States,,,,,,
+2025,2063,United States,Transportation,REF,United States,,,,,,
+2025,2064,United States,Transportation,REF,United States,,,,,,
+2025,2065,United States,Transportation,REF,United States,,,,,,
+2025,2066,United States,Transportation,REF,United States,,,,,,
+2025,2067,United States,Transportation,REF,United States,,,,,,
+2025,2068,United States,Transportation,REF,United States,,,,,,
+2025,2024,Mountain,Commercial,REF,West,18.883717,27.502453,7.252358,9.423072,32.713905,
+2025,2025,Mountain,Commercial,REF,West,18.868708,26.113201,8.241317,8.239568,32.177052,
+2025,2026,Mountain,Commercial,REF,West,19.705038,24.973917,8.588173,8.414835,30.721842,
+2025,2027,Mountain,Commercial,REF,West,19.514929,24.549437,9.704812,8.529105,29.743252,
+2025,2028,Mountain,Commercial,REF,West,19.636906,24.305006,10.758851,8.83462,29.224112,
+2025,2029,Mountain,Commercial,REF,West,19.951254,24.095942,11.887419,9.158272,29.255096,
+2025,2030,Mountain,Commercial,REF,West,20.39987,23.916101,13.036956,9.488224,29.359545,
+2025,2031,Mountain,Commercial,REF,West,20.822327,23.911091,13.151083,9.682427,29.26103,
+2025,2032,Mountain,Commercial,REF,West,21.65052,23.670921,12.972818,10.085093,29.522066,
+2025,2033,Mountain,Commercial,REF,West,22.630032,23.923832,13.146912,10.436224,29.434195,
+2025,2034,Mountain,Commercial,REF,West,23.275389,24.042007,13.267893,10.66479,29.048817,
+2025,2035,Mountain,Commercial,REF,West,23.582207,24.28047,13.371213,10.773237,28.860638,
+2025,2036,Mountain,Commercial,REF,West,23.675972,24.386427,13.428101,10.759169,28.753498,
+2025,2037,Mountain,Commercial,REF,West,23.697842,24.558092,13.478918,10.698739,28.742651,
+2025,2038,Mountain,Commercial,REF,West,23.647629,24.669216,13.674377,10.6368,28.619474,
+2025,2039,Mountain,Commercial,REF,West,23.622147,24.812704,13.631896,10.595815,28.636089,
+2025,2040,Mountain,Commercial,REF,West,23.72084,25.028017,13.747541,10.631872,28.64591,
+2025,2041,Mountain,Commercial,REF,West,23.906855,25.254339,13.926175,10.760744,28.616035,
+2025,2042,Mountain,Commercial,REF,West,24.036415,25.353231,13.971444,10.867641,28.67223,
+2025,2043,Mountain,Commercial,REF,West,24.434513,25.702246,14.110682,10.963746,28.894852,
+2025,2044,Mountain,Commercial,REF,West,24.63435,25.903572,14.004888,11.001951,29.259766,
+2025,2045,Mountain,Commercial,REF,West,24.819984,25.96884,14.073669,11.070708,29.367861,
+2025,2046,Mountain,Commercial,REF,West,25.041834,26.220865,14.336132,11.162807,29.313145,
+2025,2047,Mountain,Commercial,REF,West,25.503395,26.754337,14.798876,11.166268,29.262012,
+2025,2048,Mountain,Commercial,REF,West,25.669554,26.760944,14.80768,11.112791,29.173523,
+2025,2049,Mountain,Commercial,REF,West,25.784298,26.753727,14.863913,11.080948,29.079323,
+2025,2050,Mountain,Commercial,REF,West,25.848532,26.86314,15.152785,11.054564,29.066156,
+2025,2051,Mountain,Commercial,REF,West,26.0502065,27.02370875,15.35694825,11.02750325,29.00440875,
+2025,2052,Mountain,Commercial,REF,West,26.251881,27.1842775,15.5611115,11.0004425,28.9426615,
+2025,2053,Mountain,Commercial,REF,West,26.4535555,27.34484625,15.76527475,10.97338175,28.88091425,
+2025,2054,Mountain,Commercial,REF,West,26.65523,27.505415,15.969438,10.946321,28.819167,
+2025,2055,Mountain,Commercial,REF,West,26.8569045,27.66598375,16.17360125,10.91926025,28.75741975,
+2025,2056,Mountain,Commercial,REF,West,27.058579,27.8265525,16.3777645,10.8921995,28.6956725,
+2025,2057,Mountain,Commercial,REF,West,27.2602535,27.98712125,16.58192775,10.86513875,28.63392525,
+2025,2058,Mountain,Commercial,REF,West,27.461928,28.14769,16.786091,10.838078,28.572178,
+2025,2059,Mountain,Commercial,REF,West,27.6636025,28.30825875,16.99025425,10.81101725,28.51043075,
+2025,2060,Mountain,Commercial,REF,West,27.865277,28.4688275,17.1944175,10.7839565,28.4486835,
+2025,2061,Mountain,Commercial,REF,West,28.0669515,28.62939625,17.39858075,10.75689575,28.38693625,
+2025,2062,Mountain,Commercial,REF,West,28.268626,28.789965,17.602744,10.729835,28.325189,
+2025,2063,Mountain,Commercial,REF,West,28.4703005,28.95053375,17.80690725,10.70277425,28.26344175,
+2025,2064,Mountain,Commercial,REF,West,28.671975,29.1111025,18.0110705,10.6757135,28.2016945,
+2025,2065,Mountain,Commercial,REF,West,28.8736495,29.27167125,18.21523375,10.64865275,28.13994725,
+2025,2066,Mountain,Commercial,REF,West,29.075324,29.43224,18.419397,10.621592,28.0782,
+2025,2067,Mountain,Commercial,REF,West,29.2769985,29.59280875,18.62356025,10.59453125,28.01645275,
+2025,2068,Mountain,Commercial,REF,West,29.478673,29.7533775,18.8277235,10.5674705,27.9547055,
+2025,2024,Mountain,Industrial,REF,West,12.660267,28.56205,7.275905,3.284525,24.670938,3.902944
+2025,2025,Mountain,Industrial,REF,West,12.598665,27.055065,8.264863,4.021538,24.495916,3.981967
+2025,2026,Mountain,Industrial,REF,West,13.394816,25.875488,8.60701,3.955462,23.222128,3.980419
+2025,2027,Mountain,Industrial,REF,West,13.209965,25.404701,9.718939,3.853512,22.628887,3.961795
+2025,2028,Mountain,Industrial,REF,West,13.321319,25.113747,10.76827,3.958359,22.365824,3.941341
+2025,2029,Mountain,Industrial,REF,West,13.630307,24.861708,11.892128,4.123989,22.550344,3.911447
+2025,2030,Mountain,Industrial,REF,West,14.077855,24.633385,13.036956,4.315907,22.670618,3.884056
+2025,2031,Mountain,Industrial,REF,West,14.506038,24.631765,13.151083,4.481318,22.575043,3.858928
+2025,2032,Mountain,Industrial,REF,West,15.351458,24.391459,12.972818,4.949169,23.071609,3.839038
+2025,2033,Mountain,Industrial,REF,West,16.374956,24.648243,13.146912,5.297846,23.152615,3.823765
+2025,2034,Mountain,Industrial,REF,West,17.06802,24.77146,13.267893,5.499591,22.925182,3.813275
+2025,2035,Mountain,Industrial,REF,West,17.404821,25.018993,13.371213,5.578024,22.796759,3.807245
+2025,2036,Mountain,Industrial,REF,West,17.510601,25.13714,13.428101,5.537589,22.752802,3.818125
+2025,2037,Mountain,Industrial,REF,West,17.535862,25.316132,13.478918,5.451468,22.726919,3.827741
+2025,2038,Mountain,Industrial,REF,West,17.482494,25.41258,13.674377,5.376573,22.64418,3.830672
+2025,2039,Mountain,Industrial,REF,West,17.454222,25.562023,13.631896,5.324275,22.75684,3.832121
+2025,2040,Mountain,Industrial,REF,West,17.558428,25.786133,13.747541,5.38224,22.845495,3.829878
+2025,2041,Mountain,Industrial,REF,West,17.757956,26.010485,13.926175,5.521808,22.904684,3.82926
+2025,2042,Mountain,Industrial,REF,West,17.899094,26.111401,13.971444,5.628139,22.991852,3.826492
+2025,2043,Mountain,Industrial,REF,West,18.329903,26.461905,14.110682,5.720444,23.101288,3.834505
+2025,2044,Mountain,Industrial,REF,West,18.551895,26.665726,14.004888,5.751298,23.409451,3.839522
+2025,2045,Mountain,Industrial,REF,West,18.757282,26.730511,14.073669,5.799838,23.583313,3.842251
+2025,2046,Mountain,Industrial,REF,West,19.002394,26.983072,14.336132,5.879224,23.616795,3.858385
+2025,2047,Mountain,Industrial,REF,West,19.512751,27.510971,14.798876,5.873641,23.623222,3.865569
+2025,2048,Mountain,Industrial,REF,West,19.70311,27.517475,14.80768,5.799919,23.581141,3.86826
+2025,2049,Mountain,Industrial,REF,West,19.833578,27.503561,14.863913,5.737202,23.507862,3.866965
+2025,2050,Mountain,Industrial,REF,West,19.906801,27.616972,15.152785,5.702307,23.500576,3.873971
+2025,2051,Mountain,Industrial,REF,West,20.13290275,27.775447,15.35694825,5.65807775,23.47152125,3.8778675
+2025,2052,Mountain,Industrial,REF,West,20.3590045,27.933922,15.5611115,5.6138485,23.4424665,3.881764
+2025,2053,Mountain,Industrial,REF,West,20.58510625,28.092397,15.76527475,5.56961925,23.41341175,3.8856605
+2025,2054,Mountain,Industrial,REF,West,20.811208,28.250872,15.969438,5.52539,23.384357,3.889557
+2025,2055,Mountain,Industrial,REF,West,21.03730975,28.409347,16.17360125,5.48116075,23.35530225,3.8934535
+2025,2056,Mountain,Industrial,REF,West,21.2634115,28.567822,16.3777645,5.4369315,23.3262475,3.89735
+2025,2057,Mountain,Industrial,REF,West,21.48951325,28.726297,16.58192775,5.39270225,23.29719275,3.9012465
+2025,2058,Mountain,Industrial,REF,West,21.715615,28.884772,16.786091,5.348473,23.268138,3.905143
+2025,2059,Mountain,Industrial,REF,West,21.94171675,29.043247,16.99025425,5.30424375,23.23908325,3.9090395
+2025,2060,Mountain,Industrial,REF,West,22.1678185,29.201722,17.1944175,5.2600145,23.2100285,3.912936
+2025,2061,Mountain,Industrial,REF,West,22.39392025,29.360197,17.39858075,5.21578525,23.18097375,3.9168325
+2025,2062,Mountain,Industrial,REF,West,22.620022,29.518672,17.602744,5.171556,23.151919,3.920729
+2025,2063,Mountain,Industrial,REF,West,22.84612375,29.677147,17.80690725,5.12732675,23.12286425,3.9246255
+2025,2064,Mountain,Industrial,REF,West,23.0722255,29.835622,18.0110705,5.0830975,23.0938095,3.928522
+2025,2065,Mountain,Industrial,REF,West,23.29832725,29.994097,18.21523375,5.03886825,23.06475475,3.9324185
+2025,2066,Mountain,Industrial,REF,West,23.524429,30.152572,18.419397,4.994639,23.0357,3.936315
+2025,2067,Mountain,Industrial,REF,West,23.75053075,30.311047,18.62356025,4.95040975,23.00664525,3.9402115
+2025,2068,Mountain,Industrial,REF,West,23.9766325,30.469522,18.8277235,4.9061805,22.9775905,3.944108
+2025,2024,Mountain,Residential,REF,West,25.483524,23.899818,,12.246602,41.788792,
+2025,2025,Mountain,Residential,REF,West,24.723793,22.581209,,10.847471,41.346458,
+2025,2026,Mountain,Residential,REF,West,24.855072,22.402082,,10.643106,39.632107,
+2025,2027,Mountain,Residential,REF,West,24.664125,22.974674,,10.428622,38.53199,
+2025,2028,Mountain,Residential,REF,West,24.665867,23.728598,,10.417129,37.903561,
+2025,2029,Mountain,Residential,REF,West,24.874651,24.496195,,10.512328,38.024139,
+2025,2030,Mountain,Residential,REF,West,25.266665,25.326717,,10.605651,38.236416,
+2025,2031,Mountain,Residential,REF,West,25.724251,25.300934,,10.841989,38.293346,
+2025,2032,Mountain,Residential,REF,West,26.511131,25.061579,,11.29364,38.675034,
+2025,2033,Mountain,Residential,REF,West,27.534897,25.290733,,11.6717,38.837559,
+2025,2034,Mountain,Residential,REF,West,28.440493,25.378038,,11.926309,38.626545,
+2025,2035,Mountain,Residential,REF,West,29.084599,25.560896,,12.053808,38.579346,
+2025,2036,Mountain,Residential,REF,West,29.4715,25.592131,,12.056193,38.601845,
+2025,2037,Mountain,Residential,REF,West,29.688972,25.718878,,12.008402,38.717136,
+2025,2038,Mountain,Residential,REF,West,29.767591,25.919973,,11.958124,38.717133,
+2025,2039,Mountain,Residential,REF,West,29.795908,26.02696,,11.928062,38.799564,
+2025,2040,Mountain,Residential,REF,West,29.882879,26.188353,,11.974522,38.952938,
+2025,2041,Mountain,Residential,REF,West,30.049078,26.426741,,12.117188,39.03101,
+2025,2042,Mountain,Residential,REF,West,30.206392,26.513241,,12.237668,39.180199,
+2025,2043,Mountain,Residential,REF,West,30.561239,26.853123,,12.348063,39.5494,
+2025,2044,Mountain,Residential,REF,West,30.846634,27.039139,,12.399307,40.056721,
+2025,2045,Mountain,Residential,REF,West,31.110233,27.107368,,12.479899,40.345383,
+2025,2046,Mountain,Residential,REF,West,31.390385,27.356112,,12.583388,40.454567,
+2025,2047,Mountain,Residential,REF,West,31.846638,27.923761,,12.597344,40.562382,
+2025,2048,Mountain,Residential,REF,West,32.15601,27.930994,,12.552986,40.660789,
+2025,2049,Mountain,Residential,REF,West,32.385895,27.964821,,12.529409,40.747631,
+2025,2050,Mountain,Residential,REF,West,32.541393,28.049709,,12.5092,40.900719,
+2025,2051,Mountain,Residential,REF,West,32.829145,28.22310825,,12.490653,41.012257,
+2025,2052,Mountain,Residential,REF,West,33.116897,28.3965075,,12.472106,41.123795,
+2025,2053,Mountain,Residential,REF,West,33.404649,28.56990675,,12.453559,41.235333,
+2025,2054,Mountain,Residential,REF,West,33.692401,28.743306,,12.435012,41.346871,
+2025,2055,Mountain,Residential,REF,West,33.980153,28.91670525,,12.416465,41.458409,
+2025,2056,Mountain,Residential,REF,West,34.267905,29.0901045,,12.397918,41.569947,
+2025,2057,Mountain,Residential,REF,West,34.555657,29.26350375,,12.379371,41.681485,
+2025,2058,Mountain,Residential,REF,West,34.843409,29.436903,,12.360824,41.793023,
+2025,2059,Mountain,Residential,REF,West,35.131161,29.61030225,,12.342277,41.904561,
+2025,2060,Mountain,Residential,REF,West,35.418913,29.7837015,,12.32373,42.016099,
+2025,2061,Mountain,Residential,REF,West,35.706665,29.95710075,,12.305183,42.127637,
+2025,2062,Mountain,Residential,REF,West,35.994417,30.1305,,12.286636,42.239175,
+2025,2063,Mountain,Residential,REF,West,36.282169,30.30389925,,12.268089,42.350713,
+2025,2064,Mountain,Residential,REF,West,36.569921,30.4772985,,12.249542,42.462251,
+2025,2065,Mountain,Residential,REF,West,36.857673,30.65069775,,12.230995,42.573789,
+2025,2066,Mountain,Residential,REF,West,37.145425,30.824097,,12.212448,42.685327,
+2025,2067,Mountain,Residential,REF,West,37.433177,30.99749625,,12.193901,42.796865,
+2025,2068,Mountain,Residential,REF,West,37.720929,31.1708955,,12.175354,42.908403,
+2025,2024,Mountain,Transportation,REF,West,,,,,,
+2025,2025,Mountain,Transportation,REF,West,,,,,,
+2025,2026,Mountain,Transportation,REF,West,,,,,,
+2025,2027,Mountain,Transportation,REF,West,,,,,,
+2025,2028,Mountain,Transportation,REF,West,,,,,,
+2025,2029,Mountain,Transportation,REF,West,,,,,,
+2025,2030,Mountain,Transportation,REF,West,,,,,,
+2025,2031,Mountain,Transportation,REF,West,,,,,,
+2025,2032,Mountain,Transportation,REF,West,,,,,,
+2025,2033,Mountain,Transportation,REF,West,,,,,,
+2025,2034,Mountain,Transportation,REF,West,,,,,,
+2025,2035,Mountain,Transportation,REF,West,,,,,,
+2025,2036,Mountain,Transportation,REF,West,,,,,,
+2025,2037,Mountain,Transportation,REF,West,,,,,,
+2025,2038,Mountain,Transportation,REF,West,,,,,,
+2025,2039,Mountain,Transportation,REF,West,,,,,,
+2025,2040,Mountain,Transportation,REF,West,,,,,,
+2025,2041,Mountain,Transportation,REF,West,,,,,,
+2025,2042,Mountain,Transportation,REF,West,,,,,,
+2025,2043,Mountain,Transportation,REF,West,,,,,,
+2025,2044,Mountain,Transportation,REF,West,,,,,,
+2025,2045,Mountain,Transportation,REF,West,,,,,,
+2025,2046,Mountain,Transportation,REF,West,,,,,,
+2025,2047,Mountain,Transportation,REF,West,,,,,,
+2025,2048,Mountain,Transportation,REF,West,,,,,,
+2025,2049,Mountain,Transportation,REF,West,,,,,,
+2025,2050,Mountain,Transportation,REF,West,,,,,,
+2025,2051,Mountain,Transportation,REF,West,,,,,,
+2025,2052,Mountain,Transportation,REF,West,,,,,,
+2025,2053,Mountain,Transportation,REF,West,,,,,,
+2025,2054,Mountain,Transportation,REF,West,,,,,,
+2025,2055,Mountain,Transportation,REF,West,,,,,,
+2025,2056,Mountain,Transportation,REF,West,,,,,,
+2025,2057,Mountain,Transportation,REF,West,,,,,,
+2025,2058,Mountain,Transportation,REF,West,,,,,,
+2025,2059,Mountain,Transportation,REF,West,,,,,,
+2025,2060,Mountain,Transportation,REF,West,,,,,,
+2025,2061,Mountain,Transportation,REF,West,,,,,,
+2025,2062,Mountain,Transportation,REF,West,,,,,,
+2025,2063,Mountain,Transportation,REF,West,,,,,,
+2025,2064,Mountain,Transportation,REF,West,,,,,,
+2025,2065,Mountain,Transportation,REF,West,,,,,,
+2025,2066,Mountain,Transportation,REF,West,,,,,,
+2025,2067,Mountain,Transportation,REF,West,,,,,,
+2025,2068,Mountain,Transportation,REF,West,,,,,,
+2025,2024,Pacific,Commercial,REF,West,20.60157,28.402245,7.181719,13.559002,61.549065,
+2025,2025,Pacific,Commercial,REF,West,20.58568,26.871717,8.07649,12.552302,59.712532,
+2025,2026,Pacific,Commercial,REF,West,21.471079,25.674738,8.385672,11.974401,50.606613,
+2025,2027,Pacific,Commercial,REF,West,21.269819,25.191837,9.464637,11.466197,46.012642,
+2025,2028,Pacific,Commercial,REF,West,21.398951,24.889032,10.481855,11.100006,45.300549,
+2025,2029,Pacific,Commercial,REF,West,21.731743,24.621574,11.571895,10.83522,45.645325,
+2025,2030,Pacific,Commercial,REF,West,22.206678,24.383345,12.683757,10.560905,46.106697,
+2025,2031,Pacific,Commercial,REF,West,22.653921,24.378241,12.797884,10.754482,46.939842,
+2025,2032,Pacific,Commercial,REF,West,23.53071,24.137978,12.729143,11.162786,47.255066,
+2025,2033,Pacific,Commercial,REF,West,24.567688,24.390802,12.960737,11.465005,47.390358,
+2025,2034,Pacific,Commercial,REF,West,25.250912,24.508896,13.089278,11.659301,47.26545,
+2025,2035,Pacific,Commercial,REF,West,25.575733,24.747261,13.29388,11.737867,47.261784,
+2025,2036,Pacific,Commercial,REF,West,25.674999,24.853151,13.358371,11.649697,47.042767,
+2025,2037,Pacific,Commercial,REF,West,25.698149,25.024742,13.470589,11.553864,46.848972,
+2025,2038,Pacific,Commercial,REF,West,25.644991,25.135798,13.598048,11.512617,46.596687,
+2025,2039,Pacific,Commercial,REF,West,25.617992,25.27919,13.662921,11.486631,45.924297,
+2025,2040,Pacific,Commercial,REF,West,25.722481,25.49444,13.791532,11.54431,45.555626,
+2025,2041,Pacific,Commercial,REF,West,25.919407,25.720692,13.963512,11.699725,45.628429,
+2025,2042,Pacific,Commercial,REF,West,26.056566,25.819523,14.084864,11.807707,45.790386,
+2025,2043,Pacific,Commercial,REF,West,26.478001,26.168447,14.237915,11.901284,46.090435,
+2025,2044,Pacific,Commercial,REF,West,26.689566,26.369715,14.232201,11.94161,46.197113,
+2025,2045,Pacific,Commercial,REF,West,26.886097,26.434921,13.936197,12.015575,46.351246,
+2025,2046,Pacific,Commercial,REF,West,27.120962,26.686892,14.061518,12.110923,46.646233,
+2025,2047,Pacific,Commercial,REF,West,27.609598,27.220308,14.471808,12.14671,46.622402,
+2025,2048,Pacific,Commercial,REF,West,27.785505,27.226851,14.58707,12.12736,46.495949,
+2025,2049,Pacific,Commercial,REF,West,27.906982,27.219572,14.648383,12.145581,46.830345,
+2025,2050,Pacific,Commercial,REF,West,27.974985,27.32893,14.895665,12.155718,47.354786,
+2025,2051,Pacific,Commercial,REF,West,28.18849075,27.4894395,15.10420175,12.16691675,47.53192425,
+2025,2052,Pacific,Commercial,REF,West,28.4019965,27.649949,15.3127385,12.1781155,47.7090625,
+2025,2053,Pacific,Commercial,REF,West,28.61550225,27.8104585,15.52127525,12.18931425,47.88620075,
+2025,2054,Pacific,Commercial,REF,West,28.829008,27.970968,15.729812,12.200513,48.063339,
+2025,2055,Pacific,Commercial,REF,West,29.04251375,28.1314775,15.93834875,12.21171175,48.24047725,
+2025,2056,Pacific,Commercial,REF,West,29.2560195,28.291987,16.1468855,12.2229105,48.4176155,
+2025,2057,Pacific,Commercial,REF,West,29.46952525,28.4524965,16.35542225,12.23410925,48.59475375,
+2025,2058,Pacific,Commercial,REF,West,29.683031,28.613006,16.563959,12.245308,48.771892,
+2025,2059,Pacific,Commercial,REF,West,29.89653675,28.7735155,16.77249575,12.25650675,48.94903025,
+2025,2060,Pacific,Commercial,REF,West,30.1100425,28.934025,16.9810325,12.2677055,49.1261685,
+2025,2061,Pacific,Commercial,REF,West,30.32354825,29.0945345,17.18956925,12.27890425,49.30330675,
+2025,2062,Pacific,Commercial,REF,West,30.537054,29.255044,17.398106,12.290103,49.480445,
+2025,2063,Pacific,Commercial,REF,West,30.75055975,29.4155535,17.60664275,12.30130175,49.65758325,
+2025,2064,Pacific,Commercial,REF,West,30.9640655,29.576063,17.8151795,12.3125005,49.8347215,
+2025,2065,Pacific,Commercial,REF,West,31.17757125,29.7365725,18.02371625,12.32369925,50.01185975,
+2025,2066,Pacific,Commercial,REF,West,31.391077,29.897082,18.232253,12.334898,50.188998,
+2025,2067,Pacific,Commercial,REF,West,31.60458275,30.0575915,18.44078975,12.34609675,50.36613625,
+2025,2068,Pacific,Commercial,REF,West,31.8180885,30.218101,18.6493265,12.3572955,50.5432745,
+2025,2024,Pacific,Industrial,REF,West,12.660267,28.585596,7.181719,4.548186,46.147373,4.649548
+2025,2025,Pacific,Industrial,REF,West,12.598665,26.960878,8.07649,5.153864,44.233204,4.707834
+2025,2026,Pacific,Industrial,REF,West,13.394816,25.732861,8.385672,4.960963,34.35186,4.695417
+2025,2027,Pacific,Industrial,REF,West,13.209965,25.212898,9.464637,4.843944,30.697464,4.674072
+2025,2028,Pacific,Industrial,REF,West,13.321319,24.87281,10.481855,4.970504,29.899549,4.651219
+2025,2029,Pacific,Industrial,REF,West,13.630307,24.571609,11.571895,5.191226,30.248011,4.619142
+2025,2030,Pacific,Industrial,REF,West,14.077855,24.294142,12.683757,5.480198,30.745752,4.588422
+2025,2031,Pacific,Industrial,REF,West,14.506038,24.292431,12.797884,5.700864,31.556292,4.563082
+2025,2032,Pacific,Industrial,REF,West,15.351458,24.052036,12.729143,6.244042,31.978046,4.539643
+2025,2033,Pacific,Industrial,REF,West,16.374956,24.308739,12.960737,6.568737,32.169224,4.525589
+2025,2034,Pacific,Industrial,REF,West,17.06802,24.43187,13.089278,6.770825,32.133385,4.513292
+2025,2035,Pacific,Industrial,REF,West,17.404821,24.679314,13.29388,6.835479,32.218857,4.507492
+2025,2036,Pacific,Industrial,REF,West,17.510601,24.797392,13.358371,6.723521,32.035313,4.518398
+2025,2037,Pacific,Industrial,REF,West,17.535862,24.976311,13.470589,6.58021,31.945921,4.527534
+2025,2038,Pacific,Industrial,REF,West,17.482494,25.072689,13.598048,6.511885,31.768854,4.532399
+2025,2039,Pacific,Industrial,REF,West,17.454222,25.222065,13.662921,6.45448,31.333286,4.532106
+2025,2040,Pacific,Industrial,REF,West,17.558428,25.44611,13.791532,6.525991,31.064428,4.530252
+2025,2041,Pacific,Industrial,REF,West,17.757956,25.670395,13.963512,6.689406,31.09169,4.529751
+2025,2042,Pacific,Industrial,REF,West,17.899094,25.771248,14.084864,6.804729,31.174032,4.527946
+2025,2043,Pacific,Industrial,REF,West,18.329903,26.121693,14.237915,6.907573,31.333435,4.536362
+2025,2044,Pacific,Industrial,REF,West,18.551895,26.325453,14.232201,6.957946,31.340561,4.542474
+2025,2045,Pacific,Industrial,REF,West,18.757282,26.390181,13.936197,6.999265,31.453123,4.545589
+2025,2046,Pacific,Industrial,REF,West,19.002394,26.642683,14.061518,7.077339,31.656439,4.561325
+2025,2047,Pacific,Industrial,REF,West,19.512751,27.170525,14.471808,7.098299,31.723528,4.568654
+2025,2048,Pacific,Industrial,REF,West,19.70311,27.176964,14.58707,7.06718,31.682915,4.572532
+2025,2049,Pacific,Industrial,REF,West,19.833578,27.162992,14.648383,7.042521,32.111214,4.572514
+2025,2050,Pacific,Industrial,REF,West,19.906801,27.27635,14.895665,7.030341,32.45657,4.578733
+2025,2051,Pacific,Industrial,REF,West,20.13290275,27.43476675,15.10420175,7.0185915,32.65660275,4.583085
+2025,2052,Pacific,Industrial,REF,West,20.3590045,27.5931835,15.3127385,7.006842,32.8566355,4.587437
+2025,2053,Pacific,Industrial,REF,West,20.58510625,27.75160025,15.52127525,6.9950925,33.05666825,4.591789
+2025,2054,Pacific,Industrial,REF,West,20.811208,27.910017,15.729812,6.983343,33.256701,4.596141
+2025,2055,Pacific,Industrial,REF,West,21.03730975,28.06843375,15.93834875,6.9715935,33.45673375,4.600493
+2025,2056,Pacific,Industrial,REF,West,21.2634115,28.2268505,16.1468855,6.959844,33.6567665,4.604845
+2025,2057,Pacific,Industrial,REF,West,21.48951325,28.38526725,16.35542225,6.9480945,33.85679925,4.609197
+2025,2058,Pacific,Industrial,REF,West,21.715615,28.543684,16.563959,6.936345,34.056832,4.613549
+2025,2059,Pacific,Industrial,REF,West,21.94171675,28.70210075,16.77249575,6.9245955,34.25686475,4.617901
+2025,2060,Pacific,Industrial,REF,West,22.1678185,28.8605175,16.9810325,6.912846,34.4568975,4.622253
+2025,2061,Pacific,Industrial,REF,West,22.39392025,29.01893425,17.18956925,6.9010965,34.65693025,4.626605
+2025,2062,Pacific,Industrial,REF,West,22.620022,29.177351,17.398106,6.889347,34.856963,4.630957
+2025,2063,Pacific,Industrial,REF,West,22.84612375,29.33576775,17.60664275,6.8775975,35.05699575,4.635309
+2025,2064,Pacific,Industrial,REF,West,23.0722255,29.4941845,17.8151795,6.865848,35.2570285,4.639661
+2025,2065,Pacific,Industrial,REF,West,23.29832725,29.65260125,18.02371625,6.8540985,35.45706125,4.644013
+2025,2066,Pacific,Industrial,REF,West,23.524429,29.811018,18.232253,6.842349,35.657094,4.648365
+2025,2067,Pacific,Industrial,REF,West,23.75053075,29.96943475,18.44078975,6.8305995,35.85712675,4.652717
+2025,2068,Pacific,Industrial,REF,West,23.9766325,30.1278515,18.6493265,6.81885,36.0571595,4.657069
+2025,2024,Pacific,Residential,REF,West,30.545036,26.989107,,17.701202,68.006454,
+2025,2025,Pacific,Residential,REF,West,29.657206,25.270203,,16.60894,67.084137,
+2025,2026,Pacific,Residential,REF,West,29.810617,25.15686,,15.870393,57.929543,
+2025,2027,Pacific,Residential,REF,West,29.587477,25.7945,,15.10576,53.18021,
+2025,2028,Pacific,Residential,REF,West,29.589512,26.613621,,14.504496,52.495083,
+2025,2029,Pacific,Residential,REF,West,29.8335,27.44635,,14.013287,53.03376,
+2025,2030,Pacific,Residential,REF,West,30.291611,28.342043,,13.527049,53.726719,
+2025,2031,Pacific,Residential,REF,West,30.826349,28.316133,,13.761417,54.851631,
+2025,2032,Pacific,Residential,REF,West,31.745913,28.076666,,14.285574,55.546452,
+2025,2033,Pacific,Residential,REF,West,32.942299,28.305725,,14.700638,56.086876,
+2025,2034,Pacific,Residential,REF,West,34.000595,28.392937,,14.991692,56.347294,
+2025,2035,Pacific,Residential,REF,West,34.753307,28.57568,,15.132831,56.649693,
+2025,2036,Pacific,Residential,REF,West,35.205441,28.60685,,15.075585,56.698559,
+2025,2037,Pacific,Residential,REF,West,35.459583,28.733511,,14.992941,56.792042,
+2025,2038,Pacific,Residential,REF,West,35.55146,28.93454,,14.962909,56.956081,
+2025,2039,Pacific,Residential,REF,West,35.584526,29.041454,,14.956575,56.717529,
+2025,2040,Pacific,Residential,REF,West,35.686161,29.202772,,15.047238,56.729164,
+2025,2041,Pacific,Residential,REF,West,35.880383,29.441084,,15.253789,57.106796,
+2025,2042,Pacific,Residential,REF,West,36.064217,29.52751,,15.421165,57.551815,
+2025,2043,Pacific,Residential,REF,West,36.478874,29.867315,,15.575324,58.101711,
+2025,2044,Pacific,Residential,REF,West,36.812393,30.05328,,15.669383,58.517578,
+2025,2045,Pacific,Residential,REF,West,37.120438,30.121443,,15.795485,58.966251,
+2025,2046,Pacific,Residential,REF,West,37.447823,30.37014,,15.947045,59.591892,
+2025,2047,Pacific,Residential,REF,West,37.981014,30.937738,,16.036631,60.019482,
+2025,2048,Pacific,Residential,REF,West,38.342548,30.944897,,16.061514,60.33036,
+2025,2049,Pacific,Residential,REF,West,38.611187,30.978664,,16.119495,61.104603,
+2025,2050,Pacific,Residential,REF,West,38.792908,31.063505,,16.167332,61.943748,
+2025,2051,Pacific,Residential,REF,West,39.12917925,31.23684625,,16.22240375,62.531712,
+2025,2052,Pacific,Residential,REF,West,39.4654505,31.4101875,,16.2774755,63.119676,
+2025,2053,Pacific,Residential,REF,West,39.80172175,31.58352875,,16.33254725,63.70764,
+2025,2054,Pacific,Residential,REF,West,40.137993,31.75687,,16.387619,64.295604,
+2025,2055,Pacific,Residential,REF,West,40.47426425,31.93021125,,16.44269075,64.883568,
+2025,2056,Pacific,Residential,REF,West,40.8105355,32.1035525,,16.4977625,65.471532,
+2025,2057,Pacific,Residential,REF,West,41.14680675,32.27689375,,16.55283425,66.059496,
+2025,2058,Pacific,Residential,REF,West,41.483078,32.450235,,16.607906,66.64746,
+2025,2059,Pacific,Residential,REF,West,41.81934925,32.62357625,,16.66297775,67.235424,
+2025,2060,Pacific,Residential,REF,West,42.1556205,32.7969175,,16.7180495,67.823388,
+2025,2061,Pacific,Residential,REF,West,42.49189175,32.97025875,,16.77312125,68.411352,
+2025,2062,Pacific,Residential,REF,West,42.828163,33.1436,,16.828193,68.999316,
+2025,2063,Pacific,Residential,REF,West,43.16443425,33.31694125,,16.88326475,69.58728,
+2025,2064,Pacific,Residential,REF,West,43.5007055,33.4902825,,16.9383365,70.175244,
+2025,2065,Pacific,Residential,REF,West,43.83697675,33.66362375,,16.99340825,70.763208,
+2025,2066,Pacific,Residential,REF,West,44.173248,33.836965,,17.04848,71.351172,
+2025,2067,Pacific,Residential,REF,West,44.50951925,34.01030625,,17.10355175,71.939136,
+2025,2068,Pacific,Residential,REF,West,44.8457905,34.1836475,,17.1586235,72.5271,
+2025,2024,Pacific,Transportation,REF,West,,,,,,
+2025,2025,Pacific,Transportation,REF,West,,,,,,
+2025,2026,Pacific,Transportation,REF,West,,,,,,
+2025,2027,Pacific,Transportation,REF,West,,,,,,
+2025,2028,Pacific,Transportation,REF,West,,,,,,
+2025,2029,Pacific,Transportation,REF,West,,,,,,
+2025,2030,Pacific,Transportation,REF,West,,,,,,
+2025,2031,Pacific,Transportation,REF,West,,,,,,
+2025,2032,Pacific,Transportation,REF,West,,,,,,
+2025,2033,Pacific,Transportation,REF,West,,,,,,
+2025,2034,Pacific,Transportation,REF,West,,,,,,
+2025,2035,Pacific,Transportation,REF,West,,,,,,
+2025,2036,Pacific,Transportation,REF,West,,,,,,
+2025,2037,Pacific,Transportation,REF,West,,,,,,
+2025,2038,Pacific,Transportation,REF,West,,,,,,
+2025,2039,Pacific,Transportation,REF,West,,,,,,
+2025,2040,Pacific,Transportation,REF,West,,,,,,
+2025,2041,Pacific,Transportation,REF,West,,,,,,
+2025,2042,Pacific,Transportation,REF,West,,,,,,
+2025,2043,Pacific,Transportation,REF,West,,,,,,
+2025,2044,Pacific,Transportation,REF,West,,,,,,
+2025,2045,Pacific,Transportation,REF,West,,,,,,
+2025,2046,Pacific,Transportation,REF,West,,,,,,
+2025,2047,Pacific,Transportation,REF,West,,,,,,
+2025,2048,Pacific,Transportation,REF,West,,,,,,
+2025,2049,Pacific,Transportation,REF,West,,,,,,
+2025,2050,Pacific,Transportation,REF,West,,,,,,
+2025,2051,Pacific,Transportation,REF,West,,,,,,
+2025,2052,Pacific,Transportation,REF,West,,,,,,
+2025,2053,Pacific,Transportation,REF,West,,,,,,
+2025,2054,Pacific,Transportation,REF,West,,,,,,
+2025,2055,Pacific,Transportation,REF,West,,,,,,
+2025,2056,Pacific,Transportation,REF,West,,,,,,
+2025,2057,Pacific,Transportation,REF,West,,,,,,
+2025,2058,Pacific,Transportation,REF,West,,,,,,
+2025,2059,Pacific,Transportation,REF,West,,,,,,
+2025,2060,Pacific,Transportation,REF,West,,,,,,
+2025,2061,Pacific,Transportation,REF,West,,,,,,
+2025,2062,Pacific,Transportation,REF,West,,,,,,
+2025,2063,Pacific,Transportation,REF,West,,,,,,
+2025,2064,Pacific,Transportation,REF,West,,,,,,
+2025,2065,Pacific,Transportation,REF,West,,,,,,
+2025,2066,Pacific,Transportation,REF,West,,,,,,
+2025,2067,Pacific,Transportation,REF,West,,,,,,
+2025,2068,Pacific,Transportation,REF,West,,,,,,
