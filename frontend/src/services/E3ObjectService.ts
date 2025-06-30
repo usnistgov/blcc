@@ -281,15 +281,23 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
                     Match.when(FuelType.COAL, () => rate.coal),
                     Match.when(FuelType.DISTILLATE_OIL, () => rate.distillateFuelOil),
                     Match.when(FuelType.RESIDUAL_OIL, () => rate.residualFuelOil),
-                    Match.orElse(() => 0),
+                    Match.orElse(() => rate.naturalGas),
                 ),
             ) as number[];
+
+        // Convert array to nominal rates if dollar method is current
+        const nominalOrRealEscalation =
+            project.dollarMethod === DollarMethod.CURRENT
+                ? escalation.map((rate) =>
+                    calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE),
+                )
+                : escalation;
 
         // Add 0 for the initial year, so year 1 is the first year of the analysis
         return new RecurBuilder()
             .interval(1)
             .varRate(VarRate.PERCENT_DELTA)
-            .varValue([0, ...escalation]);
+            .varValue([0, ...nominalOrRealEscalation]);
     }
 
     // There are no custom escalation nor project escalation rates.
