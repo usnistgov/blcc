@@ -69,7 +69,7 @@ export default function AnnualResultsPdf({
     annual.npvCashflowComparisonSummary.year = "Total";
 
     return (
-        <View style={styles.section}>
+        <View style={styles.section} break>
             <Title title="Annual Results" />
             <View>
                 <NPVComparisonTable

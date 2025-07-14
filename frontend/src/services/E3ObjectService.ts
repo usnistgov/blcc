@@ -167,7 +167,7 @@ function capitalCostToBuilder(cost: CapitalCost, project: Project, studyPeriod: 
                     .invest()
                     .initialOccurrence(i)
                     .life(cost.expectedLife ?? -1)
-                    .addTag(tag, "LCC")
+                    .addTag(tag, "LCC", `${cost.id}`)
                     .quantity(cost.costSavings ? -1 : 1)
                     .quantityValue(adjusted * phaseIn),
             ),
@@ -182,7 +182,7 @@ function capitalCostToBuilder(cost: CapitalCost, project: Project, studyPeriod: 
                 .invest()
                 .initialOccurrence(0)
                 .life(cost.expectedLife ?? -1)
-                .addTag(tag, "LCC")
+                .addTag(tag, "LCC", `${cost.id}`)
                 .quantity(cost.costSavings ? -1 : 1)
                 .quantityValue(cost.initialCost ?? 0),
         );
@@ -223,7 +223,7 @@ function ercipCostToBuilder(cost: ERCIPCost, studyPeriod: number): BcnBuilder[] 
                 .invest()
                 .initialOccurrence(0)
                 .life(studyPeriod)
-                .addTag(tag, "LCC")
+                .addTag(tag, "LCC", `${cost.id}`)
                 .quantity(isCost ? 1 : -1)
                 .quantityValue(itemCost ?? 0),
         );
@@ -307,7 +307,7 @@ function energyCostToBuilder(
 
     const builder = new BcnBuilder()
         .name(cost.name)
-        .addTag("Energy", cost.fuelType, cost.unit, "LCC")
+        .addTag("Energy", cost.fuelType, cost.unit, "LCC", `${cost.id}`)
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .initialOccurrence(initial)
@@ -322,7 +322,7 @@ function energyCostToBuilder(
         result.push(
             new BcnBuilder()
                 .name(`${cost.name} Demand Charge`)
-                .addTag("Demand Charge", "LCC")
+                .addTag("Demand Charge", `Demand Charge - ${cost.id}`, "LCC")
                 .type(BcnType.COST)
                 .subType(BcnSubType.DIRECT)
                 .initialOccurrence(initial)
@@ -336,7 +336,7 @@ function energyCostToBuilder(
         result.push(
             new BcnBuilder()
                 .name(`${cost.name} Rebate`)
-                .addTag("Rebate", "LCC")
+                .addTag("Rebate", `Rebate - ${cost.id}`, "LCC")
                 .type(BcnType.BENEFIT)
                 .recur(energyCostRecurrence(project, cost))
                 .subType(BcnSubType.DIRECT)
@@ -401,7 +401,7 @@ function waterCostToBuilder(cost: WaterCost, project: Project): BcnBuilder[] {
             const builder = new BcnBuilder()
                 .type(BcnType.COST)
                 .name(cost.name)
-                .addTag(cost.unit, "LCC", "Usage", "Water")
+                .addTag(cost.unit, "LCC", "Usage", "Water", `${cost.id}`)
                 .invest()
                 .recur(recurBuilder)
                 .initialOccurrence(project.constructionPeriod + 1)
@@ -424,7 +424,7 @@ function waterCostToBuilder(cost: WaterCost, project: Project): BcnBuilder[] {
             const builder = new BcnBuilder()
                 .type(BcnType.COST)
                 .name(cost.name)
-                .addTag(cost.unit, "LCC", "Disposal", "Water")
+                .addTag(cost.unit, "LCC", "Disposal", "Water", `${cost.id}`)
                 .invest()
                 .recur(recurBuilder)
                 .initialOccurrence(project.constructionPeriod + 1)
@@ -456,7 +456,7 @@ function replacementCapitalCostToBuilder(
         .invest()
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .addTag("Replacement Capital", "LCC")
+        .addTag("Replacement Capital", "LCC", `${cost.id}`)
         .life(cost.expectedLife ?? 1)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .quantity(cost.costSavings ? -1 : 1)
@@ -487,7 +487,7 @@ function replacementCapitalCostToBuilder(
 function omrCostToBuilder(project: Project, cost: OMRCost): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
-        .addTag("OMR", "LCC")
+        .addTag("OMR", "LCC", `${cost.id}`)
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
@@ -510,7 +510,7 @@ function implementationContractCostToBuilder(project: Project, cost: Implementat
         .name(cost.name)
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .addTag("Implementation Contract Cost", "LCC")
+        .addTag("Implementation Contract Cost", "LCC", `${cost.id}`)
         .invest()
         .quantity(cost.costSavings ? -1 : 1)
         .quantityValue(cost.cost ?? -1)
@@ -525,7 +525,7 @@ function recurringContractCostToBuilder(project: Project, cost: RecurringContrac
         .name(cost.name)
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .addTag("Recurring Contract Cost", "LCC")
+        .addTag("Recurring Contract Cost", "LCC", `${cost.id}`)
         .invest()
         .recur(new RecurBuilder().interval(cost.recurring?.rateOfRecurrence ?? 1))
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
@@ -543,7 +543,7 @@ function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
         .type(cost.costSavings ? BcnType.BENEFIT : BcnType.COST)
         .subType(BcnSubType.DIRECT)
-        .addTag("Other", "LCC")
+        .addTag("Other", "LCC", `${cost.id}`)
         .addTag(...(cost.tags ?? []))
         .addTag(cost.unit ?? "")
         .quantityValue(cost.valuePerUnit)
@@ -558,7 +558,7 @@ function otherCostToBuilder(project: Project, cost: OtherCost): BcnBuilder[] {
 function otherNonMonetaryCostToBuilder(project: Project, cost: OtherNonMonetary): BcnBuilder[] {
     const builder = new BcnBuilder()
         .name(cost.name)
-        .addTag("Other Non-Monetary")
+        .addTag("Other Non-Monetary", `${cost.id}`)
         .addTag(cost.unit ?? "")
         .addTag(...(cost.tags ?? []))
         .initialOccurrence(cost.initialOccurrence + project.constructionPeriod)
@@ -648,7 +648,7 @@ function residualValueBcn(
         .type(BcnType.COST)
         .subType(BcnSubType.DIRECT)
         .addTag(...tags)
-        .addTag("LCC", "Residual Value")
+        .addTag("LCC", "Residual Value", `${cost.id}`)
         .initialOccurrence(studyPeriod)
         .quantity(1)
         .quantityValue(

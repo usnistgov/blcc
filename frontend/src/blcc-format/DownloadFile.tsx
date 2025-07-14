@@ -2,7 +2,14 @@ import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
-import type { AltResults, Annual, GraphSources, NpvCashflowComparisonSummary, Summary } from "blcc-format/ExportTypes";
+import type {
+    AltResults,
+    Annual,
+    ERCIPData,
+    GraphSources,
+    NpvCashflowComparisonSummary,
+    Summary,
+} from "blcc-format/ExportTypes";
 import * as ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import * as ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import * as NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
@@ -113,6 +120,15 @@ export const downloadPdf = Effect.gen(function* () {
         resourceUsage: measures.map((measure) => createResourceUsageRow(measure)),
     };
 
+    const ercipAltId = alternatives.find((alt) => !alt.ERCIPBaseCase)?.id ?? 0;
+    const ercip: ERCIPData = {
+        constructionPeriod: project.constructionPeriod,
+        required: required.find((req) => req.altId === ercipAltId) ?? required[0],
+        measures: measures.find((req) => req.altId === ercipAltId) ?? measures[0],
+        optionals,
+        costs,
+    };
+
     const npvCashFlowGraph: HTMLElement | null = document.getElementById(NpvCashFlowGraph.OFFSCREEN_GRAPH_ID);
     const cashFlowBySubtype: HTMLElement[] | null = Array.from(
         document.getElementsByClassName(AlternativeCashFlowGraph.OFFSCREEN_GRAPH_CLASS),
@@ -148,6 +164,7 @@ export const downloadPdf = Effect.gen(function* () {
             summary={summary}
             annual={annual}
             altResults={altResults}
+            ercip={ercip}
             graphSources={graphSources}
         />,
     );
