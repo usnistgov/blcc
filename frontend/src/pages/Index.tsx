@@ -100,7 +100,7 @@ export default function Index() {
                                     image={lockUrl}
                                     headerText="Security"
                                     line1="No software installation"
-                                    line2="No data saved or stored in cloud, uses AWS (FedRAMP certified)"
+                                    line2="No data saved or stored in cloud, uses AWS (which is FedRAMP certified)"
                                     alt="A lock"
                                 />
                                 <FeaturesCard
