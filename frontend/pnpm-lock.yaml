@@ -15,8 +15,8 @@ importers:
         specifier: ^0.51.2
         version: 0.51.2(@effect/platform@0.72.2(effect@3.12.9))(effect@3.12.9)
       '@lrd/e3-sdk':
-        specifier: ^1.0.14
-        version: 1.0.14
+        specifier: ^1.0.16
+        version: 1.0.16
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
@@ -567,8 +567,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@lrd/e3-sdk@1.0.14':
-    resolution: {integrity: sha1-PHNM0JTYOa6IfAi4tdJkTv/MExE=, tarball: https://gitlab.nist.gov/gitlab/api/v4/projects/8142/packages/npm/@lrd/e3-sdk/-/@lrd/e3-sdk-1.0.14.tgz}
+  '@lrd/e3-sdk@1.0.16':
+    resolution: {integrity: sha1-VTTMzuisV9tZQc2lQDxrInXpPZA=, tarball: https://gitlab.nist.gov/gitlab/api/v4/projects/8142/packages/npm/@lrd/e3-sdk/-/@lrd/e3-sdk-1.0.16.tgz}
 
   '@mdi/js@7.4.47':
     resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
@@ -3512,7 +3512,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@lrd/e3-sdk@1.0.14': {}
+  '@lrd/e3-sdk@1.0.16': {}
 
   '@mdi/js@7.4.47': {}
 

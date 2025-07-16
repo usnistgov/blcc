@@ -115,7 +115,7 @@ function CenterContent() {
 
     return (
         <div className={"flex flex-row place-items-center gap-4 divide-x-2 divide-white"}>
-            <p className={"text-white"}>{name}</p>
+            <p className={"font-bold text-white"}>{name}</p>
             <div className={"flex flex-row items-center gap-4"}>
                 <div className={"pl-4"}>
                     <Button

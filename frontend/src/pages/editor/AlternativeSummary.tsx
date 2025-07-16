@@ -26,15 +26,17 @@ const { Title } = Typography;
 const addAlternativeClick$ = new Subject<void>();
 
 const confirmBaselineChange$ = new Subject<ID>();
-const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map(createAlternativeCard))));
+const [useCards] = bind(alternatives$.pipe(map((alts) => alts.map((alt) => createAlternativeCard(alt, alts.length)))));
 
 export default function AlternativeSummary() {
     const navigate = useNavigate();
 
     const cards = useCards();
 
-    const moreThanTwoAlternatives = useAlternatives().length > 1;
+    const numAlternatives = useAlternatives().length;
+    const moreThanTwoAlternatives = numAlternatives > 1;
     const baselineDoesNotExist = useHasNoBaseline();
+    const analysisType = Model.analysisType.use();
     let errorDescription = undefined;
     if (!moreThanTwoAlternatives) {
         errorDescription = <p>Need more than one alternative.</p>;
@@ -74,7 +76,13 @@ export default function AlternativeSummary() {
             <SubHeader>
                 <div className={"flex w-3/4 max-w-6xl flex-col self-center"}>
                     <AddAlternativeModal open$={addAlternativeClick$.pipe(map(() => true))} />
-                    <Button className={"self-end"} type={ButtonType.LINK} onClick={() => addAlternativeClick$.next()}>
+                    <Button
+                        className={"self-end"}
+                        disabled={analysisType === AnalysisType.MILCON_ECIP && numAlternatives > 1}
+                        disabledTheme="light"
+                        type={ButtonType.LINK}
+                        onClick={() => addAlternativeClick$.next()}
+                    >
                         <Icon path={mdiPlus} size={1} />
                         Add Alternative
                     </Button>
@@ -98,7 +106,7 @@ export default function AlternativeSummary() {
     );
 }
 
-export function createAlternativeCard(alternative: Alternative) {
+export function createAlternativeCard(alternative: Alternative, numAlts: number) {
     const analysisType = Model.analysisType.current();
     const altCosts$ = of(alternative).pipe(
         switchMap((alt) => liveQuery(() => db.costs.where("id").anyOf(alt.costs).toArray())),
@@ -193,7 +201,11 @@ export function createAlternativeCard(alternative: Alternative) {
                                 type={ButtonType.LINK}
                                 icon={mdiContentCopy}
                                 tooltip={Strings.CLONE_ALTERNATIVE_TOOLTIP}
-                                disabled={alternative.ERCIPBaseCase}
+                                disabled={
+                                    alternative.ERCIPBaseCase ||
+                                    (numAlts >= 2 && analysisType === AnalysisType.MILCON_ECIP)
+                                }
+                                disabledTheme="light"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (alternative.id !== undefined) AlternativeModel.Actions.clone(alternative.id);

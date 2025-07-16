@@ -11,6 +11,8 @@ import { useMemo } from "react";
 import { type NavigateFunction, useNavigate } from "react-router-dom";
 import { map } from "rxjs/operators";
 import { Strings } from "constants/Strings";
+import { Model, useAlternatives } from "model/Model";
+import { AnalysisType } from "blcc-format/Format";
 
 /**
  * Curries a function to navigate to the last alternative in the list.
@@ -31,6 +33,8 @@ export default function AlternativeSubHeader() {
 
     const navigate = useNavigate();
     const name = useStateObservable(AlternativeModel.name$);
+    const numAlts = useAlternatives().length;
+    const analysisType = Model.analysisType.use();
 
     // If the alternative was removed, navigate to the last alternative in the list
     useSubscribe(AlternativeModel.Actions.removeAlternative$, gotoLastAlternative(navigate));
@@ -53,6 +57,8 @@ export default function AlternativeSubHeader() {
                             onClick={() => AlternativeModel.Actions.cloneCurrent()}
                             tooltip={Strings.CLONE_ALTERNATIVE_TOOLTIP}
                             icon={mdiContentCopy}
+                            disabled={numAlts >= 2 && analysisType === AnalysisType.MILCON_ECIP}
+                            disabledTheme="light"
                         >
                             Clone
                         </Button>

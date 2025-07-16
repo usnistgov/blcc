@@ -20,7 +20,7 @@ export default function AlternativeResultsPdf({
     shareOfEnergyUse,
 }: AlternativeResultsPdfProps) {
     return (
-        <View style={styles.section}>
+        <View style={styles.section} break>
             <Title title="Annual Results for Alternative" />
             <View>
                 {altNames.map((name, index) => (

@@ -12,10 +12,12 @@ import {
 } from "blcc-format/Format";
 import Info from "components/Info";
 import Location from "components/Location";
+import { Button } from "components/input/Button";
 import { TestInput } from "components/input/TestInput";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { TestSelect } from "components/input/TestSelect";
 import { TestTextArea } from "components/input/TestTextArea";
+import ERCIPALtModal, { ERCIPAltModel } from "components/modal/ERCIPAltModal";
 import UpdateGeneralOptionsModal from "components/modal/UpdateGeneralOptionsModal";
 import { Strings } from "constants/Strings";
 import { motion } from "framer-motion";
@@ -214,6 +216,7 @@ export default function GeneralInformation() {
             transition={{ duration: 0.08 }}
         >
             <UpdateGeneralOptionsModal />
+            <ERCIPALtModal />
 
             <div className={"mb-16 max-w-screen-lg p-6"}>
                 <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>

@@ -2,7 +2,14 @@ import type { Output, RequestBuilder } from "@lrd/e3-sdk";
 import type { DocumentProps } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
 import { Defaults } from "blcc-format/Defaults";
-import type { AltResults, Annual, GraphSources, NpvCashflowComparisonSummary, Summary } from "blcc-format/ExportTypes";
+import type {
+    AltResults,
+    Annual,
+    ERCIPData,
+    GraphSources,
+    NpvCashflowComparisonSummary,
+    Summary,
+} from "blcc-format/ExportTypes";
 import * as ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import * as ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import * as NpvCashFlowGraph from "components/graphs/annual-results/NpvCashFlowGraph";
@@ -91,9 +98,9 @@ export const downloadPdf = Effect.gen(function* () {
     };
 
     const annual: Annual = {
-        alternativeNpvCashflows: project.alternatives.map((id) =>
-            createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true),
-        ),
+        alternativeNpvCashflows: project.alternatives
+            .sort((a, b) => a - b)
+            .map((id) => createAnnualCostTypeNpvCashflowRow(required, optionalsByTag, id, true)),
         npvCashflowComparison: [...createNpvCashflowComparisonRow(required)],
         npvCashflowComparisonSummary: getSummaryRow(),
     };
@@ -111,6 +118,15 @@ export const downloadPdf = Effect.gen(function* () {
     const altResults: AltResults = {
         alternativeNpvByCostType: measures.map((measure) => createAlternativeNpvCostTypeTotalRow(measure)),
         resourceUsage: measures.map((measure) => createResourceUsageRow(measure)),
+    };
+
+    const ercipAltId = alternatives.find((alt) => !alt.ERCIPBaseCase)?.id ?? 0;
+    const ercip: ERCIPData = {
+        constructionPeriod: project.constructionPeriod,
+        required: required.find((req) => req.altId === ercipAltId) ?? required[0],
+        measures: measures.find((req) => req.altId === ercipAltId) ?? measures[0],
+        optionals,
+        costs,
     };
 
     const npvCashFlowGraph: HTMLElement | null = document.getElementById(NpvCashFlowGraph.OFFSCREEN_GRAPH_ID);
@@ -148,6 +164,7 @@ export const downloadPdf = Effect.gen(function* () {
             summary={summary}
             annual={annual}
             altResults={altResults}
+            ercip={ercip}
             graphSources={graphSources}
         />,
     );

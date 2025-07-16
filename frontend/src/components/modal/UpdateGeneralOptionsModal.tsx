@@ -7,12 +7,13 @@ import { AnalysisType, DiscountingMethod, DollarMethod, Purpose } from "blcc-for
 import type { DiscountRatesResponse } from "blcc-format/schema";
 import { Button, ButtonType } from "components/input/Button";
 import { Effect, Match } from "effect";
-import { Model } from "model/Model";
+import { Model, useAlternatives } from "model/Model";
 import { type OperatorFunction, map, merge, pipe, switchMap, take, tap } from "rxjs";
 import { withLatestFrom } from "rxjs/operators";
 import { BlccApiService } from "services/BlccApiService";
 import { calculateNominalDiscountRate, calculateRealDiscountRate, closest } from "util/Util";
 import { BlccRuntime } from "util/runtime";
+import { ERCIPAltModel } from "./ERCIPAltModal";
 
 export function showUpdateGeneralOptionsModal(): OperatorFunction<unknown, void> {
     return pipe(
@@ -49,6 +50,9 @@ export namespace UpdateGeneralOptionsModel {
 }
 
 export default function UpdateGeneralOptionsModal() {
+    const analysisType = Model.analysisType.use();
+    const numAlternatives = useAlternatives().length;
+
     return (
         <Modal
             title={"Update General Information"}
@@ -57,10 +61,28 @@ export default function UpdateGeneralOptionsModal() {
             open={UpdateGeneralOptionsModel.useOpen()}
             footer={
                 <div className={"mt-8 flex w-full flex-row justify-end gap-4"}>
-                    <Button type={ButtonType.ERROR} icon={mdiClose} onClick={UpdateGeneralOptionsModel.cancel}>
+                    <Button
+                        type={ButtonType.ERROR}
+                        icon={mdiClose}
+                        onClick={() => {
+                            UpdateGeneralOptionsModel.cancel();
+                            if (analysisType === AnalysisType.MILCON_ECIP && numAlternatives > 2) {
+                                ERCIPAltModel.open();
+                            }
+                        }}
+                    >
                         Don't Update
                     </Button>
-                    <Button type={ButtonType.PRIMARY} icon={mdiCheck} onClick={UpdateGeneralOptionsModel.update}>
+                    <Button
+                        type={ButtonType.PRIMARY}
+                        icon={mdiCheck}
+                        onClick={() => {
+                            UpdateGeneralOptionsModel.update();
+                            if (analysisType === AnalysisType.MILCON_ECIP && numAlternatives > 2) {
+                                ERCIPAltModel.open();
+                            }
+                        }}
+                    >
                         Update
                     </Button>
                 </div>

@@ -24,6 +24,13 @@ function getUnits(fuelType: FuelType) {
             return [...Object.values(EnergyUnit), ...Object.values(CubicUnit), ...Object.values(LiquidUnit)];
         case FuelType.COAL:
             return [...Object.values(EnergyUnit), ...Object.values(WeightUnit)];
+        case FuelType.OTHER:
+            return [
+                ...Object.values(EnergyUnit),
+                ...Object.values(WeightUnit),
+                ...Object.values(LiquidUnit),
+                ...Object.values(CubicUnit),
+            ];
     }
 }
 
