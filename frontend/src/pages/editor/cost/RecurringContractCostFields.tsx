@@ -56,6 +56,7 @@ export default function RecurringContractCostFields() {
                     addonAfter={"years"}
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
+                    precision={0}
                     getter={RecurringContractModel.initialOccurrence.use}
                     onChange={RecurringContractModel.Actions.setInitialOccurrence}
                     error={RecurringContractModel.initialOccurrence.useValidation}

@@ -63,6 +63,7 @@ export default function ImplementationContractCostFields() {
                     addonAfter={"years"}
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
+                    precision={0}
                     getter={ImplementationContractModel.occurrence.use}
                     onChange={ImplementationContractModel.Actions.setOccurrence}
                     error={ImplementationContractModel.occurrence.useValidation}

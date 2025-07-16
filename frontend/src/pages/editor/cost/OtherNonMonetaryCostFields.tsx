@@ -34,6 +34,7 @@ export default function OtherNonMonetaryCostFields() {
                     className={"w-full"}
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
+                    precision={0}
                     addonAfter={"years"}
                     getter={OtherCostModel.initialOccurrence.use}
                     onChange={OtherCostModel.Actions.setInitialOccurrence}

@@ -57,6 +57,7 @@ export default function OMRCostFields() {
                     className={"w-full"}
                     addonAfter={"years"}
                     controls
+                    precision={0}
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
                     getter={OMRCostModel.initialOccurrence.use}
