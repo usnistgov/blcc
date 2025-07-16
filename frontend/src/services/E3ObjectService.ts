@@ -289,8 +289,8 @@ function energyCostRecurrence(project: Project, cost: EnergyCost) {
         const nominalOrRealEscalation =
             project.dollarMethod === DollarMethod.CURRENT
                 ? escalation.map((rate) =>
-                    calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE),
-                )
+                      calculateNominalDiscountRate(rate, project.inflationRate ?? Defaults.INFLATION_RATE),
+                  )
                 : escalation;
 
         // Add 0 for the initial year, so year 1 is the first year of the analysis
@@ -644,7 +644,7 @@ function applyRateOfChangeValue(
 }
 
 function residualValueBcn(
-    cost: Cost,
+    cost: CapitalCost | ReplacementCapitalCost,
     value: number,
     obj: ResidualValue,
     studyPeriod: number,
@@ -657,7 +657,9 @@ function residualValueBcn(
         .subType(BcnSubType.DIRECT)
         .addTag(...tags)
         .addTag("LCC", "Residual Value", `${cost.id}`)
-        .initialOccurrence(studyPeriod)
+        .initialOccurrence(
+            cost.expectedLife != null && cost.expectedLife < studyPeriod ? cost.expectedLife : studyPeriod,
+        )
         .quantity(1)
         .quantityValue(
             obj.approach === DollarOrPercent.PERCENT
