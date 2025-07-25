@@ -49,7 +49,13 @@ export default function AlternativeSubHeader() {
                 <div className="flex justify-between">
                     <p className={"self-center px-6 text-ink"}>{name}</p>
                     <div className={"px-6"}>
-                        <Button type={ButtonType.LINK} onClick={() => createAlt()} icon={mdiPlus}>
+                        <Button
+                            type={ButtonType.LINK}
+                            onClick={() => createAlt()}
+                            icon={mdiPlus}
+                            disabled={numAlts >= 2 && analysisType === AnalysisType.MILCON_ECIP}
+                            disabledTheme="light"
+                        >
                             Add Alternative
                         </Button>
                         <Button
