@@ -248,7 +248,7 @@ function EnergyAndWaterSavings({ ercip }: { ercip: ERCIPData }) {
             <Grid rows={rows} columns={cols} />
             <Text style={styles.text}>
                 Note: Excluded discount factors because they might not be appropriate if consumption estimates are not
-                constant
+                constant or price escalation rates are modified from default values based on EIA projections.
             </Text>
         </>
     );
@@ -285,8 +285,8 @@ function NonEnergySavings({ ercip }: { ercip: ERCIPData }) {
             <Text style={styles.heading}>Non-Energy Savings</Text>
             <Grid rows={rows} columns={cols} />
             <Text style={styles.text}>
-                Note: Excluded discount factors because they might not be appropriate if consumption estimates are not
-                constant
+                Note: Excluded discount factors because they might not be appropriate if the value rate of change is not
+                zero.
             </Text>
         </>
     );
@@ -318,7 +318,11 @@ function Metrics({ ercip }: { ercip: ERCIPData }) {
         { metrics: "Simple Payback Period", value: numberFormatter.format(ercip.measures.spp), unit: "Years" },
         { metrics: "Discounted Payback Period", value: numberFormatter.format(ercip.measures.dpp), unit: "Years" },
         { metrics: "Savings to Investment Ratio (SIR)", value: numberFormatter.format(ercip.measures.sir), unit: "" },
-        { metrics: "Adjusted Internal Rate of Return", value: numberFormatter.format(ercip.measures.airr), unit: "%" },
+        {
+            metrics: "Adjusted Internal Rate of Return",
+            value: numberFormatter.format(ercip.measures.airr * 100),
+            unit: "%",
+        },
     ];
 
     return (

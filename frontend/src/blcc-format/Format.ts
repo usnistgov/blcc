@@ -177,6 +177,7 @@ export enum CustomerSector {
     RESIDENTIAL = "Residential",
     COMMERCIAL = "Commercial",
     INDUSTRIAL = "Industrial",
+    TRANSPORTATION = "Transportation",
 }
 
 export type Unit = ElectricityUnit | NaturalGasUnit | FuelOilUnit | LiquefiedPetroleumGasUnit | CoalUnit;

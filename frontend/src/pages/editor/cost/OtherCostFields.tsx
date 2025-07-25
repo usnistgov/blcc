@@ -36,6 +36,7 @@ export default function OtherCostFields() {
                     className={"w-full"}
                     info={Strings.INITIAL_OCCURRENCE_AFTER_SERVICE}
                     label={"Initial Occurrence"}
+                    precision={0}
                     subLabel={"(from service date)"}
                     addonAfter={"years"}
                     getter={OtherCostModel.initialOccurrence.use}

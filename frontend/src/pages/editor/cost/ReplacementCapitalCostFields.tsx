@@ -82,6 +82,7 @@ export default function ReplacementCapitalCostFields() {
                     controls
                     label={"Initial Occurrence"}
                     subLabel={"(from service date)"}
+                    precision={0}
                     getter={ReplacementModel.initialOccurrence.use}
                     onChange={ReplacementModel.Actions.setInitialOccurrence}
                     info={Strings.INITIAL_OCCURRENCE_AFTER_SERVICE}

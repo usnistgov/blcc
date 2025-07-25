@@ -1,6 +1,6 @@
 import type { Measures, Optional, Required } from "@lrd/e3-sdk";
 import { EnergyUnit, FuelType, type ID } from "blcc-format/Format";
-import { getOptionalTag, getOptionalTagByAltId, getQuantitySumTag } from "util/Util";
+import { getOptionalTagByAltId, getQuantitySumTag } from "util/Util";
 import { getConvertMapgJ as getConvertMapGJ } from "./UnitConversion";
 import { parseUnit } from "services/ConverterService";
 
