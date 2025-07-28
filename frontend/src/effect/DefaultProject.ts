@@ -38,7 +38,7 @@ export const getDefaultReleaseYear = Effect.gen(function* () {
     const api = yield* BlccApiService;
     const releaseYears = yield* api.fetchReleaseYears;
     if (releaseYears[0] === undefined) return Defaults.RELEASE_YEAR;
-    return releaseYears[0].year;
+    return releaseYears[releaseYears.length - 1].year;
 });
 
 /**

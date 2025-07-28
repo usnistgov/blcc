@@ -228,7 +228,7 @@ export namespace Model {
                     const api = yield* BlccApiService;
                     // Get release years and default to [2023] if an error occurs.
                     const releaseYears = yield* api.fetchReleaseYears.pipe(
-                        Effect.map((years) => years.map((release) => release.year)),
+                        Effect.map((years) => years.map((release) => release.year).sort((a, b) => b - a)),
                         Effect.catchAll(() => Effect.succeed([Defaults.RELEASE_YEAR])),
                     );
 
