@@ -1,7 +1,7 @@
 {
     "name": "blcc",
     "private": true,
-    "version": "0.3.13-beta",
+    "version": "0.3.14-beta",
     "type": "module",
     "scripts": {
         "dev": "vite",
