@@ -651,6 +651,8 @@ function residualValueBcn(
     rateOfChange: number,
     tags: string[] = [],
 ): BcnBuilder {
+    const initialOccurrence = cost.type === CostTypes.REPLACEMENT_CAPITAL ? cost.initialOccurrence : 0;
+
     return new BcnBuilder()
         .name(`${cost.name} Residual Value`)
         .type(BcnType.COST)
@@ -658,7 +660,9 @@ function residualValueBcn(
         .addTag(...tags)
         .addTag("LCC", "Residual Value", `${cost.id}`)
         .initialOccurrence(
-            cost.expectedLife != null && cost.expectedLife < studyPeriod ? cost.expectedLife : studyPeriod,
+            cost.expectedLife != null && cost.expectedLife + initialOccurrence < studyPeriod
+                ? cost.expectedLife
+                : studyPeriod,
         )
         .quantity(1)
         .quantityValue(
