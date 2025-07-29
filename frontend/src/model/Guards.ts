@@ -75,6 +75,8 @@ export function isRateOfChangeValueCost(cost: Cost): cost is RateOfChangeValueTy
         cost.type === CostTypes.OMR ||
         cost.type === CostTypes.RECURRING_CONTRACT ||
         cost.type === CostTypes.IMPLEMENTATION_CONTRACT ||
+        cost.type === CostTypes.REPLACEMENT_CAPITAL ||
+        cost.type === CostTypes.CAPITAL ||
         cost.type === CostTypes.OTHER
     );
 }

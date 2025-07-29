@@ -1,25 +1,19 @@
 import { Defaults } from "blcc-format/Defaults";
+import { ValueRateOfChange } from "components/Recurring";
 import ResidualValue from "components/ResidualValue";
 import PhaseIn from "components/grids/PhaseIn";
 import { TestNumberInput } from "components/input/TestNumberInput";
 import { Strings } from "constants/Strings";
-import Decimal from "decimal.js";
-import { cons } from "effect/List";
 import { CostModel } from "model/CostModel";
 import { Model } from "model/Model";
 import { CapitalCostModel } from "model/costs/CapitalCostModel";
-import { calculateNominalPercentage, toPercentage } from "util/Util";
+import { calculateNominalPercentage } from "util/Util";
 
 export default function InvestmentCapitalCostFields() {
     const constructionPeriod = Model.constructionPeriod.use();
     const isSavings = CostModel.costOrSavings.use();
     const inflation = Model.inflationRate.use() ?? Defaults.INFLATION_RATE;
     const isDollarMethodCurrent = Model.useIsDollarMethodCurrent();
-    const annualRateOfChange = calculateNominalPercentage(
-        CapitalCostModel.useAnnualRateOfChange() ?? 0,
-        inflation ?? Defaults.INFLATION_RATE,
-        isDollarMethodCurrent,
-    );
     const costAdjustmentFactor = calculateNominalPercentage(
         CapitalCostModel.useCostAdjustmentFactor() ?? 0,
         inflation ?? Defaults.INFLATION_RATE,
@@ -63,18 +57,6 @@ export default function InvestmentCapitalCostFields() {
                 />
                 <TestNumberInput
                     className={"w-full"}
-                    info={Strings.ANNUAL_RATE_OF_CHANGE}
-                    addonAfter={"%"}
-                    controls
-                    label={"Annual Rate of Change*"}
-                    subLabel={"for residual value calculation"}
-                    getter={() => annualRateOfChange}
-                    onChange={(val) =>
-                        CapitalCostModel.Actions.setAnnualRateOfChange(val ?? 0, inflation, isDollarMethodCurrent)
-                    }
-                />
-                <TestNumberInput
-                    className={"w-full"}
                     id={"cost-adjustment-factor"}
                     info={Strings.COST_ADJUSTMENT_FACTOR}
                     addonAfter={"%"}
@@ -86,6 +68,7 @@ export default function InvestmentCapitalCostFields() {
                         CapitalCostModel.Actions.setCostAdjustmentFactor(val ?? 0, inflation, isDollarMethodCurrent)
                     }
                 />
+                <ValueRateOfChange />
             </div>
 
             <ResidualValue />

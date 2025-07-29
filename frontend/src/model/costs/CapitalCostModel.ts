@@ -6,7 +6,7 @@ import { isCapital } from "model/Guards";
 import * as O from "optics-ts";
 import { map } from "rxjs/operators";
 import { guard } from "util/Operators";
-import { calculateRealDecimal, calculateRealDiscountRate, toDecimal, toPercentage } from "util/Util";
+import { calculateRealDecimal } from "util/Util";
 import { Var } from "util/var";
 import { z } from "zod";
 
@@ -17,7 +17,7 @@ export namespace CapitalCostModel {
     export const initialCost = new Var(CostModel.cost, capitalCostOptic.prop("initialCost"), z.number());
 
     // Annual Rate of Change
-    export const annualRateOfChange = new Var(CostModel.cost, capitalCostOptic.prop("annualRateOfChange"));
+    export const annualRateOfChange = new Var(CostModel.cost, capitalCostOptic.prop("rateOfChangeValue"));
     export const [useAnnualRateOfChange] = bind(annualRateOfChange.$.pipe(guard()), undefined);
 
     // Expected Lifetime

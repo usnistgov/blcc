@@ -91,7 +91,15 @@ export default function AlternativeSummary() {
 
             <div className={"flex h-full w-full flex-col items-center overflow-y-auto"}>
                 <br />
-                {errorDescription && <Alert message="Error:" description={errorDescription} type="error" closable />}
+                {errorDescription && (
+                    <Alert
+                        message="Error:"
+                        className="w-3/4 max-w-6xl"
+                        description={errorDescription}
+                        type="error"
+                        closable
+                    />
+                )}
                 <br />
                 {(cards.length !== 0 && cards.map((card) => <card.component key={card.id} />)) || (
                     <div className={"w-full p-8 text-center text-base-dark"}>

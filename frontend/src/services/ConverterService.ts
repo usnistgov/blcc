@@ -437,7 +437,7 @@ function convertCost(
                 type: CostTypes.CAPITAL,
                 initialCost: cost.InitialCost ?? 0,
                 amountFinanced: cost.AmountFinanced,
-                annualRateOfChange: parseEscalation(cost.ResaleEscalation, studyPeriod) ?? 0,
+                rateOfChangeValue: parseEscalation(cost.ResaleEscalation, studyPeriod) ?? 0,
                 expectedLife: (parseYears(cost.Duration) as { type: "Year"; value: number }).value,
                 costAdjustment: parseEscalation(cost.Escalation, studyPeriod) ?? 0,
                 phaseIn: parsePhaseIn(cost, studyPeriod),

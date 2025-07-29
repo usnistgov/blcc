@@ -10,6 +10,7 @@ import { calculateNominalPercentage, calculateRealDecimal } from "util/Util";
 import { Model } from "model/Model";
 import { Defaults } from "blcc-format/Defaults";
 import { z } from "zod";
+import { ValueRateOfChange } from "components/Recurring";
 
 namespace ReplacementModel {
     const costOptic = O.optic<Cost>().guard(isReplacementCapitalCost);
@@ -91,27 +92,6 @@ export default function ReplacementCapitalCostFields() {
                 />
                 <TestNumberInput
                     className={"w-full"}
-                    addonAfter={"%"}
-                    controls
-                    label={"Annual Rate of Change"}
-                    getter={() =>
-                        calculateNominalPercentage(
-                            annualRateOfChange ?? 0,
-                            inflation ?? Defaults.INFLATION_RATE,
-                            isDollarMethodCurrent,
-                        )
-                    }
-                    onChange={(val) =>
-                        ReplacementModel.Actions.setAnnualRateOfChange(
-                            val,
-                            inflation ?? Defaults.INFLATION_RATE,
-                            isDollarMethodCurrent,
-                        )
-                    }
-                    info={Strings.ANNUAL_RATE_OF_CHANGE}
-                />
-                <TestNumberInput
-                    className={"w-full"}
                     addonAfter={"years"}
                     controls
                     label={"Expected Lifetime*"}
@@ -121,6 +101,7 @@ export default function ReplacementCapitalCostFields() {
                     tooltip={Strings.EXPECTED_LIFETIME_TOOLTIP}
                     error={ReplacementModel.expectedLife.useValidation}
                 />
+                <ValueRateOfChange />
             </div>
 
             <ResidualValue />
