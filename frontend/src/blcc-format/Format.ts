@@ -66,8 +66,8 @@ export enum AnalysisType {
 }
 
 export enum Purpose {
-    INVEST_REGULATION = "Cost-effectiveness, lease-purchase, internal government investment, and asset sales",
-    COST_LEASE = "Public investment and regulatory analyses",
+    INVEST_REGULATION = "Public investment and regulatory analyses",
+    COST_LEASE = "Cost-effectiveness, lease-purchase, internal government investment, and asset sales",
 }
 
 export type ID = number;
