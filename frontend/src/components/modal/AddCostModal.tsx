@@ -96,6 +96,7 @@ namespace DefaultCosts {
     export const CAPITAL: (project: Project | undefined) => Props<CapitalCost> = (project: Project | undefined) => ({
         type: CostTypes.CAPITAL,
         costSavings: project !== undefined && project.analysisType === AnalysisType.MILCON_ECIP,
+        rateOfChangeValue: 0,
     });
 
     export const ENERGY: (fuelType: FuelType, project: Project | undefined) => Props<EnergyCost> = (

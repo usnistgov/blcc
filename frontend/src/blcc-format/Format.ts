@@ -132,7 +132,7 @@ export type CapitalCost = Type<CostTypes.CAPITAL> &
     ResidualValueCost & {
         initialCost?: number;
         amountFinanced?: number;
-        annualRateOfChange?: number;
+        rateOfChangeValue?: number | number[];
         expectedLife?: number;
         costAdjustment?: number;
         phaseIn?: number[]; // Percent of initial cost paid per year. Must add up to 100%.
@@ -243,7 +243,7 @@ export type ReplacementCapitalCost = Type<CostTypes.REPLACEMENT_CAPITAL> &
     ResidualValueCost & {
         initialOccurrence: number;
         initialCost?: number;
-        rateOfChangeValue?: number;
+        rateOfChangeValue?: number | number[];
         expectedLife?: number;
     };
 
