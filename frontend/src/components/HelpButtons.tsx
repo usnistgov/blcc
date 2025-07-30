@@ -9,17 +9,16 @@ export default function HelpButtons() {
 
     return (
         <ButtonBar className={"p-2"}>
-            <Button
-                type={ButtonType.PRIMARY}
-                icon={mdiFileDocument}
-                tooltip={Strings.USER_GUIDE}
-                onClick={() => window.open("/docs/BLCCUserGuide.pdf")}
-            >
-                User Guide
-            </Button>
-            <Button icon={mdiHelp} tooltip={Strings.FAQ} onClick={() => window.open("/docs/BLCCUserGuide.pdf")}>
-                FAQ
-            </Button>
+            <Link to={"/docs/BLCCUserGuide.pdf"} target="_blank" rel="noopener noreferrer">
+                <Button type={ButtonType.PRIMARY} icon={mdiFileDocument} tooltip={Strings.USER_GUIDE}>
+                    User Guide
+                </Button>
+            </Link>
+            <Link to={"/docs/BLCCUserGuide.pdf"} target="_blank" rel="noopener noreferrer">
+                <Button icon={mdiHelp} tooltip={Strings.FAQ}>
+                    FAQ
+                </Button>
+            </Link>
             <Button type={ButtonType.PRIMARY} icon={mdiHome} tooltip={Strings.HOME} onClick={() => navigate("/")}>
                 Home
             </Button>
