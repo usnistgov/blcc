@@ -1,5 +1,5 @@
 import { mdiArrowRight, mdiCommentAlertOutline, mdiContentSave, mdiFileDocumentPlus, mdiFolder } from "@mdi/js";
-import AppBar from "components/AppBar";
+import AppBar, { AppBarBetaTag } from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
@@ -170,6 +170,7 @@ export default function EditorAppBar() {
                     >
                         Reports and Analysis
                     </Button>
+                    <AppBarBetaTag />
                 </div>
                 {invalidProjectErrorIsOpen && !projectIsValid && (
                     <Alert
