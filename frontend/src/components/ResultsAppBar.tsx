@@ -11,7 +11,7 @@ import {
 import Icon from "@mdi/react";
 import { Subscribe } from "@react-rxjs/core";
 import { downloadCsv, downloadDebugInfo, downloadE3Request, downloadPdf } from "blcc-format/DownloadFile";
-import AppBar from "components/AppBar";
+import AppBar, { AppBarBetaTag } from "components/AppBar";
 import ButtonBar from "components/ButtonBar";
 import HelpButtons from "components/HelpButtons";
 import { Button, ButtonType } from "components/input/Button";
@@ -127,6 +127,7 @@ function CenterContent() {
                     >
                         Run
                     </Button>
+                    <AppBarBetaTag />
                 </div>
                 {loading && <Icon className={"animate-spin text-off-white"} path={mdiLoading} size={1} />}
                 {!loading && timestamp && (
