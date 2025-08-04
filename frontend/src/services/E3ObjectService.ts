@@ -198,6 +198,8 @@ function capitalCostToBuilder(cost: CapitalCost, project: Project, studyPeriod: 
                 (cost.initialCost ?? 0) + (cost.amountFinanced ?? 0),
                 cost.residualValue,
                 studyPeriod,
+                [],
+                project.discountingMethod
             ),
         );
 
@@ -469,7 +471,7 @@ function replacementCapitalCostToBuilder(
     applyRateOfChangeNonRecurring(builder, cost.initialOccurrence, cost, project);
 
     if (cost.residualValue)
-        return [builder, residualValueBcn(cost, cost.initialCost ?? -1, cost.residualValue, studyPeriod)];
+        return [builder, residualValueBcn(cost, cost.initialCost ?? -1, cost.residualValue, studyPeriod, [], project.discountingMethod)];
 
     return [builder];
 }
@@ -643,6 +645,7 @@ function residualValueBcn(
     obj: ResidualValue,
     studyPeriod: number,
     tags: string[] = [],
+    discountingMethod: DiscountingMethod = DiscountingMethod.END_OF_YEAR,
 ): BcnBuilder {
     const initialOccurrence = cost.type === CostTypes.REPLACEMENT_CAPITAL ? cost.initialOccurrence : 0;
 
@@ -670,6 +673,10 @@ function residualValueBcn(
         )
         .quantity(quantity)
         .quantityValue(1);
+
+    if(discountingMethod === DiscountingMethod.MID_YEAR) {
+        builder.timestepOffset(0.5);
+    }
 
     if (Array.isArray(cost.rateOfChangeValue)) {
         builder.quantityVarRate(VarRate.PERCENT_DELTA);
