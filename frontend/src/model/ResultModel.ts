@@ -69,7 +69,12 @@ export namespace ResultModel {
     export const [hasError] = bind(
         merge(
             result$.pipe(
-                map((result) => (result !== undefined && !("measure" in result)) || result?.measure?.length === 0),
+                map(
+                    (result) =>
+                        (result !== undefined && !("measure" in result)) ||
+                        result?.measure?.length === 0 ||
+                        result?.measure?.find((v) => v != null) == null,
+                ),
             ),
             addError$,
         ),
