@@ -71,9 +71,10 @@ export namespace ResultModel {
         result$.pipe(
             map(
                 (result) =>
-                    (result !== undefined && !("measure" in result)) ||
-                    result?.measure?.length === 0 ||
-                    result?.measure?.find((v) => v != null) == null,
+                    result !== undefined &&
+                    (!("measure" in result) ||
+                        result?.measure?.length === 0 ||
+                        result?.measure?.find((v) => v != null) == null),
             ),
         ),
         addError$,
