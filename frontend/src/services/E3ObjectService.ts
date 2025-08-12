@@ -198,8 +198,9 @@ function capitalCostToBuilder(cost: CapitalCost, project: Project, studyPeriod: 
                 (cost.initialCost ?? 0) + (cost.amountFinanced ?? 0),
                 cost.residualValue,
                 studyPeriod,
+                project,
                 [],
-                project.discountingMethod
+                project.discountingMethod,
             ),
         );
 
@@ -471,7 +472,18 @@ function replacementCapitalCostToBuilder(
     applyRateOfChangeNonRecurring(builder, cost.initialOccurrence, cost, project);
 
     if (cost.residualValue)
-        return [builder, residualValueBcn(cost, cost.initialCost ?? -1, cost.residualValue, studyPeriod, [], project.discountingMethod)];
+        return [
+            builder,
+            residualValueBcn(
+                cost,
+                cost.initialCost ?? -1,
+                cost.residualValue,
+                studyPeriod,
+                project,
+                [],
+                project.discountingMethod,
+            ),
+        ];
 
     return [builder];
 }
@@ -644,6 +656,7 @@ function residualValueBcn(
     value: number,
     obj: ResidualValue,
     studyPeriod: number,
+    project: Project,
     tags: string[] = [],
     discountingMethod: DiscountingMethod = DiscountingMethod.END_OF_YEAR,
 ): BcnBuilder {
@@ -674,17 +687,21 @@ function residualValueBcn(
         .quantity(quantity)
         .quantityValue(1);
 
-    if(discountingMethod === DiscountingMethod.MID_YEAR) {
+    if (discountingMethod === DiscountingMethod.MID_YEAR) {
         builder.timestepOffset(0.5);
     }
 
-    if (Array.isArray(cost.rateOfChangeValue)) {
-        builder.quantityVarRate(VarRate.PERCENT_DELTA);
-        builder.quantityVarValue([0, ...cost.rateOfChangeValue]);
-    } else {
-        builder.quantityVarRate(VarRate.PERCENT_DELTA);
-        builder.quantityVarValue([cost.rateOfChangeValue ?? 0]);
-    }
+    builder.quantityVarRate(VarRate.PERCENT_DELTA);
+
+    const rateOfChangeArray = Array.isArray(cost.rateOfChangeValue)
+        ? [0, ...cost.rateOfChangeValue]
+        : [cost.rateOfChangeValue];
+    const e3Rates = rateOfChangeArray.map((rate) =>
+        project.dollarMethod === DollarMethod.CURRENT
+            ? calculateNominalDiscountRate(rate ?? 0, project.inflationRate ?? Defaults.INFLATION_RATE)
+            : (rate ?? 0),
+    );
+    builder.quantityVarValue(e3Rates);
 
     return builder;
 }
