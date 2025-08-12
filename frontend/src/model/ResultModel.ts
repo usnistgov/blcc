@@ -5,7 +5,7 @@ import { liveQuery } from "dexie";
 import { alternatives$, hash$ } from "model/Model";
 import { DexieService, db } from "model/db";
 import { combineLatest, merge, switchMap } from "rxjs";
-import { map, shareReplay, withLatestFrom } from "rxjs/operators";
+import { map, shareReplay, tap, withLatestFrom } from "rxjs/operators";
 import { guard } from "util/Operators";
 import "billboard.js/dist/billboard.css";
 import { Effect } from "effect";
@@ -66,20 +66,20 @@ export namespace ResultModel {
         merge(result$.pipe(map(() => "Error: E3 could not evaluate your request.")), errorMessage$),
         "Error: E3 could not evaluate your request.",
     );
-    export const [hasError] = bind(
-        merge(
-            result$.pipe(
-                map(
-                    (result) =>
-                        (result !== undefined && !("measure" in result)) ||
-                        result?.measure?.length === 0 ||
-                        result?.measure?.find((v) => v != null) == null,
-                ),
+
+    const error = merge(
+        result$.pipe(
+            map(
+                (result) =>
+                    (result !== undefined && !("measure" in result)) ||
+                    result?.measure?.length === 0 ||
+                    result?.measure?.find((v) => v != null) == null,
             ),
-            addError$,
         ),
-        false,
+        addError$,
     );
+    export const [hasError] = bind(error, false);
+    export const [hasErrorNoDefault] = bind(error);
 
     // Download pdf validation logic
     export const [downloadError$, setDownloadError] = createSignal<boolean>();

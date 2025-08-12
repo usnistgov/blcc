@@ -1,5 +1,6 @@
 import type { Required, Measures } from "@lrd/e3-sdk";
 import { mdiFormatListGroup, mdiFormatListText, mdiListBoxOutline, mdiTextBoxEditOutline } from "@mdi/js";
+import { Subscribe } from "@react-rxjs/core";
 import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
 import AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
@@ -32,13 +33,17 @@ function OffScreenElements({
     optionals,
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 }: { required: Required[]; alternativeNames: Map<number, string>; measures: Measures[]; optionals: Map<any, any> }) {
+    const hasError = ResultModel.hasErrorNoDefault();
+
+    if (hasError) {
+        return <></>;
+    }
+
     return (
         <>
-            (
             <OffScreenWrapper>
                 <NpvCashFlowGraph offscreen required={required} alternativeNames={alternativeNames} />
             </OffScreenWrapper>
-            );
             {measures.map((measure, i) => (
                 <OffScreenWrapper key={`${measure.totalCosts}-${i}`}>
                     <AlternativeCashFlowGraph
@@ -69,18 +74,17 @@ export default function ResultNavigation() {
     const optionals = ResultModel.useOptionalsByTag();
     const required = ResultModel.useRequired();
     const alternativeNames = ResultModel.useAlternativeNames();
-    const hasError = ResultModel.hasError();
 
     return (
         <>
-            {!hasError && (
+            <Subscribe>
                 <OffScreenElements
                     required={required}
                     alternativeNames={alternativeNames}
                     measures={measures}
                     optionals={optionals}
                 />
-            )}
+            </Subscribe>
             <nav className="z-40 flex h-full w-60 flex-col gap-2 bg-primary p-2 text-base-lightest shadow-lg">
                 <Button
                     className={useActiveLink("/results")}
