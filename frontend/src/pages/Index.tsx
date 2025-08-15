@@ -47,7 +47,7 @@ export default function Index() {
                             icon={mdiLink}
                             className="py-2"
                             onClick={() => {
-                                window.location.href = "/docs/BLCCUserGuide.pdf";
+                                window.location.href = "https://doi.org/10.6028/NIST.TN.2346";
                             }}
                         >
                             Technical Manual
@@ -158,7 +158,7 @@ export default function Index() {
                                             •{" "}
                                             <a
                                                 className={"text-primary-dark underline visited:text-visited"}
-                                                href={"https://doi.org/10.6028/NIST.HB.135e2022-upd1"}
+                                                href={"https://doi.org/10.6028/NIST.HB.135e2025"}
                                             >
                                                 Handbook 135
                                             </a>
@@ -167,7 +167,7 @@ export default function Index() {
                                             •{" "}
                                             <a
                                                 className={"text-primary-dark underline visited:text-visited"}
-                                                href={"https://doi.org/10.6028/NIST.IR.85-3273-39"}
+                                                href={"https://doi.org/10.6028/NIST.IR.85-3273-40"}
                                             >
                                                 Annual Supplement to Handbook 135
                                             </a>
@@ -176,7 +176,7 @@ export default function Index() {
                                             •{" "}
                                             <a
                                                 className={"text-primary-dark underline visited:text-visited"}
-                                                href={"https://doi.org/10.18434/mds2-3194"}
+                                                href={"https://doi.org/10.18434/mds2-3848"}
                                             >
                                                 Data Tables for Annual Supplement
                                             </a>
