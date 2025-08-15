@@ -1,6 +1,6 @@
 [package]
 name = "backend"
-version = "0.3.18-beta"
+version = "0.3.19-beta"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -12,18 +12,19 @@ codegen-units = 1
 panic = "abort"
 
 [dependencies]
-actix-web = { version = "4.9.0", features = ["rustls"] }
+actix-web = { version = "4.11.0", features = ["rustls"] }
 actix-files = "0.6.6"
-actix-cors = "0.7.0"
-env_logger = "0.11.5"
-log = "0.4.22"
-diesel = { version = "2.2.6", features = ["postgres", "r2d2"] }
+actix-cors = "0.7.1"
+env_logger = "0.11.8"
+log = "0.4.27"
+diesel = { version = "2.2.12", features = ["postgres", "r2d2"] }
 diesel_migrations = "2.2.0"
 dotenvy = "0.15.7"
-serde = { version = "1.0.216", features = ["derive"] }
+serde = { version = "1.0.219", features = ["derive"] }
 r2d2 = "0.8.10"
-reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls", "charset", "rustls-tls-native-roots"] }
+reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls", "charset", "rustls-tls-native-roots"] }
 
 # Required to make Diesel happy with static linking
-pq-sys = { version = "0.6.3", features = ["bundled"] }
-openssl-sys = { version = "0.9.104", features = ["vendored"] }
+pq-sys = { version = "0.7.2", features = ["bundled"] }
+openssl-sys = { version = "0.9.109", features = ["vendored"] }
+mime = "0.3.17"

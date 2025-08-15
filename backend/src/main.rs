@@ -8,7 +8,10 @@ use actix_files::{Files, NamedFile};
 use actix_web::error::ErrorBadRequest;
 use actix_web::middleware::Logger;
 use actix_web::web::{resource, Data};
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::{
+    http::header::{ContentDisposition, DispositionType},
+    middleware, web, App, HttpRequest, HttpServer, Responder,
+};
 use diesel::pg::Pg;
 use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
@@ -18,6 +21,7 @@ use r2d2::Pool;
 use reqwest::{Client, ClientBuilder};
 use std::env;
 use std::path::PathBuf;
+use mime::Mime;
 
 mod api;
 mod models;
@@ -39,6 +43,27 @@ async fn spa() -> actix_web::Result<NamedFile> {
         .unwrap_or_else(|_| { "public/" }.parse().unwrap());
     let path: PathBuf = PathBuf::from(public_folder + "index.html");
     Ok(NamedFile::open(path)?)
+}
+
+async fn pdf(path: web::Path<String>) -> impl Responder {
+    let mut file_path = PathBuf::from("public/dist/docs/");
+    file_path.push(path.into_inner());
+
+    match NamedFile::open(file_path) {
+        Ok(file) => {
+            let content_type: Mime = "application/pdf".parse().unwrap();
+
+            Ok(
+                NamedFile::set_content_type(file, content_type).set_content_disposition(
+                    ContentDisposition {
+                        disposition: DispositionType::Inline,
+                        parameters: vec![],
+                    },
+                ),
+            )
+        }
+        Err(e) => Err(ErrorBadRequest("Could not find file")),
+    }
 }
 
 struct AppData {
@@ -107,6 +132,7 @@ async fn main() -> std::io::Result<()> {
             )
             .wrap(Logger::default())
             .wrap(middleware::Compress::default())
+            .route("/docs/{filename}", web::get().to(pdf))
             .service(
                 resource(vec!["/", "/editor", "/editor/{tail:.*}", "/results", "/results/{tail:.*}"])
                     .route(web::get().to(spa))
