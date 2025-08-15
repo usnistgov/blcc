@@ -14,7 +14,7 @@ export default function HelpButtons() {
                     User Guide
                 </Button>
             </Link>
-            <Link to={"https://github.com/user-attachments/files/21779775/BLCC.FAQs.pdf"} target="_blank" rel="noopener noreferrer">
+            <Link to={"/docs/BLCC.FAQs.pdf"} target="_blank" rel="noopener noreferrer">
                 <Button icon={mdiHelp} tooltip={Strings.FAQ}>
                     FAQ
                 </Button>
