@@ -688,7 +688,7 @@ function residualValueBcn(
         .quantityValue(1);
 
     if (discountingMethod === DiscountingMethod.MID_YEAR) {
-        builder.timestepOffset(0.5);
+        builder.timestepOffset(0);
     }
 
     builder.quantityVarRate(VarRate.PERCENT_DELTA);
