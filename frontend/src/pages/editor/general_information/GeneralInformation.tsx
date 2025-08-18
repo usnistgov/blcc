@@ -12,6 +12,7 @@ import {
 } from "blcc-format/Format";
 import Info from "components/Info";
 import Location from "components/Location";
+import { NistFooter } from "components/NistHeaderFooter";
 import { Button } from "components/input/Button";
 import { TestInput } from "components/input/TestInput";
 import { TestNumberInput } from "components/input/TestNumberInput";
@@ -218,169 +219,174 @@ export default function GeneralInformation() {
             <UpdateGeneralOptionsModal />
             <ERCIPALtModal />
 
-            <div className={"mb-16 max-w-screen-lg p-6"}>
-                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    {/* Project Name */}
-                    <TestInput
-                        id={"general-information:project-name"}
-                        name={"projectName"}
-                        label={"Project Name"}
-                        info={Strings.PROJECT_NAME}
-                        required
-                        placeholder={"Untitled Project"}
-                        getter={Model.name.use}
-                        onChange={(event) => {
-                            const change = event.currentTarget.value;
-                            Model.name.set(change === "" ? undefined : change);
-                        }}
-                        showCount
-                        maxLength={45}
-                        error={Model.name.useValidation}
-                    />
-
-                    {/* Analyst */}
-                    <TestInput
-                        name={"analyst"}
-                        label={"Analyst"}
-                        info={Strings.ANALYST}
-                        getter={Model.analyst.use}
-                        onChange={(event) => {
-                            const change = event.currentTarget.value;
-                            Model.analyst.set(change === "" ? undefined : change);
-                        }}
-                        showCount
-                        maxLength={30}
-                        error={Model.analyst.useValidation}
-                    />
-
-                    {/* Analysis Type */}
-                    <TestSelect
-                        className={"w-full"}
-                        label={"Analysis Type"}
-                        id={"analysisType"}
-                        info={Strings.ANALYSIS_TYPE}
-                        required
-                        placeholder={"Please select an analysis type"}
-                        options={Object.values(AnalysisType)}
-                        getter={Model.analysisType.use}
-                        error={Model.analysisType.useValidation}
-                        onChange={(change) => {
-                            Model.analysisType.set(change);
-
-                            if (change !== AnalysisType.MILCON_ECIP) turnOffERCIP();
-                            if (change === AnalysisType.MILCON_ECIP) createBaseCase();
-
-                            if (change !== AnalysisType.OMB_NON_ENERGY) Model.purpose.set(undefined);
-                        }}
-                    />
-
-                    {/* Analysis Purpose */}
-                    <AnalysisPurpose />
-
-                    {/* Description */}
-                    <span className={"col-span-2 mb-3"}>
-                        <TestTextArea
-                            name={"description"}
-                            label={"Description"}
-                            className={"w-full"}
-                            info={Strings.DESCRIPTION}
-                            getter={Model.description.use}
-                            showCount
-                            maxLength={300}
-                            onChange={(event) => Model.description.set(event.currentTarget.value)}
-                        />
-                    </span>
-                    <div className={"col-span-2 grid grid-cols-4 gap-x-16 gap-y-4"}>
-                        <TestNumberInput
-                            className={"w-full"}
-                            getter={Model.studyPeriod.use}
-                            label={"Study Period"}
-                            name={"studyPeriod"}
+            <div className="flex flex-col justify-between h-full">
+                <div className={"mb-16 max-w-screen-lg p-6"}>
+                    <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                        {/* Project Name */}
+                        <TestInput
+                            id={"general-information:project-name"}
+                            name={"projectName"}
+                            label={"Project Name"}
+                            info={Strings.PROJECT_NAME}
                             required
-                            min={1}
-                            error={Model.studyPeriod.useValidation}
-                            info={Strings.STUDY_PERIOD}
+                            placeholder={"Untitled Project"}
+                            getter={Model.name.use}
                             onChange={(event) => {
-                                Model.studyPeriod.set(event ?? undefined);
+                                const change = event.currentTarget.value;
+                                Model.name.set(change === "" ? undefined : change);
+                            }}
+                            showCount
+                            maxLength={45}
+                            error={Model.name.useValidation}
+                        />
+
+                        {/* Analyst */}
+                        <TestInput
+                            name={"analyst"}
+                            label={"Analyst"}
+                            info={Strings.ANALYST}
+                            getter={Model.analyst.use}
+                            onChange={(event) => {
+                                const change = event.currentTarget.value;
+                                Model.analyst.set(change === "" ? undefined : change);
+                            }}
+                            showCount
+                            maxLength={30}
+                            error={Model.analyst.useValidation}
+                        />
+
+                        {/* Analysis Type */}
+                        <TestSelect
+                            className={"w-full"}
+                            label={"Analysis Type"}
+                            id={"analysisType"}
+                            info={Strings.ANALYSIS_TYPE}
+                            required
+                            placeholder={"Please select an analysis type"}
+                            options={Object.values(AnalysisType)}
+                            getter={Model.analysisType.use}
+                            error={Model.analysisType.useValidation}
+                            onChange={(change) => {
+                                Model.analysisType.set(change);
+
+                                if (change !== AnalysisType.MILCON_ECIP) turnOffERCIP();
+                                if (change === AnalysisType.MILCON_ECIP) createBaseCase();
+
+                                if (change !== AnalysisType.OMB_NON_ENERGY) Model.purpose.set(undefined);
                             }}
                         />
-                        <TestNumberInput
-                            className={"w-full"}
-                            required
-                            getter={Model.constructionPeriod.use}
-                            label={"Construction Period"}
-                            name={"constructionPeriod"}
-                            min={0}
-                            error={Model.constructionPeriod.useValidation}
-                            info={Strings.CONSTRUCTION_PERIOD}
-                            onChange={(event) => Model.constructionPeriod.set(event ?? 0)}
-                        />
-                        <TestSelect
-                            className={"w-full"}
-                            label={"Data Release Year"}
-                            info={Strings.DATA_RELEASE_YEAR}
-                            optionGetter={Model.useReleaseYearList}
-                            getter={Model.releaseYear.use}
-                            onChange={(releaseYear) => Model.releaseYear.set(releaseYear)}
-                        />
-                        <EiaProjectScenarioSelect />
-                    </div>
-                </div>
-                <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                    <div className={"grid grid-cols-2 gap-x-8 gap-y-2"}>
-                        <Divider
-                            className={"col-span-2 h-fit"}
-                            style={{ fontSize: "20px" }}
-                            orientation={"left"}
-                            orientationMargin={"0"}
-                        >
-                            <Info text={Strings.DISCOUNTING}>Discounting</Info>
-                        </Divider>
-                        <div>
-                            <Title level={5}>
-                                <Info text={Strings.DOLLAR_ANALYSIS}>
-                                    Constant/Current
-                                    <br />
-                                    Dollar Analysis
-                                </Info>
-                            </Title>
-                            <Radio.Group
-                                onChange={(e) => Model.dollarMethod.set(e.target.value)}
-                                value={Model.dollarMethod.use()}
-                                buttonStyle="solid"
-                            >
-                                <Radio.Button value={DollarMethod.CONSTANT}>{DollarMethod.CONSTANT}</Radio.Button>
-                                <Radio.Button value={DollarMethod.CURRENT}>{DollarMethod.CURRENT}</Radio.Button>
-                            </Radio.Group>
+
+                        {/* Analysis Purpose */}
+                        <AnalysisPurpose />
+
+                        {/* Description */}
+                        <span className={"col-span-2 mb-3"}>
+                            <TestTextArea
+                                name={"description"}
+                                label={"Description"}
+                                className={"w-full"}
+                                info={Strings.DESCRIPTION}
+                                getter={Model.description.use}
+                                showCount
+                                maxLength={300}
+                                onChange={(event) => Model.description.set(event.currentTarget.value)}
+                            />
+                        </span>
+                        <div className={"col-span-2 grid grid-cols-4 gap-x-16 gap-y-4"}>
+                            <TestNumberInput
+                                className={"w-full"}
+                                getter={Model.studyPeriod.use}
+                                label={"Study Period"}
+                                name={"studyPeriod"}
+                                required
+                                min={1}
+                                error={Model.studyPeriod.useValidation}
+                                info={Strings.STUDY_PERIOD}
+                                onChange={(event) => {
+                                    Model.studyPeriod.set(event ?? undefined);
+                                }}
+                            />
+                            <TestNumberInput
+                                className={"w-full"}
+                                required
+                                getter={Model.constructionPeriod.use}
+                                label={"Construction Period"}
+                                name={"constructionPeriod"}
+                                min={0}
+                                error={Model.constructionPeriod.useValidation}
+                                info={Strings.CONSTRUCTION_PERIOD}
+                                onChange={(event) => Model.constructionPeriod.set(event ?? 0)}
+                            />
+                            <TestSelect
+                                className={"w-full"}
+                                label={"Data Release Year"}
+                                info={Strings.DATA_RELEASE_YEAR}
+                                optionGetter={Model.useReleaseYearList}
+                                getter={Model.releaseYear.use}
+                                onChange={(releaseYear) => Model.releaseYear.set(releaseYear)}
+                            />
+                            <EiaProjectScenarioSelect />
                         </div>
-                        <TestSelect
-                            label={"Discounting Convention"}
-                            required
-                            className={"w-full"}
-                            info={Strings.DISCOUNTING_CONVENTION}
-                            placeholder={"Please select a discounting convention"}
-                            options={Object.values(DiscountingMethod)}
-                            getter={Model.discountingMethod.use}
-                            onChange={(change) => Model.discountingMethod.set(change)}
-                            error={Model.discountingMethod.useValidation}
-                        />
-                        <DiscountRates />
                     </div>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
-                        <Divider
-                            className={"col-span-2 h-fit"}
-                            style={{ fontSize: "20px" }}
-                            orientation={"left"}
-                            orientationMargin={"0"}
-                        >
-                            <Info text={Strings.LOCATION}>Location</Info>
-                        </Divider>
-                        <Location model={Model.Location} />
+                        <div className={"grid grid-cols-2 gap-x-8 gap-y-2"}>
+                            <Divider
+                                className={"col-span-2 h-fit"}
+                                style={{ fontSize: "20px" }}
+                                orientation={"left"}
+                                orientationMargin={"0"}
+                            >
+                                <Info text={Strings.DISCOUNTING}>Discounting</Info>
+                            </Divider>
+                            <div>
+                                <Title level={5}>
+                                    <Info text={Strings.DOLLAR_ANALYSIS}>
+                                        Constant/Current
+                                        <br />
+                                        Dollar Analysis
+                                    </Info>
+                                </Title>
+                                <Radio.Group
+                                    onChange={(e) => Model.dollarMethod.set(e.target.value)}
+                                    value={Model.dollarMethod.use()}
+                                    buttonStyle="solid"
+                                >
+                                    <Radio.Button value={DollarMethod.CONSTANT}>{DollarMethod.CONSTANT}</Radio.Button>
+                                    <Radio.Button value={DollarMethod.CURRENT}>{DollarMethod.CURRENT}</Radio.Button>
+                                </Radio.Group>
+                            </div>
+                            <TestSelect
+                                label={"Discounting Convention"}
+                                required
+                                className={"w-full"}
+                                info={Strings.DISCOUNTING_CONVENTION}
+                                placeholder={"Please select a discounting convention"}
+                                options={Object.values(DiscountingMethod)}
+                                getter={Model.discountingMethod.use}
+                                onChange={(change) => Model.discountingMethod.set(change)}
+                                error={Model.discountingMethod.useValidation}
+                            />
+                            <DiscountRates />
+                        </div>
+                        <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
+                            <Divider
+                                className={"col-span-2 h-fit"}
+                                style={{ fontSize: "20px" }}
+                                orientation={"left"}
+                                orientationMargin={"0"}
+                            >
+                                <Info text={Strings.LOCATION}>Location</Info>
+                            </Divider>
+                            <Location model={Model.Location} />
+                        </div>
                     </div>
-                </div>
 
-                {/* Greenhouse Gas Inputs */}
-                <GhgInput />
+                    {/* Greenhouse Gas Inputs */}
+                    <GhgInput />
+                </div>
+                <div className="max-w-screen-lg">
+                    <NistFooter rounded={false} />
+                </div>
             </div>
         </motion.div>
     );

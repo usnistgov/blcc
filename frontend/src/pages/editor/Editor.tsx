@@ -1,5 +1,6 @@
 import { Subscribe } from "@react-rxjs/core";
 import EditorAppBar from "components/EditorAppBar";
+import { NistHeader } from "components/NistHeaderFooter";
 import PageWrapper from "components/PageWrapper";
 import Statistics from "components/Statistics";
 import CostNavigation from "components/navigation/CostNavigation";
@@ -17,6 +18,9 @@ export default function Editor() {
 
     return (
         <>
+            <Subscribe>
+                <NistHeader rounded={false} />
+            </Subscribe>
             <EditorAppBar />
 
             <div className={"flex h-full overflow-hidden"}>

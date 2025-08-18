@@ -5,6 +5,7 @@ import { bind } from "@react-rxjs/core";
 import { from, type Observable } from "rxjs";
 import { parseHtml } from "util/Operators";
 import { map } from "rxjs/operators";
+import logoUrl from "images/nist_logo_brand_black.svg";
 
 /**
  * Model that controls downloading and parsing the NIST head and footer. We do this so we can inject it into the
@@ -15,14 +16,14 @@ namespace Model {
      * The parser for the HTML fragments.
      * @private
      */
-    const parser = Parser()
+    const parser = Parser();
 
     /**
      * The two URL fragments to request.
      */
     enum Fragment {
-     HEADER = "header",
-     FOOTER = "footer"
+        HEADER = "header",
+        FOOTER = "footer",
     }
 
     /**
@@ -34,19 +35,101 @@ namespace Model {
     function parse(fragment: Fragment): Observable<any> {
         return from(fetch(`https://pages.nist.gov/nist-header-footer/boilerplate-${fragment}.html`)).pipe(
             parseHtml(),
-            map(html => parser.parse(html))
-        )
+            map((html) => parser.parse(html)),
+        );
     }
 
     /**
      * A hook that returns the NIST header fragment.
      */
-    export const [useHeader] = bind(parse(Fragment.HEADER))
+    export const [useHeader] = bind(parse(Fragment.HEADER));
 
     /**
      * A hook that returns the NIST footer fragment.
      */
-    export const [useFooter] = bind(parse(Fragment.FOOTER))
+    export const [useFooter] = bind(parse(Fragment.FOOTER));
+}
+
+export function NistHeader({ rounded = true }: { rounded?: boolean }) {
+    return <div className={`overflow-hidden ${rounded ? "rounded-t-lg" : ""}`}>{Model.useHeader()}</div>;
+}
+
+export function NistFooter({ rounded = true }: { rounded?: boolean }) {
+    return (
+        <div className={`overflow-hidden ${rounded ? "rounded-t-lg" : ""}`} style={{ color: "red !important" }}>
+            <footer className="nist-footer">
+                <div className="nist-footer__inner">
+                    {/* biome-ignore lint/a11y/useSemanticElements: <explanation> */}
+                    <div className="nist-footer__menu" role="navigation">
+                        <ul>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/privacy-policy">Site Privacy</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/oism/accessibility">Accessibility</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/privacy">Privacy Program</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/oism/copyrights">Copyrights</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.commerce.gov/vulnerability-disclosure-policy">
+                                    Vulnerability Disclosure
+                                </a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/no-fear-act-policy">No Fear Act Policy</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/foia">FOIA</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.nist.gov/environmental-policy-statement">Environmental Policy</a>
+                            </li>
+                            <li className="nist-footer__menu-item ">
+                                <a href="https://www.nist.gov/summary-report-scientific-integrity">
+                                    Scientific Integrity
+                                </a>
+                            </li>
+                            <li className="nist-footer__menu-item ">
+                                <a href="https://www.nist.gov/nist-information-quality-standards">
+                                    Information Quality Standards
+                                </a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.commerce.gov/">Commerce.gov</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.science.gov/">Science.gov</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://www.usa.gov/">USA.gov</a>
+                            </li>
+                            <li className="nist-footer__menu-item">
+                                <a href="https://vote.gov/">Vote.gov</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="nist-footer__logo">
+                    <a
+                        href="https://www.nist.gov/"
+                        title="National Institute of Standards and Technology"
+                        className="nist-footer__logo-link"
+                        rel="home"
+                    >
+                        <img
+                            src={logoUrl}
+                            alt="National Institute of Standards and Technology logo"
+                            style={{ color: "red" }}
+                        />
+                    </a>
+                </div>
+            </footer>
+        </div>
+    );
 }
 
 /**
@@ -56,10 +139,10 @@ namespace Model {
 export default function NistHeaderFooter({ children }: PropsWithChildren) {
     return (
         <>
-            <div className={"overflow-hidden rounded-t-lg"}>{Model.useHeader()}</div>
+            <NistHeader />
             {children}
             <div className={"flex-grow"} />
-            <div className={"overflow-hidden rounded-b-lg"}>{Model.useFooter()}</div>
+            <NistFooter />
         </>
     );
 }
