@@ -5,7 +5,7 @@ import { bind } from "@react-rxjs/core";
 import { from, type Observable } from "rxjs";
 import { parseHtml } from "util/Operators";
 import { map } from "rxjs/operators";
-import logoUrl from "images/nist_logo_brand_black.svg";
+import NistLogo from "images/nist_logo_brand_black.svg?react";
 
 /**
  * Model that controls downloading and parsing the NIST head and footer. We do this so we can inject it into the
@@ -120,11 +120,7 @@ export function NistFooter({ rounded = true }: { rounded?: boolean }) {
                         className="nist-footer__logo-link"
                         rel="home"
                     >
-                        <img
-                            src={logoUrl}
-                            alt="National Institute of Standards and Technology logo"
-                            style={{ color: "red" }}
-                        />
+                        <NistLogo className={"w-96 h-fit fill-red-500"}/>
                     </a>
                 </div>
             </footer>
