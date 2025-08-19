@@ -42,6 +42,8 @@ export default function Summary() {
                         <LifeCycleResourceComparison />
                     </div>
                 </div>
+
+                <div className={"grow"}/>
                 <div className="pt-10">
                     <NistFooter rounded={false} extraWhiteBackground={true} />
                 </div>

@@ -127,7 +127,7 @@ export default function Cost() {
                 </div>
             </SubHeader>
 
-            <div className={"h-full w-full overflow-y-auto"}>
+            <div className={"flex flex-col h-full w-full overflow-y-auto"}>
                 <div className={"max-w-screen-lg p-6"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <TestInput
@@ -174,7 +174,12 @@ export default function Cost() {
                         Match.exhaustive,
                     )}
                 </div>
-                <NistFooter rounded={false} />
+
+                <div className={"grow"}/>
+
+                <div className={"max-w-screen-lg px-6"}>
+                    <NistFooter rounded={false} />
+                </div>
             </div>
         </motion.div>
     );

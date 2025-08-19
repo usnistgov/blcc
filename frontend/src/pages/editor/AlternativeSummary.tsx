@@ -91,27 +91,28 @@ export default function AlternativeSummary() {
             </SubHeader>
 
             <div className={"flex h-full w-full flex-col items-center overflow-y-auto"}>
-                <br />
                 {errorDescription && (
                     <Alert
                         message="Error:"
-                        className="w-3/4 max-w-6xl"
+                        className="w-3/4 max-w-6xl mt-4"
                         description={errorDescription}
                         type="error"
                         closable
                     />
                 )}
-                <br />
+                <div id={"spacer"} className={"min-h-4"}/>
                 {(cards.length !== 0 && cards.map((card) => <card.component key={card.id} />)) || (
                     <div className={"w-full p-8 text-center text-base-dark"}>
                         <p className={"text-2xl"}>No Alternatives</p>
                         <p className={"text-lg"}>Create an alternative or load a saved file</p>
                     </div>
                 )}
-                {/* scroll off spacer */}
-                <div id={"spacer"} className={"mb-32"} />
 
-                <NistFooter rounded={false} />
+                {/* Spacer */}
+                <div className={"grow"}/>
+                <div className={"mt-16"}>
+                    <NistFooter rounded={false} />
+                </div>
             </div>
         </motion.div>
     );

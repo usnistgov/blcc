@@ -60,7 +60,7 @@ export function NistFooter({
     extraWhiteBackground,
 }: { rounded?: boolean; white?: boolean; extraWhiteBackground?: boolean }) {
     return (
-        <div className={`overflow-hidden ${rounded ? "rounded-t-lg" : ""}`}>
+        <div className={`${rounded ? "rounded-t-lg" : ""}`}>
             <footer
                 className={`nist-footer ${white ? "nist-footer-whitetext" : "nist-footer-blacktext"}`}
                 style={{ backgroundColor: `${white ? "#333333" : extraWhiteBackground ? "#FFFFFF" : "#FAFAFA"}` }}

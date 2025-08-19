@@ -384,6 +384,7 @@ export default function GeneralInformation() {
                     {/* Greenhouse Gas Inputs */}
                     <GhgInput />
                 </div>
+
                 <div className="max-w-screen-lg">
                     <NistFooter rounded={false} />
                 </div>

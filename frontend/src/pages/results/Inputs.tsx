@@ -27,7 +27,7 @@ export default function Inputs() {
     return (
         <div className={"mb-28 h-full w-full overflow-y-auto p-6"}>
             {project && (
-                <div className={"max-w-screen-md"}>
+                <div className={"max-w-screen-md flex flex-col h-full"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
                         <ResultsInput label="Project Name" dataVal={project.name} />
                         <ResultsInput label="Analyst" dataVal={project.analyst} />
@@ -92,6 +92,7 @@ export default function Inputs() {
                         <ResultsInput label={"Emissions Rate Type"} dataVal={project.ghg.emissionsRateType} />
                     </div>
 
+                    <div className={"grow"}/>
                     <div className="pt-28">
                         <NistFooter white={false} extraWhiteBackground={true} />
                     </div>

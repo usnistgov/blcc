@@ -70,6 +70,8 @@ export default function AnnualResults() {
                     />
                 </div>
             </div>
+
+            <div className={"grow"}/>
             <div className="mt-28">
                 <NistFooter rounded={false} extraWhiteBackground={true} />
             </div>

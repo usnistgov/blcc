@@ -247,7 +247,7 @@ export default function Alternatives() {
 
             <AlternativeSubHeader />
 
-            <div className={"flex h-full flex-col overflow-y-auto p-6"}>
+            <div className={"flex h-full flex-col overflow-y-auto pt-6 px-6"}>
                 <div className={analysisType === AnalysisType.MILCON_ECIP ? "flex flex-row" : ""}>
                     <div
                         className={`grid grid-cols-2 gap-x-16 gap-y-4 ${analysisType === AnalysisType.MILCON_ECIP ? "flex-1" : "w-1/2"}`}
@@ -310,9 +310,8 @@ export default function Alternatives() {
                     <div />
                 </div>
 
-                <div>
-                    <NistFooter rounded={false} />
-                </div>
+                <div className={"grow"}/>
+                <NistFooter rounded={false} />
             </div>
         </motion.div>
     );
