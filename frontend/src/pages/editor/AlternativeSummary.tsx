@@ -4,6 +4,7 @@ import { bind } from "@react-rxjs/core";
 import { createSignal } from "@react-rxjs/utils";
 import { Alert, Typography } from "antd";
 import { AnalysisType, type Alternative, type Cost, type EnergyCost, type ID } from "blcc-format/Format";
+import { NistFooter } from "components/NistHeaderFooter";
 import SubHeader from "components/SubHeader";
 import { Button, ButtonType } from "components/input/Button";
 import AddAlternativeModal from "components/modal/AddAlternativeModal";
@@ -109,6 +110,8 @@ export default function AlternativeSummary() {
                 )}
                 {/* scroll off spacer */}
                 <div id={"spacer"} className={"mb-32"} />
+
+                <NistFooter rounded={false} />
             </div>
         </motion.div>
     );

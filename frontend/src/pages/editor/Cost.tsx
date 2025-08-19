@@ -34,6 +34,7 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Subject, combineLatest, map } from "rxjs";
 import sToggleAlt$ = CostModel.sToggleAlt$;
+import { NistFooter } from "components/NistHeaderFooter";
 
 const { Title } = Typography;
 
@@ -158,7 +159,7 @@ export default function Cost() {
                         <CostSavingsSwitch />
                     </div>
                 </div>
-                <div className={"mb-32 border-base-lighter border-t"}>
+                <div className={"border-base-lighter border-t"}>
                     {Match.value(costType).pipe(
                         Match.when(CostTypes.ENERGY, () => <EnergyCostFields />),
                         Match.when(CostTypes.WATER, () => <WaterCostFields />),
@@ -173,6 +174,7 @@ export default function Cost() {
                         Match.exhaustive,
                     )}
                 </div>
+                <NistFooter rounded={false} />
             </div>
         </motion.div>
     );

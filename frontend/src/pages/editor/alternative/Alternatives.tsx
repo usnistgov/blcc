@@ -25,6 +25,7 @@ import { confirm } from "util/Operators";
 import { bind } from "@react-rxjs/core";
 import { db } from "model/db";
 import { Divider } from "antd";
+import { NistFooter } from "components/NistHeaderFooter";
 
 const [useERCIPCost] = bind(AlternativeModel.ercipCost$.pipe(map((costs) => costs[0] as ERCIPCost)));
 
@@ -296,7 +297,7 @@ export default function Alternatives() {
                         Add Cost
                     </Button>
                 </div>
-                <div className={"mb-32 flex flex-wrap gap-16 py-6"}>
+                <div className={"flex flex-wrap gap-16 py-6"}>
                     {categories.map((category) => (
                         <CategoryTable
                             key={category.label}
@@ -308,6 +309,8 @@ export default function Alternatives() {
                     ))}
                     <div />
                 </div>
+
+                <NistFooter rounded={false} />
             </div>
         </motion.div>
     );

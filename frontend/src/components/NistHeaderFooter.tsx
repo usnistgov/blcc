@@ -54,10 +54,17 @@ export function NistHeader({ rounded = true }: { rounded?: boolean }) {
     return <div className={`overflow-hidden ${rounded ? "rounded-t-lg" : ""}`}>{Model.useHeader()}</div>;
 }
 
-export function NistFooter({ rounded = true }: { rounded?: boolean }) {
+export function NistFooter({
+    rounded = true,
+    white,
+    extraWhiteBackground,
+}: { rounded?: boolean; white?: boolean; extraWhiteBackground?: boolean }) {
     return (
-        <div className={`overflow-hidden ${rounded ? "rounded-t-lg" : ""}`} style={{ color: "red !important" }}>
-            <footer className="nist-footer">
+        <div className={`overflow-hidden ${rounded ? "rounded-t-lg" : ""}`}>
+            <footer
+                className={`nist-footer ${white ? "nist-footer-whitetext" : "nist-footer-blacktext"}`}
+                style={{ backgroundColor: `${white ? "#333333" : extraWhiteBackground ? "#FFFFFF" : "#FAFAFA"}` }}
+            >
                 <div className="nist-footer__inner">
                     {/* biome-ignore lint/a11y/useSemanticElements: <explanation> */}
                     <div className="nist-footer__menu" role="navigation">
@@ -120,7 +127,7 @@ export function NistFooter({ rounded = true }: { rounded?: boolean }) {
                         className="nist-footer__logo-link"
                         rel="home"
                     >
-                        <NistLogo className={"w-96 h-fit fill-red-500"}/>
+                        <NistLogo className={`w-96 h-fit ${white ? "fill-white" : "fill-black"}`} />
                     </a>
                 </div>
             </footer>
@@ -132,13 +139,17 @@ export function NistFooter({ rounded = true }: { rounded?: boolean }) {
  * Component to inject the NIST header and footer.
  * @param children
  */
-export default function NistHeaderFooter({ children }: PropsWithChildren) {
+export default function NistHeaderFooter({
+    rounded = true,
+    whiteFooter = true,
+    children,
+}: { rounded?: boolean; whiteFooter?: boolean } & PropsWithChildren) {
     return (
         <>
-            <NistHeader />
+            <NistHeader rounded={rounded} />
             {children}
             <div className={"flex-grow"} />
-            <NistFooter />
+            <NistFooter white={whiteFooter} rounded={rounded} />
         </>
     );
 }

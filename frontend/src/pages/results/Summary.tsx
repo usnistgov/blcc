@@ -5,6 +5,7 @@ import LifecycleResultsToBaseline from "components/grids/summary/LifeCycleResult
 import NpvCostsBySubcategory from "components/grids/summary/NpvCostsBySubcategory";
 import { useHasNoBaseline } from "../../model/Model";
 import { Alert } from "antd";
+import { NistFooter } from "components/NistHeaderFooter";
 
 export default function Summary() {
     const hasBaseline = useHasNoBaseline();
@@ -40,6 +41,9 @@ export default function Summary() {
                         <Header>Life Cycle Resource Consumption and Emissions Comparison</Header>
                         <LifeCycleResourceComparison />
                     </div>
+                </div>
+                <div className="pt-10">
+                    <NistFooter rounded={false} extraWhiteBackground={true} />
                 </div>
             </div>
         </div>

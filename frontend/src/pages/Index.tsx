@@ -30,7 +30,7 @@ export default function Index() {
                     "xl:max-w-[1440px] xl:rounded-2xl xl:shadow-[0_0_30px_4px_rgba(0,0,0,0.75)]"
                 }
             >
-                <NistHeaderFooter>
+                <NistHeaderFooter whiteFooter={true} rounded={false}>
                     <div className="sticky top-0 z-50 bg-white px-10 py-4 text-black shadow-md">
                         <Button
                             type={ButtonType.LINK}

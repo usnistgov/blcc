@@ -1,6 +1,7 @@
 import { Divider } from "antd";
 import { Defaults } from "blcc-format/Defaults";
 import type { Project, USLocation } from "blcc-format/Format";
+import { NistFooter } from "components/NistHeaderFooter";
 import ResultsInput from "components/ResultsInput";
 import { Effect } from "effect";
 import { DexieService } from "model/db";
@@ -24,7 +25,7 @@ export default function Inputs() {
     }, []);
 
     return (
-        <div className={"mb-28 h-full w-full overflow-y-auto p-6 pb-48"}>
+        <div className={"mb-28 h-full w-full overflow-y-auto p-6"}>
             {project && (
                 <div className={"max-w-screen-md"}>
                     <div className={"grid grid-cols-2 gap-x-16 gap-y-4"}>
@@ -89,6 +90,10 @@ export default function Inputs() {
                         </Divider>
                         <ResultsInput label="Data Source" dataVal={project.ghg.dataSource} />
                         <ResultsInput label={"Emissions Rate Type"} dataVal={project.ghg.emissionsRateType} />
+                    </div>
+
+                    <div className="pt-28">
+                        <NistFooter white={false} extraWhiteBackground={true} />
                     </div>
                 </div>
             )}
