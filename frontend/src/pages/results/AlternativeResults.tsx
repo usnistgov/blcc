@@ -1,4 +1,5 @@
 import Header from "components/Header";
+import { NistFooter } from "components/NistHeaderFooter";
 import ResultAlternativeSelect from "components/ResultAlternativeSelect";
 import ShareOfEnergyUse from "components/graphs/alternative-results/ShareOfEnergyUse";
 import ShareOfLcc from "components/graphs/alternative-results/ShareOfLcc";
@@ -10,7 +11,7 @@ export default function AlternativeResults() {
     const measure = ResultModel.useSelectedMeasure();
 
     return (
-        <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5 pb-48"}>
+        <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5"}>
             <div className={"col-span-2"}>
                 <ResultAlternativeSelect />
             </div>
@@ -33,6 +34,11 @@ export default function AlternativeResults() {
                     <Header>Share of Energy Use</Header>
                     <ShareOfEnergyUse measure={measure} />
                 </div>
+            </div>
+
+            <div className={"grow"}/>
+            <div className="mt-28">
+                <NistFooter rounded={false} extraWhiteBackground={true} />
             </div>
         </div>
     );

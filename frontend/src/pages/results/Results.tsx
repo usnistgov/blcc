@@ -11,6 +11,7 @@ import Summary from "pages/results/Summary";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { Alert } from "antd";
 import { delay } from "rxjs";
+import { NistHeader } from "components/NistHeaderFooter";
 
 /**
  * Top level page that displays the E3 results of the project.
@@ -23,6 +24,9 @@ export default function Results() {
 
     return (
         <>
+            <Subscribe>
+                <NistHeader rounded={false} />
+            </Subscribe>
             <ResultsAppBar />
 
             <div className={"flex h-full overflow-hidden"}>

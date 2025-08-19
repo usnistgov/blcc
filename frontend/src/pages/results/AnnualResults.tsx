@@ -1,5 +1,6 @@
 import Header from "components/Header";
 import HeaderWithSelect from "components/HeaderWithSelect";
+import { NistFooter } from "components/NistHeaderFooter";
 import ResultAlternativeSelect from "components/ResultAlternativeSelect";
 import { ResultsSwitch } from "components/ResultsSwitch";
 import AlternativeCashFlowGraph from "components/graphs/annual-results/AlternativeCashFlowGraph";
@@ -18,7 +19,7 @@ export default function AnnualResults() {
     const categorySelection = ResultModel.useCategorySelection();
 
     return (
-        <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5 pb-48"}>
+        <div className={"mb-28 flex h-full w-full flex-col gap-8 overflow-y-auto p-5"}>
             <div className="grid grid-cols-2 gap-8">
                 <div>
                     <Header>NPV Cash Flow Comparison</Header>
@@ -68,6 +69,11 @@ export default function AnnualResults() {
                         categorySelection={categorySelection}
                     />
                 </div>
+            </div>
+
+            <div className={"grow"}/>
+            <div className="mt-28">
+                <NistFooter rounded={false} extraWhiteBackground={true} />
             </div>
         </div>
     );
