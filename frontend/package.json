@@ -2,7 +2,6 @@
     "name": "blcc",
     "private": true,
     "version": "0.3.20-beta",
-    "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
