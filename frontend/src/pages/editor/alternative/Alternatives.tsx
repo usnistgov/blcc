@@ -310,7 +310,9 @@ export default function Alternatives() {
                     <div />
                 </div>
 
-                <NistFooter rounded={false} />
+                <div>
+                    <NistFooter rounded={false} />
+                </div>
             </div>
         </motion.div>
     );
