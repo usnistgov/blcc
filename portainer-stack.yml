@@ -32,7 +32,7 @@ services:
     hostname: postgres
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: "MvEWFlPGNaEQ8UgcvBpTqk5b3msqM9Fj"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: BLCC
     networks:
       - postgres
