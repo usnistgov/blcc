@@ -173,6 +173,7 @@ portainer-deploy:
   before_script:
     - export BLCC_SERVER_TAG=$CI_COMMIT_SHA
     - export BLCC_DB_TAG=$CI_COMMIT_SHA
+    - export POSTGRES_PASSWORD=$POSTGRES_PASSWORD
   # Run the `deploy` command on the portainer docker context with the given compose file and stack name
   script:
     - docker stack deploy --with-registry-auth -c portainer-stack.yml --resolve-image always --prune blcc
